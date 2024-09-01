@@ -20,6 +20,10 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		class UCameraComponent* Camera;
 
+private:
+	UPROPERTY(VisibleAnywhere)
+		class UCMovementComponent*Movement;
+
 
 protected:
 	virtual void BeginPlay() override;
