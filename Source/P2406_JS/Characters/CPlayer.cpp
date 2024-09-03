@@ -6,13 +6,19 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CMovementComponent.h"
 
+
+#include "Weapons/CSword.h"
+#include "Animation/AnimMontage.h"
+
 ACPlayer::ACPlayer()
 {
 	CHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
 	CHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
 
+	CHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
 	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
-
+	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
+	
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
@@ -21,7 +27,7 @@ ACPlayer::ACPlayer()
 	GetMesh()->SetSkeletalMesh(mesh);
 
 	TSubclassOf<UCAnimInstance> animInstance; 
-	CHelpers::GetClass<UCAnimInstance>(&animInstance, "/Script/Engine.AnimBlueprint'/Game/Player/ABP_CPlayer.ABP_CPlayer_C'");
+	CHelpers::GetClass<UCAnimInstance>(&animInstance, "/Script/Engine.AnimBlueprint'/Game/ABP_CPlayer.ABP_CPlayer_C'");
 	GetMesh()->SetAnimClass(animInstance);
 	
 	SpringArm->SetRelativeLocation(FVector(0, 0, 140));
@@ -41,7 +47,14 @@ void ACPlayer::BeginPlay()
 
 	Movement->OnRun();
 	Movement->DisableControlRotation();
-	
+
+	FActorSpawnParameters params;
+	params.Owner = this;
+
+	Sword = GetWorld()->SpawnActor<ACSword>(ACSword::StaticClass(), params);
+	Sword->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), "Holster_Sword");
+
+	 
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -55,5 +68,35 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Sprint",EInputEvent::IE_Pressed, Movement, &UCMovementComponent::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, Movement, &UCMovementComponent::OnRun);
+
+	PlayerInputComponent->BindAction("Sword", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetSwordMode);
+}
+
+void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
+{
+	/*switch (InNewType)
+	{
+		case EStateType::Evade: Backstep(); break;
+	}*/
+}
+
+void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
+{
+
+	bool bVisible = false;
+
+	if (InNewType == EWeaponType::Bow)
+		bVisible = true;
+
+}
+
+void ACPlayer::Equip()
+{
+	CheckTrue(bEquipping);
+
+	bEquipping = true; 
+
+	if (!!EquipMontage)
+		PlayAnimMontage(EquipMontage, 2);
 }
 
