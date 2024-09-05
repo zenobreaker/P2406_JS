@@ -29,7 +29,7 @@ public:
 public:
 	class ACAttachment* GetAttachment();
 	class UCEquipment* GetEquipment();
-	//class UCDoAction* GetDoAction();
+	class UCDoAction* GetDoAction();
 	//class UCSubAction* GetSubAction();
 
 private:

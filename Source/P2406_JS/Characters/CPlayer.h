@@ -48,11 +48,6 @@ private:
 	UFUNCTION()
 	void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
 
-private:
-	void Equip();
-
-private:
-	class ACSword* Sword;
 
 private:
 	bool bEquipped;

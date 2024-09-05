@@ -48,11 +48,11 @@ void ACPlayer::BeginPlay()
 	Movement->OnRun();
 	Movement->DisableControlRotation();
 
-	FActorSpawnParameters params;
-	params.Owner = this;
+	
+	State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
+	Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
-	Sword = GetWorld()->SpawnActor<ACSword>(ACSword::StaticClass(), params);
-	Sword->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), "Holster_Sword");
+
 
 	 
 }
@@ -66,10 +66,13 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("VerticalLook", Movement, &UCMovementComponent::OnVerticalLook);
 	PlayerInputComponent->BindAxis("HorizontalLook", Movement, &UCMovementComponent::OnHorizontalLook);
 
+
 	PlayerInputComponent->BindAction("Sprint",EInputEvent::IE_Pressed, Movement, &UCMovementComponent::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, Movement, &UCMovementComponent::OnRun);
 
 	PlayerInputComponent->BindAction("Sword", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetSwordMode);
+
+	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction);
 }
 
 void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
@@ -88,15 +91,5 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 	if (InNewType == EWeaponType::Bow)
 		bVisible = true;
 
-}
-
-void ACPlayer::Equip()
-{
-	CheckTrue(bEquipping);
-
-	bEquipping = true; 
-
-	if (!!EquipMontage)
-		PlayAnimMontage(EquipMontage, 2);
 }
 

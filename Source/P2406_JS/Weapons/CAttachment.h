@@ -27,7 +27,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void OnCollisiions();
+	void OnCollisions();
 	void OffCollisions(); 
 
 public:

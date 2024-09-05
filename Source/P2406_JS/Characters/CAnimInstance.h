@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Components/CWeaponComponent.h"
 #include "CAnimInstance.generated.h"
 
 
@@ -15,7 +16,7 @@ protected:
 		float Speed; 
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
-		float direction;
+		float Direction;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool bFalling;
@@ -23,11 +24,25 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		float Pitch;
 
+
+protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	EWeaponType WeaponType = EWeaponType::Max;
+
+
 public:
 	void NativeBeginPlay() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
 
 private:
+	UFUNCTION()
+	void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
+
+private:
 	class ACharacter* OwnerCharacter; 
+	class UCWeaponComponent* Weapon;
+
+private:
+	FRotator PrevRotation;
 
 };

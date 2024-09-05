@@ -59,7 +59,7 @@ void ACAttachment::AttachToCollision(FName InCollisionName)
 
 
 
-void ACAttachment::OnCollisiions()
+void ACAttachment::OnCollisions()
 {
 	if (OnAttachmentBeginCollision.IsBound())
 		OnAttachmentBeginCollision.Broadcast();

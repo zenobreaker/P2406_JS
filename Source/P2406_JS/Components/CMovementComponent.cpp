@@ -42,8 +42,6 @@ void UCMovementComponent::OnMoveForward(float InAxis)
 {
 	CheckFalse(bCanMove);
 
-	CLog::Print(OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed, 1);
-
 	FRotator rotator = FRotator(0, OwnerCharacter->GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetForwardVector();
 

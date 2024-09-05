@@ -24,8 +24,8 @@ private:
 	FEquipmentData EquipmentData;
 
 
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<class UCDoAction> DoActionClass;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCDoAction> DoActionClass;
 
 	//UPROPERTY(EditAnywhere)
 	//TSubclassOf<class UCSubAction> SubActionClass;

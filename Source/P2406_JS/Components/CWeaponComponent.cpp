@@ -5,7 +5,7 @@
 #include "Weapons/CWeaponAsset.h"
 #include "Weapons/CWeaponData.h"
 #include "Weapons/CEquipment.h"
-//#include "Weapons/CDoAction.h"
+#include "Weapons/CDoAction.h"
 //#include "Weapons/CSubAction.h"
 
 
@@ -40,8 +40,8 @@ void UCWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//if (!!GetDoAction())
-	//	GetDoAction()->Tick(DeltaTime);
+	if (!!GetDoAction())
+		GetDoAction()->Tick(DeltaTime);
 
 	//if (!!GetSubAction())
 	//	GetSubAction()->Tick(DeltaTime);
@@ -67,6 +67,15 @@ UCEquipment* UCWeaponComponent::GetEquipment()
 	CheckFalseResult(!!Datas[(int32)Type], nullptr);
 
 	return Datas[(int32)Type]->GetEquipment();
+}
+
+UCDoAction* UCWeaponComponent::GetDoAction()
+{
+
+	CheckTrueResult(IsUnarmedMode(), nullptr);
+	CheckFalseResult(!!Datas[(int32)Type], nullptr);
+
+	return Datas[(int32)Type]->GetDoAction();
 }
 
 
@@ -146,6 +155,11 @@ void UCWeaponComponent::ChangeType(EWeaponType InType)
 
 void UCWeaponComponent::DoAction()
 {
+	if (!!GetDoAction())
+	{
+		CLog::Print("Do Action Call");
+		GetDoAction()->DoAction();
+	}
 }
 
 void UCWeaponComponent::SubAction_Pressed()
