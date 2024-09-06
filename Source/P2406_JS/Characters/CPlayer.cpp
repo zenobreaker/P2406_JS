@@ -7,9 +7,6 @@
 #include "Components/CMovementComponent.h"
 
 
-#include "Weapons/CSword.h"
-#include "Animation/AnimMontage.h"
-
 ACPlayer::ACPlayer()
 {
 	CHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
@@ -39,6 +36,8 @@ ACPlayer::ACPlayer()
 
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
 
+
+	CHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
 } 
 
 void ACPlayer::BeginPlay()
@@ -73,14 +72,17 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sword", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetSwordMode);
 
 	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction);
+
+
+	PlayerInputComponent->BindAction("Evade", EInputEvent::IE_Pressed, this, &ACPlayer::OnEvade);
 }
 
 void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
-	/*switch (InNewType)
+	switch (InNewType)
 	{
 		case EStateType::Evade: Backstep(); break;
-	}*/
+	}
 }
 
 void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
@@ -91,5 +93,29 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 	if (InNewType == EWeaponType::Bow)
 		bVisible = true;
 
+}
+
+void ACPlayer::OnEvade()
+{
+	CheckFalse(State->IsIdleMode());
+	CheckFalse(Movement->CanMove());
+	
+	CheckTrue(InputComponent->GetAxisValue("MoveForward") >= 0.0f);
+
+	State->SetEvadeMode();
+}
+
+void ACPlayer::Backstep()
+{
+	Movement->EnableControlRotation();
+
+	PlayAnimMontage(BackstepMontage);
+}
+
+void ACPlayer::End_Backstep()
+{
+	Movement->DisableControlRotation();
+
+	State->SetIdleMode();
 }
 

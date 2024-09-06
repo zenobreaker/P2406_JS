@@ -2,18 +2,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Characters/IStatable.h"
 #include "Components/CStateComponent.h"
 #include "Components/CWeaponComponent.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
-class P2406_JS_API ACPlayer : public ACharacter
+class P2406_JS_API ACPlayer 
+	: public ACharacter
+	, public IIStatable
 {
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Sword")
-	class UAnimMontage* EquipMontage;
+	UPROPERTY(EditAnywhere, Category = "Evade")
+	class UAnimMontage* BackstepMontage;
 	
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -48,6 +51,12 @@ private:
 	UFUNCTION()
 	void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
 
+private:
+	void OnEvade();
+	void Backstep();
+
+public:
+	void End_Backstep() override;
 
 private:
 	bool bEquipped;
