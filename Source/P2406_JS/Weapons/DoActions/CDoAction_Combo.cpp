@@ -84,13 +84,6 @@ void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 	CheckNull(InOther);
 
-
-	//FActionDamageEvent e;
-	//e.HitData = &HitDatas[Index];
-
-	//InOther->TakeDamage(HitDatas[Index].Power, e, InAttacker->GetController(), InAttackCauser);
-
-
 	for (ACharacter* hitted : Hitted)
 		CheckTrue(hitted == InOther);
 

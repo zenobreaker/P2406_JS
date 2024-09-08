@@ -19,7 +19,7 @@ ACEnemy::ACEnemy()
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
 	USkeletalMesh* mesh; 
-	CHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.Skeleton'/Game/Characters/Mesh/Mannequin_Skeleton.Mannequin_Skeleton'");
+	CHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
 	GetMesh()->SetSkeletalMesh(mesh);
 
 	TSubclassOf<UCAnimInstance> animInstance; 

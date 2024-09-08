@@ -157,7 +157,6 @@ void UCWeaponComponent::DoAction()
 {
 	if (!!GetDoAction())
 	{
-		CLog::Print("Do Action Call");
 		GetDoAction()->DoAction();
 	}
 }

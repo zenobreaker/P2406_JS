@@ -65,7 +65,7 @@ void ACAttachment::OnCollisions()
 		OnAttachmentBeginCollision.Broadcast();
 
 	for (UShapeComponent* shape : Collisions)
-		shape->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		shape->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ACAttachment::OffCollisions()

@@ -47,10 +47,10 @@ void FDoActionData::Destroy_GhostTrail()
 
 void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
 {
-	//FActionDamageEvent e;
-	//e.HitData = this;
+	FActionDamageEvent e;
+	e.HitData = this;
 
-	//InOther->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
+	InOther->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
 }
 
 void FHitData::PlayHitStop(UWorld* InWorld)
