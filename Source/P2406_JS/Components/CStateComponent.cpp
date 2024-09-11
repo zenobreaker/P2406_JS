@@ -59,8 +59,10 @@ void UCStateComponent::ChangeType(EStateType InType)
 
 void UCStateComponent::OnSubActionMode()
 {
+	bInSubActionMode = true; 
 }
 
 void UCStateComponent::OffSubActionMode()
 {
+	bInSubActionMode = false;
 }

@@ -3,7 +3,7 @@
 #include "CAttachment.h"
 #include "CEquipment.h"
 #include "CDoAction.h"
-//#include "CSubAction.h"
+#include "CSubAction.h"
 #include "CWeaponData.h"
 #include "GameFramework/Character.h"
 
@@ -62,10 +62,17 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 		}
 	}
 
+	UCSubAction* subAction = nullptr;
+	if (!!SubActionClass)
+	{
+		subAction = NewObject<UCSubAction>(this, SubActionClass);
+		subAction->BeginPlay(InOwner, attachment, doAction);
+	}
+
 	*OutWeaponData = NewObject<UCWeaponData>();
 	(*OutWeaponData)->Attachment = attachment;
 	(*OutWeaponData)->Equipment = equipment;
 	(*OutWeaponData)->DoAction = doAction;
-	//(*OutWeaponData)->SubAction = subAction;
+	(*OutWeaponData)->SubAction = subAction;
 
 }

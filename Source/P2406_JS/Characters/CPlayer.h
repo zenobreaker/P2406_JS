@@ -8,7 +8,7 @@
 #include "CPlayer.generated.h"
 
 UCLASS()
-class P2406_JS_API ACPlayer 
+class P2406_JS_API ACPlayer
 	: public ACharacter
 	, public IIStatable
 {
@@ -17,23 +17,29 @@ class P2406_JS_API ACPlayer
 private:
 	UPROPERTY(EditAnywhere, Category = "Evade")
 	class UAnimMontage* BackstepMontage;
-	
+
 private:
 	UPROPERTY(VisibleAnywhere)
-		class USpringArmComponent* SpringArm;
+	class USpringArmComponent* SpringArm;
 
 	UPROPERTY(VisibleAnywhere)
-		class UCameraComponent* Camera;
+	class UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere)
+	class USceneComponent* ArrowGroup;
+
+	//UPROPERTY(VisibleAnywhere)
+	//class UArrowComponent* Arrows
 
 	UPROPERTY(VisibleAnywhere)
 	class UCStateComponent* State;
 
 private:
 	UPROPERTY(VisibleAnywhere)
-		class UCWeaponComponent* Weapon;
+	class UCWeaponComponent* Weapon;
 
 	UPROPERTY(VisibleAnywhere)
-		class UCMovementComponent*Movement;
+	class UCMovementComponent* Movement;
 
 public:
 	ACPlayer();
@@ -41,7 +47,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
@@ -57,6 +63,10 @@ private:
 
 public:
 	void End_Backstep() override;
+
+private:
+	void OnSubAction();
+	void OffSubAction();
 
 private:
 	bool bEquipped;

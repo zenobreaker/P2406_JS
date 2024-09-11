@@ -52,7 +52,8 @@ void ACArrow::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 
 	for (AActor* actor : Ignores)
 		CheckTrue(actor == OtherActor);
-
+	
+	CLog::Print(OtherActor->GetName());
 
 	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

@@ -30,7 +30,7 @@ public:
 	class ACAttachment* GetAttachment();
 	class UCEquipment* GetEquipment();
 	class UCDoAction* GetDoAction();
-	//class UCSubAction* GetSubAction();
+	class UCSubAction* GetSubAction();
 
 private:
 	bool IsIdleMode();

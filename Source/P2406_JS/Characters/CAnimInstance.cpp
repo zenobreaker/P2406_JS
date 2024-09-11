@@ -3,7 +3,7 @@
 #include "GameFrameWork/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Characters/CPlayer.h"
-//#include "Weapons/CSubAction.h"
+#include "Weapons/CSubAction.h"
 
 void UCAnimInstance::NativeBeginPlay()
 {
@@ -40,12 +40,12 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CheckNull(Weapon);
 
 
-	/*if (!!Weapon->GetSubAction())
+	if (!!Weapon->GetSubAction())
 	{
 		bBow_Aiming = true;
 		bBow_Aiming &= WeaponType == EWeaponType::Bow;
 		bBow_Aiming &= Weapon->GetSubAction()->GetInAction();
-	}*/
+	}
 }
 
 void UCAnimInstance::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)

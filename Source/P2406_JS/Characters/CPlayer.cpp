@@ -76,7 +76,8 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction);
 
-
+	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
+	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);
 
 	PlayerInputComponent->BindAction("Evade", EInputEvent::IE_Pressed, this, &ACPlayer::OnEvade);
 }
@@ -121,5 +122,26 @@ void ACPlayer::End_Backstep()
 	Movement->DisableControlRotation();
 
 	State->SetIdleMode();
+}
+
+void ACPlayer::OnSubAction()
+{
+	if (Weapon->IsUnarmedMode())
+	{
+		CheckFalse(State->IsIdleMode());
+
+		//
+
+		return;
+	}
+
+	Weapon->SubAction_Pressed();
+}
+
+void ACPlayer::OffSubAction()
+{
+	CheckTrue(Weapon->IsUnarmedMode());
+
+	Weapon->SubAction_Released();
 }
 
