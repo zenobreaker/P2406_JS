@@ -15,6 +15,10 @@ class P2406_JS_API ACPlayer
 	GENERATED_BODY()
 
 private:
+
+	UPROPERTY(EditAnywhere, Category = "UserInterface")
+	TSubclassOf<class UCUserWidget_Player> UiClass;
+
 	UPROPERTY(EditAnywhere, Category = "Evade")
 	class UAnimMontage* BackstepMontage;
 
@@ -71,5 +75,11 @@ private:
 private:
 	bool bEquipped;
 	bool bEquipping;
+
+public:
+	//void Landed(const FHitResult& Hit) override;
+
+private:
+	class UCUserWidget_Player* UserInterface;
 
 };

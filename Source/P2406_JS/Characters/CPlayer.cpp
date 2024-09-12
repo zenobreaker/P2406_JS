@@ -5,7 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CMovementComponent.h"
-
+#include "Widgets/CUserWidget_Player.h"
 
 ACPlayer::ACPlayer()
 {
@@ -38,6 +38,9 @@ ACPlayer::ACPlayer()
 
 
 	CHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
+
+	if(UiClass==nullptr)
+		CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
 } 
 
 void ACPlayer::BeginPlay()
@@ -52,7 +55,13 @@ void ACPlayer::BeginPlay()
 	Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
 
-
+	if (!!UiClass)
+	{
+		UserInterface = Cast<UCUserWidget_Player>(CreateWidget(GetController<APlayerController>(), UiClass));
+		UserInterface->AddToViewport();
+		//UserInterface->UpdateWeaponType(EWeaponType::Max);
+		UserInterface->UpdateCrossHairVisibility(false);
+	}
 	 
 }
 
@@ -92,12 +101,23 @@ void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 
 void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
 {
+	/*if(!!UserInterface)
+		UserInterface->UpdateWeaponType(InNewType);*/
 
 	bool bVisible = false;
 
 	if (InNewType == EWeaponType::Bow)
 		bVisible = true;
 
+	if (!!UserInterface)
+	{
+		CLog::Print("UserInteface !");
+		UserInterface->UpdateCrossHairVisibility(bVisible);
+	}
+	else
+	{
+		CLog::Print("UserInteface NO");
+	}
 }
 
 void ACPlayer::OnEvade()

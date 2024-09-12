@@ -33,7 +33,7 @@ void ACAttachment_Bow::BeginPlay()
 
 	SkeletalMesh->SetVisibility(false);
 
-	PoseableMesh->SetSkeletalMesh(SkeletalMesh->SkeletalMesh);
+	PoseableMesh->SetSkinnedAssetAndUpdate(SkeletalMesh->GetSkeletalMeshAsset());
 	PoseableMesh->CopyPoseFromSkeletalComponent(SkeletalMesh);
 }
 
