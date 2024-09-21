@@ -35,8 +35,6 @@ private:
 	//UPROPERTY(VisibleAnywhere)
 	//class UArrowComponent* Arrows
 
-	UPROPERTY(VisibleAnywhere)
-	class UCStateComponent* State;
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -44,6 +42,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCMovementComponent* Movement;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCTargetComponent* Target;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCStateComponent* State;
 
 public:
 	ACPlayer();

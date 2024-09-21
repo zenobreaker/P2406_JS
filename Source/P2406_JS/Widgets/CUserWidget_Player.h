@@ -17,9 +17,4 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateCrossHairVisibility(bool bInVisible);
 
-	/*UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
-	void ChangeCrossHairColorWhite();
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
-	void ChangeCrossHairColorRed();*/
 };
