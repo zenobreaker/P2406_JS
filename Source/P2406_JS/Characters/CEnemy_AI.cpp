@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CHealthPointComponent.h"
+#include "Components/CAIBehaviorComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/CUserWidget_Enemy.h"
 
@@ -11,7 +12,9 @@ ACEnemy_AI::ACEnemy_AI()
 
 
 	CHelpers::CreateComponent<UWidgetComponent>(this, &LabelWidget, "Label", GetMesh());
+	
 	CHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
+	CHelpers::CreateActorComponent<UCAIBehaviorComponent>(this, &Behavior, "Behavior");
 
 	TSubclassOf<UCUserWidget_Enemy> labelClass; 
 	CHelpers::GetClass(&labelClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Enemy.WB_Enemy_C'");
@@ -20,6 +23,8 @@ ACEnemy_AI::ACEnemy_AI()
 	LabelWidget->SetRelativeLocation(FVector(0, 0, 200));
 	LabelWidget->SetDrawSize(FVector2D(120, 0));
 	LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	CHelpers::GetAsset(&BehaviorTree, "/Script/AIModule.BehaviorTree'/Game/Enemies/Melee/BT_Melee.BT_Melee'");
 }
 
 void ACEnemy_AI::BeginPlay()
@@ -79,12 +84,12 @@ void ACEnemy_AI::Damaged()
 	Super::Damaged();
 	CheckTrue(State->IsDeadMode());
 
-	//Behavior->SetHittedMode()
+	Behavior->SetHittedMode();
 }
 
 void ACEnemy_AI::End_Damaged()
 {
 	Super::End_Damaged();
 
-	//Behavior->SetWaitMode();
+	Behavior->SetWaitMode();
 }

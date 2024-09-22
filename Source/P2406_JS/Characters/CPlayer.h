@@ -5,17 +5,22 @@
 #include "Characters/IStatable.h"
 #include "Components/CStateComponent.h"
 #include "Components/CWeaponComponent.h"
+#include "GenericTeamAgentInterface.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
 class P2406_JS_API ACPlayer
 	: public ACharacter
 	, public IIStatable
+	, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Team")
+	uint8 TeamID = 1;
 
+private:
 	UPROPERTY(EditAnywhere, Category = "UserInterface")
 	TSubclassOf<class UCUserWidget_Player> UiClass;
 

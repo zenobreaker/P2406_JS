@@ -10,7 +10,6 @@ UCLASS()
 class P2406_JS_API ACEnemy 
 	: public ACharacter
 	, public IIStatable
-	
 
 {
 	GENERATED_BODY()
