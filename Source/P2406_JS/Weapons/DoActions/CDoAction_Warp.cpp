@@ -6,6 +6,7 @@
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CStateComponent.h"
+#include "Components/CAIBehaviorComponent.h"
 
 UCDoAction_Warp::UCDoAction_Warp()
 {
@@ -17,6 +18,8 @@ void UCDoAction_Warp::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment,
 
 	Decal = CHelpers::GetComponent<UDecalComponent>(InAttachment);
 	PlayerController = InOwner->GetController<APlayerController>();
+
+	Behavior = CHelpers::GetComponent<UCAIBehaviorComponent>(InOwner);
 }
 
 void UCDoAction_Warp::Tick(float InDeltaTime)
@@ -57,16 +60,25 @@ void UCDoAction_Warp::DoAction()
 		float yaw = UKismetMathLibrary::FindLookAtRotation(OwnerCharacter->GetActorLocation(), MoveToLocation).Yaw;
 		OwnerCharacter->SetActorRotation(FRotator(0, yaw, 0));
 
-		DoActionDatas[0].DoAction(OwnerCharacter);
 	}
+	
+	DoActionDatas[0].DoAction(OwnerCharacter);
 }
 
 void UCDoAction_Warp::Begin_DoAction()
 {
 	Super::Begin_DoAction();
 
-	OwnerCharacter->SetActorLocation(MoveToLocation);
-	MoveToLocation = FVector::ZeroVector;
+	if (!!PlayerController)
+	{
+		OwnerCharacter->SetActorLocation(MoveToLocation);
+		MoveToLocation = FVector::ZeroVector;
+
+		return; 
+	}
+
+	CheckNull(Behavior);
+	OwnerCharacter->SetActorLocation(Behavior->GetEqsLocation());
 }
 
 bool UCDoAction_Warp::GetCursorLocationAndRotation(FVector& OutLocation, FRotator& OutRotation)

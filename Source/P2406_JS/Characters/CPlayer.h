@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Characters/IStatable.h"
 #include "Components/CStateComponent.h"
+#include "Components/CParkourComponent.h"
 #include "Components/CWeaponComponent.h"
 #include "GenericTeamAgentInterface.h"
 #include "CPlayer.generated.h"
@@ -37,8 +38,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* ArrowGroup;
 
-	//UPROPERTY(VisibleAnywhere)
-	//class UArrowComponent* Arrows
+	UPROPERTY(VisibleAnywhere)
+	class UArrowComponent* Arrows[(int32)EParkourArrowType::Max];
 
 
 private:
@@ -53,6 +54,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCStateComponent* State;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCParkourComponent* Parkour;
 
 public:
 	ACPlayer();

@@ -36,6 +36,7 @@ private:
 private:
 	class UDecalComponent* Decal;
 	class APlayerController* PlayerController;
+	class UCAIBehaviorComponent* Behavior;
 
 private:
 	FVector MoveToLocation;

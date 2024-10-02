@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Widgets/CUserWidget_Player.h"
@@ -19,7 +20,8 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
 	CHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
-	
+	CHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
+
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
@@ -27,10 +29,10 @@ ACPlayer::ACPlayer()
 	CHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
 	GetMesh()->SetSkeletalMesh(mesh);
 
-	TSubclassOf<UCAnimInstance> animInstance; 
+	TSubclassOf<UCAnimInstance> animInstance;
 	CHelpers::GetClass<UCAnimInstance>(&animInstance, "/Script/Engine.AnimBlueprint'/Game/ABP_CPlayer.ABP_CPlayer_C'");
 	GetMesh()->SetAnimClass(animInstance);
-	
+
 	SpringArm->SetRelativeLocation(FVector(0, 0, 140));
 	SpringArm->SetRelativeRotation(FRotator(0, 90, 0));
 	SpringArm->TargetArmLength = 200;
@@ -40,12 +42,53 @@ ACPlayer::ACPlayer()
 
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
 
+	// 애로우 컴포넌트 가져오기 
+	CHelpers::CreateComponent<USceneComponent>(this, &ArrowGroup, "Arrows", GetCapsuleComponent());
+	for (int32 i = 0; i < (int32)EParkourArrowType::Max; i++)
+	{
+		FString name = StaticEnum<EParkourArrowType>()->GetNameStringByIndex(i);
+		CHelpers::CreateComponent<UArrowComponent>(this, &Arrows[i], FName(name),
+			ArrowGroup);
+
+		switch ((EParkourArrowType)i)
+		{
+			case EParkourArrowType::Center:
+				Arrows[i]->ArrowColor = FColor::Red;
+				break;
+			case EParkourArrowType::Head:
+				Arrows[i]->ArrowColor = FColor::Green;
+				Arrows[i]->SetRelativeLocation(FVector(0, 0, 100));
+				break;
+
+			case EParkourArrowType::Foot:
+				Arrows[i]->ArrowColor = FColor::Blue;
+				Arrows[i]->SetRelativeLocation(FVector(0, 0, -80));
+				break;
+
+			case EParkourArrowType::Left:
+				Arrows[i]->ArrowColor = FColor::Magenta;
+				Arrows[i]->SetRelativeLocation(FVector(0, -30, 0));
+				break;
+
+			case EParkourArrowType::Right:
+				Arrows[i]->ArrowColor = FColor::Magenta;
+				Arrows[i]->SetRelativeLocation(FVector(0, +30, 0));
+				break;
+
+			case EParkourArrowType::Land:
+				Arrows[i]->ArrowColor = FColor::Yellow;
+				Arrows[i]->SetRelativeLocation(FVector(200, 0, 100));
+				Arrows[i]->SetRelativeRotation(FRotator(-90, 0, 0));
+				break;
+		}
+	}
+
 
 	CHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
 
-	if(UiClass==nullptr)
+	if (UiClass == nullptr)
 		CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
-} 
+}
 
 void ACPlayer::BeginPlay()
 {
@@ -54,7 +97,7 @@ void ACPlayer::BeginPlay()
 	Movement->OnRun();
 	Movement->DisableControlRotation();
 
-	
+
 	State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
 	Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
@@ -66,7 +109,7 @@ void ACPlayer::BeginPlay()
 		//UserInterface->UpdateWeaponType(EWeaponType::Max);
 		UserInterface->UpdateCrossHairVisibility(false);
 	}
-	 
+
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -79,7 +122,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("HorizontalLook", Movement, &UCMovementComponent::OnHorizontalLook);
 
 
-	PlayerInputComponent->BindAction("Sprint",EInputEvent::IE_Pressed, Movement, &UCMovementComponent::OnSprint);
+	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, Movement, &UCMovementComponent::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, Movement, &UCMovementComponent::OnRun);
 
 	PlayerInputComponent->BindAction("Fist", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetFistMode);
@@ -133,8 +176,8 @@ void ACPlayer::OnEvade()
 {
 	CheckFalse(State->IsIdleMode());
 	CheckFalse(Movement->CanMove());
-	
-	CheckTrue(InputComponent->GetAxisValue("MoveForward") >= 0.0f);
+
+	//CheckTrue(InputComponent->GetAxisValue("MoveForward") >= 0.0f);
 
 	State->SetEvadeMode();
 }
