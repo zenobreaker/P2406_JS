@@ -86,6 +86,8 @@ ACPlayer::ACPlayer()
 
 	CHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
 
+	CHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
+
 	if (UiClass == nullptr)
 		CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
 }
@@ -136,6 +138,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);
 
+	//PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Pressed, this, &ACPlayer::OnJumpAction);
 	PlayerInputComponent->BindAction("Evade", EInputEvent::IE_Pressed, this, &ACPlayer::OnEvade);
 
 	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, Target, &UCTargetComponent::Toggle);
@@ -215,5 +218,23 @@ void ACPlayer::OffSubAction()
 	CheckTrue(Weapon->IsUnarmedMode());
 
 	Weapon->SubAction_Released();
+}
+
+void ACPlayer::OnJumpAction()
+{
+	CheckFalse(State->IsIdleMode());
+	CheckFalse(Movement->CanMove());
+
+	Jump();
+}
+
+void ACPlayer::Jump()
+{
+	Super::Jump();
+
+	//Movement->EnableControlRotation();
+	CLog::Print("Jump!");
+
+	PlayAnimMontage(JumpMontage);
 }
 

@@ -28,6 +28,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Evade")
 	class UAnimMontage* BackstepMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Jump")
+	class UAnimMontage* JumpMontage;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArm;
@@ -86,8 +89,13 @@ private:
 	void OffSubAction();
 
 private:
+	void OnJumpAction();
+	void Jump() override; 
+
+private:
 	bool bEquipped;
 	bool bEquipping;
+
 
 public:
 	//void Landed(const FHitResult& Hit) override;
