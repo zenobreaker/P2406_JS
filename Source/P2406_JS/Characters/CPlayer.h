@@ -61,6 +61,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCParkourComponent* Parkour;
 
+	UPROPERTY(VisibleAnywhere)
+	class UCGrapplingComponent* Grapple;
+
 public:
 	ACPlayer();
 
@@ -90,7 +93,11 @@ private:
 
 private:
 	void OnJumpAction();
+	void OnJumpActionEnd();
 	void Jump() override; 
+
+private:
+	void OnGrapple();
 
 private:
 	bool bEquipped;
@@ -98,7 +105,7 @@ private:
 
 
 public:
-	//void Landed(const FHitResult& Hit) override;
+	void Landed(const FHitResult& Hit) override;
 
 private:
 	class UCUserWidget_Player* UserInterface;

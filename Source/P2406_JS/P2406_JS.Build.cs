@@ -18,7 +18,8 @@ public class P2406_JS : ModuleRules
             "InputCore",
             "GameplayCameras",
             "GameplayTasks",
-            "NavigationSystem" 
+            "NavigationSystem", 
+            "CableComponent",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

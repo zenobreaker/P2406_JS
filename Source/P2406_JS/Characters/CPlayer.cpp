@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/CGrapplingComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Widgets/CUserWidget_Player.h"
@@ -21,6 +22,7 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	CHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
+	CHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -138,8 +140,13 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);
 
-	//PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Pressed, this, &ACPlayer::OnJumpAction);
+	PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Pressed, this, &ACPlayer::OnJumpAction);
+	PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Released, this, &ACPlayer::OnJumpActionEnd);
+
+
+
 	PlayerInputComponent->BindAction("Evade", EInputEvent::IE_Pressed, this, &ACPlayer::OnEvade);
+	PlayerInputComponent->BindAction("Grapple", EInputEvent::IE_Pressed, this, &ACPlayer::OnGrapple);
 
 	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, Target, &UCTargetComponent::Toggle);
 	PlayerInputComponent->BindAction("Target_Left", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveLeft);
@@ -225,16 +232,46 @@ void ACPlayer::OnJumpAction()
 	CheckFalse(State->IsIdleMode());
 	CheckFalse(Movement->CanMove());
 
-	Jump();
+	JumpMaxCount = 3;
+
+	if (JumpCurrentCount < JumpMaxCount)
+		Jump();
+	else
+		OnGrapple();
+}
+
+void ACPlayer::OnJumpActionEnd()
+{
+	StopJumping();
 }
 
 void ACPlayer::Jump()
 {
 	Super::Jump();
-
+	
 	//Movement->EnableControlRotation();
 	CLog::Print("Jump!");
 
 	PlayAnimMontage(JumpMontage);
+}
+
+void ACPlayer::OnGrapple()
+{
+	CheckNull(Grapple);
+	
+
+	CLog::Print("Grapple!!");
+	Grapple->OnGrapple();
+}
+
+// 캐릭터가 착지되었을 때 콜되는 함수 
+void ACPlayer::Landed(const FHitResult& Hit)
+{
+	CheckFalse(State->IsIdleMode());
+
+	Parkour->DoParkour(true);
+
+	CheckNull(Grapple);
+	Grapple->ResetGrapple();
 }
 
