@@ -5,35 +5,60 @@
 #include "CGrapplingComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS()
 class P2406_JS_API UCGrapplingComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 
 private:
+	//UPROPERTY(EditAnywhere, Category = "Grappling")
+	//class UCableComponent* GrappleCable;
+
 	UPROPERTY(EditAnywhere, Category = "Grappling")
-	class UCableComponent* GrappleCable;
+	float PullSpeed = 1000.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Grappling")
+	UAnimMontage* GrapplingMontage;
+
+public:
+	FORCEINLINE bool GetGrappling() { return bIsGrappling; }
 
 private:
 	UCGrapplingComponent();
 
 protected:
 	virtual void BeginPlay() override;
+public:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-public:	
+public:
 	virtual void OnGrapple();
 	virtual void PullTowardsTarget();
+	void OnGrappling_Pressed();
+	void OnGrappling_Released();
 	void ResetGrapple();
+	void InterruptGrapple();
+
+public:
+	void Begin_DoGrappling();
+	void End_DoGrappling();
 
 private:
-	class ACharacter* OwnerCharacter; 
+	void Grapple_1(float InDetaTime);
+	void Grapple_2(float InDetaTime);
+
+
+private:
+	class ACharacter* OwnerCharacter;
 
 private:
 	FVector TargetLocation;
-	float PullSpeed; 
-	float MaxLineDistance = 1600.0f; 
-	bool isGrappling = false; 
-	FVector GrapPoint;
-		
+
+	float MaxLineDistance = 1600.0f;
+	float DistanceThreshold = 100.0f;
+	bool bIsGrappling = false;
+	bool bGrappleEnd = false;
+	//FVector GrapPoint;
+
 };

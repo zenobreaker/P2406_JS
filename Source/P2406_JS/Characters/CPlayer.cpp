@@ -7,7 +7,6 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/ArrowComponent.h"
-#include "Components/CGrapplingComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Widgets/CUserWidget_Player.h"
@@ -92,6 +91,11 @@ ACPlayer::ACPlayer()
 
 	if (UiClass == nullptr)
 		CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
+
+	if (!!Grapple)
+	{
+		Grapple->PrimaryComponentTick.bCanEverTick = true;
+	}
 }
 
 void ACPlayer::BeginPlay()
@@ -109,9 +113,12 @@ void ACPlayer::BeginPlay()
 	if (!!UiClass)
 	{
 		UserInterface = Cast<UCUserWidget_Player>(CreateWidget(GetController<APlayerController>(), UiClass));
-		UserInterface->AddToViewport();
-		//UserInterface->UpdateWeaponType(EWeaponType::Max);
-		UserInterface->UpdateCrossHairVisibility(false);
+		if (!!UserInterface)
+		{
+			UserInterface->AddToViewport();
+			//UserInterface->UpdateWeaponType(EWeaponType::Max);
+			UserInterface->UpdateCrossHairVisibility(false);
+		}
 	}
 
 }
@@ -143,10 +150,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Pressed, this, &ACPlayer::OnJumpAction);
 	PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Released, this, &ACPlayer::OnJumpActionEnd);
 
-
-
 	PlayerInputComponent->BindAction("Evade", EInputEvent::IE_Pressed, this, &ACPlayer::OnEvade);
-	PlayerInputComponent->BindAction("Grapple", EInputEvent::IE_Pressed, this, &ACPlayer::OnGrapple);
 
 	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, Target, &UCTargetComponent::Toggle);
 	PlayerInputComponent->BindAction("Target_Left", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveLeft);
@@ -232,7 +236,14 @@ void ACPlayer::OnJumpAction()
 	CheckFalse(State->IsIdleMode());
 	CheckFalse(Movement->CanMove());
 
-	JumpMaxCount = 3;
+	if (Grapple->GetGrappling())
+	{
+		InterruptGrapple();
+
+		return;
+	}
+
+	JumpMaxCount = 2;
 
 	if (JumpCurrentCount < JumpMaxCount)
 		Jump();
@@ -262,6 +273,16 @@ void ACPlayer::OnGrapple()
 
 	CLog::Print("Grapple!!");
 	Grapple->OnGrapple();
+}
+
+void ACPlayer::InterruptGrapple()
+{
+	CheckNull(Grapple);
+
+	if (Grapple->GetGrappling())
+	{
+		Grapple->InterruptGrapple();
+	}
 }
 
 // 캐릭터가 착지되었을 때 콜되는 함수 

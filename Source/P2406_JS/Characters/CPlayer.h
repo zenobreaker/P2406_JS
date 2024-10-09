@@ -6,6 +6,7 @@
 #include "Components/CStateComponent.h"
 #include "Components/CParkourComponent.h"
 #include "Components/CWeaponComponent.h"
+#include "Components/CGrapplingComponent.h"
 #include "GenericTeamAgentInterface.h"
 #include "CPlayer.generated.h"
 
@@ -64,6 +65,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCGrapplingComponent* Grapple;
 
+
 public:
 	ACPlayer();
 
@@ -98,6 +100,7 @@ private:
 
 private:
 	void OnGrapple();
+	void InterruptGrapple();
 
 private:
 	bool bEquipped;
