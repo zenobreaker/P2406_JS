@@ -29,34 +29,19 @@ void UCGrapplingComponent::OnGrapple()
 	CheckNull(OwnerCharacter);
 	CheckTrue(bIsGrappling);
 
-	bIsGrappling = true;
+
 	bGrappleEnd = false;
 
-	FVector CameraLocation;
-	FRotator CamraRotation;
+	SetTarget();
 
-	OwnerCharacter->GetController()->GetPlayerViewPoint(CameraLocation,
-		CamraRotation);
+	OwnerCharacter->GetCharacterMovement()->Velocity.Zero();
+	OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
+	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 
-	FHitResult HitResult;
-	FVector Start = OwnerCharacter->GetActorLocation();
-	FVector End = Start + (CamraRotation.Vector() * MaxLineDistance);  // 원하는 거리로 트레이스
-	FCollisionQueryParams CollisionParams;
-
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+	if (!!GrapplingMontage)
 	{
-		TargetLocation = HitResult.Location;
-		// 여기서 타겟 위치를 설정
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 5.0f);
+		OwnerCharacter->PlayAnimMontage(GrapplingMontage, 1.0f, FName("Default"));
 	}
-	else
-	{
-		CLog::Print("No Colloisions!");
-		TargetLocation = End;
-		DrawDebugLine(GetWorld(), Start, End, FColor::Yellow, false, 5.0f);
-		//PullTowardsTarget();
-	}
-
 }
 
 void UCGrapplingComponent::PullTowardsTarget()
@@ -91,7 +76,36 @@ void UCGrapplingComponent::ResetGrapple()
 
 void UCGrapplingComponent::InterruptGrapple()
 {
-	ResetGrapple();
+	End_DoGrappling();
+}
+
+void UCGrapplingComponent::SetTarget()
+{
+
+	FVector CameraLocation;
+	FRotator CamraRotation;
+
+	OwnerCharacter->GetController()->GetPlayerViewPoint(CameraLocation,
+		CamraRotation);
+
+	FHitResult HitResult;
+	FVector Start = OwnerCharacter->GetActorLocation();
+	FVector End = Start + (CamraRotation.Vector() * MaxLineDistance);  // 원하는 거리로 트레이스
+	FCollisionQueryParams CollisionParams;
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+	{
+		TargetLocation = HitResult.Location;
+		// 여기서 타겟 위치를 설정
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 5.0f);
+	}
+	else
+	{
+		CLog::Print("No Colloisions!");
+		TargetLocation = End;
+		DrawDebugLine(GetWorld(), Start, End, FColor::Yellow, false, 5.0f);
+		//PullTowardsTarget();
+	}
 }
 
 void UCGrapplingComponent::Begin_DoGrappling()
@@ -99,25 +113,25 @@ void UCGrapplingComponent::Begin_DoGrappling()
 	CheckNull(OwnerCharacter);
 	CheckNull(OwnerCharacter->GetCharacterMovement());
 
-	OwnerCharacter->GetCharacterMovement()->Velocity.Zero();
-	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 
 	// 해당 방향으로 캐릭터 회전하기 
 	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 	FRotator TargetRotator = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
 
 	OwnerCharacter->SetActorRotation(TargetRotator);
+	OwnerCharacter->StopAnimMontage(GrapplingMontage);
 
-	if (!!GrapplingMontage)
-	{
-		OwnerCharacter->PlayAnimMontage(GrapplingMontage);
-	}
+	bIsGrappling = true;
 }
 
 void UCGrapplingComponent::End_DoGrappling()
 {
 	bGrappleEnd = true;
 	ResetGrapple();
+	if (!!GrapplingMontage)
+	{
+		OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection(FName("Grappling_End"), GrapplingMontage);
+	}
 }
 
 
@@ -129,8 +143,6 @@ void UCGrapplingComponent::Grapple_1(float InDetaTime)
 	// 이기능은 공중 대시에 가깝다 
 	if (bGrappleEnd == false)
 	{
-		Begin_DoGrappling();
-
 		// 목표 지점까지 남은 거리
 		FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 		FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal(); // 방향 벡터

@@ -39,7 +39,7 @@ public:
 	void OnGrappling_Released();
 	void ResetGrapple();
 	void InterruptGrapple();
-
+	void SetTarget();
 public:
 	void Begin_DoGrappling();
 	void End_DoGrappling();

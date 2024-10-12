@@ -3,6 +3,7 @@
 #include "GameFrameWork/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Characters/CPlayer.h"
+#include "Components/CGrapplingComponent.h"
 #include "Weapons/CSubAction.h"
 
 void UCAnimInstance::NativeBeginPlay()
@@ -35,8 +36,12 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 
 	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling();
-
-
+	UCGrapplingComponent* grappling = CHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
+	
+	CheckNull(grappling);
+	bGrappling = grappling->GetGrappling();
+	
+		
 	CheckNull(Weapon);
 
 
