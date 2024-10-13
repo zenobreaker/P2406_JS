@@ -24,6 +24,9 @@ public:
 	virtual void Pressed();
 	virtual void Released();
 
+public:
+	virtual void End_DoSubAction(); 
+
 protected:
 	bool bInAction;
 

@@ -3,5 +3,5 @@
 
 ACGameMode::ACGameMode()
 {
-	CHelpers::GetClass<APawn>(&DefaultPawnClass, L"/Script/Engine.Blueprint'/Game/Player/BP_CPlayer.BP_CPlayer_C'");
+	CHelpers::GetClass<APawn>(&DefaultPawnClass, L"/Script/Engine.Blueprint'/Game/Player/BP_CPlayerTest.BP_CPlayerTest_C'");
 }

@@ -37,6 +37,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	TArray<FHitData> HitDatas;
 
+	UPROPERTY(EditAnywhere)
+	TArray<FDoActionData> DoSubActionDatas;
+
 public:
 	UCWeaponAsset();
 
