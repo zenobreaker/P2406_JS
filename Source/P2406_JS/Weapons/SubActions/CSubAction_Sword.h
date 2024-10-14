@@ -24,9 +24,12 @@ public:
 public:
 	void GetSubActionDatas(const TArray<FDoActionData>& InDoSubActionDatas);
 
+	UFUNCTION()
+	virtual void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
+
 private:
 	int32 Index; 
 
 	TArray<FDoActionData> DoSubActionDatas;
-
+	TArray<class ACharacter*> Hitted;
 };
