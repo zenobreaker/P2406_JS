@@ -68,13 +68,6 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 	{
 		subAction = NewObject<UCSubAction>(this, SubActionClass);
 		subAction->BeginPlay(InOwner, attachment, doAction);
-
-		// 특정 타입으로 캐스팅 되는지?
-		if (subAction->IsA<UCSubAction_Sword>())
-		{
-			UCSubAction_Sword* subAction_Sword = Cast<UCSubAction_Sword>(subAction);
-			subAction_Sword->GetSubActionDatas(DoSubActionDatas);
-		}
 	}
 
 	*OutWeaponData = NewObject<UCWeaponData>();

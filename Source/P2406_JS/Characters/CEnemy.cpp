@@ -3,6 +3,7 @@
 #include "CAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/CAirborneComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Components/CMovementComponent.h"
@@ -14,7 +15,8 @@ ACEnemy::ACEnemy()
 	CHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "HealthPoint");
 	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
-
+	CHelpers::CreateActorComponent< UCAirborneComponent>(this, &Airborne, "Airborne");
+	
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
@@ -136,6 +138,9 @@ void ACEnemy::Damaged()
 
 			LaunchCharacter(-direction * hitData->Launch, false, false);
 			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(start, target));
+			
+			// 공중에 띄우기
+			Airborne->LaunchIntoAir(hitData->Airial);
 		}
 	}
 

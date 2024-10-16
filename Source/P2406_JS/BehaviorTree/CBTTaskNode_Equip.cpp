@@ -50,7 +50,7 @@ void UCBTTaskNode_Equip::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
 
-
+	//TODO: 여기서 뭔가 터지는데 ..
 	if (*bEquipped && state->IsIdleMode())
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }

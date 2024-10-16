@@ -25,7 +25,13 @@ public:
 	virtual void Released();
 
 public:
-	virtual void End_DoSubAction(); 
+	UFUNCTION(BlueprintNativeEvent)
+	void Begin_DoSubAction();
+	virtual void Begin_DoSubAction_Implementation() {}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void End_DoSubAction(); 
+	virtual void End_DoSubAction_Implementation() {}
 
 protected:
 	bool bInAction;

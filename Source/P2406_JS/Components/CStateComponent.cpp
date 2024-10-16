@@ -43,7 +43,10 @@ void UCStateComponent::SetDeadMode()
 	ChangeType(EStateType::Dead);
 }
 
-
+void UCStateComponent::SetActionborneMode()
+{
+	ChangeType(EStateType::Airborne);
+}
 
 void UCStateComponent::ChangeType(EStateType InType)
 {

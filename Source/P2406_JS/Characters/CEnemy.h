@@ -37,6 +37,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCStateComponent* State;
 
+protected:
+	UPROPERTY(VisibleAnywhere)
+	class UCAirborneComponent* Airborne;
+
 
 public:
 	ACEnemy();

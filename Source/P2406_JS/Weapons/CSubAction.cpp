@@ -31,8 +31,4 @@ void UCSubAction::Released()
 	bInAction = false; 
 }
 
-void UCSubAction::End_DoSubAction()
-{
-}
-
 

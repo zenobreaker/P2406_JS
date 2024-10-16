@@ -74,6 +74,9 @@ public:
 	float Launch = 100;
 
 	UPROPERTY(EditAnywhere)
+	float Airial = 0.0f;
+
+	UPROPERTY(EditAnywhere)
 	float StopTime;
 
 	UPROPERTY(EditAnywhere)

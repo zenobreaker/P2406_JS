@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "CAirborneComponent.generated.h"
 
 
@@ -10,6 +11,9 @@ class P2406_JS_API UCAirborneComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	FORCEINLINE bool GetIsAirborne() { return bIsAirborne; }
+
 public:	
 	UCAirborneComponent();
 
@@ -17,7 +21,17 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 
+public:
+	void LaunchIntoAir(float LaunchPower);
+	
+	void Landed(const FHitResult& Hit);
+	
+private:
+	bool bIsAirborne;
+
+	ACharacter* OwnerCharacter;
+	UCharacterMovementComponent* movement;
 		
 };
