@@ -12,6 +12,7 @@ class P2406_JS_API UCSubAction : public UObject
 
 public:
 	FORCEINLINE bool GetInAction() { return bInAction; }
+	FORCEINLINE bool GetInSpecialAction() { return bInSpecialAction; }
 	
 public:
 	UCSubAction();
@@ -35,6 +36,7 @@ public:
 
 protected:
 	bool bInAction;
+	bool bInSpecialAction; 
 
 	class ACharacter* Owner; 
 	class ACAttachment* Attachment;
@@ -42,4 +44,5 @@ protected:
 
 	class UCStateComponent* State;
 	class UCMovementComponent* Movement;
+	class UCWeaponComponent* Weapon;
 };

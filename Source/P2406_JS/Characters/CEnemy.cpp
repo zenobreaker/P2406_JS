@@ -137,7 +137,9 @@ void ACEnemy::Damaged()
 			direction.Normalize();
 
 			LaunchCharacter(-direction * hitData->Launch, false, false);
-			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(start, target));
+			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+			targetRotator.Pitch = 0;
+			SetActorRotation(targetRotator);
 			
 			// 공중에 띄우기
 			Airborne->LaunchIntoAir(hitData->Airial);
@@ -159,6 +161,13 @@ void ACEnemy::Damaged()
 void ACEnemy::End_Damaged()
 {
 	State->SetIdleMode();
+}
+
+void ACEnemy::Landed(const FHitResult& Hit)
+{
+	CheckNull(Airborne);
+
+	Airborne->Landed(Hit);
 }
 
 void ACEnemy::Dead()

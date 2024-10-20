@@ -69,6 +69,7 @@ public:
 	virtual void End_Damaged() override;
 
 private:
+	void Landed(const FHitResult& Hit) override;
 	void Dead();
 
 public:
