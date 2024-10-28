@@ -7,6 +7,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CWeaponComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+
 
 
 UCSubAction_Sword::UCSubAction_Sword()
@@ -98,6 +101,8 @@ void UCSubAction_Sword::Begin_DoSubAction_Implementation()
 
 	Attachment->OnAttachmentEndCollision.AddDynamic(this, &UCSubAction_Sword::OnAttachmentEndCollision);
 	Attachment->OnAttachmentBeginOverlap.AddDynamic(this, &UCSubAction_Sword::OnAttachmentBeginOverlap);
+
+	//TraceAttackArea();
 }
 
 void UCSubAction_Sword::End_DoSubAction_Implementation()
@@ -111,9 +116,16 @@ void UCSubAction_Sword::End_DoSubAction_Implementation()
 	Attachment->OnAttachmentEndCollision.Remove(this, "OnAttachmentEndCollision");
 	Attachment->OnAttachmentBeginOverlap.Remove(this, "OnAttachmentBeginOverlap");
 
+	CheckNull(DoAction);
+	CheckNull(Attachment);
+
 	Attachment->OnAttachmentEndCollision.AddDynamic(DoAction, &UCDoAction::OnAttachmentEndCollision);
 	Attachment->OnAttachmentBeginOverlap.AddDynamic(DoAction, &UCDoAction::OnAttachmentBeginOverlap);
 
+	if (Index >= ActionDatas.Num())
+	{
+		ChangeState();
+	}
 }
 
 
@@ -265,4 +277,67 @@ void UCSubAction_Sword::ChangeState()
 	MovementComponent->SetMovementMode(EMovementMode::MOVE_Falling);
 }
 
+void UCSubAction_Sword::TraceAttackArea()
+{
 
+	// 스피어 트레이스로 주변 적들 감지 
+	TArray<FHitResult> HitResults;
+	FVector StartLocation = Owner->GetActorLocation();
+	FVector forward = Owner->GetActorForwardVector() * 100.0f;
+	StartLocation += forward;
+	FVector EndLocation = StartLocation;  // 스피어는 시작과 끝이 동일해도 됨
+
+	float SphereRadius = 150.0f;  // 감지 반경
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(Owner);
+
+	bool bHit = UKismetSystemLibrary::SphereTraceMultiByProfile(Owner->GetWorld(),
+		StartLocation, EndLocation, SphereRadius, "Targeting",
+		false, IgnoredActors, EDrawDebugTrace::ForDuration, HitResults,
+		true, FLinearColor::Green, FLinearColor::Red, 1.0f);
+
+	if (bHit && HitResults.Num() > 0)
+	{
+		for (const FHitResult& hitResult : HitResults)
+		{
+			ACharacter* enemy = Cast<ACharacter>(hitResult.GetActor());
+			if (enemy == NULL || Hitted.Contains(enemy))
+				continue;
+
+			Hitted.Add(enemy);
+			
+			//CLog::Print("Damged Target " + enemy->GetName());
+			HitDatas[Index].SendDamage(Owner, Attachment, enemy);
+
+		}
+	}
+}
+
+void UCSubAction_Sword::CreateAttackSlash()
+{
+	if (SlashDatas.Num() > 0)
+	{
+		SlashDatas[Index].CreateSlashEffect(Owner);
+	}
+}
+
+void FSlashData::CreateSlashEffect(class ACharacter* InOwner)
+{
+	CheckNull(InOwner);
+	CheckNull(AttackEffect);
+
+	FVector ownerLocation = InOwner->GetActorLocation();
+	FVector ownerForward = InOwner->GetActorForwardVector() * forward;
+	FVector spwanLocation = ownerLocation + ownerForward;
+
+	FRotator spawnRotator = InOwner->GetActorRotation();
+	spawnRotator.Roll = angle;
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		InOwner->GetWorld(), 
+		AttackEffect, 
+		spwanLocation, 
+		spawnRotator, 
+		Scale
+	);
+}

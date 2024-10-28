@@ -5,6 +5,35 @@
 #include "../CWeaponStructures.h"
 #include "CSubAction_Sword.generated.h"
 
+USTRUCT()
+struct FSlashData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* AttackEffect;
+
+	UPROPERTY(EditAnywhere)
+	float PlayRate = 1;
+
+	UPROPERTY(EditAnywhere)
+	FVector Location;
+
+	UPROPERTY(EditAnywhere)
+	float forward = 100.0f;
+
+	UPROPERTY(EditAnywhere)
+	float angle = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	FVector Scale = FVector::OneVector;
+
+public:
+	void CreateSlashEffect(class ACharacter *InOwner);
+	
+};
+
 
 UCLASS(Blueprintable)
 class P2406_JS_API UCSubAction_Sword : public UCSubAction
@@ -15,6 +44,7 @@ public:
 	UCSubAction_Sword();
 
 public:
+
 	UPROPERTY(EditAnywhere, Category = "Action")
 	TArray<FDoActionData> ActionDatas;
 
@@ -26,6 +56,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Action")
 	float OffsetDistance = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	TArray<FSlashData> SlashDatas;
 
 public:
 	void Pressed() override;
@@ -63,6 +96,9 @@ private:
 	void StopMovement();
 	void ChangeState();
 
+public:
+	void TraceAttackArea();
+	void CreateAttackSlash();
 
 private:
 	int32 Index; 

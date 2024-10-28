@@ -20,7 +20,8 @@ public class P2406_JS : ModuleRules
             "GameplayTasks",
             "NavigationSystem", 
             "CableComponent",
-		});
+            "Niagara",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
