@@ -22,15 +22,15 @@ void UCSubAction_Sword::Pressed()
 	CheckTrue(DoAction->GetInAction()); // 기본 공격 중에도 사용 못 하게 막는다.
 	CheckTrue(GetInAction());	// 기존에 액션 중이면  처리 
 	CheckFalse(State->IsIdleMode());
+	CheckTrue(bSubAction == true);
 
 	Super::Pressed();
 
 	//올려 베기 
 	if (ActionDatas.Num() > 0)
 	{
-		CLog::Log("Sub Action Call");
 		ActionDatas[Index].DoAction(Owner);
-
+		
 		State->SetActionMode();
 	}
 }
@@ -40,20 +40,16 @@ void UCSubAction_Sword::OnPressSpecialAction()
 {
 	CheckFalse(ActionDatas.Num() > 1 );
 
-	CLog::Log("Special Action Call 1 ");
-
 	Index += 1; 
 	CheckTrue(ActionDatas.Num() <= Index);
 
 	// 공격 키 누를 때마다 공중 액션 실행함.
 	if (ActionDatas.Num() > 1)
 	{
-		CLog::Log("Special Action Call 2");
 
 		StopMovement();
 
 		ActionDatas[Index].DoAction(Owner);
-		CLog::Print("Special Action " + FString::FromInt(Index));
 
 		State->SetActionMode();
 	}
@@ -66,7 +62,6 @@ void UCSubAction_Sword::SetInputSubAction()
 
 	UInputComponent* input = CHelpers::GetComponent<UInputComponent>(Owner);
 	CheckNull(input);
-	CLog::Log("Set Special ");
 
 	// 기존 Action 이벤트 제거 
 	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
@@ -80,7 +75,6 @@ void UCSubAction_Sword::EndInputSubAction()
 {
 	UInputComponent* input = CHelpers::GetComponent<UInputComponent>(Owner);
 	CheckNull(input);
-	CLog::Log("End Special ");
 
 	// 기존 Action 이벤트 제거 
 	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
@@ -110,8 +104,6 @@ void UCSubAction_Sword::End_DoSubAction_Implementation()
 	Super::End_DoSubAction_Implementation();
 
 	bInAction = false;
-
-	
 
 	Attachment->OnAttachmentEndCollision.Remove(this, "OnAttachmentEndCollision");
 	Attachment->OnAttachmentBeginOverlap.Remove(this, "OnAttachmentBeginOverlap");
@@ -146,7 +138,7 @@ void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor*
 	Hitted.AddUnique(InOther);
 
 	// 적을 띄운다.
-	CLog::Print("Upper Attack Hit!", -1, 1.0f, FColor::Yellow);
+	//CLog::Print("Upper Attack Hit!", -1, 1.0f, FColor::Yellow);
 	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther);
 
 	// 적을 공격을 했으면 공중 콤보 타이머 시작
@@ -191,7 +183,10 @@ void UCSubAction_Sword::TrackEnemyHeight()
 			}
 		}
 	}
-
+	else
+	{
+		Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
+	}
 }
 
 // 캐릭터 순간 이동
@@ -200,7 +195,8 @@ void UCSubAction_Sword::TeleportToEnemy(ACharacter* InTargetEnemy)
 	CheckNull(InTargetEnemy);
 	Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
 	
-	
+	bSubAction = true;
+
 	FVector TargetLocation = InTargetEnemy->GetActorLocation();
 	FVector ForwardVector = InTargetEnemy->GetActorForwardVector();
 
@@ -269,12 +265,21 @@ void UCSubAction_Sword::StopMovement()
 
 void UCSubAction_Sword::ChangeState()
 {
-	EndInputSubAction();
-	Index = 0;
 	UCharacterMovementComponent* MovementComponent = Owner->GetCharacterMovement();
 	CheckNull(MovementComponent);
+	
+	// 이미 착지한 상태면 넘긴다.
+	if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
+		return;
 
+	// 착지 상태로 돌리고 모든 상태를 원위치
 	MovementComponent->SetMovementMode(EMovementMode::MOVE_Falling);
+	
+	EndInputSubAction();
+	Index = 0;
+	bSubAction = false;
+
+	State->SetIdleMode();
 }
 
 void UCSubAction_Sword::TraceAttackArea()

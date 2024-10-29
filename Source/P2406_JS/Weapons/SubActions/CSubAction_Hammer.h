@@ -34,14 +34,13 @@ public:
 	void Tick(float DeltaTime) override;
 
 private:
-	void OnPressSpecialAction();
-
 	// 충전량 초기화 
-	void StartCharging();
+	void ResetCharging();
 	
 private:
 	int32 Index; 
 	bool IsCharging = false;
+	bool bActionable = false; // 충전 액션 가능 여부
 	float CurrentChargeTime; 
 	
 };

@@ -21,6 +21,7 @@ void UCAnimNotifyState_SubAction_Sword::NotifyBegin(USkeletalMeshComponent* Mesh
 	UCSubAction_Sword* sword = Cast<UCSubAction_Sword>(weapon->GetSubAction());
 	CheckNull(sword);
 
+	sword->Begin_DoSubAction();
 	sword->TraceAttackArea();
 	sword->CreateAttackSlash();
 }
@@ -36,9 +37,9 @@ void UCAnimNotifyState_SubAction_Sword::NotifyEnd(USkeletalMeshComponent* MeshCo
 	CheckNull(weapon);
 	CheckNull(weapon->GetSubAction());
 
-
 	UCSubAction_Sword* sword = Cast<UCSubAction_Sword>(weapon->GetSubAction());
 	CheckNull(sword);
 
+	sword->End_DoSubAction();
 	sword->OnAttachmentEndCollision();
 }

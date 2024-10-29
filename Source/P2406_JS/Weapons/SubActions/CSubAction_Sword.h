@@ -106,4 +106,7 @@ private:
 	FTimerHandle AirSlashTimeHandle;
 	FTimerHandle TrackEnemyTimeHandle;
 	FTimerHandle EnemyStateChangeHandle;
+
+	bool bSubAction = false;
+	int32 Test = 0;
 };

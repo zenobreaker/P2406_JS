@@ -12,20 +12,33 @@ void UCSubAction_Hammer::Pressed()
 	CheckFalse(ActionDatas.Num() > 0);
 
 	CLog::Print("Hammer SubAction Start");
+	
+	ResetCharging();
 
 	IsCharging = true;
-	ActionDatas[0].DoAction(Owner);
-	
-	State->SetActionMode();
+	//ActionDatas[0].DoAction(Owner);
+	Owner->PlayAnimMontage(ChargeAnimMontage, 0.0f);
+
+	//State->SetActionMode();
 }
 
 void UCSubAction_Hammer::Released()
 {
-	IsCharging = false;
-	StartCharging();
 
-	//TODO: 임시
-	State->SetIdleMode();
+	// 충전 상태가 완료 되서 공격 가능이면 
+	if (bActionable == true)
+	{
+		// 충전 액션 동작
+		ActionDatas[0].DoAction(Owner);
+
+		State->SetIdleMode();
+		bActionable = false; 
+		return;  
+	}
+	else 
+		Owner->PlayAnimMontage(ChargeAnimMontage, 1.0f);
+
+	ResetCharging();
 }
 
 void UCSubAction_Hammer::Tick(float DeltaTime)
@@ -37,29 +50,19 @@ void UCSubAction_Hammer::Tick(float DeltaTime)
 	CurrentChargeTime += DeltaTime; // 충전 시간 증가
 	CurrentChargeTime = FMath::Min(CurrentChargeTime, MaxChargeTime);
 
-	
-	// 충전 시간이 10%이상이면 특정 애님 재생 후 멈춤 
-	if (CurrentChargeTime / MaxChargeTime >= 0.1f)
-	{
-		// TODO: 애님 몽타주에 섹션 기능을 이용해볼까?
-		Owner->PlayAnimMontage(ChargeAnimMontage, 0.0f);
-	}
-
 	if (CurrentChargeTime >= MaxChargeTime)
 	{
 		// 충전 완료 애님 재생
-		CLog::Print("Sub Action Charge Complete", 1);
+		CLog::Print("Sub Action Charge Complete", 1, 2);
+		bActionable = true;
 	}
 }
 
-void UCSubAction_Hammer::OnPressSpecialAction()
-{
-
-}
 
 // 충전량 초기화
-void UCSubAction_Hammer::StartCharging()
+void UCSubAction_Hammer::ResetCharging()
 {
 	IsCharging = false;
+	bActionable = false;
 	CurrentChargeTime = 0.0f;
 }
