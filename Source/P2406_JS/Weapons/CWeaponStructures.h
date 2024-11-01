@@ -43,7 +43,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bFixedCamera;
-
 	/*UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACGhostTrail> GhostTrailClass;*/
 
@@ -53,6 +52,7 @@ public:
 public:
 	void DoAction(class ACharacter* InOwner);
 	void Destroy_GhostTrail();
+
 };
 
 USTRUCT()

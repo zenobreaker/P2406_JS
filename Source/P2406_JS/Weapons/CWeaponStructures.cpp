@@ -43,6 +43,7 @@ void FDoActionData::Destroy_GhostTrail()
 	//	GhostTrail->Destroy();
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
