@@ -132,6 +132,13 @@ void UCWeaponComponent::SetBowMode()
 
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {
+	class UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
+	if (state != nullptr)
+	{
+		if (state->IsActionMode())
+			return;
+	}
+
 	if (Type == InType)
 	{
 		SetUnarmedMode();

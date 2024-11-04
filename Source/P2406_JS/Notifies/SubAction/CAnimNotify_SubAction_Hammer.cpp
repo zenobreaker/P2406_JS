@@ -23,4 +23,5 @@ void UCAnimNotify_SubAction_Hammer::Notify(USkeletalMeshComponent* MeshComp, UAn
 	CheckNull(Hammer);
 
 	Hammer->CreateEffectSubActionHammer();
+	Hammer->TraceAttackArea();
 }

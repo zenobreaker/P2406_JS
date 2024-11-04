@@ -64,10 +64,12 @@ public:
 	void CreateEffect_Charging();
 	void CreateEffectSubActionHammer();
 
+	void TraceAttackArea();
+	
+
 private:
 	// 충전량 초기화 
 	void ResetCharging();
-	
 private:
 	int32 Index; 
 	bool IsCharging = false;
@@ -76,4 +78,5 @@ private:
 
 	FTimerHandle ChargeimeHandle;
 	class UNiagaraComponent* NiagaraComponent;
+	TArray<class ACharacter*> DamagedList;
 };

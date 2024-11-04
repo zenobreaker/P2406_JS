@@ -16,8 +16,10 @@ UCSubAction_Hammer::UCSubAction_Hammer()
 void UCSubAction_Hammer::Pressed()
 {
 	CheckFalse(ActionDatas.Num() > 0);
+	CheckTrue(State->IsActionMode());
 
 	CLog::Print("Hammer SubAction Start");
+
 
 	ResetCharging();
 
@@ -26,7 +28,7 @@ void UCSubAction_Hammer::Pressed()
 	Owner->PlayAnimMontage(ChargeAnimMontage, 0.0f);
 
 	Owner->GetWorld()->GetTimerManager().SetTimer(ChargeimeHandle, this, &UCSubAction_Hammer::CreateEffect_Charging, 0.75f, false);
-	//State->SetActionMode();
+	State->SetActionMode();
 }
 
 void UCSubAction_Hammer::Released()
@@ -82,13 +84,18 @@ void UCSubAction_Hammer::CreateEffect_Charging()
 	USkeletalMeshComponent * skeletalMesh = CHelpers::GetComponent<USkeletalMeshComponent>(hammer, "SkeletalMesh");
 	CheckNull(skeletalMesh);
 
-	if (skeletalMesh && skeletalMesh->DoesSocketExist("Hammer_Head")) {
+	if (skeletalMesh->DoesSocketExist("Hammer_Head"))
+	{
 		FVector socketLocation = skeletalMesh->GetSocketLocation("Hammer_Head");
-		UE_LOG(LogTemp, Warning, TEXT("Hammer_Head Socket Location: %s"), *socketLocation.ToString());
+		CLog::Log("Hammer_Head Socket Location:" + socketLocation.ToString());
 	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("Hammer_Head socket not found or skeletalMesh is null!"));
+	else if(skeletalMesh == nullptr){
+		CLog::Log("skeletalMesh is null!");
 	}
+	else if (skeletalMesh->DoesSocketExist("Hammer_Head")) {
+		CLog::Log("Soket Not foind !");
+	}
+
 
 	NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 		Effects[0].Effect,
@@ -125,9 +132,45 @@ void UCSubAction_Hammer::ResetCharging()
 	bActionable = false;
 	CurrentChargeTime = 0.0f;
 
+	DamagedList.Empty();
+
 	Owner->GetWorld()->GetTimerManager().ClearTimer(ChargeimeHandle);
 	NiagaraComponent = nullptr;
 	
+}
+
+void UCSubAction_Hammer::TraceAttackArea()
+{
+	// 스피어 트레이스로 주변 적들 감지 
+	TArray<FHitResult> HitResults;
+	FVector StartLocation = Owner->GetActorLocation();
+	FVector forward = Owner->GetActorForwardVector() * 500.0f;
+	StartLocation += forward;
+	FVector EndLocation = StartLocation;  // 스피어는 시작과 끝이 동일해도 됨
+
+	float SphereRadius = 250;  // 감지 반경
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(Owner);
+
+	bool bHit = UKismetSystemLibrary::SphereTraceMultiByProfile(Owner->GetWorld(),
+		StartLocation, EndLocation, SphereRadius, "Targeting",
+		false, IgnoredActors, EDrawDebugTrace::ForDuration, HitResults,
+		true, FLinearColor::Green, FLinearColor::Red, 1.0f);
+
+	if (bHit && HitResults.Num() > 0)
+	{
+		for (const FHitResult& hitResult : HitResults)
+		{
+			ACharacter* enemy = Cast<ACharacter>(hitResult.GetActor());
+			if (enemy == NULL || DamagedList.Contains(enemy))
+				continue;
+
+			DamagedList.Add(enemy);
+
+			HitDatas[0].SendDamage(Owner, Attachment, enemy);
+
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
