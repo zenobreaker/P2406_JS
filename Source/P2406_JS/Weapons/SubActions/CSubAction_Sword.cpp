@@ -146,7 +146,7 @@ void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor*
 	Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
 	Owner->GetWorld()->GetTimerManager().SetTimer(TrackEnemyTimeHandle, this, &UCSubAction_Sword::TrackEnemyHeight, 0.05f, true);
 
-	SetInputSubAction();
+	//SetInputSubAction();
 }
 
 // 적 위치 감지
@@ -175,7 +175,7 @@ void UCSubAction_Sword::TrackEnemyHeight()
 			ACharacter* enemy = Cast<ACharacter>(hitResult.GetActor());
 			if (enemy == NULL)
 				continue;
-				
+
 			if (enemy->GetActorLocation().Z >= TrackHeightValue)
 			{
 				TeleportToEnemy(enemy);
@@ -183,10 +183,8 @@ void UCSubAction_Sword::TrackEnemyHeight()
 			}
 		}
 	}
-	else
-	{
-		Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
-	}
+
+	Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
 }
 
 // 캐릭터 순간 이동
