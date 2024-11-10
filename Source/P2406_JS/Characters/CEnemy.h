@@ -1,14 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Components/CStateComponent.h"
 #include "CEnemy.generated.h"
 
+
+
 UCLASS()
 class P2406_JS_API ACEnemy 
-	: public ACharacter
+	: public ACBaseCharacter
 	, public IIStatable
 
 {
@@ -46,6 +48,7 @@ public:
 	ACEnemy();
 
 	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 
 protected:
 	virtual void BeginPlay() override;

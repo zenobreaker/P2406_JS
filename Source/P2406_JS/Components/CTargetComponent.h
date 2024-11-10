@@ -31,6 +31,9 @@ private:
 public:	
 	UCTargetComponent();
 
+public:
+	FORCEINLINE bool GetTargetMode() { return Target == nullptr; }
+
 protected:
 	virtual void BeginPlay() override;
 

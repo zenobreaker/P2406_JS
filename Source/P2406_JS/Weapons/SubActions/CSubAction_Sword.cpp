@@ -20,7 +20,6 @@ UCSubAction_Sword::UCSubAction_Sword()
 void UCSubAction_Sword::Pressed()
 {
 	CheckTrue(DoAction->GetInAction()); // 기본 공격 중에도 사용 못 하게 막는다.
-	CheckTrue(GetInAction());	// 기존에 액션 중이면  처리 
 	CheckFalse(State->IsIdleMode());
 	CheckTrue(bSubAction == true);
 

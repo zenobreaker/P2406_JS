@@ -24,7 +24,7 @@ public:
 	
 
 public:
-	void LaunchIntoAir(float LaunchPower);
+	void LaunchIntoAir(float LaunchPower, AActor* InCauser = nullptr);
 	
 	void Landed(const FHitResult& Hit);
 	
@@ -33,5 +33,5 @@ private:
 
 	ACharacter* OwnerCharacter;
 	UCharacterMovementComponent* movement;
-		
+	AActor* Causer;
 };

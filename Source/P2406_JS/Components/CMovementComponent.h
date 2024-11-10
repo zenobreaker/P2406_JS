@@ -10,6 +10,7 @@ enum class ESpeedType :uint8
 	Walk = 0, Run, Sprint, Max,
 };
 
+
 UCLASS()
 class P2406_JS_API UCMovementComponent : public UActorComponent
 {
@@ -37,6 +38,7 @@ public:
 	FORCEINLINE float GetRunSpeed() { return Speed[(int32)ESpeedType::Run]; }
 	FORCEINLINE float GetSprintSpeed() { return Speed[(int32)ESpeedType::Sprint]; }
 
+	FORCEINLINE FVector* GetInputDirection()  { return &inputDirection; }
 
 public:
 	UCMovementComponent();
@@ -67,8 +69,11 @@ public:
 	void Move();
 	void Stop();
 
+
+
 private:
 	class ACharacter* OwnerCharacter;
+	FVector inputDirection;
 
 private:
 	bool bCanMove = true;

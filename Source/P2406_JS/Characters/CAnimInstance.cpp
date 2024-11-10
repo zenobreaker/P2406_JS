@@ -14,9 +14,15 @@ void UCAnimInstance::NativeBeginPlay()
 	CheckNull(OwnerCharacter);
 
 	Weapon = CHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
+	State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
 
 	if (!!Weapon)
 		Weapon->OnWeaponTypeChanged.AddDynamic(this, &UCAnimInstance::OnWeaponTypeChanged);
+
+	if (!!State)
+		State->OnStateTypeChanged.AddDynamic(this, &UCAnimInstance::OnStateTypeChanged);
+
+	//OwnerCharacter->OnCharacterLandedDelegate.Add
 }
 
 void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -37,14 +43,14 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling();
 	UCGrapplingComponent* grappling = CHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
+
+	bIsAirborneHit = bFalling && StateType == EStateType::Damaged;
+	
 	
 	CheckNull(grappling);
 	bGrappling = grappling->GetGrappling();
 	
-		
 	CheckNull(Weapon);
-
-
 	if (!!Weapon->GetSubAction())
 	{
 		bBow_Aiming = true;
@@ -57,3 +63,14 @@ void UCAnimInstance::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InN
 {
 	WeaponType = InNewType;
 }
+
+void UCAnimInstance::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
+{
+	StateType = InNewType;
+}
+
+void UCAnimInstance::OnOnCharacterLanded()
+{
+	State->SetIdleMode();
+}
+

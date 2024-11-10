@@ -2,6 +2,8 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 UCAirborneComponent::UCAirborneComponent()
 {
@@ -21,7 +23,7 @@ void UCAirborneComponent::BeginPlay()
 }
 
 
-void UCAirborneComponent::LaunchIntoAir(float LaunchPower)
+void UCAirborneComponent::LaunchIntoAir(float LaunchPower, AActor* InCauser)
 {
 	CheckNull(movement);
 	CheckNull(OwnerCharacter);
@@ -32,6 +34,17 @@ void UCAirborneComponent::LaunchIntoAir(float LaunchPower)
 	{
 		bIsAirborne = true;
 		finalLaunchPower = LaunchPower;
+		// 띄울 때 콜리전 상태를 변경해서 주변 충돌체 영향 없도록 
+		if (!!InCauser)
+		{
+			Causer = InCauser;
+			OwnerCharacter->GetCapsuleComponent()->SetCollisionProfileName("NoPawn");
+			USkeletalMeshComponent* skeletal = CHelpers::GetComponent<USkeletalMeshComponent>(OwnerCharacter);
+
+			if (!!skeletal)
+				skeletal->SetCollisionProfileName("NoPawn");
+		}
+
 		CLog::Print("Upper Hit");
 	}
 	else if(OwnerCharacter->GetCharacterMovement()->IsFalling() == true)
@@ -58,5 +71,15 @@ void UCAirborneComponent::Landed(const FHitResult& Hit)
 	// 착지하면 공중 상태 헤제
 	bIsAirborne = false;
 	CLog::Print("Airborne = Landed");
+	if (!!Causer)
+	{
+		OwnerCharacter->GetCapsuleComponent()->SetCollisionProfileName("Pawn");
+		Causer = nullptr; 
+
+		USkeletalMeshComponent* skeletal = CHelpers::GetComponent<USkeletalMeshComponent>(OwnerCharacter);
+
+		if (!!skeletal)
+			skeletal->SetCollisionProfileName("Pawn");
+	}
 }
 

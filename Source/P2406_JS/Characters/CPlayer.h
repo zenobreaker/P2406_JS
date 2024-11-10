@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Components/CStateComponent.h"
 #include "Components/CParkourComponent.h"
@@ -12,7 +12,7 @@
 
 UCLASS()
 class P2406_JS_API ACPlayer
-	: public ACharacter
+	: public ACBaseCharacter
 	, public IIStatable
 	, public IGenericTeamAgentInterface
 {
@@ -52,6 +52,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCMovementComponent* Movement;
+	
+	UPROPERTY(VisibleAnywhere)
+	class UCDashComponent* Dash;
 
 	UPROPERTY(VisibleAnywhere)
 	class UCTargetComponent* Target;
@@ -101,6 +104,9 @@ private:
 private:
 	void OnGrapple();
 	void InterruptGrapple();
+	
+private:
+	void OnDash();
 
 private:
 	bool bEquipped;

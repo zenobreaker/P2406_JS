@@ -44,8 +44,10 @@ void UCMovementComponent::OnMoveForward(float InAxis)
 
 	FRotator rotator = FRotator(0, OwnerCharacter->GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetForwardVector();
-
+	
 	OwnerCharacter->AddMovementInput(direction, InAxis);
+
+	inputDirection = FVector(InAxis, inputDirection.Y, inputDirection.Z);
 }
 
 void UCMovementComponent::OnMoveRight(float InAxis)
@@ -56,6 +58,8 @@ void UCMovementComponent::OnMoveRight(float InAxis)
 	FVector direction = FQuat(rotator).GetRightVector();
 
 	OwnerCharacter->AddMovementInput(direction, InAxis);
+	
+	inputDirection = FVector(inputDirection.X, InAxis, inputDirection.Z);
 }
 
 void UCMovementComponent::OnHorizontalLook(float InAxis)

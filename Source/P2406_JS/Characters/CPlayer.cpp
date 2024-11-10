@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CMovementComponent.h"
+#include "Components/CDashComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Widgets/CUserWidget_Player.h"
 
@@ -18,6 +19,7 @@ ACPlayer::ACPlayer()
 
 	CHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
 	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
+	CHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
 	CHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	CHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
@@ -135,6 +137,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, Movement, &UCMovementComponent::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, Movement, &UCMovementComponent::OnRun);
+
+	PlayerInputComponent->BindAction("Dash", EInputEvent::IE_Pressed, Dash, &UCDashComponent::OnDash);
+
 
 	PlayerInputComponent->BindAction("Fist", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetFistMode);
 	PlayerInputComponent->BindAction("Sword", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetSwordMode);
@@ -285,14 +290,24 @@ void ACPlayer::InterruptGrapple()
 	}
 }
 
+void ACPlayer::OnDash()
+{
+
+}
+
 // 캐릭터가 착지되었을 때 콜되는 함수 
 void ACPlayer::Landed(const FHitResult& Hit)
 {
+	Super::Landed(Hit);
+	CLog::Print("Player Land!!");
 	CheckFalse(State->IsIdleMode());
 
 	Parkour->DoParkour(true);
 
 	CheckNull(Grapple);
 	Grapple->ResetGrapple();
+
+	FRotator ResetRotation = FRotator(0.0f, GetActorRotation().Yaw, 0.0f);
+	SetActorRotation(ResetRotation);
 }
 

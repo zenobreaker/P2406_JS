@@ -142,7 +142,7 @@ void ACEnemy::Damaged()
 			SetActorRotation(targetRotator);
 			
 			// 공중에 띄우기
-			Airborne->LaunchIntoAir(hitData->Airial);
+			Airborne->LaunchIntoAir(hitData->Airial, DamageData.Attacker);
 		}
 	}
 
@@ -165,9 +165,14 @@ void ACEnemy::End_Damaged()
 
 void ACEnemy::Landed(const FHitResult& Hit)
 {
+	Super::Landed(Hit);
+
 	CheckNull(Airborne);
 
 	Airborne->Landed(Hit);
+
+	if(OnCharacterLandedDelegate.IsBound())
+		OnCharacterLandedDelegate.Broadcast();
 }
 
 void ACEnemy::Dead()

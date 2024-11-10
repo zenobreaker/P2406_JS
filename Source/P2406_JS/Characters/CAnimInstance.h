@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Components/CWeaponComponent.h"
+#include "Components/CStateComponent.h"
 #include "CAnimInstance.generated.h"
 
 
@@ -27,6 +28,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool bGrappling;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+		bool bIsAirborneHit;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	bool bBow_Aiming;
@@ -36,6 +40,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	EWeaponType WeaponType = EWeaponType::Max;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	EStateType StateType = EStateType::Max;
 
 public:
 	void NativeBeginPlay() override;
@@ -45,9 +51,16 @@ private:
 	UFUNCTION()
 	void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
 
+	UFUNCTION()
+	void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
+
+	UFUNCTION()
+	void OnOnCharacterLanded();
+
 private:
 	class ACharacter* OwnerCharacter; 
 	class UCWeaponComponent* Weapon;
+	class UCStateComponent* State;
 
 private:
 	FRotator PrevRotation;
