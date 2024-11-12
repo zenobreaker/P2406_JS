@@ -54,7 +54,7 @@ void UCEquipment::End_Equip_Implementation()
 	if (Data.bCanMove == false)
 		Movement->Move();
 
-	State->SetIdleMode();
+	State->SetIdleMode(); 
 }
 
 void UCEquipment::Unequip_Implementation()

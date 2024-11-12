@@ -19,6 +19,7 @@ class P2406_JS_API UCStateComponent : public UActorComponent
 
 public:
 	FORCEINLINE bool IsIdleMode() { return Type == EStateType::Idle; }
+	FORCEINLINE bool IsEquipMode() { return Type == EStateType::Equip; }
 	FORCEINLINE bool IsDeadMode() { return Type == EStateType::Dead; }
 	FORCEINLINE bool IsActionMode() { return Type == EStateType::Action; }
 	FORCEINLINE bool IsDamagedMode() { return Type == EStateType::Damaged; }

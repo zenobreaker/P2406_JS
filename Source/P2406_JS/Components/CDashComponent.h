@@ -21,6 +21,8 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	TArray<class UAnimMontage*>  DashMontages;
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashSpeed = 1000; 
 
 private:
 	DashDirection DashDir;
@@ -31,12 +33,17 @@ protected:
 public:	
 	void OnDash();
 	void DashAction();
+
+public:
+	void Begin_DashSpeed();
+	void End_DashSpeed();
 		
 private:
 	ACharacter* OwnerCharacter;
-	class UCMovementComponent* movement;
+	class UCMovementComponent* Movement;
 	class UCTargetComponent* target;
-
+	class UCWeaponComponent* Weapon;
+	class UCStateComponent* State; 
 private:
 	bool bTargeting = false;
 	bool bIsDash = false;

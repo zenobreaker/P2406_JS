@@ -18,9 +18,8 @@ void UCAnimNotifyState_Dash::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 	UCDashComponent* dash = CHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
 	CheckNull(dash);
 
-	UCMovementComponent* move = CHelpers::GetComponent<UCMovementComponent>(MeshComp->GetOwner());
+	dash->Begin_DashSpeed();
 	
-
 }
 
 void UCAnimNotifyState_Dash::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -32,5 +31,7 @@ void UCAnimNotifyState_Dash::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
 
 	UCDashComponent* dash = CHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
 	CheckNull(dash);
+
+	dash->End_DashSpeed();
 }
 
