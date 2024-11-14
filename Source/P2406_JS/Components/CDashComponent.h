@@ -23,6 +23,11 @@ public:
 	TArray<class UAnimMontage*>  DashMontages;
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashSpeed = 1000; 
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float BlurAmount = 1.5f;
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	class USoundWave* Sound;
+
 
 private:
 	DashDirection DashDir;
@@ -39,11 +44,16 @@ public:
 	void End_DashSpeed();
 		
 private:
+	void PlaySoundWave();
+
+private:
 	ACharacter* OwnerCharacter;
 	class UCMovementComponent* Movement;
 	class UCTargetComponent* target;
 	class UCWeaponComponent* Weapon;
 	class UCStateComponent* State; 
+	class UCameraComponent* Camera;
+
 private:
 	bool bTargeting = false;
 	bool bIsDash = false;

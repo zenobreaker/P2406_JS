@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/CEquipment.h"
+#include "Camera/CameraComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CTargetComponent.h"
@@ -25,6 +26,7 @@ void UCDashComponent::BeginPlay()
 		target = CHelpers::GetComponent<UCTargetComponent>(OwnerCharacter);
 		Weapon = CHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
 		State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+		Camera = CHelpers::GetComponent<UCameraComponent>(OwnerCharacter);
 	}
 }
 
@@ -43,12 +45,12 @@ void UCDashComponent::DashAction()
 	//CheckNull(target);
 
 	FVector* input = Movement->GetInputDirection();
-	if (input == nullptr )
-		return; 
+	if (input == nullptr)
+		return;
 
 	// 전방
 	OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Forward]);
-	
+
 	//// 후방 
 	//else if(input->X < 0)
 	//{
@@ -61,6 +63,15 @@ void UCDashComponent::Begin_DashSpeed()
 	FVector dashDir = OwnerCharacter->GetActorForwardVector();
 	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
+	if (!!Camera)
+	{
+		Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
+		Camera->PostProcessSettings.MotionBlurAmount = BlurAmount;
+	}
+
+	//Sound
+	PlaySoundWave();
+
 	CheckNull(Weapon);
 	CheckNull(Weapon->GetEquipment());
 
@@ -72,10 +83,15 @@ void UCDashComponent::End_DashSpeed()
 {
 	//Movement->SetSpeed(ESpeedType::Run);
 	CheckNull(Weapon);
-	
 
-	CheckNull(State); 
+	if (!!Camera)
+	{
+		Camera->PostProcessSettings.bOverride_MotionBlurAmount = false;
+		Camera->PostProcessSettings.MotionBlurAmount = 0.0f;
+	}
 
+
+	CheckNull(State);
 	if (State->IsEquipMode() == true)
 	{
 		if (Weapon->GetEquipment()->GetBeginEquip() == false)
@@ -88,5 +104,17 @@ void UCDashComponent::End_DashSpeed()
 	}
 
 
+}
+
+void UCDashComponent::PlaySoundWave()
+{
+	CheckNull(Sound);
+	CheckNull(OwnerCharacter);
+
+	UWorld* world = OwnerCharacter->GetWorld();
+	FVector location = OwnerCharacter->GetActorLocation();
+
+
+	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
 }
 

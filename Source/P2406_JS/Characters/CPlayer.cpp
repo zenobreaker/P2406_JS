@@ -222,7 +222,7 @@ void ACPlayer::OnSubAction()
 		CheckFalse(State->IsIdleMode());
 
 		//
-
+		
 		return;
 	}
 
@@ -299,7 +299,7 @@ void ACPlayer::OnDash()
 void ACPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	CLog::Print("Player Land!!");
+	
 	CheckFalse(State->IsIdleMode());
 
 	Parkour->DoParkour(true);
