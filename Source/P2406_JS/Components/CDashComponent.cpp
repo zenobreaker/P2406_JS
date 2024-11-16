@@ -47,10 +47,39 @@ void UCDashComponent::DashAction()
 	FVector* input = Movement->GetInputDirection();
 	if (input == nullptr)
 		return;
+	inputVec = *input;
 
-	// 전방
-	OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Forward]);
+	// 자유 카메라 모드 일 때 
+	if (Weapon->GetEquipment() == nullptr 
+		|| Weapon->GetEquipment()->GetControlRotation() == false)
+	{
+		// 전방
+		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Forward]);
+	}
+	// 고정 회전 모드 일때
+	else
+	{
+		DashDirection dir = DashDirection::Forward;
+		// 전방
+		if (input->X > 0)
+		{
+			if (input->Y > 0)
+				dir = DashDirection::Right;
+			else if(input->Y < 0)
+				dir = DashDirection::Left;
+		}
+		// 후방 
+		else
+		{
+			dir = DashDirection::Back;
+			if (input->Y > 0)
+				dir = DashDirection::Right;
+			else if (input->Y < 0)
+				dir = DashDirection::Left;
+		}
 
+		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)dir]);
+	}
 	//// 후방 
 	//else if(input->X < 0)
 	//{
@@ -61,6 +90,14 @@ void UCDashComponent::DashAction()
 void UCDashComponent::Begin_DashSpeed()
 {
 	FVector dashDir = OwnerCharacter->GetActorForwardVector();
+	
+	if (Weapon->GetEquipment() != nullptr
+		&& Weapon->GetEquipment()->GetControlRotation() == true)
+	{
+		dashDir = inputVec.X * OwnerCharacter->GetActorForwardVector() +
+			inputVec.Y * OwnerCharacter->GetActorRightVector();
+	}
+
 	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
 	if (!!Camera)

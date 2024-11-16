@@ -43,6 +43,9 @@ public:
 	FEquipmentBeginEquip OnEquipmentBeginEquip;
 	FEquipmentUnequip OnEquipmentUnequip;
 
+public:
+	bool GetControlRotation();
+
 private:
 	class ACharacter* OwnerCharacter;
 

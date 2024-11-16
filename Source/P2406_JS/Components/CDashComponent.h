@@ -57,4 +57,5 @@ private:
 private:
 	bool bTargeting = false;
 	bool bIsDash = false;
+	FVector inputVec;
 };

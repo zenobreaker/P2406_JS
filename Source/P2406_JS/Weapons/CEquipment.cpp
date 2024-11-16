@@ -67,3 +67,11 @@ void UCEquipment::Unequip_Implementation()
 	if (OnEquipmentUnequip.IsBound())
 		OnEquipmentUnequip.Broadcast();
 }
+
+bool UCEquipment::GetControlRotation()
+{
+	if (bEquipped == false)
+		return false; 
+
+	return Data.bUseControlRotation;
+}
