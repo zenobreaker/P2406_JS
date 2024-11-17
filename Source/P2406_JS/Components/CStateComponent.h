@@ -7,7 +7,7 @@
 UENUM()
 enum class EStateType : uint8
 {
-	Idle = 0, Evade , Equip, Damaged, Action, Airborne, Dead, Max, 
+	Idle = 0, Evade , Dash, Equip, Damaged, Action, Airborne, Dead, Max, 
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FStateTypeChanged, EStateType, InPrevType, EStateType, InNewType);
@@ -20,6 +20,8 @@ class P2406_JS_API UCStateComponent : public UActorComponent
 public:
 	FORCEINLINE bool IsIdleMode() { return Type == EStateType::Idle; }
 	FORCEINLINE bool IsEquipMode() { return Type == EStateType::Equip; }
+	FORCEINLINE bool IsEvadeMode() { return Type == EStateType::Evade; }
+	FORCEINLINE bool IsDashMode() { return Type == EStateType::Dash; }
 	FORCEINLINE bool IsDeadMode() { return Type == EStateType::Dead; }
 	FORCEINLINE bool IsActionMode() { return Type == EStateType::Action; }
 	FORCEINLINE bool IsDamagedMode() { return Type == EStateType::Damaged; }
@@ -34,6 +36,7 @@ protected:
 
 public:
 	void SetIdleMode();
+	void SetDashMode();
 	void SetEvadeMode();
 	void SetEquipMode();
 	void SetActionMode();

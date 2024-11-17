@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	class USoundWave* Sound;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACGhostTrail> GhostTrailClass;
+
 
 private:
 	DashDirection DashDir;
@@ -38,6 +41,7 @@ protected:
 public:	
 	void OnDash();
 	void DashAction();
+	void PlayEvadeEffect();
 
 public:
 	void Begin_DashSpeed();
@@ -47,6 +51,12 @@ private:
 	void PlaySoundWave();
 
 private:
+	void CreateEvadeOverlap(const FVector& InPrevLocation);
+	
+	UFUNCTION()
+	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
 	ACharacter* OwnerCharacter;
 	class UCMovementComponent* Movement;
 	class UCTargetComponent* target;
@@ -54,8 +64,15 @@ private:
 	class UCStateComponent* State; 
 	class UCameraComponent* Camera;
 
+
+private:
+	class ACGhostTrail* GhostTrail;
+
 private:
 	bool bTargeting = false;
 	bool bIsDash = false;
 	FVector inputVec;
-};
+
+	FTimerHandle DashOverlapTimer;
+	FTimerHandle GhostTimer;
+}; 

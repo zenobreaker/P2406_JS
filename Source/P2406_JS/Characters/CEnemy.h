@@ -17,13 +17,6 @@ class P2406_JS_API ACEnemy
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DamagedMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DeadMontage;
-
-private:
 	UPROPERTY(EditAnywhere, Category = "Color")
 	FLinearColor OriginColor = FLinearColor::White;
 
@@ -81,14 +74,6 @@ public:
 private:
 	FTimerHandle ChangeColor_TimerHandle;
 
-private:
-	struct FDamageData
-	{
-		float Power;
-		class ACharacter* Attacker;
-		class AActor* Causer;
 
-		struct FActionDamageEvent* Event;
-	} DamageData;
 };
 

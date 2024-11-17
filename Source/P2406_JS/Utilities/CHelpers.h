@@ -56,7 +56,8 @@ public:
 	static void GetAsset(T** OutObject, FString InPath)
 	{
 		ConstructorHelpers::FObjectFinder<T> asset(*InPath);
-		*OutObject = asset.Object;
+		if(asset.Succeeded())
+			*OutObject = asset.Object;
 	}
 
 	template<typename T>

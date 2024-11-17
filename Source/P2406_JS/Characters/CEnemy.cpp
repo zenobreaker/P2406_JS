@@ -16,15 +16,16 @@ ACEnemy::ACEnemy()
 	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	CHelpers::CreateActorComponent< UCAirborneComponent>(this, &Airborne, "Airborne");
-	
+
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	USkeletalMesh* mesh; 
+	USkeletalMesh* mesh = nullptr; // 포인터를 명시적으로 nullptr로 초기화
 	CHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
-	GetMesh()->SetSkeletalMesh(mesh);
+	if(mesh != nullptr)
+		GetMesh()->SetSkeletalMesh(mesh);
 
-	TSubclassOf<UCAnimInstance> animInstance; 
+	TSubclassOf<UCAnimInstance> animInstance;
 	CHelpers::GetClass<UCAnimInstance>(&animInstance, "/Script/Engine.AnimBlueprint'/Game/ABP_CPlayer.ABP_CPlayer_C'");
 	GetMesh()->SetAnimClass(animInstance);
 
@@ -38,7 +39,7 @@ ACEnemy::ACEnemy()
 void ACEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	Movement->OnWalk();
 
 	for (int i = 0; i < GetMesh()->GetMaterials().Num(); i++)
@@ -67,7 +68,7 @@ float ACEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContro
 {
 	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-	DamageData.Power = Damage; 
+	DamageData.Power = Damage;
 	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
 	DamageData.Causer = DamageCauser;
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
@@ -86,8 +87,8 @@ void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
 	{
-		case EStateType::Damaged: Damaged(); break;
-		case EStateType::Dead: Dead(); break;
+	case EStateType::Damaged: Damaged(); break;
+	case EStateType::Dead: Dead(); break;
 	}
 }
 
@@ -140,7 +141,7 @@ void ACEnemy::Damaged()
 			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 			targetRotator.Pitch = 0;
 			SetActorRotation(targetRotator);
-			
+
 			// 공중에 띄우기
 			Airborne->LaunchIntoAir(hitData->Airial, DamageData.Attacker);
 		}
@@ -171,7 +172,7 @@ void ACEnemy::Landed(const FHitResult& Hit)
 
 	Airborne->Landed(Hit);
 
-	if(OnCharacterLandedDelegate.IsBound())
+	if (OnCharacterLandedDelegate.IsBound())
 		OnCharacterLandedDelegate.Broadcast();
 }
 

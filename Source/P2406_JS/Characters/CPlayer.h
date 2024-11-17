@@ -32,6 +32,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Jump")
 	class UAnimMontage* JumpMontage;
 
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArm;
@@ -47,6 +48,9 @@ private:
 
 
 private:
+	UPROPERTY(VisibleAnywhere)
+	class UCHealthPointComponent* HealthPoint;
+
 	UPROPERTY(VisibleAnywhere)
 	class UCWeaponComponent* Weapon;
 
@@ -68,7 +72,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCGrapplingComponent* Grapple;
 
-
 public:
 	ACPlayer();
 
@@ -78,12 +81,20 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 private:
 	UFUNCTION()
 	void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 
 	UFUNCTION()
 	void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
+
+protected:
+	void Damaged();
+
+public:
+	void End_Damaged() override;
 
 private:
 	void OnEvade();
@@ -107,6 +118,7 @@ private:
 	
 private:
 	void OnDash();
+	void PlayEvadeEffetc();
 
 private:
 	bool bEquipped;

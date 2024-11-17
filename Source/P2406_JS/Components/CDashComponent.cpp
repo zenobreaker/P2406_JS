@@ -8,6 +8,8 @@
 #include "Components/CStateComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CWeaponComponent.h"
+#include "Characters/CGhostTrail.h"
+#include <Components/BoxComponent.h>
 
 UCDashComponent::UCDashComponent()
 {
@@ -87,6 +89,27 @@ void UCDashComponent::DashAction()
 	//}
 }
 
+void UCDashComponent::PlayEvadeEffect()
+{
+	FVector effectLocation = OwnerCharacter->GetActorLocation();
+	FRotator effectRotation = OwnerCharacter->GetActorRotation();
+	CLog::Print("Evade !! ");
+	if (!!GhostTrailClass)
+	{
+		GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, effectLocation, effectRotation);
+
+		FTimerDelegate timerDelegate;
+		timerDelegate.BindLambda([this]()
+		{
+			if(!!GhostTrail)
+				GhostTrail->Destroy();
+		});
+
+		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, timerDelegate, 0.5f, false);
+	}
+
+}
+
 void UCDashComponent::Begin_DashSpeed()
 {
 	FVector dashDir = OwnerCharacter->GetActorForwardVector();
@@ -94,7 +117,8 @@ void UCDashComponent::Begin_DashSpeed()
 	if (Weapon->GetEquipment() != nullptr
 		&& Weapon->GetEquipment()->GetControlRotation() == true)
 	{
-		dashDir = inputVec.X * OwnerCharacter->GetActorForwardVector() +
+		double xAxis = inputVec.X == 0 ? -1 : inputVec.X;
+		dashDir = xAxis * OwnerCharacter->GetActorForwardVector() +
 			inputVec.Y * OwnerCharacter->GetActorRightVector();
 	}
 
@@ -105,9 +129,22 @@ void UCDashComponent::Begin_DashSpeed()
 		Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
 		Camera->PostProcessSettings.MotionBlurAmount = BlurAmount;
 	}
-
 	//Sound
 	PlaySoundWave();
+
+	// State Change
+	if (!!State)
+	{
+		if (State->IsEquipMode() == true)
+		{
+			if (Weapon->GetEquipment()->GetBeginEquip() == false)
+				Weapon->GetEquipment()->Begin_Equip();
+		}
+
+		State->SetDashMode();
+	}
+	CreateEvadeOverlap(OwnerCharacter->GetActorLocation());
+
 
 	CheckNull(Weapon);
 	CheckNull(Weapon->GetEquipment());
@@ -126,7 +163,6 @@ void UCDashComponent::End_DashSpeed()
 		Camera->PostProcessSettings.bOverride_MotionBlurAmount = false;
 		Camera->PostProcessSettings.MotionBlurAmount = 0.0f;
 	}
-
 
 	CheckNull(State);
 	if (State->IsEquipMode() == true)
@@ -153,5 +189,40 @@ void UCDashComponent::PlaySoundWave()
 
 
 	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
+}
+
+void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
+{
+	// 예: 이전 위치에 Box 콜리전 생성
+	UBoxComponent* dashAvoidanceCollsion = NewObject<UBoxComponent>(this);
+	dashAvoidanceCollsion->SetBoxExtent(FVector(50.0f, 50.0f, 50.0f));
+	dashAvoidanceCollsion->SetWorldLocation(InPrevLocation);
+	dashAvoidanceCollsion->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	dashAvoidanceCollsion->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); // 커스텀 채널 설정
+	dashAvoidanceCollsion->SetCollisionResponseToAllChannels(ECR_Ignore);
+	dashAvoidanceCollsion->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap); // 적 공격에만 반응
+	dashAvoidanceCollsion->AttachToComponent(OwnerCharacter->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+
+	dashAvoidanceCollsion->RegisterComponent();
+
+	dashAvoidanceCollsion->SetHiddenInGame(false);
+	dashAvoidanceCollsion->SetVisibility(true);
+
+
+	dashAvoidanceCollsion->OnComponentBeginOverlap.AddDynamic(this, &UCDashComponent::OnComponentBeginOverlap);
+
+	FTimerDelegate timerDelegate;
+	timerDelegate.BindLambda([=]()
+	{
+		if (!!dashAvoidanceCollsion)
+			dashAvoidanceCollsion->DestroyComponent();
+	});
+	//TODO: 대쉬를 연속하면 이전 타이머가 죽어서 바로 콜리전이 안사라짐.
+	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, timerDelegate, 0.5f, false);
+}
+
+void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	CLog::Print(" Is Evade!");
 }
 

@@ -5,6 +5,7 @@
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/CUserWidget_Enemy.h"
+#include "BehaviorTree/BehaviorTree.h"
 
 ACEnemy_AI::ACEnemy_AI()
 {
@@ -24,7 +25,8 @@ ACEnemy_AI::ACEnemy_AI()
 	LabelWidget->SetDrawSize(FVector2D(120, 0));
 	LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
-	CHelpers::GetAsset(&BehaviorTree, "/Script/AIModule.BehaviorTree'/Game/Enemies/Melee/BT_Melee.BT_Melee'");
+	//TODO: 뭔 에러가 나냐 여기서 
+	CHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BehaviorTree'/Game/Enemies/Melee/BT_Melee.BT_Melee'");
 }
 
 void ACEnemy_AI::BeginPlay()

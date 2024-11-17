@@ -10,7 +10,10 @@
 #include "Components/CMovementComponent.h"
 #include "Components/CDashComponent.h"
 #include "Components/CTargetComponent.h"
+#include "Components/CHealthPointComponent.h"
+#include "Characters/CGhostTrail.h"
 #include "Widgets/CUserWidget_Player.h"
+#include "Weapons/CWeaponStructures.h"
 
 ACPlayer::ACPlayer()
 {
@@ -24,6 +27,7 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	CHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
 	CHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
+	CHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -98,6 +102,8 @@ ACPlayer::ACPlayer()
 	{
 		Grapple->PrimaryComponentTick.bCanEverTick = true;
 	}
+
+	
 }
 
 void ACPlayer::BeginPlay()
@@ -162,11 +168,26 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Target_Right", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveRight);
 }
 
+float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	DamageData.Power = Damage;
+	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
+	DamageData.Causer = DamageCauser;
+	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
+
+	State->SetDamagedMode();
+
+	return Damage;
+}
+
 void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
 	{
 		case EStateType::Evade: Backstep(); break;
+		case EStateType::Damaged: Damaged(); break;
 	}
 }
 
@@ -189,6 +210,84 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 	{
 		CLog::Print("UserInteface NO");
 	}
+}
+
+void ACPlayer::Damaged()
+{
+	// 플레이어가 대쉬 혹은 Evade 일대 
+	if (!!State)
+	{
+		FString v = State->IsDashMode() ?  TEXT("True") : TEXT("False");
+		CLog::Print("My Dash State => " + v);
+		if (State->IsDashMode() || State->IsEvadeMode())
+		{
+			// 회피 이펙트 
+			PlayEvadeEffetc();
+			return; 
+		}
+	}
+
+	//Appyl Damage
+	{
+		if (!!HealthPoint)
+			HealthPoint->Damage(DamageData.Power);
+
+		DamageData.Power = 0.0f;
+	}
+
+	// DamageData 
+	if (!!DamageData.Event && !!DamageData.Event->HitData)
+	{
+		FHitData* hitData = DamageData.Event->HitData;
+
+
+		UAnimMontage* montage = hitData->Montage;
+		float playRate = hitData->PlayRate;
+
+		if (montage == nullptr)
+		{
+			montage = DamagedMontage;
+			playRate = 1.5f;
+		}
+		PlayAnimMontage(montage, playRate);
+
+
+		hitData->PlayHitStop(GetWorld());
+		hitData->PlaySoundWave(this);
+		hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
+
+		if (HealthPoint->IsDead() == false)
+		{
+			FVector start = GetActorLocation();
+			FVector target = DamageData.Attacker->GetActorLocation();
+			FVector direction = target - start;
+			direction.Normalize();
+
+			LaunchCharacter(-direction * hitData->Launch, false, false);
+			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+			targetRotator.Pitch = 0;
+			SetActorRotation(targetRotator);
+
+			// 공중에 띄우기
+			/*if(!!Airborne)
+				Airborne->LaunchIntoAir(hitData->Airial, DamageData.Attacker);*/
+		}
+	}
+
+	if (HealthPoint->IsDead())
+	{
+		State->SetDeadMode();
+
+		return;
+	}
+
+	DamageData.Attacker = nullptr;
+	DamageData.Causer = nullptr;
+	DamageData.Event = nullptr;
+}
+
+void ACPlayer::End_Damaged()
+{
 }
 
 void ACPlayer::OnEvade()
@@ -292,6 +391,24 @@ void ACPlayer::InterruptGrapple()
 
 void ACPlayer::OnDash()
 {
+
+}
+
+void ACPlayer::PlayEvadeEffetc()
+{
+	FVector effectLocation = GetActorLocation();
+	FRotator effectRotation = GetActorRotation();
+
+	// 이펙트 재생
+	/*if (EvadeEffect)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EvadeEffect, effectLocation, effectRotation);*/
+	if (!!Dash)
+		Dash->PlayEvadeEffect();
+	
+
+	// 사운드 재생 (옵션)
+	/*if (EvadeSound)
+		UGameplayStatics::PlaySoundAtLocation(this, EvadeSound, effectLocation);*/
 
 }
 
