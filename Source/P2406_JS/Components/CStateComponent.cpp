@@ -1,4 +1,5 @@
 #include "Components/CStateComponent.h"
+#include "Global.h"
 
 UCStateComponent::UCStateComponent()
 {

@@ -9,7 +9,7 @@
 #include "Components/CTargetComponent.h"
 #include "Components/CWeaponComponent.h"
 #include "Characters/CGhostTrail.h"
-#include <Components/BoxComponent.h>
+#include <Components/SphereComponent.h>
 
 UCDashComponent::UCDashComponent()
 {
@@ -43,7 +43,8 @@ void UCDashComponent::OnDash()
 
 void UCDashComponent::DashAction()
 {
-	CheckNull(Movement);
+	CheckNull(Movement);	
+	CheckTrue(State->IsDashMode());
 	//CheckNull(target);
 
 	FVector* input = Movement->GetInputDirection();
@@ -122,7 +123,6 @@ void UCDashComponent::Begin_DashSpeed()
 			inputVec.Y * OwnerCharacter->GetActorRightVector();
 	}
 
-	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
 	if (!!Camera)
 	{
@@ -144,6 +144,8 @@ void UCDashComponent::Begin_DashSpeed()
 		State->SetDashMode();
 	}
 	CreateEvadeOverlap(OwnerCharacter->GetActorLocation());
+
+	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
 
 	CheckNull(Weapon);
@@ -175,8 +177,6 @@ void UCDashComponent::End_DashSpeed()
 	{
 		State->SetIdleMode();
 	}
-
-
 }
 
 void UCDashComponent::PlaySoundWave()
@@ -193,32 +193,42 @@ void UCDashComponent::PlaySoundWave()
 
 void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
 {
-	// 예: 이전 위치에 Box 콜리전 생성
-	UBoxComponent* dashAvoidanceCollsion = NewObject<UBoxComponent>(this);
-	dashAvoidanceCollsion->SetBoxExtent(FVector(50.0f, 50.0f, 50.0f));
-	dashAvoidanceCollsion->SetWorldLocation(InPrevLocation);
-	dashAvoidanceCollsion->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	dashAvoidanceCollsion->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); // 커스텀 채널 설정
-	dashAvoidanceCollsion->SetCollisionResponseToAllChannels(ECR_Ignore);
-	dashAvoidanceCollsion->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap); // 적 공격에만 반응
-	dashAvoidanceCollsion->AttachToComponent(OwnerCharacter->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 
-	dashAvoidanceCollsion->RegisterComponent();
+	USphereComponent* DashAvoidanceCollision = NewObject<USphereComponent>(this);
 
-	dashAvoidanceCollsion->SetHiddenInGame(false);
-	dashAvoidanceCollsion->SetVisibility(true);
+	// 크기 및 위치 설정
+	DashAvoidanceCollision->SetSphereRadius(34.0f);
+	DashAvoidanceCollision->SetWorldLocation(InPrevLocation); // 이전 위치에 생성
+
+	// 충돌 설정
+	DashAvoidanceCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	DashAvoidanceCollision->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); // 커스텀 채널 설정
+	DashAvoidanceCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	DashAvoidanceCollision->SetCollisionProfileName("CharacterMesh"); // 특정 채널에만 반응
+
+	// 디버그 확인용으로 보이게 설정
+	DashAvoidanceCollision->SetHiddenInGame(false);
+	DashAvoidanceCollision->SetVisibility(true);
+
+	// 컴포넌트 등록
+	DashAvoidanceCollision->RegisterComponent();
+
+	// 이벤트 바인딩
+	DashAvoidanceCollision->OnComponentBeginOverlap.AddDynamic(this, &UCDashComponent::OnComponentBeginOverlap);
 
 
-	dashAvoidanceCollsion->OnComponentBeginOverlap.AddDynamic(this, &UCDashComponent::OnComponentBeginOverlap);
-
-	FTimerDelegate timerDelegate;
-	timerDelegate.BindLambda([=]()
+	// 일정 시간이 지나면 컴포넌트 제거
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindLambda([=]()
 	{
-		if (!!dashAvoidanceCollsion)
-			dashAvoidanceCollsion->DestroyComponent();
+		if (DashAvoidanceCollision)
+		{
+			DashAvoidanceCollision->DestroyComponent();
+		}
 	});
-	//TODO: 대쉬를 연속하면 이전 타이머가 죽어서 바로 콜리전이 안사라짐.
-	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, timerDelegate, 0.5f, false);
+
+	// 타이머 설정 (예: 0.5초 후 제거)
+	GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, TimerDelegate, 0.5f, false);
 }
 
 void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
