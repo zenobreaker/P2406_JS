@@ -8,8 +8,11 @@
 #include "Components/CStateComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CWeaponComponent.h"
-#include "Characters/CGhostTrail.h"
 #include <Components/SphereComponent.h>
+#include "Components/CapsuleComponent.h"
+
+#include "Characters/CGhostTrail.h"
+
 
 UCDashComponent::UCDashComponent()
 {
@@ -62,53 +65,19 @@ void UCDashComponent::DashAction()
 	// 고정 회전 모드 일때
 	else
 	{
-		DashDirection dir = DashDirection::Forward;
 		// 전방
-		if (input->X > 0)
-		{
-			if (input->Y > 0)
-				dir = DashDirection::Right;
-			else if(input->Y < 0)
-				dir = DashDirection::Left;
-		}
+		DashDirection dir = DashDirection::Forward;
 		// 후방 
-		else
-		{
+		if(input->X <= 0)
 			dir = DashDirection::Back;
-			if (input->Y > 0)
-				dir = DashDirection::Right;
-			else if (input->Y < 0)
-				dir = DashDirection::Left;
-		}
+
+		if (input->Y > 0)
+			dir = DashDirection::Right;
+		else if (input->Y < 0)
+			dir = DashDirection::Left;
 
 		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)dir]);
 	}
-	//// 후방 
-	//else if(input->X < 0)
-	//{
-	//	OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Back]);
-	//}
-}
-
-void UCDashComponent::PlayEvadeEffect()
-{
-	FVector effectLocation = OwnerCharacter->GetActorLocation();
-	FRotator effectRotation = OwnerCharacter->GetActorRotation();
-	CLog::Print("Evade !! ");
-	if (!!GhostTrailClass)
-	{
-		GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, effectLocation, effectRotation);
-
-		FTimerDelegate timerDelegate;
-		timerDelegate.BindLambda([this]()
-		{
-			if(!!GhostTrail)
-				GhostTrail->Destroy();
-		});
-
-		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, timerDelegate, 0.5f, false);
-	}
-
 }
 
 void UCDashComponent::Begin_DashSpeed()
@@ -118,7 +87,10 @@ void UCDashComponent::Begin_DashSpeed()
 	if (Weapon->GetEquipment() != nullptr
 		&& Weapon->GetEquipment()->GetControlRotation() == true)
 	{
-		double xAxis = inputVec.X == 0 ? -1 : inputVec.X;
+		double xAxis = inputVec.X;
+		if (inputVec.X == 0 && inputVec.Y == 0)
+			xAxis = -1; 
+
 		dashDir = xAxis * OwnerCharacter->GetActorForwardVector() +
 			inputVec.Y * OwnerCharacter->GetActorRightVector();
 	}
@@ -143,7 +115,7 @@ void UCDashComponent::Begin_DashSpeed()
 
 		State->SetDashMode();
 	}
-	CreateEvadeOverlap(OwnerCharacter->GetActorLocation());
+	//CreateEvadeOverlap(OwnerCharacter->GetActorLocation());
 
 	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
@@ -158,6 +130,8 @@ void UCDashComponent::Begin_DashSpeed()
 void UCDashComponent::End_DashSpeed()
 {
 	//Movement->SetSpeed(ESpeedType::Run);
+	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+
 	CheckNull(Weapon);
 
 	if (!!Camera)
@@ -193,8 +167,16 @@ void UCDashComponent::PlaySoundWave()
 
 void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
 {
+	if (!!DashAvoidanceCollision)
+	{
+		if (DashAvoidanceCollision->IsRegistered())
+		{
+			DashAvoidanceCollision->DestroyComponent();
+		}
+		DashAvoidanceCollision = nullptr;
+	}
 
-	USphereComponent* DashAvoidanceCollision = NewObject<USphereComponent>(this);
+	DashAvoidanceCollision = NewObject<USphereComponent>(this);
 
 	// 크기 및 위치 설정
 	DashAvoidanceCollision->SetSphereRadius(34.0f);
@@ -217,22 +199,74 @@ void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
 	DashAvoidanceCollision->OnComponentBeginOverlap.AddDynamic(this, &UCDashComponent::OnComponentBeginOverlap);
 
 
-	// 일정 시간이 지나면 컴포넌트 제거
-	FTimerDelegate TimerDelegate;
-	TimerDelegate.BindLambda([=]()
+	//// 일정 시간이 지나면 컴포넌트 제거
+	//FTimerDelegate TimerDelegate;
+	//TimerDelegate.BindLambda([=]()
+	//{
+	//	if (DashAvoidanceCollision)
+	//	{
+	//		DashAvoidanceCollision->DestroyComponent();
+	//	}
+	//});
+
+	//// 타이머 설정 (예: 0.5초 후 제거)
+	//OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, TimerDelegate, 0.5f, false);
+}
+
+void UCDashComponent::DestroyEvadeOverlap()
+{
+	if (!!DashAvoidanceCollision)
 	{
-		if (DashAvoidanceCollision)
+		if (DashAvoidanceCollision->IsRegistered())
 		{
 			DashAvoidanceCollision->DestroyComponent();
 		}
-	});
-
-	// 타이머 설정 (예: 0.5초 후 제거)
-	GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, TimerDelegate, 0.5f, false);
+		DashAvoidanceCollision = nullptr;
+	}
 }
 
 void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CLog::Print(" Is Evade!");
+
+	if (!!GhostTrailClass)
+	{
+		// 고스트 트레일 스폰 
+		FTimerDelegate SpawnDelegate;
+		SpawnDelegate.BindLambda([this]()
+		{
+			FVector location = OwnerCharacter->GetActorLocation();
+			location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+			FActorSpawnParameters param;
+			param.Owner = OwnerCharacter;
+			param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+			FTransform transform;
+			transform.SetTranslation(location);
+
+
+			ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
+
+			GhostTrails.Add(GhostTrail);
+
+
+			FTimerDelegate TimerDelegate;
+			TimerDelegate.BindLambda([this]()
+			{
+				for (ACGhostTrail* ghost : GhostTrails)
+				{
+					if (ghost)
+						ghost->Destroy();
+				}
+			});
+
+			// 타이머 설정 (예: 0.5초 후 제거)
+			OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, TimerDelegate, 0.5f, false);
+		});
+		
+		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
+	}
 }
 

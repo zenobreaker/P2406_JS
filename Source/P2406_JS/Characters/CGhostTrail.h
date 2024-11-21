@@ -32,12 +32,19 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UPoseableMeshComponent* Mesh;
 
+	UPROPERTY(VisibleAnywhere)
+	TArray<class UPoseableMeshComponent*> SubMeshes;
+
 public:	
 	ACGhostTrail();
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+private:
+	void SetSubMeshes(USkeletalMeshComponent* InParentMesh);
+	void CopySubMeshes(USkeletalMeshComponent* InParentMesh);
 
 private:
 	class ACharacter* OwnerCharacter;

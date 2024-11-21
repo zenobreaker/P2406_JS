@@ -402,9 +402,7 @@ void ACPlayer::PlayEvadeEffetc()
 	// 이펙트 재생
 	/*if (EvadeEffect)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EvadeEffect, effectLocation, effectRotation);*/
-	if (!!Dash)
-		Dash->PlayEvadeEffect();
-	
+
 
 	// 사운드 재생 (옵션)
 	/*if (EvadeSound)
