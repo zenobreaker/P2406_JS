@@ -19,8 +19,7 @@ public:
 	FORCEINLINE class UCEquipment* GetEquipment() { return Equipment; }
 	FORCEINLINE class UCDoAction* GetDoAction() { return DoAction; }
 	FORCEINLINE class UCSubAction* GetSubAction() { return SubAction; }
-
-
+	FORCEINLINE const TArray<class UCSkillAsset*> GetSkills() { return Skills; }
 private:
 	UPROPERTY()
 	class ACAttachment* Attachment;
@@ -34,4 +33,6 @@ private:
 	UPROPERTY()
 	class UCSubAction* SubAction;
 
+	UPROPERTY()
+	TArray<class UCSkillAsset*> Skills;
 };

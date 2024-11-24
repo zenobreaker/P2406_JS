@@ -1,6 +1,7 @@
 #include "Components/CWeaponComponent.h"
 #include "Global.h"
 #include "CStateComponent.h"
+#include "CSkillComponent.h"
 #include "GameFramework/Character.h"
 #include "Weapons/CWeaponAsset.h"
 #include "Weapons/CWeaponData.h"
@@ -33,6 +34,8 @@ void UCWeaponComponent::BeginPlay()
 		}
 
 	}
+
+	SkillComponent = CHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
 }
 
 
@@ -153,6 +156,9 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 	if (!!Datas[(int32)InType])
 	{
 		Datas[(int32)InType]->GetEquipment()->Equip();
+
+		if (!!SkillComponent)
+			SkillComponent->SetSkillList(Datas[(int32)InType]->GetSkills());
 
 		ChangeType(InType);
 	}

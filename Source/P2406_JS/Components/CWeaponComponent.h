@@ -73,6 +73,7 @@ private:
 
 private:
 	class ACharacter* OwnerCharacter;
+	class UCSkillComponent* SkillComponent;
 
 private:
 	UPROPERTY()

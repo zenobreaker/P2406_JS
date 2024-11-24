@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Weapons/CWeaponStructures.h"
+#include "Skill/CSkillAsset.h"
 #include "CWeaponAsset.generated.h"
 
 
@@ -39,6 +40,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TArray<FDoActionData> DoSubActionDatas;
+
+	UPROPERTY(EditAnywhere)
+	TArray<class UCSkillAsset*> ActiveSkills;
 
 public:
 	UCWeaponAsset();
