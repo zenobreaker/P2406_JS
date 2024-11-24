@@ -158,7 +158,7 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 		Datas[(int32)InType]->GetEquipment()->Equip();
 
 		if (!!SkillComponent)
-			SkillComponent->SetSkillList(Datas[(int32)InType]->GetSkills());
+			//SkillComponent->SetSkillList(Datas[(int32)InType]->GetSkills());
 
 		ChangeType(InType);
 	}

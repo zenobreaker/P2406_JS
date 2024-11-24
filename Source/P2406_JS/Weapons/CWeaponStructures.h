@@ -50,8 +50,8 @@ public:
 //	class ACGhostTrail* GhostTrail;
 
 public:
-	void DoAction(class ACharacter* InOwner);
-	void Destroy_GhostTrail();
+	virtual void DoAction(class ACharacter* InOwner);
+	virtual void Destroy_GhostTrail();
 
 };
 

@@ -1,5 +1,3 @@
-#include "CSkillComponent.h"
-#include "Skill/CSkillAsset.h"
 #include "Components/CSkillComponent.h"
 #include "Global.h"
 
@@ -24,20 +22,27 @@ void UCSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
-void UCSkillComponent::UseSkill(UCSkillAsset* InSkillAsset)
+void UCSkillComponent::UseSkill(ESkillSlot InSlot)
 {
-	CheckNull(InSkillAsset);
+	CheckTrue(InSlot == ESkillSlot::Max);
 
-	
+	//TODO: Skill Action »£√‚
+	//SkillTable[InSlot];
 }
 
-void UCSkillComponent::SetSkillList(const TArray<UCSkillAsset>& InSkills)
+void UCSkillComponent::SetSkillList(const TArray<class UCSkillAsset>& InSkills)
 {
 	CheckFalse(InSkills.Num() <= 0);
 
-	for (UCSkillAsset skill : InSkills)
+	int cnt = 0;
+	for (const UCSkillAsset& skillAsset : InSkills)
 	{
-
+		
+		if ((ESkillSlot)cnt == ESkillSlot::Max)
+			break; 
+		//SkillTable.Emplace((ESkillSlot)cnt, skillAsset);
+		//cnt++; 
 	}
+
 }
 

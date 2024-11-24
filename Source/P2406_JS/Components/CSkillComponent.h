@@ -2,7 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Skill/CSkillAsset.h"
 #include "CSkillComponent.generated.h"
+
+UENUM(BlueprintType)
+enum class ESkillSlot : uint8
+{
+	Skill1, Skill2, Skill3, Skill4, Max,
+};
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillUsed, UCSkillAsset*, InSkillAsset);
 
@@ -10,6 +18,10 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCSkillComponent : public UActorComponent
 {
 	GENERATED_BODY()
+
+private:
+	UPROPERTY(EditAnywhere, Category = "SkillAsset")
+	class UCSkillAsset* SkillAssets[(int32)ESkillSlot::Max];
 
 public:	
 	UCSkillComponent();
@@ -22,10 +34,16 @@ public:
 
 	FOnSkillUsed OnSkillUsed;
 
-	void UseSkill(UCSkillAsset* InSkillAsset);
+	void UseSkill(ESkillSlot InSlot);
 
-	void SetSkillList(const TArray<UCSkillAsset>& InSkills);
+	void SetSkillList(const TArray<class UCSkillAsset>& InSkills);
 
 private:
-	TMap<EKeys, class UCSkillAsset> SkillTable;
+	class ACharacter* OwnerCharacter; 
+	TMap<ESkillSlot, class UCSkillAsset> SkillTable;
+
+private:
+	UPROPERTY()
+	class UCSkillAsset* Skills[(int32)ESkillSlot::Max];
+
 };
