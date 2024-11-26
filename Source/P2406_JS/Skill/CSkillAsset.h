@@ -13,7 +13,7 @@ class P2406_JS_API UCSkillAsset : public UDataAsset
 public:
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UCSkillData> SkillDataClass; 
+	TSubclassOf<class UCActiveSkill> ActiveSkillClass; 
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	FSkillInfo SkillInfo;
@@ -27,5 +27,5 @@ public:
 public:
 	UCSkillAsset(); 
 
-	void BeginPlay(class ACharacter* InOwner, class UCSkillData** OutSkillData);
+	void BeginPlay(class ACharacter* InOwner, class UCActiveSkill** OutActiveSkill);
 };

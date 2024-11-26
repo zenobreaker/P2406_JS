@@ -2,6 +2,8 @@
 
 void UCDoAction_Skill::DoAction()
 {
+
+	Super::DoAction();
 }
 
 void UCDoAction_Skill::Begin_DoAction()

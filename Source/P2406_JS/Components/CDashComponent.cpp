@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/CEquipment.h"
+#include "Weapons/CDoAction.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Components/CStateComponent.h"
@@ -109,8 +110,11 @@ void UCDashComponent::Begin_DashSpeed()
 	{
 		if (State->IsEquipMode() == true)
 		{
-			if (Weapon->GetEquipment()->GetBeginEquip() == false)
-				Weapon->GetEquipment()->Begin_Equip();
+			if (!!Weapon->GetEquipment())
+			{
+				if (Weapon->GetEquipment()->GetBeginEquip() == false)
+					Weapon->GetEquipment()->Begin_Equip();
+			}
 		}
 
 		State->SetDashMode();
@@ -146,6 +150,9 @@ void UCDashComponent::End_DashSpeed()
 		if (Weapon->GetEquipment()->GetBeginEquip() == false)
 			Weapon->GetEquipment()->Begin_Equip();
 	}
+
+	// 공격 중이였다면 공격 종료 
+	Weapon->GetDoAction()->End_DoAction();
 
 	if (State->IsIdleMode() == false)
 	{

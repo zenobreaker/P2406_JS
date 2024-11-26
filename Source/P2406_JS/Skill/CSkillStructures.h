@@ -3,8 +3,8 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Weapons/CWeaponStructures.h"
+#include "Components/CWeaponComponent.h"
 #include "CSkillStructures.generated.h"
-#include <Components/CWeaponComponent.h>
 
 
 USTRUCT()

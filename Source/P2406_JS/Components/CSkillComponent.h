@@ -34,7 +34,7 @@ public:
 
 	FOnSkillUsed OnSkillUsed;
 
-	void UseSkill(ESkillSlot InSlot);
+	void ExecuteSkill(ESkillSlot InSlot);
 
 	void SetSkillList(const TArray<class UCSkillAsset>& InSkills);
 

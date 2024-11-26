@@ -22,7 +22,7 @@ void UCSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
-void UCSkillComponent::UseSkill(ESkillSlot InSlot)
+void UCSkillComponent::ExecuteSkill(ESkillSlot InSlot)
 {
 	CheckTrue(InSlot == ESkillSlot::Max);
 
