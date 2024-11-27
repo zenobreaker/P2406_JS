@@ -22,10 +22,11 @@ void UCSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
-void UCSkillComponent::ExecuteSkill(ESkillSlot InSlot)
+void UCSkillComponent::ExecuteSkill(int32 InSlot)
 {
-	CheckTrue(InSlot == ESkillSlot::Max);
+	CheckTrue((ESkillSlot)InSlot >= ESkillSlot::Max);
 
+	CLog::Print(FString::FromInt(InSlot)+ " Call Skill");
 	//TODO: Skill Action »£√‚
 	//SkillTable[InSlot];
 }

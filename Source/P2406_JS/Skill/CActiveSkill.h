@@ -6,6 +6,9 @@
 #include "Skill/CSkillStructures.h"
 #include "CActiveSkill.generated.h"
 
+
+enum class ESkillPhase { Start, Windup, Execution, Recovery, Finished };
+
 /// <summary>
 /// 실제로 캐릭터가 소지하여 사용할 스킬 정보
 /// </summary>
@@ -24,7 +27,7 @@ public:
 public:
 	void BeginPlay(
 		ACharacter* InOwner,
-		const TArray<FDoActionData>& InDoActionDatas, 
+		const TArray<FSkillActionData>& InDoActionDatas, 
 		const TArray<FHitData>& InHitDatas);
 
 private: 
@@ -43,11 +46,18 @@ public:
 
 	void CasetingSkill(float InTime);
 
+	void StartNextPhase();
+
+	void EndSkill(); 
+
 private:
-	class AChracter* OnwerCharacter; 
+	int32 Index; 
+	class ACharacter* OwnerCharacter; 
 	bool isCasting = false;
 	bool castingComplete = false;
 
 	float currentCooldown;
 	float currentCastingTime; 
+
+	ESkillPhase currentPhase = ESkillPhase::Start;
 };

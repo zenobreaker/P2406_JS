@@ -11,10 +11,6 @@ class P2406_JS_API UCSkillAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UCActiveSkill> ActiveSkillClass; 
-
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	FSkillInfo SkillInfo;
 

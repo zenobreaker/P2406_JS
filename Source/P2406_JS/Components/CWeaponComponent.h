@@ -56,6 +56,8 @@ public:
 public:
 	void DoAction();
 
+	void ExecuteSkill(const int32 InIndex); 
+
 public:
 	void SubAction_Pressed();
 	void SubAction_Released();
@@ -73,7 +75,7 @@ private:
 
 private:
 	class ACharacter* OwnerCharacter;
-	class UCSkillComponent* SkillComponent;
+	class UCSkillComponent* Skill;
 
 private:
 	UPROPERTY()

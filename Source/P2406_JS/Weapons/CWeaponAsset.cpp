@@ -7,6 +7,7 @@
 #include "CWeaponData.h"
 #include "GameFramework/Character.h"
 #include "SubActions/CSubAction_Sword.h"
+#include <Skill/CActiveSkill.h>
 
 
 
@@ -75,6 +76,17 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 	(*OutWeaponData)->Equipment = equipment;
 	(*OutWeaponData)->DoAction = doAction;
 	(*OutWeaponData)->SubAction = subAction;
+	
 	// WeaponAsset에 있는 스킬 정보를 가져옴 
-	(*OutWeaponData)->Skills = ActiveSkills;
+	if (ActiveSkillAssets.Num() > 0)
+	{
+		for (int32 i = 0; i < ActiveSkillAssets.Num(); i++)
+		{
+			UCActiveSkill* activeSkill = nullptr;
+			ActiveSkillAssets[i]->BeginPlay(InOwner, &activeSkill);
+
+			if (!!activeSkill)
+				(*OutWeaponData)->Skills.Add(activeSkill);
+		}
+	}
 }

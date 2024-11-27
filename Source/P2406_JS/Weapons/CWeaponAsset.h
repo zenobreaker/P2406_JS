@@ -42,7 +42,7 @@ private:
 	TArray<FDoActionData> DoSubActionDatas;
 
 	UPROPERTY(EditAnywhere)
-	TArray<class UCSkillAsset*> ActiveSkills;
+	TArray<UCSkillAsset*> ActiveSkillAssets;
 
 public:
 	UCWeaponAsset();

@@ -55,6 +55,9 @@ private:
 	class UCWeaponComponent* Weapon;
 
 	UPROPERTY(VisibleAnywhere)
+	class UCSkillComponent* Skill; 
+
+	UPROPERTY(VisibleAnywhere)
 	class UCMovementComponent* Movement;
 	
 	UPROPERTY(VisibleAnywhere)
@@ -120,6 +123,11 @@ private:
 	void OnDash();
 	void PlayEvadeEffetc();
 
+
+private:
+	void OnSkill1();
+	void OnSkill2();
+
 private:
 	bool bEquipped;
 	bool bEquipping;
@@ -130,5 +138,4 @@ public:
 
 private:
 	class UCUserWidget_Player* UserInterface;
-
 };

@@ -17,16 +17,22 @@ public:
 	EWeaponType WeaponType = EWeaponType::Max;
 
 	UPROPERTY(EditAnywhere, Category = "Info")
-	FName SkillName;
+	FString SkillName = "";
 
 	UPROPERTY(EditAnywhere, Category = "Info")
-	float CastringTime;
+	float CastingTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Info")
-	float CoolDown;
+	float CoolDown = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Info")
-	float Cost;
+	float Cost = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Info")
+	class UAnimMontage* CastingAnimMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Info")
+	class UAnimMontage* PlayAnimMontage;
 };
 
 USTRUCT()

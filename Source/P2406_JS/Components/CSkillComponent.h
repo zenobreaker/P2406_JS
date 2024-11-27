@@ -19,10 +19,6 @@ class P2406_JS_API UCSkillComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, Category = "SkillAsset")
-	class UCSkillAsset* SkillAssets[(int32)ESkillSlot::Max];
-
 public:	
 	UCSkillComponent();
 
@@ -34,16 +30,16 @@ public:
 
 	FOnSkillUsed OnSkillUsed;
 
-	void ExecuteSkill(ESkillSlot InSlot);
+	void ExecuteSkill(int32 InSlot);
 
 	void SetSkillList(const TArray<class UCSkillAsset>& InSkills);
 
 private:
 	class ACharacter* OwnerCharacter; 
-	TMap<ESkillSlot, class UCSkillAsset> SkillTable;
+	TMap<ESkillSlot, class UCActiveSkill*> SkillTable;
 
 private:
 	UPROPERTY()
-	class UCSkillAsset* Skills[(int32)ESkillSlot::Max];
+	class UCActiveSkill* Skills[(int32)ESkillSlot::Max];
 
 };

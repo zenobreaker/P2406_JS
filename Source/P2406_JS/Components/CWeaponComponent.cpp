@@ -25,17 +25,11 @@ void UCWeaponComponent::BeginPlay()
 	{
 		if (!!DataAssets[i])
 		{
-			/*if (i == 1)
-			{
-				CLog::Log((int)&DataAssets[i]);
-			}*/
-
 			DataAssets[i]->BeginPlay(OwnerCharacter, &Datas[i]);
 		}
-
 	}
-
-	SkillComponent = CHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+	// 주인한테 있는 컴포넌트 가져옴
+	Skill = CHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
 }
 
 
@@ -180,6 +174,13 @@ void UCWeaponComponent::DoAction()
 	{
 		GetDoAction()->DoAction();
 	}
+}
+
+void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
+{
+	CheckNull(Skill);
+	
+	Skill->ExecuteSkill(InIndex);
 }
 
 void UCWeaponComponent::SubAction_Pressed()

@@ -9,6 +9,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Components/CDashComponent.h"
+#include "Components/CSkillComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Characters/CGhostTrail.h"
@@ -28,6 +29,7 @@ ACPlayer::ACPlayer()
 	CHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
 	CHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
 	CHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
+	CHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -103,7 +105,7 @@ ACPlayer::ACPlayer()
 		Grapple->PrimaryComponentTick.bCanEverTick = true;
 	}
 
-	
+
 }
 
 void ACPlayer::BeginPlay()
@@ -166,6 +168,14 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, Target, &UCTargetComponent::Toggle);
 	PlayerInputComponent->BindAction("Target_Left", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveLeft);
 	PlayerInputComponent->BindAction("Target_Right", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveRight);
+
+	//TODO: 일단무식한 방법으로 처리함 나중에 개념 충족하면 여기 수정하기 
+	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Pressed, this,
+		&ACPlayer::OnSkill1);
+
+	PlayerInputComponent->BindAction("Skill2", EInputEvent::IE_Pressed, this,
+		&ACPlayer::OnSkill2);
+
 }
 
 float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -409,6 +419,25 @@ void ACPlayer::PlayEvadeEffetc()
 		UGameplayStatics::PlaySoundAtLocation(this, EvadeSound, effectLocation);*/
 
 }
+
+void ACPlayer::OnSkill1()
+{
+	CheckNull(Weapon);
+	CheckFalse(State->IsIdleMode());
+
+	Weapon->ExecuteSkill(0);
+
+}
+
+void ACPlayer::OnSkill2()
+{
+	CheckNull(Weapon);
+	CheckFalse(State->IsIdleMode());
+
+	Weapon->ExecuteSkill(1);
+}
+
+
 
 // 캐릭터가 착지되었을 때 콜되는 함수 
 void ACPlayer::Landed(const FHitResult& Hit)

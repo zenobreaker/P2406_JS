@@ -9,13 +9,7 @@ UCSkillAsset::UCSkillAsset()
 
 void UCSkillAsset::BeginPlay(ACharacter* InOwner, UCActiveSkill** OutActiveSkill)
 {
-
-	if (!!ActiveSkillClass)
-	{
-
-	}
-
 	*OutActiveSkill = NewObject<UCActiveSkill>();
 	(*OutActiveSkill)->SkillInfo = SkillInfo;
-	//(*OutActiveSkill)->
+	(*OutActiveSkill)->BeginPlay(InOwner, DoActionDatas, HitDatas);
 }
