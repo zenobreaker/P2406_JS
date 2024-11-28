@@ -8,7 +8,7 @@
 #include "Weapons/CEquipment.h"
 #include "Weapons/CDoAction.h"
 #include "Weapons/CSubAction.h"
-
+#include "Skill/CActiveSkill.h"
 
 
 UCWeaponComponent::UCWeaponComponent()
@@ -83,6 +83,11 @@ UCSubAction* UCWeaponComponent::GetSubAction()
 	return Datas[(int32)Type]->GetSubAction();
 }
 
+UCWeaponData* UCWeaponComponent::GetCurrentWeaponData()
+{
+	return Datas[(int32)Type];
+}
+
 
 void UCWeaponComponent::SetUnarmedMode()
 {
@@ -151,11 +156,13 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 	{
 		Datas[(int32)InType]->GetEquipment()->Equip();
 
-		//if (!!SkillComponent)
-			//SkillComponent->SetSkillList(Datas[(int32)InType]->GetSkills());
+		if (!!Skill)
+			Skill->SetSkillList(Datas[(int32)InType]->GetSkills());
 
 		ChangeType(InType);
 	}
+
+	
 }
 
 void UCWeaponComponent::ChangeType(EWeaponType InType)
@@ -178,8 +185,9 @@ void UCWeaponComponent::DoAction()
 
 void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 {
+	CheckFalse(IsIdleMode());
 	CheckNull(Skill);
-	
+
 	Skill->ExecuteSkill(InIndex);
 }
 

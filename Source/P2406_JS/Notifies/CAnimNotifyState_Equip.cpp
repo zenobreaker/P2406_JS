@@ -35,5 +35,6 @@ void UCAnimNotifyState_Equip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 	CheckNull(weapon->GetEquipment());
 
 	weapon->GetEquipment()->End_Equip();
+
 }
 

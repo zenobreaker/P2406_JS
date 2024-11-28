@@ -32,7 +32,7 @@ public:
 
 	void ExecuteSkill(int32 InSlot);
 
-	void SetSkillList(const TArray<class UCSkillAsset>& InSkills);
+	void SetSkillList(const TArray<class UCActiveSkill*>& InSkills);
 
 private:
 	class ACharacter* OwnerCharacter; 
@@ -41,5 +41,7 @@ private:
 private:
 	UPROPERTY()
 	class UCActiveSkill* Skills[(int32)ESkillSlot::Max];
+
+	TArray<UCActiveSkill*> ActiveSkills;
 
 };

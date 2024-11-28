@@ -23,7 +23,6 @@ private:
 
 public:
 	FORCEINLINE EWeaponType GetType() { return Type; }
-
 	FORCEINLINE bool IsUnarmedMode() { return Type == EWeaponType::Max; }
 
 public:
@@ -31,6 +30,7 @@ public:
 	class UCEquipment* GetEquipment();
 	class UCDoAction* GetDoAction();
 	class UCSubAction* GetSubAction();
+	class UCWeaponData* GetCurrentWeaponData();
 
 private:
 	bool IsIdleMode();

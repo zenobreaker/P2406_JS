@@ -4,8 +4,12 @@
 #include "UObject/NoExportTypes.h"
 #include "Weapons/CWeaponStructures.h"
 #include "Components/CWeaponComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "CSkillStructures.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionCompleted);
 
 USTRUCT()
 struct FSkillInfo
@@ -27,12 +31,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Info")
 	float Cost = 0.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Info")
-	class UAnimMontage* CastingAnimMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Info")
-	class UAnimMontage* PlayAnimMontage;
 };
 
 USTRUCT()
@@ -44,8 +42,30 @@ public:
 	UPROPERTY(EditAnywhere)
 	float HitDelay;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* SkillEffect;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* BeginCastingAnimMontage;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* CastingAnimMontage;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* EndCastingAnimMontage;
+
+	FOnActionCompleted OnAcctionCompleted;
+
+	//TODO: 스킬 판정 
+	//UPROPERTY(EditAnywhere)
+
 public:
 	void DoAction(class ACharacter* InOwner) override;
+
+	virtual void Begin_Casting(class ACharacter* InOwner);
+	virtual void DoCasting(class ACharacter* InOwner);
+	virtual void End_Casting( class ACharacter* InOwner);
+
 	void Destroy_GhostTrail() override;
 
 };

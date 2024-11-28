@@ -9,58 +9,138 @@ void UCActiveSkill::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData
 	DoActionDatas = InDoActionDatas;
 	HitDatas = HitDatas;
 
-    CLog::Print("Skill Create!");
+	CLog::Print("Skill Create!");
+}
+
+void UCActiveSkill::Tick(float InDeltaTime)
+{
+	CasetingSkill(InDeltaTime);
 }
 
 void UCActiveSkill::ExecuteSkill()
 {
 	CheckNull(OwnerCharacter);
 
-	// 캐스팅 
-	if(currentCastingTime > 0.0f)
-		return;
+	currentPhase = ESkillPhase::Start;
 
-	// 액션 
-    OwnerCharacter->PlayAnimMontage(SkillInfo.PlayAnimMontage);
-
+	Index = 0;
+	StartNextPhase();
 }
 
 void UCActiveSkill::CasetingSkill(float InTime)
 {
+	if (currentPhase != ESkillPhase::Casting)
+		return;
+
+	// 캐스팅 시간이 다 되었다면 
+	if (currentCastingTime >= SkillInfo.CastingTime)
+	{
+		StartNextPhase();
+		return;
+	}
+
+	currentCastingTime += InTime;
 
 }
 
 void UCActiveSkill::StartNextPhase()
 {
-    switch (currentPhase)
-    {
-    case ESkillPhase::Start:
-        // 초기화 단계
-        currentPhase = ESkillPhase::Windup;
-        break;
+	switch (currentPhase)
+	{
+	case ESkillPhase::Start:
+		// 초기화 단계
+		currentPhase = ESkillPhase::Casting;
 
-    case ESkillPhase::Windup:
-        // 애니메이션 시작
-        //PlayAnimation(WindupAnimation);
-        currentPhase = ESkillPhase::Execution;
-        break;
+		//DoActionDatas[Index].OnAcctionCompleted->AddDyanmic(this, );
+		break;
+	case ESkillPhase::Begin_Casting:
 
-    case ESkillPhase::Execution:
-        // 애니메이션에서 노티파이를 통해 충돌 판정 호출
-        //OwnerCharacter->PlayAnimMontage(SkillInfo);
-        currentPhase = ESkillPhase::Recovery;
-        break;
+		
+		break;
+	case ESkillPhase::Casting:
+		// 애니메이션 시작
 
-    case ESkillPhase::Recovery:
-        // 마무리 단계
-        EndSkill();
-        break;
-    }
+		break;
+
+	case ESkillPhase::End_Casting:
+
+		break;
+
+	case ESkillPhase::Execution:
+		break;
+
+	case ESkillPhase::Effect:
+		// 효과 처리 단계
+
+		currentPhase = ESkillPhase::Finished;
+		break;
+	}
 }
 
-void UCActiveSkill::EndSkill()
+void UCActiveSkill::StartPhase(ESkillPhase phase)
+{
+	currentPhase = phase; 
+
+	StartNextPhase();
+}
+
+void UCActiveSkill::DelayNextData(float InTime)
+{
+	if (currentDelay >= DoActionDatas[Index].HitDelay)
+	{
+		// 다음 데이터로 
+
+		return;
+	}
+
+	currentDelay += InTime;
+}
+
+/// <summary>
+/// 캐스팅 처리
+/// </summary>
+void UCActiveSkill::DoActionData()
+{
+	if (Index >= DoActionDatas.Num())
+		return;
+
+	DoActionDatas[Index].DoAction(OwnerCharacter);
+}
+
+void UCActiveSkill::Begin_Casting()
+{
+	DoActionDatas[Index].Begin_Casting(OwnerCharacter);
+}
+
+void UCActiveSkill::DoCasting()
+{
+	DoActionDatas[Index].DoCasting(OwnerCharacter);
+}
+
+void UCActiveSkill::End_Casting()
+{
+	DoActionDatas[Index].End_Casting(OwnerCharacter);
+}
+
+
+/// <summary>
+/// 스킬 처리
+/// </summary>
+
+void UCActiveSkill::Begin_Skill()
 {
 
 }
+
+void UCActiveSkill::End_Skill()
+{
+
+}
+
+void UCActiveSkill::Create_Effect()
+{
+
+}
+
 
 
