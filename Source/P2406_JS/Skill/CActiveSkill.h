@@ -6,14 +6,17 @@
 #include "Skill/CSkillStructures.h"
 #include "CActiveSkill.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionCompleted);
 
 enum class ESkillPhase : int8
 {
-	Start, 
+	Start,
 	Begin_Casting,
 	Casting, 
 	End_Casting,
-	Execution, 
+	Begin_Skill,
+	DoAction_Skill,
+	End_Skill,
 	Effect, 
 	Finished, 
 	Max 
@@ -32,7 +35,10 @@ private:
 
 public:
 	FORCEINLINE float GetCoolDown() { return SkillInfo.CoolDown; }
-	FORCEINLINE bool GetIsCasting() { return isCasting; }
+	FORCEINLINE bool GetIsExecute() {
+		return (currentPhase != ESkillPhase::Start &&
+			currentPhase != ESkillPhase::Finished && 
+			currentPhase != ESkillPhase::Max);}
 	FORCEINLINE bool GetIsFinished() { return currentPhase == ESkillPhase::Finished; }
 
 public:
@@ -53,32 +59,33 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	TArray<FHitData> HitDatas;
 
+	UPROPERTY(BlueprintAssignable, Category = "Skill")
+	FOnActionCompleted OnActionCompleted;
 
 public:
 	void ExecuteSkill();
+	void EndSkill();
 
 	void CasetingSkill(float InTime);
 	void StartNextPhase();
-	void StartPhase(ESkillPhase phase);
+	void ExecutePhase(ESkillPhase phase);
 
 	void DelayNextData(float InTime);
-
-	void DoActionData();
-
+	
+public:
 	virtual void Begin_Casting(); 
 	virtual void DoCasting();
 	virtual void End_Casting();
 
 	virtual void Begin_Skill(); 
+	virtual void DoAction_Skill();
 	virtual void End_Skill();
 	
-	virtual void Create_Effect();
+	virtual void Create_Collision();
 
 private:
 	int32 Index; 
 	class ACharacter* OwnerCharacter; 
-	bool isCasting = false;
-	bool castingComplete = false;
 
 	float currentCooldown;
 	float currentCastingTime; 

@@ -31,6 +31,8 @@ public:
 	FOnSkillUsed OnSkillUsed;
 
 	void ExecuteSkill(int32 InSlot);
+	void CreateSkillCollision(); 
+	void EndSkill();
 
 	void SetSkillList(const TArray<class UCActiveSkill*>& InSkills);
 
@@ -41,6 +43,9 @@ private:
 private:
 	UPROPERTY()
 	class UCActiveSkill* Skills[(int32)ESkillSlot::Max];
+
+	UPROPERTY()
+	class UCActiveSkill* CurrentSkill; 
 
 	TArray<UCActiveSkill*> ActiveSkills;
 

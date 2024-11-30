@@ -46,8 +46,27 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	if (SkillTable.Contains((ESkillSlot)InSlot) == true)
 	{
 		SkillTable[(ESkillSlot)InSlot]->ExecuteSkill();
+		CurrentSkill = SkillTable[(ESkillSlot)InSlot];
 		ActiveSkills.Add(SkillTable[(ESkillSlot)InSlot]);
 	}
+}
+
+void UCSkillComponent::CreateSkillCollision()
+{
+	CheckNull(CurrentSkill);
+
+	CurrentSkill->Create_Collision();
+	
+}
+
+void UCSkillComponent::EndSkill()
+{
+	if (!!CurrentSkill)
+	{
+		CurrentSkill->EndSkill();
+	}
+
+	CurrentSkill = nullptr;
 }
 
 void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InSkills)

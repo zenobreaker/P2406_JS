@@ -9,8 +9,6 @@
 #include "CSkillStructures.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionCompleted);
-
 USTRUCT()
 struct FSkillInfo
 {
@@ -54,13 +52,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* EndCastingAnimMontage;
 
-	FOnActionCompleted OnAcctionCompleted;
-
-	//TODO: 스킬 판정 
-	//UPROPERTY(EditAnywhere)
+	//스킬 판정 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACSkillCollision> SkillCollisionClass;
 
 public:
 	void DoAction(class ACharacter* InOwner) override;
+	virtual void Create_SkillCollision(class ACharacter* InOwner);
 
 	virtual void Begin_Casting(class ACharacter* InOwner);
 	virtual void DoCasting(class ACharacter* InOwner);
