@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include  "Skill/CSkillStructures.h"
 #include "CSkillCollision.generated.h"
 
 UCLASS(Abstract)
@@ -11,6 +12,13 @@ class P2406_JS_API ACSkillCollision : public AActor
 	
 public:	
 	ACSkillCollision();
+
+public:
+	FORCEINLINE void AddIgnore(AActor* InActor) { Ignores.Add(InActor); }
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPrimitiveComponent* CollisionComponent;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
@@ -30,13 +38,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UFUNCTION()
+	void SetSkillOwnerData(class ACharacter* InOwner,const TArray<FSkillHitData>& InHitDatas);
+
 	// 충돌 시작
 	UFUNCTION(BlueprintCallable, Category = "Skill Collision")
-	virtual void ActivateCollision();
+	virtual void ActivateCollision() {}
 
 	// 충돌 종료
 	UFUNCTION(BlueprintCallable, Category = "Skill Collision")
-	virtual void DeactivateCollision();
+	virtual void DeactivateCollision() {}
+
+	UFUNCTION(BlueprintCallable, Category = "Skill Collision")
+	virtual void ApplyCollisionEffect();
+
+	UFUNCTION()
+	virtual void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 
 protected:
 	// 충돌이 발생했을 때 처리할 이벤트
@@ -44,6 +62,15 @@ protected:
 	virtual void HandleCollision(AActor* HitActor);
 
 public:
-	TArray<class ACharacter*> Hitted;
+	TArray<AActor*> Hitted;
 
+protected:
+	class ACharacter* OwnerCharacter; 
+
+	int32 Index;
+	TArray<FSkillHitData> HitDatas;
+	TArray<AActor*> Ignores;
+
+protected:
+	FTimerHandle CollisionTimerHandle; // 충돌 간격 타이머
 };

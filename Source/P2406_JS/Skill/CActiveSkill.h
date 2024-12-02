@@ -45,7 +45,7 @@ public:
 	void BeginPlay(
 		ACharacter* InOwner,
 		const TArray<FSkillActionData>& InDoActionDatas, 
-		const TArray<FHitData>& InHitDatas);
+		const TArray<FSkillHitData>& InHitDatas);
 
 	void Tick(float InDeltaTime);
 
@@ -57,7 +57,7 @@ private:
 	TArray<FSkillActionData> DoActionDatas;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
-	TArray<FHitData> HitDatas;
+	TArray<FSkillHitData> HitDatas;
 
 	UPROPERTY(BlueprintAssignable, Category = "Skill")
 	FOnActionCompleted OnActionCompleted;
@@ -82,6 +82,7 @@ public:
 	virtual void End_Skill();
 	
 	virtual void Create_Collision();
+	virtual void Create_Effect();
 
 private:
 	int32 Index; 

@@ -3,7 +3,7 @@
 #include "Components/CStatecomponent.h"
 #include "GameFramework/Character.h"
 
-void UCActiveSkill::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData>& InDoActionDatas, const TArray<FHitData>& InHitDatas)
+void UCActiveSkill::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData>& InDoActionDatas, const TArray<FSkillHitData>& InHitDatas)
 {
 	OwnerCharacter = InOwner;
 	DoActionDatas = InDoActionDatas;
@@ -24,8 +24,9 @@ void UCActiveSkill::ExecuteSkill()
 	CheckNull(OwnerCharacter);
 
 	currentPhase = ESkillPhase::Start;
-
 	Index = 0;
+	
+	
 	StartNextPhase();
 }
 
@@ -181,7 +182,15 @@ void UCActiveSkill::Create_Collision()
 {
 	CheckNull(OwnerCharacter); 
 
-	DoActionDatas[Index].Create_SkillCollision(OwnerCharacter);
+	CLog::Print("Success Create!");
+	DoActionDatas[Index].Create_SkillCollision(OwnerCharacter, HitDatas);
+}
+
+void UCActiveSkill::Create_Effect()
+{
+	CheckNull(OwnerCharacter);
+
+	DoActionDatas[Index].Create_SkillEffect(OwnerCharacter);
 }
 
 

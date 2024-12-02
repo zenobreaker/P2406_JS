@@ -3,3 +3,10 @@
 
 #include "Skill/CSkillCollision_Projectile.h"
 
+void ACSkillCollision_Projectile::ActivateCollision()
+{
+}
+
+void ACSkillCollision_Projectile::DeactivateCollision()
+{
+}

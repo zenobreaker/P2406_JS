@@ -32,6 +32,7 @@ public:
 
 	void ExecuteSkill(int32 InSlot);
 	void CreateSkillCollision(); 
+	void CreateSkillEffect();
 	void EndSkill();
 
 	void SetSkillList(const TArray<class UCActiveSkill*>& InSkills);

@@ -14,19 +14,45 @@ void FSkillActionData::DoAction(ACharacter* InOwner)
 	// 이펙트가 있다면 그것도 실행
 }
 
-void FSkillActionData::Create_SkillCollision(ACharacter* InOwner)
+void FSkillActionData::Create_SkillCollision(ACharacter* InOwner, const TArray<FSkillHitData>& InHitDatas)
 {
-	CLog::Print("Create Skill Collision");
-
 	CheckNull(SkillCollisionClass);
 
 	FActorSpawnParameters param;
 	param.Owner = InOwner;
 	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	ACSkillCollision* skillCollision = InOwner->GetWorld()->SpawnActor<ACSkillCollision>(SkillCollisionClass, InOwner->GetOwner()->GetActorLocation(), 
-		InOwner->GetOwner()->GetActorRotation(),
-		param);
+	FTransform transform;
+	ACSkillCollision* skillCollision = InOwner->GetWorld()->SpawnActorDeferred<ACSkillCollision>(SkillCollisionClass, transform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+	CheckNull(skillCollision);
+	skillCollision->SetSkillOwnerData(InOwner, InHitDatas);
+
+	skillCollision->AddIgnore(InOwner);
+
+	FAttachmentTransformRules rule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
+
+	UGameplayStatics::FinishSpawningActor(skillCollision, transform);
+}
+
+void FSkillActionData::Create_SkillEffect(ACharacter* InOwner)
+{
+	CheckNull(InOwner);
+
+	FVector ownerLocation = InOwner->GetActorLocation();
+	FVector ownerForward = InOwner->GetActorForwardVector();
+	FVector spwanLocation = ownerLocation + ownerForward;
+
+	FRotator spawnRotator = InOwner->GetActorRotation();
+	//spawnRotator.Roll = angle;
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		InOwner->GetWorld(),
+		SkillEffect,
+		spwanLocation,
+		spawnRotator,
+		FVector::OneVector
+	);
 }
 
 void FSkillActionData::Begin_Casting(ACharacter* InOwner)

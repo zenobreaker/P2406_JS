@@ -41,7 +41,10 @@ public:
 	float HitDelay;
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraComponent* SkillEffect;
+	class USoundWave* Sound;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* SkillEffect;
 
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* BeginCastingAnimMontage;
@@ -56,16 +59,28 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACSkillCollision> SkillCollisionClass;
 
+
 public:
 	void DoAction(class ACharacter* InOwner) override;
-	virtual void Create_SkillCollision(class ACharacter* InOwner);
-
+	virtual void Create_SkillCollision(class ACharacter* InOwner, const TArray<FSkillHitData>& InHitDatas);
+	virtual void Create_SkillEffect(class ACharacter* InOwner);
 	virtual void Begin_Casting(class ACharacter* InOwner);
 	virtual void DoCasting(class ACharacter* InOwner);
 	virtual void End_Casting( class ACharacter* InOwner);
 
 	void Destroy_GhostTrail() override;
 
+};
+
+
+USTRUCT()
+struct FSkillHitData : public FHitData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	float CollisionInterval;
 };
 
 

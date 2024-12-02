@@ -18,7 +18,7 @@ public:
 	TArray<FSkillActionData> DoActionDatas;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
-	TArray<FHitData> HitDatas;
+	TArray<FSkillHitData> HitDatas;
 
 public:
 	UCSkillAsset(); 

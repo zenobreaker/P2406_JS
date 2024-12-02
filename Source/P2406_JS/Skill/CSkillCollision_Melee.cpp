@@ -3,3 +3,10 @@
 
 #include "Skill/CSkillCollision_Melee.h"
 
+void ACSkillCollision_Melee::ActivateCollision()
+{
+}
+
+void ACSkillCollision_Melee::DeactivateCollision()
+{
+}

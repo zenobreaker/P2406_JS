@@ -59,6 +59,13 @@ void UCSkillComponent::CreateSkillCollision()
 	
 }
 
+void UCSkillComponent::CreateSkillEffect()
+{
+	CheckNull(CurrentSkill);
+
+	CurrentSkill->Create_Effect();
+}
+
 void UCSkillComponent::EndSkill()
 {
 	if (!!CurrentSkill)
