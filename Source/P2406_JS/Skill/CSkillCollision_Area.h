@@ -12,10 +12,13 @@ class P2406_JS_API ACSkillCollision_Area : public ACSkillCollision
 
 public:
 	ACSkillCollision_Area();
-
 private:
 	UPROPERTY(VisibleAnywhere)
 	class USphereComponent* AreaCollisionComponent;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Size")
+	float CollisionRadius = 100.0f;
 
 public:
 	// 충돌 시작

@@ -30,9 +30,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
 	float Duration; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
-	float CollisionSize;
-
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,24 +39,28 @@ public:
 	void SetSkillOwnerData(class ACharacter* InOwner,const TArray<FSkillHitData>& InHitDatas);
 
 	// 충돌 시작
-	UFUNCTION(BlueprintCallable, Category = "Skill Collision")
+	UFUNCTION()
 	virtual void ActivateCollision() {}
 
 	// 충돌 종료
-	UFUNCTION(BlueprintCallable, Category = "Skill Collision")
+	UFUNCTION()
 	virtual void DeactivateCollision() {}
 
-	UFUNCTION(BlueprintCallable, Category = "Skill Collision")
+	UFUNCTION()
 	virtual void ApplyCollisionEffect();
 
 	UFUNCTION()
 	virtual void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	//virtual void EndSkillCollisionProcess();
 
 protected:
 	// 충돌이 발생했을 때 처리할 이벤트
 	UFUNCTION()
 	virtual void HandleCollision(AActor* HitActor);
+
+	virtual void DestroyProcess();
+
 
 public:
 	TArray<AActor*> Hitted;

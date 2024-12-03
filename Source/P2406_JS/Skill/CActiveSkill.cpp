@@ -7,7 +7,7 @@ void UCActiveSkill::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData
 {
 	OwnerCharacter = InOwner;
 	DoActionDatas = InDoActionDatas;
-	HitDatas = HitDatas;
+	HitDatas = InHitDatas;
 
 	//OnActionCompleted.AddDynamic(this, &UCActiveSkill::StartNextPhase);
 

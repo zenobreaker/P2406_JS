@@ -34,7 +34,7 @@ void ACSkillCollision::ApplyCollisionEffect()
 
 void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CLog::Print("Hit Targets");
+	CLog::Print("Hit Object");
 	CheckNull(OtherActor);
 
 	for (AActor* hitted : Hitted)
@@ -43,15 +43,16 @@ void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 	Hitted.AddUnique(OtherActor);
 
 	CheckTrue(HitDatas.Num() - 1 < Index);
-
-
-	/*if (OnAttachmentBeginOverlap.IsBound())
-		OnAttachmentBeginOverlap.Broadcast(OwnerCharacter, this, Cast<ACharacter>(OtherActor));*/
-	//HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther);
 }
 
 void ACSkillCollision::HandleCollision(AActor* HitActor)
 {
-	CLog::Print("Collision Targe!! ", -1, 10.0f, FColor::Red);
+	CLog::Print("Collision Target!! ", -1, 10.0f, FColor::Red);
+}
+
+void ACSkillCollision::DestroyProcess()
+{
+	if (this)
+		Destroy();
 }
 
