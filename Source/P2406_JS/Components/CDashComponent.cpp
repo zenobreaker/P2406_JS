@@ -47,7 +47,7 @@ void UCDashComponent::OnDash()
 
 void UCDashComponent::DashAction()
 {
-	CheckNull(Movement);	
+	CheckNull(Movement);
 	CheckTrue(State->IsDashMode());
 	//CheckNull(target);
 
@@ -57,7 +57,7 @@ void UCDashComponent::DashAction()
 	inputVec = *input;
 
 	// 자유 카메라 모드 일 때 
-	if (Weapon->GetEquipment() == nullptr 
+	if (Weapon->GetEquipment() == nullptr
 		|| Weapon->GetEquipment()->GetControlRotation() == false)
 	{
 		// 전방
@@ -69,7 +69,7 @@ void UCDashComponent::DashAction()
 		// 전방
 		DashDirection dir = DashDirection::Forward;
 		// 후방 
-		if(input->X <= 0)
+		if (input->X <= 0)
 			dir = DashDirection::Back;
 
 		if (input->Y > 0)
@@ -84,13 +84,13 @@ void UCDashComponent::DashAction()
 void UCDashComponent::Begin_DashSpeed()
 {
 	FVector dashDir = OwnerCharacter->GetActorForwardVector();
-	
+
 	if (Weapon->GetEquipment() != nullptr
 		&& Weapon->GetEquipment()->GetControlRotation() == true)
 	{
 		double xAxis = inputVec.X;
 		if (inputVec.X == 0 && inputVec.Y == 0)
-			xAxis = -1; 
+			xAxis = -1;
 
 		dashDir = xAxis * OwnerCharacter->GetActorForwardVector() +
 			inputVec.Y * OwnerCharacter->GetActorRightVector();
@@ -152,7 +152,8 @@ void UCDashComponent::End_DashSpeed()
 	}
 
 	// 공격 중이였다면 공격 종료 
-	Weapon->GetDoAction()->End_DoAction();
+	if(Weapon->GetDoAction() != nullptr)
+		Weapon->GetDoAction()->End_DoAction();
 
 	if (State->IsIdleMode() == false)
 	{
@@ -272,7 +273,7 @@ void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCom
 			// 타이머 설정 (예: 0.5초 후 제거)
 			OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, TimerDelegate, 0.5f, false);
 		});
-		
+
 		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
 	}
 }

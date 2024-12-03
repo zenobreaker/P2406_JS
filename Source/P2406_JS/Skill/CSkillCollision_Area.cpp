@@ -11,6 +11,7 @@ ACSkillCollision_Area::ACSkillCollision_Area()
 
 	if (!!CollisionComponent)
 	{
+		//CLog::Print("Set Overlap", -1, 10.0f, FColor::Green);
 		CollisionComponent->OnComponentBeginOverlap.AddDynamic(this,
 			&ACSkillCollision_Area::OnComponentBeginOverlap);
 	}
@@ -19,10 +20,10 @@ ACSkillCollision_Area::ACSkillCollision_Area()
 void ACSkillCollision_Area::ActivateCollision()
 {
 	CheckTrue(HitDatas.Num() <= Index);
+	CheckNull(CollisionComponent);
 
 	// 충돌 활성화 로직 (예: 콜리전 켜기)
 	//SetActorEnableCollision(true);
-
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	// 충돌 기능 
