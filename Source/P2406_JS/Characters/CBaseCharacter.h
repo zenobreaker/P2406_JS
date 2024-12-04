@@ -18,6 +18,9 @@ protected:
 	class UAnimMontage* DamagedMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
+	class UAnimMontage* AirborneDamagedMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
 	class UAnimMontage* DeadMontage;
 
 

@@ -5,7 +5,7 @@
 
 ACPatrolPath::ACPatrolPath()
 {
-	bRunConstructionScriptOnDrag = false;
+	//bRunConstructionScriptOnDrag = false;
 
 	CHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
 	CHelpers::CreateComponent<USplineComponent>(this, &Spline, "Spline", Root);

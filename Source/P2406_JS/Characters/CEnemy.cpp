@@ -32,6 +32,8 @@ ACEnemy::ACEnemy()
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
 
 	CHelpers::GetAsset<UAnimMontage>(&DamagedMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/HitReaction_Montage.HitReaction_Montage'");
+
+	CHelpers::GetAsset<UAnimMontage>(&AirborneDamagedMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Damage/Airborne_Fall.Airborne_Fall'");
 	CHelpers::GetAsset<UAnimMontage>(&DeadMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Enemy_DeadFall_Montage.Enemy_DeadFall_Montage'");
 }
 
@@ -114,21 +116,37 @@ void ACEnemy::Damaged()
 	{
 		FHitData* hitData = DamageData.Event->HitData;
 
-
 		UAnimMontage* montage = hitData->Montage;
 		float playRate = hitData->PlayRate;
 
 		if (montage == nullptr)
 		{
-			montage = DamagedMontage;
-			playRate = 1.5f;
+			bool check = false; 
+			check |= GetCharacterMovement()->IsFalling() == false;
+			check |= Airborne != nullptr && Airborne->GetIsAirborne() == false;
+			if (check == true )
+			{
+				// 지상 상태에서 맞는 애니메이션 처리 
+				montage = DamagedMontage;
+				playRate = 1.5f;
+			}
+			else
+			{
+				// 공중 상태에서 맞는 애니메이션 처리
+				montage = AirborneDamagedMontage;
+				playRate = 1.5f; 
+			}
 		}
+		
 		PlayAnimMontage(montage, playRate);
 
+		// 히트 및 효과 처리 
+		{
+			hitData->PlayHitStop(GetWorld());
+			hitData->PlaySoundWave(this);
+			hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
+		}
 
-		hitData->PlayHitStop(GetWorld());
-		hitData->PlaySoundWave(this);
-		hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
 
 		if (HealthPoint->IsDead() == false)
 		{
@@ -136,14 +154,21 @@ void ACEnemy::Damaged()
 			FVector target = DamageData.Attacker->GetActorLocation();
 			FVector direction = target - start;
 			direction.Normalize();
+			
+			// 공중에 띄우기
+			float dirZ = 0.0f;
+			if (!!Airborne)
+			{
+				dirZ = Airborne->GetAddedAirValue(hitData->Airial, DamageData.Attacker);
+			}
+			FVector LaunchVelocity = -direction * hitData->Launch + FVector(0, 0, dirZ);
+			LaunchCharacter(LaunchVelocity, false, false);
 
-			LaunchCharacter(-direction * hitData->Launch, false, false);
+			// 방향 조절
 			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 			targetRotator.Pitch = 0;
 			SetActorRotation(targetRotator);
 
-			// 공중에 띄우기
-			Airborne->LaunchIntoAir(hitData->Airial, DamageData.Attacker);
 		}
 	}
 
