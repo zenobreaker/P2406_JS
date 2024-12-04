@@ -41,8 +41,11 @@ void ACSkillCollision_Area::ActivateCollision()
 		CLog::Log("Skill Calls Get World() is Null");
 
 	/// 일정 시간 후 비활성화
-	GetWorld()->GetTimerManager().SetTimer(
-		CollisionTimerHandle, this, &ACSkillCollision_Area::DeactivateCollision, HitDatas[Index].CollisionInterval, false);
+	if (CollisionTimerHandle.IsValid() == false)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			CollisionTimerHandle, this, &ACSkillCollision_Area::DeactivateCollision, HitDatas[Index].CollisionInterval, false);
+	}
 }
 
 void ACSkillCollision_Area::DeactivateCollision()
@@ -50,8 +53,12 @@ void ACSkillCollision_Area::DeactivateCollision()
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	// 충돌 비활성화
 	SetActorEnableCollision(false);
+	
+	// 핸들 초기화
+	CollisionTimerHandle.Invalidate();
 
 	Index++;
+	Hitted.Empty();
 
 	if (Index < HitDatas.Num())
 	{
@@ -61,7 +68,6 @@ void ACSkillCollision_Area::DeactivateCollision()
 	{
 		// 모든 충돌 데이터 처리가 끝난 후 리셋
 		Index = 0;
-		Hitted.Num();
 		//OnCollisionComplete(); // 필요한 경우 콜백 호출
 		// 더 이상 할게 없으면 스킬 콜리전 삭제 
 

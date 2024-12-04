@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
+#include "Characters/IDamagable.h"
 #include "Components/CStateComponent.h"
 #include "CEnemy.generated.h"
 
@@ -12,6 +13,7 @@ UCLASS()
 class P2406_JS_API ACEnemy 
 	: public ACBaseCharacter
 	, public IIStatable
+	, public IIDamagable
 
 {
 	GENERATED_BODY()

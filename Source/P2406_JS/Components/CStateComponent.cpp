@@ -54,17 +54,40 @@ void UCStateComponent::SetActionborneMode()
 	ChangeType(EStateType::Airborne);
 }
 
+FString UCStateComponent::EnumToString(EStateType State)
+{
+	static const TMap<EStateType, FString> EnumToStringMap =
+	{
+		{EStateType::Idle, TEXT("Idle")},
+		{EStateType::Evade, TEXT("Evade")},
+		{EStateType::Dash, TEXT("Dash")},
+		{EStateType::Equip, TEXT("Equip")},
+		{EStateType::Damaged, TEXT("Damaged")},
+		{EStateType::Action, TEXT("Action")},
+		{EStateType::Airborne, TEXT("Airborne")},
+		{EStateType::Dead, TEXT("Dead")},
+		{EStateType::Max, TEXT("Max")}
+	};
+
+	if (const FString* Result = EnumToStringMap.Find(State))
+	{
+		return *Result; 
+	}
+
+	return TEXT("Unknown");
+}
+
 void UCStateComponent::ChangeType(EStateType InType)
 {
 	EStateType prevType = Type;
 	Type = InType;
+	
+	CLog::Log(EnumToString(Type));
 
 	if (OnStateTypeChanged.IsBound())
 		OnStateTypeChanged.Broadcast(prevType, InType);
 
 }
-
-
 
 void UCStateComponent::OnSubActionMode()
 {

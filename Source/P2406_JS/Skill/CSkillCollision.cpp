@@ -1,6 +1,7 @@
 #include "Skill/CSkillCollision.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "Characters/IDamagable.h"
 
 ACSkillCollision::ACSkillCollision()
 {
@@ -11,17 +12,17 @@ ACSkillCollision::ACSkillCollision()
 void ACSkillCollision::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	CLog::Print("Begin Effect");
 
 	ActivateCollision();
 }
 
-void ACSkillCollision::SetSkillOwnerData(ACharacter* InOwner, 
+void ACSkillCollision::SetSkillOwnerData(ACharacter* InOwner,
 	const TArray<FSkillHitData>& InHitDatas)
 {
 	OwnerCharacter = InOwner;
-	HitDatas = InHitDatas; 
+	HitDatas = InHitDatas;
 
 	CLog::Print("Set Skill Data", -1, 10.0f, FColor::Green);
 }
@@ -34,8 +35,10 @@ void ACSkillCollision::ApplyCollisionEffect()
 
 void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CLog::Print("Hit Object");
 	CheckNull(OtherActor);
+
+	for (AActor* actor : Ignores)
+		CheckTrue(actor == OtherActor);
 
 	for (AActor* hitted : Hitted)
 		CheckTrue(hitted == OtherActor);
@@ -43,6 +46,17 @@ void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 	Hitted.AddUnique(OtherActor);
 
 	CheckTrue(HitDatas.Num() - 1 < Index);
+
+	CLog::Print("Hit Object" + OtherActor->GetName());
+
+	ACharacter* character = Cast<ACharacter>(OtherActor);
+	CheckNull(character);
+	
+	if (character->Implements<UIDamagable>())
+	{
+		HitDatas[Index].SendDamage(OwnerCharacter, this, character);
+	}
+
 }
 
 void ACSkillCollision::HandleCollision(AActor* HitActor)

@@ -44,6 +44,8 @@ public:
 	void SetDeadMode();
 	void SetActionborneMode();
 
+	FString EnumToString(EStateType State);
+
 	void OnSubActionMode();
 	void OffSubActionMode();
 

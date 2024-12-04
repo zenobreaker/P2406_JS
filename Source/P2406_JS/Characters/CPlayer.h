@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
+#include "Characters/IDamagable.h"
 #include "Components/CStateComponent.h"
 #include "Components/CParkourComponent.h"
 #include "Components/CWeaponComponent.h"
@@ -14,6 +15,7 @@ UCLASS()
 class P2406_JS_API ACPlayer
 	: public ACBaseCharacter
 	, public IIStatable
+	, public IIDamagable
 	, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
