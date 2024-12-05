@@ -22,10 +22,15 @@ void UCActiveSkill::Tick(float InDeltaTime)
 void UCActiveSkill::ExecuteSkill()
 {
 	CheckNull(OwnerCharacter);
-
-	currentPhase = ESkillPhase::Start;
-	Index = 0;
 	
+	// Phase -> Start 
+	currentPhase = ESkillPhase::Start;
+
+	// Data Initialize
+	{
+		currentCooldown = SkillInfo.CoolDown;
+		Index = 0;
+	}
 	
 	StartNextPhase();
 }
@@ -69,7 +74,6 @@ void UCActiveSkill::ExecutePhase(ESkillPhase phase)
 	switch (phase)
 	{
 	case ESkillPhase::Begin_Casting:
-
 		Begin_Casting();
 
 		break;
@@ -112,6 +116,16 @@ void UCActiveSkill::DelayNextData(float InTime)
 	}
 
 	currentDelay += InTime;
+}
+
+void UCActiveSkill::Update_Cooldown(float InDeltaTime)
+{
+	if (currentCooldown <= 0.0f)
+		return; 
+
+	currentCooldown -= InDeltaTime; 
+	CLog::Print(SkillInfo.SkillName + " "  + FString::SanitizeFloat(currentCooldown), 1,10.0f, FColor::Red);
+	currentCooldown = FMath::Clamp(currentCooldown, 0.0f, SkillInfo.CoolDown);
 }
 
 /// <summary>

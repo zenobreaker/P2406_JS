@@ -162,7 +162,7 @@ void ACEnemy::Damaged()
 				dirZ = Airborne->GetAddedAirValue(hitData->Airial, DamageData.Attacker);
 			}
 			FVector LaunchVelocity = -direction * hitData->Launch + FVector(0, 0, dirZ);
-			LaunchCharacter(LaunchVelocity, false, false);
+			LaunchCharacter(LaunchVelocity, false, true);
 
 			// 방향 조절
 			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);

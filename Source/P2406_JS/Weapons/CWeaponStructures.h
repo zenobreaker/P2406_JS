@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/DamageEvents.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "CWeaponStructures.generated.h"
 
 
@@ -84,6 +86,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* Effect;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* Niagara;
 
 	UPROPERTY(EditAnywhere)
 	FVector EffectLocation = FVector::ZeroVector;

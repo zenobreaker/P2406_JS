@@ -80,7 +80,7 @@ void FHitData::PlayHitStop(UWorld* InWorld)
 			if (!!character)
 				character->CustomTimeDilation = 1.0f;
 		}
-		});
+	});
 
 
 	FTimerHandle timerHandle;
@@ -99,26 +99,41 @@ void FHitData::PlaySoundWave(ACharacter* InOwner)
 
 void FHitData::PlayEffect(UWorld* InWorld, const FVector& InLocation)
 {
-	CheckNull(Effect);
+	if (!!Effect)
+	{
+		FTransform transform;
+		transform.SetLocation(EffectLocation);
+		transform.SetScale3D(EffectScale);
+		transform.AddToTranslation(InLocation);
 
-	FTransform transform;
-	transform.SetLocation(EffectLocation);
-	transform.SetScale3D(EffectScale);
-	transform.AddToTranslation(InLocation);
+		UGameplayStatics::SpawnEmitterAtLocation(InWorld, Effect, transform);
+	}
 
-	UGameplayStatics::SpawnEmitterAtLocation(InWorld, Effect, transform);
+	if (!!Niagara)
+	{
+		FVector ownerLocation = InLocation;
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, Niagara, ownerLocation);
+	}
 }
 
 void FHitData::PlayEffect(UWorld* InWorld, const FVector& InLocation, const FRotator& InRotator)
 {
-	CheckNull(Effect);
+	if (!!Effect)
+	{
 
-	FTransform transform;
-	transform.SetLocation(InLocation + InRotator.RotateVector(EffectLocation));
-	transform.SetScale3D(EffectScale);
+		FTransform transform;
+		transform.SetLocation(InLocation + InRotator.RotateVector(EffectLocation));
+		transform.SetScale3D(EffectScale);
+		UGameplayStatics::SpawnEmitterAtLocation(InWorld, Effect, transform);
+	}
 
-	UGameplayStatics::SpawnEmitterAtLocation(InWorld, Effect, transform);
+	if (!!Niagara)
+	{
+		FVector ownerLocation = InLocation;
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, Niagara, ownerLocation, InRotator);
+	}
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////

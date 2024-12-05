@@ -34,12 +34,10 @@ private:
 	friend class UCSkillAsset;
 
 public:
-	FORCEINLINE float GetCoolDown() { return SkillInfo.CoolDown; }
-	FORCEINLINE bool GetIsExecute() {
-		return (currentPhase != ESkillPhase::Start &&
-			currentPhase != ESkillPhase::Finished && 
-			currentPhase != ESkillPhase::Max);}
-	FORCEINLINE bool GetIsFinished() { return currentPhase == ESkillPhase::Finished; }
+	FORCEINLINE bool IsCoolDown() const { return currentCooldown <= 0.0f; }
+	FORCEINLINE bool GetIsExecute() const {
+		return (currentPhase != ESkillPhase::Max ) || (currentPhase != ESkillPhase::Finished);}
+	FORCEINLINE bool GetIsFinished() const { return currentPhase == ESkillPhase::Finished; }
 
 public:
 	void BeginPlay(
@@ -72,6 +70,8 @@ public:
 
 	void DelayNextData(float InTime);
 	
+	void Update_Cooldown(float InDeltaTime);
+
 public:
 	virtual void Begin_Casting(); 
 	virtual void DoCasting();
@@ -88,7 +88,7 @@ private:
 	int32 Index; 
 	class ACharacter* OwnerCharacter; 
 
-	float currentCooldown;
+	float currentCooldown = 0.0f;
 	float currentCastingTime; 
 	float currentDelay;
 

@@ -19,5 +19,5 @@ void UCAnimNotify_SkillBegin::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	CheckNull(skill);
 
-	//skill->EndSkill();
+	skill->BeginSkill();
 }

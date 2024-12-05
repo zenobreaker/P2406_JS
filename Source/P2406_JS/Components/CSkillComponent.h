@@ -22,6 +22,9 @@ class P2406_JS_API UCSkillComponent : public UActorComponent
 public:	
 	UCSkillComponent();
 
+public:
+	FORCEINLINE bool GetIsSkillAction() { return bIsSkillAction; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -33,13 +36,24 @@ public:
 	void ExecuteSkill(int32 InSlot);
 	void CreateSkillCollision(); 
 	void CreateSkillEffect();
-	void EndSkill();
 
 	void SetSkillList(const TArray<class UCActiveSkill*>& InSkills);
 
 private:
+	void Update_CheckSkillComplete(float InDeltaTime);
+	void Update_SkillCooldown(float InDeltaTime); 
+
+public:
+	void BeginSkill(); 
+	void EndSkill();
+
+
+
+private:
 	class ACharacter* OwnerCharacter; 
-	TMap<ESkillSlot, class UCActiveSkill*> SkillTable;
+	TMap<ESkillSlot, class UCActiveSkill*> SkillSlotTable;
+
+	bool bIsSkillAction = false; 
 
 private:
 	UPROPERTY()
