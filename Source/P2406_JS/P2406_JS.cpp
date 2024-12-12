@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+//#pragma warning(disable:1416)
 
 #include "P2406_JS.h"
 #include "Modules/ModuleManager.h"

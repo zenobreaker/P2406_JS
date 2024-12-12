@@ -36,6 +36,11 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	float distance = ai->GetDistanceTo(target);
 	if (distance < ActionRange)
 	{ 
+		UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
+
+		if (state->IsIdleMode() == false)
+			return;
+
 		behavior->SetActionMode();
 
 		return; 

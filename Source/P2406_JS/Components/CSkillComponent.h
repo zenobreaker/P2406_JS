@@ -24,6 +24,7 @@ public:
 
 public:
 	FORCEINLINE bool GetIsSkillAction() { return bIsSkillAction; }
+	FORCEINLINE bool GetSkillSoaring() { return bIsSkillSoaring; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -38,6 +39,11 @@ public:
 	void CreateSkillEffect();
 
 	void SetSkillList(const TArray<class UCActiveSkill*>& InSkills);
+private:
+	UFUNCTION()
+	void OnSkillSoaring();
+	UFUNCTION()
+	void OffSkillSoaring();
 
 private:
 	void Update_CheckSkillComplete(float InDeltaTime);
@@ -46,7 +52,10 @@ private:
 public:
 	void BeginSkill(); 
 	void EndSkill();
-
+	void OnSkillCasting();
+	void OffSkillCasting();
+	void OnSkillDoAction(); 
+	void OffSkillDoAction();
 
 
 private:
@@ -54,6 +63,7 @@ private:
 	TMap<ESkillSlot, class UCActiveSkill*> SkillSlotTable;
 
 	bool bIsSkillAction = false; 
+	bool bIsSkillSoaring = false; 
 
 private:
 	UPROPERTY()

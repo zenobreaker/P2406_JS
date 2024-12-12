@@ -15,6 +15,8 @@ void UCAnimInstance::NativeBeginPlay()
 
 	Weapon = CHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
 	State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+	Skill = CHelpers::GetComponent<UCSkillComponent>(OwnerCharacter); 
+	Grapple = CHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
 
 	if (!!Weapon)
 		Weapon->OnWeaponTypeChanged.AddDynamic(this, &UCAnimInstance::OnWeaponTypeChanged);
@@ -40,15 +42,18 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Pitch = UKismetMathLibrary::FInterpTo(Pitch, OwnerCharacter->GetBaseAimRotation().Pitch, DeltaSeconds, 25);
 
+	// 애님인스턴스에서 처리함 .
+	if (Skill != nullptr)
+	{
+		bSkillSoaring = Skill->GetSkillSoaring(); 
+	}
 
-	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling();
-	UCGrapplingComponent* grappling = CHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
+	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling() && bSkillSoaring == false;
 
 	bIsAirborneHit = bFalling && StateType == EStateType::Damaged;
 	
-	
-	CheckNull(grappling);
-	bGrappling = grappling->GetGrappling();
+	CheckNull(Grapple);
+	bGrappling = Grapple->GetGrappling();
 	
 	CheckNull(Weapon);
 	if (!!Weapon->GetSubAction())

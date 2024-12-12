@@ -78,7 +78,7 @@ void UCSubAction_Sword::EndInputSubAction()
 	// 기존 Action 이벤트 제거 
 	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
 
-	// 서브 액션 중일 때 이벤트로 변경하기
+	// 
 	input->BindAction("Action", EInputEvent::IE_Pressed, Weapon,
 		&UCWeaponComponent::DoAction);
 }

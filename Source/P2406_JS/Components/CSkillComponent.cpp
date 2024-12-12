@@ -62,6 +62,18 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	{
 		SkillSlotTable[(ESkillSlot)InSlot]->ExecuteSkill();
 		CurrentSkill = SkillSlotTable[(ESkillSlot)InSlot];
+		if (CurrentSkill != nullptr)
+		{
+			CurrentSkill->OnActionBegin.Clear(); 
+			CurrentSkill->OnActionEnd.Clear(); 
+
+			CurrentSkill->OnSoaringBegin.Clear();
+			CurrentSkill->OnSoaringEnd.Clear();
+
+			CurrentSkill->OnSoaringBegin.AddDynamic(this, &UCSkillComponent::OnSkillSoaring);
+			CurrentSkill->OnSoaringEnd.AddDynamic(this, &UCSkillComponent::OffSkillSoaring);
+		}
+
 		ActiveSkills.Add(SkillSlotTable[(ESkillSlot)InSlot]);
 	}
 }
@@ -99,6 +111,32 @@ void UCSkillComponent::EndSkill()
 	bIsSkillAction = false; 
 	CurrentSkill = nullptr;
 }
+void UCSkillComponent::OnSkillCasting()
+{
+	CheckNull(CurrentSkill);
+	CLog::Print("Skill Comp => On Skill Cast");
+	CurrentSkill->OnSkillCasting(); 
+
+}
+void UCSkillComponent::OffSkillCasting()
+{
+	CheckNull(CurrentSkill);
+	CLog::Print("Skill Comp => Off Skill Cast");
+	CurrentSkill->OffSkillCasting();
+}
+
+void UCSkillComponent::OnSkillDoAction()
+{
+	CheckNull(CurrentSkill);
+	CurrentSkill->OnSkillDoAction(); 
+}
+
+void UCSkillComponent::OffSkillDoAction()
+{
+	CheckNull(CurrentSkill);
+	CurrentSkill->OffSkillDoAction();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InSkills)
 {
@@ -121,6 +159,18 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InSkills)
 	CLog::Print("Skill Set Complete" + FString::FromInt(cnt));
 }
 
+void UCSkillComponent::OnSkillSoaring()
+{
+	CLog::Log("Skill Soar Begin ");
+	bIsSkillSoaring = true;
+}
+
+void UCSkillComponent::OffSkillSoaring()
+{
+	CLog::Log("Skill Soar End ");
+	bIsSkillSoaring = false; 
+}
+
 void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 {
 	if (ActiveSkills.Num() > 0)
@@ -131,7 +181,10 @@ void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 			active->Tick(InDeltaTime);
 
 			if (active->GetIsFinished())
+			{
+				CLog::Print("Remove Skill " + active->GetName(), -1 , 10.0f, FColor::Red);
 				ActiveSkills.Remove(active);
+			}
 		}
 	}
 }

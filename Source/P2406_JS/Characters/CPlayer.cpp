@@ -298,6 +298,7 @@ void ACPlayer::Damaged()
 
 void ACPlayer::End_Damaged()
 {
+	State->SetIdleMode();
 }
 
 void ACPlayer::OnEvade()

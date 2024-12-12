@@ -11,12 +11,41 @@ void UCActiveSkill::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData
 
 	//OnActionCompleted.AddDynamic(this, &UCActiveSkill::StartNextPhase);
 
-	CLog::Print("Skill Create!");
+	CLog::Print(OwnerCharacter->GetName() + "Skill Create!");
+
+	//TODO: 등록하는 기능 때문에 일반 스킬도 확장 시켜놔야할지도?
+	RegisterSkillPhase_Normal();
 }
 
 void UCActiveSkill::Tick(float InDeltaTime)
 {
 	CasetingSkill(InDeltaTime);
+}
+
+void UCActiveSkill::RegisterSkillPhase_Normal()	
+{
+	RegisterSkillPhase(ESkillPhase::Begin_Casting,
+		TDelegate<void()>::CreateUObject(this, &UCActiveSkill::Begin_Casting));
+
+	RegisterSkillPhase(ESkillPhase::Casting,
+		TDelegate<void()>::CreateUObject(this, &UCActiveSkill::DoCasting));
+
+	RegisterSkillPhase(ESkillPhase::End_Casting,
+		TDelegate<void()>::CreateUObject(this, &UCActiveSkill::End_Casting));
+
+	RegisterSkillPhase(ESkillPhase::Begin_Skill,
+		TDelegate<void()>::CreateUObject(this, &UCActiveSkill::Begin_Skill));
+
+	RegisterSkillPhase(ESkillPhase::DoAction_Skill,
+		TDelegate<void()>::CreateUObject(this, &UCActiveSkill::DoAction_Skill));
+
+	RegisterSkillPhase(ESkillPhase::End_Skill,
+		TDelegate<void()>::CreateUObject(this, &UCActiveSkill::End_Skill));
+}
+
+void UCActiveSkill::RegisterSkillPhase(ESkillPhase phase, FSkillAction action)
+{
+	SkillPhaseTable.Add(phase, action);
 }
 
 void UCActiveSkill::ExecuteSkill()
@@ -63,59 +92,86 @@ void UCActiveSkill::StartNextPhase()
 		CLog::Print("Skill Phase All Complete");
 		return; 
 	}
-
-	// 다른 페이즈로 전환
+	
+	//TODO: 스킬 타입별로 해당 내용이 변경된다.
+	// 다른 페이즈로 전환 - 디폴트는 Do_Action으로 
 	currentPhase = StaticCast<ESkillPhase>(StaticCast<int8>(currentPhase) + 1);
-	ExecutePhase(currentPhase);
+	if (SkillPhaseTable.Contains(currentPhase) == true)
+		ExecutePhase(currentPhase);
+	else
+		StartNextPhase();	// 페이즈의 끝을 향해 
 }
-
 void UCActiveSkill::ExecutePhase(ESkillPhase phase)
 {
-	switch (phase)
-	{
-	case ESkillPhase::Begin_Casting:
-		Begin_Casting();
-
-		break;
-	case ESkillPhase::Casting:
-		// 애니메이션 시작
-		DoCasting();
-
-		break;
-	case ESkillPhase::End_Casting:
-		End_Casting();
-
-		break;
-
-	case ESkillPhase::Begin_Skill:
-		Begin_Skill();
-
-		break;
-	case ESkillPhase::DoAction_Skill:
-
-		DoAction_Skill();
-
-		break;
-	case ESkillPhase::End_Skill:
-		End_Skill();
-
-		break;
-	case ESkillPhase::Effect:
-		// 효과 처리 단계
-		break;
-	}
+	if (SkillPhaseTable.Contains(phase))
+		SkillPhaseTable[phase].ExecuteIfBound();
 }
+//
+//void UCActiveSkill::ExecutePhase(ESkillPhase phase)
+//{
+//	switch (phase)
+//	{
+//	case ESkillPhase::Begin_Casting:
+//		Begin_Casting();
+//
+//		break;
+//	case ESkillPhase::Casting:
+//		// 애니메이션 시작
+//		DoCasting();
+//
+//		break;
+//	case ESkillPhase::End_Casting:
+//		End_Casting();
+//
+//		break;
+//
+//	case ESkillPhase::Begin_Skill:
+//		Begin_Skill();
+//
+//		break;
+//	case ESkillPhase::Charging:         // 추가: 충전 중
+//		Begin_Charging();
+//		break;
+//	case ESkillPhase::WaitingForInput:  // 추가: 입력 대기 중
+//		Begin_WaitInput();
+//
+//		break; 
+//	case ESkillPhase::DoAction_Skill:
+//
+//		DoAction_Skill();
+//
+//		break;
+//	case ESkillPhase::End_Skill:
+//		End_Skill();
+//
+//		break;
+//	case ESkillPhase::Effect:
+//		// 효과 처리 단계
+//		break;
+//	}
+//}
 
 void UCActiveSkill::DelayNextData(float InTime)
 {
 	if (currentDelay >= DoActionDatas[Index].HitDelay)
 	{
 		// 다음 데이터로 
-
+		DoNextData();
 		return;
 	}
 
 	currentDelay += InTime;
+}
+
+// 바로 다음 데이터로 보내고 그 데이터의 페이즈를 전체를 재실행한다.  
+void UCActiveSkill::DoNextData()
+{
+	if (Index >= DoActionDatas.Num())
+		return; 
+
+	++Index; 
+	// Start로 보내는 이유는 StartNextPhase 함수에서 보내기 때문
+	currentPhase = ESkillPhase::Start; 
 }
 
 void UCActiveSkill::Update_Cooldown(float InDeltaTime)
@@ -177,18 +233,28 @@ void UCActiveSkill::DoAction_Skill()
 	DoActionDatas[Index].DoAction(OwnerCharacter);
 }
 
+void UCActiveSkill::Begin_Charging()
+{
+}
+
+void UCActiveSkill::Begin_WaitInput()
+{
+	CLog::Print("Skill Wait!");
+}
+
 void UCActiveSkill::End_Skill()
 {
 	CLog::Print("Skill : End_Skill");
 	Index++;
 
-	if(OnActionCompleted.IsBound())
-		OnActionCompleted.Broadcast();
-
+	//TODO: 엉뚱한 로직이다. 나중에 스킬 데이터를 수정하면 여기를 수정해야한다. 
 	// 데이터가 더 있나?
 	if (Index >= DoActionDatas.Num())
+	{
+		currentPhase = ESkillPhase::Finished;
 		return;
-
+	}
+	
 	ExecutePhase(ESkillPhase::Begin_Casting);
 }
 
@@ -196,7 +262,6 @@ void UCActiveSkill::Create_Collision()
 {
 	CheckNull(OwnerCharacter); 
 
-	CLog::Print("Success Create!");
 	DoActionDatas[Index].Create_SkillCollision(OwnerCharacter, HitDatas);
 }
 
@@ -205,6 +270,22 @@ void UCActiveSkill::Create_Effect()
 	CheckNull(OwnerCharacter);
 
 	DoActionDatas[Index].Create_SkillEffect(OwnerCharacter);
+}
+
+void UCActiveSkill::OnSkillCasting()
+{
+}
+
+void UCActiveSkill::OffSkillCasting()
+{
+}
+
+void UCActiveSkill::OnSkillDoAction()
+{
+}
+
+void UCActiveSkill::OffSkillDoAction()
+{
 }
 
 

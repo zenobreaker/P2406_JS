@@ -21,11 +21,10 @@ ACEnemy_AI::ACEnemy_AI()
 	CHelpers::GetClass(&labelClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Enemy.WB_Enemy_C'");
 
 	LabelWidget->SetWidgetClass(labelClass);
-	LabelWidget->SetRelativeLocation(FVector(0, 0, 200));
+	LabelWidget->SetRelativeLocation(FVector(0, 0, 270));
 	LabelWidget->SetDrawSize(FVector2D(120, 0));
 	LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
-	//TODO: 뭔 에러가 나냐 여기서 
 	CHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BehaviorTree'/Game/Enemies/Melee/BT_Melee.BT_Melee'");
 }
 

@@ -64,12 +64,22 @@ public:
 	void DoAction(class ACharacter* InOwner) override;
 	virtual void Create_SkillCollision(class ACharacter* InOwner, const TArray<FSkillHitData>& InHitDatas);
 	virtual void Create_SkillEffect(class ACharacter* InOwner);
-	virtual void Begin_Casting(class ACharacter* InOwner);
-	virtual void DoCasting(class ACharacter* InOwner);
-	virtual void End_Casting( class ACharacter* InOwner);
+
+	// 이건 좀 특수한 경우인데 다음에 만들면 복잡하게 말고 섹션을 통하는 것도 조케따
+	virtual void PlaySection_SkillCastingMontage(class ACharacter* InOwner ,float InPlayRate = 1.0f, FName StartSectionName = EName::None);
+	virtual void PlaySecion_SkillActionMontage(class ACharacter* InOwner, float InPlayRate = 1.0f, FName StartSectionName = EName::None);
+
+	virtual void Begin_Casting(class ACharacter* InOwner, bool InLoop = false);
+	virtual void DoCasting(class ACharacter* InOwner, bool InLoop = false);
+	virtual void End_Casting( class ACharacter* InOwner, bool InLoop = false);
+
+
+	void PlaySoundWave(class ACharacter* InOwner);
 
 	void Destroy_GhostTrail() override;
 
+private:
+	void SkillPlayMontage(class ACharacter* InOwner, class UAnimMontage* InMontage, bool InLoop);
 };
 
 
