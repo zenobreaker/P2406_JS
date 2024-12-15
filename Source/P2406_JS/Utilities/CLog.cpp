@@ -5,6 +5,8 @@ DEFINE_LOG_CATEGORY_STATIC(Game, Display, All)
 
 void CLog::Log(int32 InValue)
 {
+	//Log Verbosity 
+	//GLog->Logf(L"%d", InValue);
 	UE_LOG(Game, Display, L"%d", InValue);
 }
 

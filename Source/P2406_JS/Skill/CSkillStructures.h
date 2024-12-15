@@ -9,25 +9,28 @@
 #include "CSkillStructures.generated.h"
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FSkillInfo
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Info")
 	EWeaponType WeaponType = EWeaponType::Max;
 
-	UPROPERTY(EditAnywhere, Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UTexture2D* SkillIcon = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	FString SkillName = "";
 
-	UPROPERTY(EditAnywhere, Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	float CastingTime = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	float CoolDown = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	float Cost = 0.0f;
 };
 

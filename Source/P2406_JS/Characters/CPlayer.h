@@ -28,6 +28,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "UserInterface")
 	TSubclassOf<class UCUserWidget_Player> UiClass;
 
+	UPROPERTY(EditAnywhere, Category = "UserInterface")
+	TSubclassOf<class UCUserWidget_SkillHUD> SkillHUDClass;
+
 	UPROPERTY(EditAnywhere, Category = "Evade")
 	class UAnimMontage* BackstepMontage;
 
@@ -140,4 +143,5 @@ public:
 
 private:
 	class UCUserWidget_Player* UserInterface;
+	class UCUserWidget_SkillHUD* SkillHUD;
 };

@@ -8,7 +8,6 @@
 UCSkillComponent::UCSkillComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 
@@ -138,12 +137,12 @@ void UCSkillComponent::OffSkillDoAction()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InSkills)
+void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InActiveSkills)
 {
-	CheckFalse(InSkills.Num() > 0);
+	CheckFalse(InActiveSkills.Num() > 0);
 
 	int cnt = 0;
-	for (UCActiveSkill* activeSkill : InSkills)
+	for (UCActiveSkill* activeSkill : InActiveSkills)
 	{
 
 		if ((ESkillSlot)cnt == ESkillSlot::Max)
@@ -157,6 +156,9 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InSkills)
 	}
 
 	CLog::Print("Skill Set Complete" + FString::FromInt(cnt));
+
+	if (OnSetSkills.IsBound())
+		OnSetSkills.Broadcast(InActiveSkills);
 }
 
 void UCSkillComponent::OnSkillSoaring()

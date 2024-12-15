@@ -182,6 +182,9 @@ void UCActiveSkill::Update_Cooldown(float InDeltaTime)
 	currentCooldown -= InDeltaTime; 
 	CLog::Print(SkillInfo.SkillName + " "  + FString::SanitizeFloat(currentCooldown), 1,10.0f, FColor::Red);
 	currentCooldown = FMath::Clamp(currentCooldown, 0.0f, SkillInfo.CoolDown);
+
+	if (OnSkillCooldownUpdated.IsBound())
+		OnSkillCooldownUpdated.Broadcast(InDeltaTime);
 }
 
 /// <summary>

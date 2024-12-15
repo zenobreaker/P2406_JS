@@ -9,8 +9,8 @@
 
 UCSwordSkill_DragonFall::UCSwordSkill_DragonFall()
 {
-	CHelpers::GetAsset<UCurveVector>(&Curve,
-		"/Script/Engine.CurveVector'/Game/Weapons/Sword/Sword_Soar_Curve.Sword_Soar_Curve'");
+	//CHelpers::GetAsset<UCurveVector>(&Curve,
+	//	"/Script/Engine.CurveVector'/Game/Weapons/Sword/Sword_Soar_Curve.Sword_Soar_Curve'");
 }
 
 void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData>& InDoActionDatas, const TArray<FSkillHitData>& InHitDatas)

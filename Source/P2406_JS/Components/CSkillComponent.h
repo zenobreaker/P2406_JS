@@ -11,7 +11,7 @@ enum class ESkillSlot : uint8
 	Skill1, Skill2, Skill3, Skill4, Max,
 };
 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetSkills,const TArray<class UCActiveSkill*>&, InActiveSkills);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillUsed, UCSkillAsset*, InSkillAsset);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,13 +32,16 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+public:
+	FOnSetSkills OnSetSkills;
 	FOnSkillUsed OnSkillUsed;
 
+public:
 	void ExecuteSkill(int32 InSlot);
 	void CreateSkillCollision(); 
 	void CreateSkillEffect();
 
-	void SetSkillList(const TArray<class UCActiveSkill*>& InSkills);
+	void SetSkillList(const TArray<class UCActiveSkill*>& InActiveSkills);
 private:
 	UFUNCTION()
 	void OnSkillSoaring();
@@ -66,8 +69,8 @@ private:
 	bool bIsSkillSoaring = false; 
 
 private:
-	UPROPERTY()
-	class UCActiveSkill* Skills[(int32)ESkillSlot::Max];
+	//UPROPERTY()
+	//class UCActiveSkill* Skills[(int32)ESkillSlot::Max];
 
 	UPROPERTY()
 	class UCActiveSkill* CurrentSkill; 

@@ -6,6 +6,9 @@
 #include "Skill/CSkillStructures.h"
 #include "CActiveSkill.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillCooldownUpdated, float, InDeltaTime);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionBegin);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSoaringBegin);
@@ -31,7 +34,7 @@ enum class ESkillPhase : int8
 /// <summary>
 /// 실제로 캐릭터가 소지하여 사용할 스킬 정보
 /// </summary>
-UCLASS()
+UCLASS(Blueprintable)
 class P2406_JS_API UCActiveSkill : public UObject
 {
 	GENERATED_BODY()
@@ -47,7 +50,7 @@ public:
 	FORCEINLINE bool GetIsFinished() const { return currentPhase == ESkillPhase::Finished; }
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Skill Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill Info")
 	FSkillInfo SkillInfo;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
@@ -57,6 +60,9 @@ protected:
 	TArray<FSkillHitData> HitDatas;
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Skill")
+	FOnSkillCooldownUpdated OnSkillCooldownUpdated; 
+
 	UPROPERTY(BlueprintAssignable, Category = "Skill")
 	FOnActionBegin OnActionBegin;
 

@@ -13,8 +13,9 @@
 #include "Components/CTargetComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Characters/CGhostTrail.h"
-#include "Widgets/CUserWidget_Player.h"
 #include "Weapons/CWeaponStructures.h"
+#include "Widgets/CUserWidget_Player.h"
+#include "Widgets/CUserWidget_SkillHUD.h"
 
 ACPlayer::ACPlayer()
 {
@@ -61,34 +62,34 @@ ACPlayer::ACPlayer()
 
 		switch ((EParkourArrowType)i)
 		{
-			case EParkourArrowType::Center:
-				Arrows[i]->ArrowColor = FColor::Red;
-				break;
-			case EParkourArrowType::Head:
-				Arrows[i]->ArrowColor = FColor::Green;
-				Arrows[i]->SetRelativeLocation(FVector(0, 0, 100));
-				break;
+		case EParkourArrowType::Center:
+			Arrows[i]->ArrowColor = FColor::Red;
+			break;
+		case EParkourArrowType::Head:
+			Arrows[i]->ArrowColor = FColor::Green;
+			Arrows[i]->SetRelativeLocation(FVector(0, 0, 100));
+			break;
 
-			case EParkourArrowType::Foot:
-				Arrows[i]->ArrowColor = FColor::Blue;
-				Arrows[i]->SetRelativeLocation(FVector(0, 0, -80));
-				break;
+		case EParkourArrowType::Foot:
+			Arrows[i]->ArrowColor = FColor::Blue;
+			Arrows[i]->SetRelativeLocation(FVector(0, 0, -80));
+			break;
 
-			case EParkourArrowType::Left:
-				Arrows[i]->ArrowColor = FColor::Magenta;
-				Arrows[i]->SetRelativeLocation(FVector(0, -30, 0));
-				break;
+		case EParkourArrowType::Left:
+			Arrows[i]->ArrowColor = FColor::Magenta;
+			Arrows[i]->SetRelativeLocation(FVector(0, -30, 0));
+			break;
 
-			case EParkourArrowType::Right:
-				Arrows[i]->ArrowColor = FColor::Magenta;
-				Arrows[i]->SetRelativeLocation(FVector(0, +30, 0));
-				break;
+		case EParkourArrowType::Right:
+			Arrows[i]->ArrowColor = FColor::Magenta;
+			Arrows[i]->SetRelativeLocation(FVector(0, +30, 0));
+			break;
 
-			case EParkourArrowType::Land:
-				Arrows[i]->ArrowColor = FColor::Yellow;
-				Arrows[i]->SetRelativeLocation(FVector(200, 0, 100));
-				Arrows[i]->SetRelativeRotation(FRotator(-90, 0, 0));
-				break;
+		case EParkourArrowType::Land:
+			Arrows[i]->ArrowColor = FColor::Yellow;
+			Arrows[i]->SetRelativeLocation(FVector(200, 0, 100));
+			Arrows[i]->SetRelativeRotation(FRotator(-90, 0, 0));
+			break;
 		}
 	}
 
@@ -97,8 +98,10 @@ ACPlayer::ACPlayer()
 
 	CHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
 
-	if (UiClass == nullptr)
-		CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
+	CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
+
+	CHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_SkillSlotHUD.WB_SkillSlotHUD_C'");
+
 
 	if (!!Grapple)
 	{
@@ -120,6 +123,7 @@ void ACPlayer::BeginPlay()
 	Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
 
+	// 일반 캐릭터 UI
 	if (!!UiClass)
 	{
 		UserInterface = Cast<UCUserWidget_Player>(CreateWidget(GetController<APlayerController>(), UiClass));
@@ -128,6 +132,22 @@ void ACPlayer::BeginPlay()
 			UserInterface->AddToViewport();
 			//UserInterface->UpdateWeaponType(EWeaponType::Max);
 			UserInterface->UpdateCrossHairVisibility(false);
+		}
+	}
+
+	// Skill HUD
+	if (!!SkillHUDClass)
+	{
+		SkillHUD = Cast<UCUserWidget_SkillHUD>(CreateWidget(GetController<APlayerController>(), SkillHUDClass));
+
+		if (!!SkillHUD)
+		{
+			if (!!Skill)
+			{
+				Skill->OnSetSkills.AddDynamic(SkillHUD, &UCUserWidget_SkillHUD::OnSetSkill);
+			}
+
+			SkillHUD->AddToViewport();
 		}
 	}
 
@@ -196,8 +216,8 @@ void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
 	{
-		case EStateType::Evade: Backstep(); break;
-		case EStateType::Damaged: Damaged(); break;
+	case EStateType::Evade: Backstep(); break;
+	case EStateType::Damaged: Damaged(); break;
 	}
 }
 
@@ -227,13 +247,13 @@ void ACPlayer::Damaged()
 	// 플레이어가 대쉬 혹은 Evade 일대 
 	if (!!State)
 	{
-		FString v = State->IsDashMode() ?  TEXT("True") : TEXT("False");
+		FString v = State->IsDashMode() ? TEXT("True") : TEXT("False");
 		CLog::Print("My Dash State => " + v);
 		if (State->IsDashMode() || State->IsEvadeMode())
 		{
 			// 회피 이펙트 
 			PlayEvadeEffetc();
-			return; 
+			return;
 		}
 	}
 
@@ -332,7 +352,7 @@ void ACPlayer::OnSubAction()
 		CheckFalse(State->IsIdleMode());
 
 		//
-		
+
 		return;
 	}
 
@@ -374,7 +394,7 @@ void ACPlayer::OnJumpActionEnd()
 void ACPlayer::Jump()
 {
 	Super::Jump();
-	
+
 	//Movement->EnableControlRotation();
 	CLog::Print("Jump!");
 
@@ -384,7 +404,7 @@ void ACPlayer::Jump()
 void ACPlayer::OnGrapple()
 {
 	CheckNull(Grapple);
-	
+
 
 	CLog::Print("Grapple!!");
 	Grapple->OnGrapple();
@@ -415,9 +435,9 @@ void ACPlayer::PlayEvadeEffetc()
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EvadeEffect, effectLocation, effectRotation);*/
 
 
-	// 사운드 재생 (옵션)
-	/*if (EvadeSound)
-		UGameplayStatics::PlaySoundAtLocation(this, EvadeSound, effectLocation);*/
+		// 사운드 재생 (옵션)
+		/*if (EvadeSound)
+			UGameplayStatics::PlaySoundAtLocation(this, EvadeSound, effectLocation);*/
 
 }
 
@@ -444,7 +464,7 @@ void ACPlayer::OnSkill2()
 void ACPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	
+
 	CheckFalse(State->IsIdleMode());
 
 	Parkour->DoParkour(true);
