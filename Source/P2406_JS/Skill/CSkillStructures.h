@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Info")
 	EWeaponType WeaponType = EWeaponType::Max;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Info")
+	int32 SkillID = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	UTexture2D* SkillIcon = nullptr;
 

@@ -1,8 +1,12 @@
 #include "Characters/CPlayer.h"
 #include "Global.h"
 #include "CAnimInstance.h"
+#include "CGameMode.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "Characters/CGhostTrail.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -12,8 +16,9 @@
 #include "Components/CSkillComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CHealthPointComponent.h"
-#include "Characters/CGhostTrail.h"
+
 #include "Weapons/CWeaponStructures.h"
+
 #include "Widgets/CUserWidget_Player.h"
 #include "Widgets/CUserWidget_SkillHUD.h"
 
@@ -102,7 +107,6 @@ ACPlayer::ACPlayer()
 
 	CHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_SkillSlotHUD.WB_SkillSlotHUD_C'");
 
-
 	if (!!Grapple)
 	{
 		Grapple->PrimaryComponentTick.bCanEverTick = true;
@@ -142,13 +146,14 @@ void ACPlayer::BeginPlay()
 
 		if (!!SkillHUD)
 		{
-			if (!!Skill)
-			{
-				Skill->OnSetSkills.AddDynamic(SkillHUD, &UCUserWidget_SkillHUD::OnSetSkill);
-			}
-
+			SkillHUD->OnSetOwner(this); 
 			SkillHUD->AddToViewport();
 		}
+
+		// 게임모드에 이벤트 구독시키기 
+		ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>();
+		if (!!gameMode)
+			gameMode->SubscribeToSkillEvents(SkillHUD);
 	}
 
 }

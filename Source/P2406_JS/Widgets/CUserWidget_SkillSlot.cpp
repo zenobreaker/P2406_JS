@@ -3,16 +3,17 @@
 #include "Skill/CActiveSkill.h"
 
 
-//void UCUserWidget_SkillSlot::OnSkillSlot_Implementation(UCActiveSkill* InActiveSkill)
-//{
-//	CheckNull(InActiveSkill); 
-//
-//	ActiveSkill = InActiveSkill; 
-//
-//
-//}
-//
-//void UCUserWidget_SkillSlot::OnCooldown_Implementation(float InCooldown, float InMaxCooldown)
-//{
-//
-//}
+void UCUserWidget_SkillSlot::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    // C++ 초기화 코드
+    UE_LOG(LogTemp, Warning, TEXT("NativeConstruct called!"));
+
+}
+
+void UCUserWidget_SkillSlot::OnSlotClear()
+{
+    // nullptr전달해서 내부에서 이용불가 처리 로직으로 처리하게 해보기 
+    OnSkillSlot(nullptr);
+}

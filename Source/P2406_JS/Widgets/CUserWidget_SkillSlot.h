@@ -10,10 +10,18 @@ class P2406_JS_API UCUserWidget_SkillSlot : public UUserWidget
 {
 	GENERATED_BODY()
 
+
+public:
+	virtual void NativeConstruct() override; 
+
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
-	void OnSkillSlot(class UObject* InActiveSkill);
+	void OnSkillSlot(const class UCActiveSkill* InActiveSkill);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
-	void OnCooldown(float InCooldown, float InMaxCooldown);
+	void OnCooldown(int32 InSkillID, float InCooldown);
+
+public:
+	void OnSlotClear();
+
 };

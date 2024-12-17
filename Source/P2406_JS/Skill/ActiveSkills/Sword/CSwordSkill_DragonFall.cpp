@@ -9,8 +9,8 @@
 
 UCSwordSkill_DragonFall::UCSwordSkill_DragonFall()
 {
-	//CHelpers::GetAsset<UCurveVector>(&Curve,
-	//	"/Script/Engine.CurveVector'/Game/Weapons/Sword/Sword_Soar_Curve.Sword_Soar_Curve'");
+	CHelpers::GetAsset<UCurveVector>(&Curve,
+		"/Script/Engine.CurveVector'/Game/Weapons/Sword/Sword_Soar_Curve.Sword_Soar_Curve'");
 }
 
 void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData>& InDoActionDatas, const TArray<FSkillHitData>& InHitDatas)
@@ -183,7 +183,7 @@ void UCSwordSkill_DragonFall::OnSoaring(FVector Output)
 {
 	CheckNull(OwnerCharacter); 
 	
-	CLog::Log("OutPutZ : " + OwnerCharacter->GetName());
+	//CLog::Log("OutPutZ : " + OwnerCharacter->GetName());
 	OriginVector.Z = Output.Z;
 	OwnerCharacter->SetActorLocation(OriginVector);
 	

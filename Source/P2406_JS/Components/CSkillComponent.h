@@ -11,8 +11,10 @@ enum class ESkillSlot : uint8
 	Skill1, Skill2, Skill3, Skill4, Max,
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetSkills,const TArray<class UCActiveSkill*>&, InActiveSkills);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetSkills, const TArray<class UCActiveSkill*>&, InActiveSkills);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillUsed, UCSkillAsset*, InSkillAsset);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillSlotsCleared);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCSkillComponent : public UActorComponent
@@ -33,14 +35,17 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnSetSkills OnSetSkills;
 	FOnSkillUsed OnSkillUsed;
+	FOnSkillSlotsCleared OnSkillSlotsCleared;
 
 public:
 	void ExecuteSkill(int32 InSlot);
 	void CreateSkillCollision(); 
 	void CreateSkillEffect();
 
+	void SetEmptySkillList();
 	void SetSkillList(const TArray<class UCActiveSkill*>& InActiveSkills);
 private:
 	UFUNCTION()
@@ -77,4 +82,7 @@ private:
 
 	TArray<UCActiveSkill*> ActiveSkills;
 
+
+private:
+	class UCSkillManager* SkillManager; 
 };

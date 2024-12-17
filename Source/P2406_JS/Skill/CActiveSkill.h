@@ -43,9 +43,12 @@ private:
 	friend class UCSkillAsset;
 
 public:
-	FORCEINLINE bool IsCoolDown() const { return currentCooldown <= 0.0f; }
+	FORCEINLINE int32 GetSkillID() const{ return SkillInfo.SkillID; }
+	FORCEINLINE float GetCooldown() const{ return SkillInfo.CoolDown; }
+
+	FORCEINLINE bool IsCooldown() const { return currentCooldown <= 0.0f; }
 	FORCEINLINE bool GetIsExecute() const {
-		return (currentPhase != ESkillPhase::Max) || (currentPhase != ESkillPhase::Finished);
+		return (currentPhase != ESkillPhase::Max) && (currentPhase != ESkillPhase::Finished);
 	}
 	FORCEINLINE bool GetIsFinished() const { return currentPhase == ESkillPhase::Finished; }
 

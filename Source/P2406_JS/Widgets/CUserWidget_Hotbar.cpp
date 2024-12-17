@@ -3,21 +3,61 @@
 #include "Widgets/CUserWidget_SkillSlot.h"
 #include "Skill/CActiveSkill.h"
 
+void UCUserWidget_Hotbar::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	CLog::Print("HotBar - NativeConstruct called");
+	// Slots √ ±‚»≠
+}
+
 void UCUserWidget_Hotbar::OnSetSkillSlots_Implementation(const TArray<UCActiveSkill*>& InActiveSkills)
 {
-    if (InActiveSkills.Num() != SkillSlots.Num())
-        return;
+	CheckTrue(InActiveSkills.Num() <= 0);
+	check(SkillSlots.Num() > 0);
 
-    CLog::Print("SkillSlot- OnSet Slot Call");
+	CLog::Print("Hot bar  : Call Set Skill Slot ", -1, 10.0f, FColor::Yellow);
+	int cnt = 0;
+	for (const UCActiveSkill* activeSkill : InActiveSkills)
+	{
+		if (activeSkill == nullptr)
+			continue;
 
-    for (int32 i = 0; i < InActiveSkills.Num(); ++i)
-    {
-        SkillSlots[i]->OnSkillSlot(InActiveSkills[i]);
-    }
+		SkillSlots[cnt]->OnSkillSlot(activeSkill);
+		cnt++;
+	}
 }
 
-
-void UCUserWidget_Hotbar::OnSkillCooldown_Implementation(float InCooldown)
+void UCUserWidget_Hotbar::OnSetSkillSlotsCleared()
 {
-
+	for (auto& slot : SkillSlots)
+	{
+		slot->OnSlotClear();
+	}
 }
+
+
+void UCUserWidget_Hotbar::OnUpdateCooldown_Implementation(int32 InSkillID, float InDeltaTime)
+{
+	for (auto& slot : SkillSlots)
+	{
+		slot->OnCooldown(InSkillID, InDeltaTime);
+	}
+}
+
+
+//void TEST()
+//{
+//    //if (InActiveSkills.Num() != SkillSlots.Num())
+//    //{
+//    //    CLog::Print("SkillSlot- OnSet Slot Failed " + FString::FromInt(MaxSlots) + " " + FString::FromInt(InActiveSkills.Num()), -1, 10.0f, FColor::Red);
+//    //    return;
+//    //}
+//
+//    //CLog::Print("SkillSlot- OnSet Slot Call", -1, 10.0f, FColor::Black);
+//
+//    //for (int32 i = 0; i < InActiveSkills.Num(); ++i)
+//    //{
+//    //    SkillSlots[i]->OnSkillSlot(InActiveSkills[i]);
+//    //}
+//}

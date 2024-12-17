@@ -13,11 +13,27 @@ class P2406_JS_API UCUserWidget_SkillHUD : public UUserWidget
 	GENERATED_BODY()
 	 
 public: 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UCUserWidget_Hotbar* HotBar;
+		
+public:
+	virtual void NativeConstruct() override;
+
+		// HotBar À§Á¬ º¯¼ö
+	UPROPERTY(BlueprintReadOnly, Category = "SkillHUD")
+	UCUserWidget_Hotbar* HotBar;
+	
+public:
+	void OnSetOwner(ACharacter* InOwner); 
 
 public:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnSetSkill(const TArray<class UCActiveSkill*>& InActiveSkills);
 
+	UFUNCTION()
+	void OnSetSkillSlotsCleared();
+
+	UFUNCTION()
+	void OnUpdateCooldown(int32 InSkillID, float InDeltaTime);
+	
+private:
+	class UCSkillComponent* Skill; 
 };

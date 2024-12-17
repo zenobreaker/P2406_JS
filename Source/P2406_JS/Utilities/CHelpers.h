@@ -25,10 +25,10 @@
 class P2406_JS_API CHelpers
 {
 public:
-	template<typename T>
-	static void CreateComponent(AActor* InActor, T** OutComponent, FName InName, USceneComponent* InParent = nullptr)
+	template<typename TValueType>
+	static void CreateComponent(AActor* InActor, TValueType** OutComponent, FName InName, USceneComponent* InParent = nullptr)
 	{
-		*OutComponent = InActor->CreateDefaultSubobject<T>(InName);
+		*OutComponent = InActor->CreateDefaultSubobject<TValueType>(InName);
 
 		if (!!InParent)
 		{
@@ -38,12 +38,12 @@ public:
 		}
 
 		InActor->SetRootComponent(*OutComponent);
-	}
+	} 
 
-	template<typename T>
-	static void CreateActorComponent(AActor* InActor, T** OutComponent, FName InName)
+	template<typename TValueType>
+	static void CreateActorComponent(AActor* InActor, TValueType** OutComponent, FName InName)
 	{
-		*OutComponent = InActor->CreateDefaultSubobject<T>(InName);
+		*OutComponent = InActor->CreateDefaultSubobject<TValueType>(InName);
 	}
 
 	template<typename T>
@@ -66,10 +66,10 @@ public:
 		*OutObject = Cast<T>(StaticLoadObject(T::StaticClass(), nullptr, *InPath));
 	}
 
-	template<typename T>
-	static void GetClass(TSubclassOf<T>* OutClass, FString InPath)
+	template<typename TClassName>
+	static void GetClass(TSubclassOf<TClassName>* OutClass, FString InPath)
 	{
-		ConstructorHelpers::FClassFinder<T> asset(*InPath);
+		ConstructorHelpers::FClassFinder<TClassName> asset(*InPath);
 		*OutClass = asset.Class;
 	}
 

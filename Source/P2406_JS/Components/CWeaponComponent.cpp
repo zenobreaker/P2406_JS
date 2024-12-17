@@ -151,24 +151,27 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 	{
 		GetEquipment()->Unequip();
 	}
+	
 
+	// 해당 무기의 스킬 세팅
 	if (!!Datas[(int32)InType])
 	{
 		Datas[(int32)InType]->GetEquipment()->Equip();
-
-		if (!!Skill)
-			Skill->SetSkillList(Datas[(int32)InType]->GetSkills());
-
-		ChangeType(InType);
 	}
-
 	
+	ChangeType(InType);
 }
 
 void UCWeaponComponent::ChangeType(EWeaponType InType)
 {
 	EWeaponType prevType = Type;
 	Type = InType;
+
+	if (InType != EWeaponType::Max && !!Skill)
+		Skill->SetSkillList(Datas[(int32)InType]->GetSkills());
+	// 스킬이 없는 타입이나 그런거면 아무것도 없이 보내 
+	else if (InType == EWeaponType::Max)
+		Skill->SetEmptySkillList();
 
 	if (OnWeaponTypeChanged.IsBound())
 		OnWeaponTypeChanged.Broadcast(prevType, InType);
@@ -185,6 +188,7 @@ void UCWeaponComponent::DoAction()
 
 void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 {
+	CLog::Log("Call Exectue Skill");
 	//TODO: 스킬이 일부 모션 캔슬 가능이라면 이 로직은 수정해야할지도. 
 	CheckFalse(IsIdleMode());
 	CheckNull(Skill);
