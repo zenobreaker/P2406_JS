@@ -1,5 +1,5 @@
 #include "Components/CConditionComponent.h"
-#include "Characters/IConditionBase.h"
+#include "Characters/Condition_Interfaces/IDownable.h"
 #include "Global.h"
 #include "Gameframework/Character.h"
 
@@ -58,7 +58,7 @@ void UCConditionComponent::AddCondition(EConditionState NewCondition)
         if (NewCondition == EConditionState::CONDITION_DOWNED)
         {
             // 해당 대상이 인터페이스가 있으면 그걸 콜 함 
-            if (IDownCondition* DownCondition = Cast<IDownCondition>(GetOwner()))
+            if (IIDownable* DownCondition = Cast<IIDownable>(GetOwner()))
                 DownCondition->OnDownConditionActivated();
         }
 
@@ -78,7 +78,7 @@ void UCConditionComponent::RemoveCondition(EConditionState NewCondition)
         if (NewCondition == EConditionState::CONDITION_DOWNED)
         {
             // 해당 대상이 인터페이스가 있으면 그걸 콜 함 
-            if (IDownCondition* DownCondition = Cast<IDownCondition>(GetOwner()))
+            if (IIDownable* DownCondition = Cast<IIDownable>(GetOwner()))
                 DownCondition->OnDownConditionDeactivated();
         }
 

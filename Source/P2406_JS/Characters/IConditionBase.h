@@ -20,13 +20,3 @@ public:
 	virtual void OnConditionRemoved() = 0;
 };
 
-class P2406_JS_API IDownCondition : IIConditionBase
-{
-	// IIConditionBase을(를) 통해 상속됨
-	virtual void OnConditionAdded() = 0;
-	virtual void OnConditionRemoved() = 0;
-
-public:
-	virtual void OnDownConditionActivated() {};
-	virtual void OnDownConditionDeactivated() {};
-};

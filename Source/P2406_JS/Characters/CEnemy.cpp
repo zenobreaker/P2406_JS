@@ -239,25 +239,16 @@ void ACEnemy::End_Dead()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-void ACEnemy::OnConditionAdded()
-{
-	
-}
-
-void ACEnemy::OnConditionRemoved()
-{
-
-}
 
 /// <summary>
 /// Down Condition 
 /// </summary>
 void ACEnemy::OnDownConditionActivated() 
 {
-	Super::OnDownConditionActivated();
+	
 }
 
 void ACEnemy::OnDownConditionDeactivated() 
 {
-	Super::OnDownConditionDeactivated();
+	
 }

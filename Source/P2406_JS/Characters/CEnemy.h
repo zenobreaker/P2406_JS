@@ -4,7 +4,7 @@
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Characters/IDamagable.h"
-#include "Characters/IConditionBase.h"
+#include "Characters/Condition_Interfaces/IDownable.h"
 #include "Components/CStateComponent.h"
 #include "CEnemy.generated.h"
 
@@ -15,7 +15,7 @@ class P2406_JS_API ACEnemy
 	: public ACBaseCharacter
 	, public IIStatable
 	, public IIDamagable
-	, public IDownCondition
+	, public IIDownable
 
 {
 	GENERATED_BODY()
@@ -86,12 +86,8 @@ private:
 
 
 public: 
-	// IDownCondition을(를) 통해 상속됨
-	void OnConditionAdded() override;
-	void OnConditionRemoved() override;
-
-	void OnDownConditionActivated() override;
-	void OnDownConditionDeactivated() override; 
+	virtual void OnDownConditionActivated() override;
+	virtual void OnDownConditionDeactivated() override; 
 
 };
 
