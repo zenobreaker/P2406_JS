@@ -5,6 +5,7 @@
 #include "CBaseCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterEndDamaged);
 
 UCLASS()
 class P2406_JS_API ACBaseCharacter : public ACharacter
@@ -23,6 +24,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	class UAnimMontage* DeadMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	class UAnimMontage* DownedMontage;  // 다운 상태 애니메이션
 
 public:
 	ACBaseCharacter();
@@ -30,6 +33,7 @@ public:
 
 public:
 	FOnCharacterLanded OnCharacterLandedDelegate;
+	FOnCharacterEndDamaged OnCharacterEndDamaged;
 
 protected:
 	virtual void Landed(const FHitResult& Hit) override;

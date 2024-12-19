@@ -82,6 +82,9 @@ public:
 	float StopTime;
 
 	UPROPERTY(EditAnywhere)
+	bool bDown = false; 
+
+	UPROPERTY(EditAnywhere)
 	class USoundWave* Sound;
 
 	UPROPERTY(EditAnywhere)

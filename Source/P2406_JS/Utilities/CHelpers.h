@@ -52,18 +52,18 @@ public:
 		*OutComponent = InActor->CreateDefaultSubobject<T>(InName);
 	}
 
-	template<typename T>
-	static void GetAsset(T** OutObject, FString InPath)
+	template<typename TValueType>
+	static void GetAsset(TValueType** OutObject, FString InPath)
 	{
-		ConstructorHelpers::FObjectFinder<T> asset(*InPath);
+		ConstructorHelpers::FObjectFinder<TValueType> asset(*InPath);
 		if(asset.Succeeded())
 			*OutObject = asset.Object;
 	}
 
-	template<typename T>
-	static void GetAssetDynamic(T** OutObject, FString InPath)
+	template<typename TValueType>
+	static void GetAssetDynamic(TValueType** OutObject, FString InPath)
 	{
-		*OutObject = Cast<T>(StaticLoadObject(T::StaticClass(), nullptr, *InPath));
+		*OutObject = Cast<TValueType>(StaticLoadObject(TValueType::StaticClass(), nullptr, *InPath));
 	}
 
 	template<typename TClassName>
@@ -73,14 +73,18 @@ public:
 		*OutClass = asset.Class;
 	}
 
-	template<typename T>
-	static T* FindActor(UWorld* InWorld)
+	template<typename TFindType>
+	static TFindType* FindActor(UWorld* InWorld)
 	{
 		for (AActor* actor : InWorld->GetCurrentLevel()->Actors)
 		{
-			if (!!actor && actor->IsA<T>())
-				return Cast<T>(actor);
+			if (!!actor && actor->IsA<TFindType>())
+				return Cast<TFindType>(actor);
 		}
+//
+//#ifdef DEBUG
+//		ensure 
+//#endif
 
 		return nullptr;
 	}

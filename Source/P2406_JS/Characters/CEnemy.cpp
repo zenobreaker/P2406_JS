@@ -3,8 +3,10 @@
 #include "CAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Components/CAirborneComponent.h"
 #include "Components/CapsuleComponent.h"
+
+#include "Components/CAirborneComponent.h"
+#include "Components/CConditionComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Weapons/CWeaponStructures.h"
@@ -16,6 +18,8 @@ ACEnemy::ACEnemy()
 	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
 	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	CHelpers::CreateActorComponent< UCAirborneComponent>(this, &Airborne, "Airborne");
+	CHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
+
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -94,6 +98,11 @@ void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 	}
 }
 
+void ACEnemy::OnConditionTypeChanged(EConditionState InPrevCondition, EConditionState InNewCondition)
+{
+	
+}
+
 void ACEnemy::Damaged()
 {
 	//Apply Damage
@@ -168,7 +177,16 @@ void ACEnemy::Damaged()
 			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 			targetRotator.Pitch = 0;
 			SetActorRotation(targetRotator);
+		}
 
+		//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
+		//TODO: 상태 변화에 대한 정보를 받는 처리를 따로 호출할 수 있도록 해야하지않을까?
+		if(!!Condition)
+		{
+			if (GetCharacterMovement()->IsFalling())
+				Condition->AddAirborneCondition();
+			if(hitData->bDown)
+				Condition->AddDownCondition();
 		}
 	}
 
@@ -187,6 +205,9 @@ void ACEnemy::Damaged()
 void ACEnemy::End_Damaged()
 {
 	State->SetIdleMode();
+
+	if (OnCharacterEndDamaged.IsBound())
+		OnCharacterEndDamaged.Broadcast();
 }
 
 void ACEnemy::Landed(const FHitResult& Hit)
@@ -215,3 +236,28 @@ void ACEnemy::End_Dead()
 
 
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+void ACEnemy::OnConditionAdded()
+{
+	
+}
+
+void ACEnemy::OnConditionRemoved()
+{
+
+}
+
+/// <summary>
+/// Down Condition 
+/// </summary>
+void ACEnemy::OnDownConditionActivated() 
+{
+	Super::OnDownConditionActivated();
+}
+
+void ACEnemy::OnDownConditionDeactivated() 
+{
+	Super::OnDownConditionDeactivated();
+}

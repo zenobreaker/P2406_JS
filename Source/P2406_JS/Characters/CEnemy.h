@@ -4,6 +4,7 @@
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Characters/IDamagable.h"
+#include "Characters/IConditionBase.h"
 #include "Components/CStateComponent.h"
 #include "CEnemy.generated.h"
 
@@ -14,6 +15,7 @@ class P2406_JS_API ACEnemy
 	: public ACBaseCharacter
 	, public IIStatable
 	, public IIDamagable
+	, public IDownCondition
 
 {
 	GENERATED_BODY()
@@ -38,6 +40,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCAirborneComponent* Airborne;
 
+protected:
+	UPROPERTY(VisibleAnywhere)
+	class UCConditionComponent* Condition; 
 
 public:
 	ACEnemy();
@@ -59,6 +64,9 @@ private:
 private:
 	UFUNCTION()
 	void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
+	
+	UFUNCTION()
+	void OnConditionTypeChanged(EConditionState InPrevCondition, EConditionState InNewCondition);
 
 protected:
 	virtual void Damaged();
@@ -76,6 +84,14 @@ public:
 private:
 	FTimerHandle ChangeColor_TimerHandle;
 
+
+public: 
+	// IDownCondition을(를) 통해 상속됨
+	void OnConditionAdded() override;
+	void OnConditionRemoved() override;
+
+	void OnDownConditionActivated() override;
+	void OnDownConditionDeactivated() override; 
 
 };
 

@@ -9,8 +9,9 @@ void ACBaseCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if(OnCharacterLandedDelegate.IsBound())
+	if (OnCharacterLandedDelegate.IsBound())
 		OnCharacterLandedDelegate.Broadcast();
+
 }
 
 
