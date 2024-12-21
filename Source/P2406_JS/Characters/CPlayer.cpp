@@ -24,28 +24,28 @@
 
 ACPlayer::ACPlayer()
 {
-	CHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
-	CHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
+	FHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
+	FHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
 
-	CHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
-	CHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
-	CHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
-	CHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
-	CHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
-	CHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
-	CHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
-	CHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
-	CHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
+	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
+	FHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
+	FHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
+	FHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
+	FHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
+	FHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
+	FHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
+	FHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
+	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
 	USkeletalMesh* mesh;
-	CHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
+	FHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
 	GetMesh()->SetSkeletalMesh(mesh);
 
 	TSubclassOf<UCAnimInstance> animInstance;
-	CHelpers::GetClass<UCAnimInstance>(&animInstance, "/Script/Engine.AnimBlueprint'/Game/ABP_CPlayer.ABP_CPlayer_C'");
+	FHelpers::GetClass<UCAnimInstance>(&animInstance, "/Script/Engine.AnimBlueprint'/Game/ABP_CPlayer.ABP_CPlayer_C'");
 	GetMesh()->SetAnimClass(animInstance);
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 140));
@@ -58,11 +58,11 @@ ACPlayer::ACPlayer()
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
 
 	// 애로우 컴포넌트 가져오기 
-	CHelpers::CreateComponent<USceneComponent>(this, &ArrowGroup, "Arrows", GetCapsuleComponent());
+	FHelpers::CreateComponent<USceneComponent>(this, &ArrowGroup, "Arrows", GetCapsuleComponent());
 	for (int32 i = 0; i < (int32)EParkourArrowType::Max; i++)
 	{
 		FString name = StaticEnum<EParkourArrowType>()->GetNameStringByIndex(i);
-		CHelpers::CreateComponent<UArrowComponent>(this, &Arrows[i], FName(name),
+		FHelpers::CreateComponent<UArrowComponent>(this, &Arrows[i], FName(name),
 			ArrowGroup);
 
 		switch ((EParkourArrowType)i)
@@ -99,13 +99,13 @@ ACPlayer::ACPlayer()
 	}
 
 
-	CHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
+	FHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
 
-	CHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
+	FHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
 
-	CHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
+	FHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
 
-	CHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_SkillSlotHUD.WB_SkillSlotHUD_C'");
+	FHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_SkillSlotHUD.WB_SkillSlotHUD_C'");
 
 	if (!!Grapple)
 	{
@@ -201,6 +201,16 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Skill2", EInputEvent::IE_Pressed, this,
 		&ACPlayer::OnSkill2);
 
+
+	//////////////////////////////////////////////////////////////////////////////
+	// 타임 스케일 조정을 위한 바인딩
+	PlayerInputComponent->BindAction("Increase_TimeScale", IE_Pressed, this,
+		&ACPlayer::OnIncreaseTimeScale);
+
+	PlayerInputComponent->BindAction("Decrease_TimeScale", IE_Pressed, this,
+		&ACPlayer::OnDecreaseTimeScale);
+
+	//////////////////////////////////////////////////////////////////////////////
 }
 
 float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -238,12 +248,12 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 
 	if (!!UserInterface)
 	{
-		CLog::Print("UserInteface !");
+		FLog::Print("UserInteface !");
 		UserInterface->UpdateCrossHairVisibility(bVisible);
 	}
 	else
 	{
-		CLog::Print("UserInteface NO");
+		FLog::Print("UserInteface NO");
 	}
 }
 
@@ -253,7 +263,7 @@ void ACPlayer::Damaged()
 	if (!!State)
 	{
 		FString v = State->IsDashMode() ? TEXT("True") : TEXT("False");
-		CLog::Print("My Dash State => " + v);
+		FLog::Print("My Dash State => " + v);
 		if (State->IsDashMode() || State->IsEvadeMode())
 		{
 			// 회피 이펙트 
@@ -401,7 +411,7 @@ void ACPlayer::Jump()
 	Super::Jump();
 
 	//Movement->EnableControlRotation();
-	CLog::Print("Jump!");
+	FLog::Print("Jump!");
 
 	PlayAnimMontage(JumpMontage);
 }
@@ -411,7 +421,7 @@ void ACPlayer::OnGrapple()
 	CheckNull(Grapple);
 
 
-	CLog::Print("Grapple!!");
+	FLog::Print("Grapple!!");
 	Grapple->OnGrapple();
 }
 
@@ -479,5 +489,32 @@ void ACPlayer::Landed(const FHitResult& Hit)
 
 	FRotator ResetRotation = FRotator(0.0f, GetActorRotation().Yaw, 0.0f);
 	SetActorRotation(ResetRotation);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+void ACPlayer::OnIncreaseTimeScale()
+{
+	FLog::Log("Increase Time Scale");
+	AdjustTimeScale(+0.1f);
+}
+
+void ACPlayer::OnDecreaseTimeScale()
+{
+	FLog::Log("Decrease Time Scale");
+	AdjustTimeScale(-0.1f);
+}
+
+void ACPlayer::AdjustTimeScale(float InTimeScaleData)
+{
+	float newTimeScale = UGameplayStatics::GetGlobalTimeDilation(GetWorld()) + InTimeScaleData;
+
+	newTimeScale = FMath::Clamp(newTimeScale, 0.1f, 3.0f);
+
+	FLog::Print("TimeScale : " + FString::SanitizeFloat(newTimeScale), 1, 10.0f,
+		FColor::Orange);
+
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), newTimeScale);
 }
 

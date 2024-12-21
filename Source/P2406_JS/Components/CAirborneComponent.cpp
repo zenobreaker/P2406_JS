@@ -1,5 +1,6 @@
 #include "Components/CAirborneComponent.h"
 #include "Global.h"
+#include "Characters/CBaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -16,10 +17,14 @@ void UCAirborneComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	
 	CheckNull(OwnerCharacter);
+	
+	ACBaseCharacter* BC = Cast<ACBaseCharacter>(OwnerCharacter);
+	if(!!BC)
+		BC->OnCharacterLanded.AddDynamic(this, &UCAirborneComponent::Landed);
 
-	//OwnerCharacter->Land.AddDynamic(this, &UCAirborneComponent::Landed);
-	movement = CHelpers::GetComponent<UCharacterMovementComponent>(OwnerCharacter);
+	movement = FHelpers::GetComponent<UCharacterMovementComponent>(OwnerCharacter);
 }
 
 //
@@ -45,7 +50,7 @@ void UCAirborneComponent::BeginPlay()
 //				skeletal->SetCollisionProfileName("NoPawn");
 //		}
 //
-//		CLog::Print("Upper Hit");
+//		FLog::Print("Upper Hit");
 //	}
 //	// 공중 상태일 때 처리 
 //	//else if(OwnerCharacter->GetCharacterMovement()->IsFalling() == true)
@@ -93,14 +98,14 @@ float UCAirborneComponent::GetAddedAirValue(float LaunchPower, AActor* InCauser)
 		if (LaunchPower > 0.0f)
 		{
 			finalLaunchPower = FMath::Clamp(500.0f, LaunchPower * 0.1f, LaunchPower * 0.1f); // 10%로
-			CLog::Print("Upper Hit");
+			FLog::Print("Upper Hit");
 		}
 		// 없다면 임의의 값으로 
 		//TODO: 임의의 값을 처리해야할 필요가 있다. 
 		else
 		{
 			finalLaunchPower = 500.0f;
-			CLog::Print("Upper Added Hit ");
+			FLog::Print("Upper Added Hit ");
 		}
 
 	}
@@ -108,24 +113,17 @@ float UCAirborneComponent::GetAddedAirValue(float LaunchPower, AActor* InCauser)
 	return finalLaunchPower;
 }
 
-void UCAirborneComponent::Landed(const FHitResult& Hit)
+void UCAirborneComponent::Landed()
 {
 	// 착지하면 공중 상태 헤제
 	if (bIsAirborne == false)
 		return; 
 
 	bIsAirborne = false;
-	CLog::Print("Airborne = Landed");
+	FLog::Print("Airborne = Landed");
 	if (!!Causer)
 	{
-		//OwnerCharacter->GetCapsuleComponent()->SetCollisionProfileName("Pawn");
 		Causer = nullptr;
-
-		//USkeletalMeshComponent* skeletal = CHelpers::GetComponent<USkeletalMeshComponent>(OwnerCharacter);
-
-		//TODO: 여기가 다시 활성화되면 문제가 되는거 같다.
-		/*if (!!skeletal)
-			skeletal->SetCollisionProfileName("Pawn");*/
 	}
 }
 

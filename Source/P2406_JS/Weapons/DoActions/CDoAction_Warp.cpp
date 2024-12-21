@@ -16,10 +16,10 @@ void UCDoAction_Warp::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment,
 {
 	Super::BeginPlay(InOwner, InAttachment, InEquipment, InDoActionDatas, InHitDatas);
 
-	Decal = CHelpers::GetComponent<UDecalComponent>(InAttachment);
+	Decal = FHelpers::GetComponent<UDecalComponent>(InAttachment);
 	PlayerController = InOwner->GetController<APlayerController>();
 
-	Behavior = CHelpers::GetComponent<UCAIBehaviorComponent>(InOwner);
+	Behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(InOwner);
 }
 
 void UCDoAction_Warp::Tick(float InDeltaTime)

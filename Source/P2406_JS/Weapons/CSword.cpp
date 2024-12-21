@@ -5,12 +5,12 @@
 
 ACSword::ACSword()
 {
-	CHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
-	CHelpers::CreateComponent<USkeletalMeshComponent>(this, &Mesh, "Mesh", Root);
-	CHelpers::CreateComponent<UCapsuleComponent>(this, &Capsule, "Capsule", Mesh);
+	FHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
+	FHelpers::CreateComponent<USkeletalMeshComponent>(this, &Mesh, "Mesh", Root);
+	FHelpers::CreateComponent<UCapsuleComponent>(this, &Capsule, "Capsule", Mesh);
 
 	USkeletalMesh* mesh;
-	CHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Weapons/Sword/SK_Sword.SK_Sword'");
+	FHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Weapons/Sword/SK_Sword.SK_Sword'");
 	Mesh->SetSkeletalMesh(mesh);
 
 	Capsule->SetRelativeLocation(FVector(-12, -130, 0)); 

@@ -2,7 +2,9 @@
 #include "Global.h"
 #include "GameFrameWork/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Characters/CBaseCharacter.h"
 #include "Characters/CPlayer.h"
+#include "Components/CConditionComponent.h"
 #include "Components/CGrapplingComponent.h"
 #include "Weapons/CSubAction.h"
 
@@ -13,10 +15,11 @@ void UCAnimInstance::NativeBeginPlay()
 	OwnerCharacter = Cast<ACharacter>(TryGetPawnOwner());
 	CheckNull(OwnerCharacter);
 
-	Weapon = CHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
-	State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
-	Skill = CHelpers::GetComponent<UCSkillComponent>(OwnerCharacter); 
-	Grapple = CHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
+	Weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
+	State = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+	Skill = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter); 
+	Grapple = FHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
+	Condition = FHelpers::GetComponent<UCConditionComponent>(OwnerCharacter);
 
 	if (!!Weapon)
 		Weapon->OnWeaponTypeChanged.AddDynamic(this, &UCAnimInstance::OnWeaponTypeChanged);
@@ -24,7 +27,13 @@ void UCAnimInstance::NativeBeginPlay()
 	if (!!State)
 		State->OnStateTypeChanged.AddDynamic(this, &UCAnimInstance::OnStateTypeChanged);
 
-	//OwnerCharacter->OnCharacterLandedDelegate.Add
+	ACBaseCharacter* baseCharacter = Cast<ACBaseCharacter>(OwnerCharacter);
+	if(!!baseCharacter)
+	{
+		baseCharacter->OnCharacterDowned.AddDynamic(this, &UCAnimInstance::OnCharacterDowned);
+
+		baseCharacter->OnCharacterRaised.AddDynamic(this, &UCAnimInstance::OnCharacterRaised);
+	}
 }
 
 void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -48,10 +57,13 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bSkillSoaring = Skill->GetSkillSoaring(); 
 	}
 
-	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling() && bSkillSoaring == false;
-
+	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling(); /*&& bSkillSoaring == false;*/
+	//FLog::Print("Anim bFalling : " + FString::FromInt(bFalling));
 	bIsAirborneHit = bFalling && StateType == EStateType::Damaged;
 	
+	if (!!Condition)
+		bDown = Condition->GetDownCondition();
+
 	CheckNull(Grapple);
 	bGrappling = Grapple->GetGrappling();
 	
@@ -74,8 +86,18 @@ void UCAnimInstance::OnStateTypeChanged(EStateType InPrevType, EStateType InNewT
 	StateType = InNewType;
 }
 
-void UCAnimInstance::OnOnCharacterLanded()
+void UCAnimInstance::OnCharacterLanded()
 {
 	State->SetIdleMode();
+}
+
+void UCAnimInstance::OnCharacterDowned()
+{
+	State_Progress = 0.0f;
+}
+
+void UCAnimInstance::OnCharacterRaised()
+{
+	State_Progress = 100.0f;
 }
 

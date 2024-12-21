@@ -59,7 +59,7 @@ void UCSubAction_Sword::OnPressSpecialAction()
 void UCSubAction_Sword::SetInputSubAction()
 {
 
-	UInputComponent* input = CHelpers::GetComponent<UInputComponent>(Owner);
+	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(Owner);
 	CheckNull(input);
 
 	// 기존 Action 이벤트 제거 
@@ -72,7 +72,7 @@ void UCSubAction_Sword::SetInputSubAction()
 
 void UCSubAction_Sword::EndInputSubAction()
 {
-	UInputComponent* input = CHelpers::GetComponent<UInputComponent>(Owner);
+	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(Owner);
 	CheckNull(input);
 
 	// 기존 Action 이벤트 제거 

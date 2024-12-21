@@ -8,7 +8,7 @@ void UCActiveSkill_Stance::BeginPlay(ACharacter* InOwner, const TArray<FSkillAct
 	DoActionDatas = InDoActionDatas;
 	HitDatas = InHitDatas;
 
-	CLog::Print("Skill Create!");
+	FLog::Print("Skill Create!");
 
 	RegisterSkillPhase_Stance();
 }
@@ -37,11 +37,11 @@ void UCActiveSkill_Stance::Input_AnyKey()
 
 	CheckNull(OwnerCharacter);
 
-	UInputComponent* input = CHelpers::GetComponent<UInputComponent>(OwnerCharacter);
+	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(OwnerCharacter);
 	CheckNull(input);
 
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
 	CheckNull(weapon)
 
 	// 기존 Action 이벤트 제거 
@@ -65,7 +65,7 @@ void UCActiveSkill_Stance::Begin_WaitInput()
 	// 스킬의 선행 동작이 끝날 때까지 공격 입력을 받아야 하니까 .. 
 	CheckNull(OwnerCharacter); 
 
-	UInputComponent* input = CHelpers::GetComponent<UInputComponent>(OwnerCharacter);
+	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(OwnerCharacter);
 	CheckNull(input);
 
 	// 기존 Action 이벤트 제거 

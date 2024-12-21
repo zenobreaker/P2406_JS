@@ -13,7 +13,7 @@ void UCAnimNotify_SkillCollision::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCSkillComponent* skill = CHelpers::GetComponent<UCSkillComponent>(MeshComp->GetOwner());
+	UCSkillComponent* skill = FHelpers::GetComponent<UCSkillComponent>(MeshComp->GetOwner());
 
 	CheckNull(skill);
 

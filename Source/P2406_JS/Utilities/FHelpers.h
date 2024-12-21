@@ -13,7 +13,7 @@
 
 #define CreateTextRenderComponent()\
 {\
-	CHelpers::CreateComponent<UTextRenderComponent>(this, &Text, "Text", Root);\
+	FHelpers::CreateComponent<UTextRenderComponent>(this, &Text, "Text", Root);\
 	Text->SetRelativeLocation(FVector(0, 0, 100));\
 	Text->SetRelativeRotation(FRotator(0, 180, 0));\
 	Text->SetRelativeScale3D(FVector(2));\
@@ -22,7 +22,7 @@
 	Text->Text = FText::FromString(GetName().Replace(L"Default__", L""));\
 }
 
-class P2406_JS_API CHelpers
+class P2406_JS_API FHelpers
 {
 public:
 	template<typename TValueType>
@@ -46,10 +46,10 @@ public:
 		*OutComponent = InActor->CreateDefaultSubobject<TValueType>(InName);
 	}
 
-	template<typename T>
-	static void CreateActorComponent(AActor* InActor, TObjectPtr<T>* OutComponent, FName InName)
+	template<typename TValueType>
+	static void CreateActorComponent(AActor* InActor, TObjectPtr<TValueType>* OutComponent, FName InName)
 	{
-		*OutComponent = InActor->CreateDefaultSubobject<T>(InName);
+		*OutComponent = InActor->CreateDefaultSubobject<TValueType>(InName);
 	}
 
 	template<typename TValueType>

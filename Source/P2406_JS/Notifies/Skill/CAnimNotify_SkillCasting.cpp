@@ -15,7 +15,7 @@ void UCAnimNotify_SkillCasting::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 	CheckNull(MeshComp->GetOwner()); 
 
 
-	UCSkillComponent* skill = CHelpers::GetComponent<UCSkillComponent>(MeshComp->GetOwner());
+	UCSkillComponent* skill = FHelpers::GetComponent<UCSkillComponent>(MeshComp->GetOwner());
 
 	CheckNull(skill); 
 

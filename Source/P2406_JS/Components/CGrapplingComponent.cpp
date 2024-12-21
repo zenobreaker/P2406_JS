@@ -101,7 +101,7 @@ void UCGrapplingComponent::SetTarget()
 	}
 	else
 	{
-		CLog::Print("No Colloisions!");
+		FLog::Print("No Colloisions!");
 		TargetLocation = End;
 		DrawDebugLine(GetWorld(), Start, End, FColor::Yellow, false, 5.0f);
 		//PullTowardsTarget();

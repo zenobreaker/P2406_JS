@@ -14,7 +14,7 @@ void UCAnimNotify_BeginGrappling::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCGrapplingComponent* grappling = CHelpers::GetComponent<UCGrapplingComponent>(MeshComp->GetOwner());
+	UCGrapplingComponent* grappling = FHelpers::GetComponent<UCGrapplingComponent>(MeshComp->GetOwner());
 	CheckNull(grappling);
 
 	grappling->Begin_DoGrappling();

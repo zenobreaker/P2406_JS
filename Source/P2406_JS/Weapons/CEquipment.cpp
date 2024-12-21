@@ -10,8 +10,8 @@ void UCEquipment::BeginPlay(ACharacter* InOwner, const FEquipmentData& InData)
 	OwnerCharacter = InOwner;
 	Data = InData; 
 
-	Movement = CHelpers::GetComponent<UCMovementComponent>(InOwner);
-	State = CHelpers::GetComponent<UCStateComponent>(InOwner);
+	Movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
+	State = FHelpers::GetComponent<UCStateComponent>(InOwner);
 }
 
 void UCEquipment::Equip_Implementation()

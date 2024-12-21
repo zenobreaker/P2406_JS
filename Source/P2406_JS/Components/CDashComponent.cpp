@@ -28,11 +28,11 @@ void UCDashComponent::BeginPlay()
 
 	if (!!OwnerCharacter)
 	{
-		Movement = CHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
-		target = CHelpers::GetComponent<UCTargetComponent>(OwnerCharacter);
-		Weapon = CHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
-		State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
-		Camera = CHelpers::GetComponent<UCameraComponent>(OwnerCharacter);
+		Movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
+		target = FHelpers::GetComponent<UCTargetComponent>(OwnerCharacter);
+		Weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
+		State = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+		Camera = FHelpers::GetComponent<UCameraComponent>(OwnerCharacter);
 	}
 }
 
@@ -235,7 +235,7 @@ void UCDashComponent::DestroyEvadeOverlap()
 
 void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CLog::Print(" Is Evade!");
+	FLog::Print(" Is Evade!");
 
 	if (!!GhostTrailClass)
 	{

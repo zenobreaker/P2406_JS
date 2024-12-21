@@ -14,7 +14,7 @@ void UCAnimNotifyState_Hammer::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(MeshComp->GetOwner());
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(MeshComp->GetOwner());
 	CheckNull(weapon);
 	CheckNull(weapon->GetSubAction());
 
@@ -27,7 +27,7 @@ void UCAnimNotifyState_Hammer::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnim
 	CheckNull(MeshComp->GetOwner());
 
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(MeshComp->GetOwner());
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(MeshComp->GetOwner());
 	CheckNull(weapon);
 	CheckNull(weapon->GetSubAction());
 

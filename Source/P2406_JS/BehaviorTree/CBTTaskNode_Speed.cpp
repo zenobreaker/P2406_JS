@@ -14,7 +14,7 @@ EBTNodeResult::Type UCBTTaskNode_Speed::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
-	UCMovementComponent* movement = CHelpers::GetComponent<UCMovementComponent>(ai);
+	UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(ai);
 
 	movement->SetSpeed(Type);
 

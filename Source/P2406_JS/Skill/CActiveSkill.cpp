@@ -11,7 +11,7 @@ void UCActiveSkill::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData
 
 	//OnActionCompleted.AddDynamic(this, &UCActiveSkill::StartNextPhase);
 
-	CLog::Print(OwnerCharacter->GetName() + "Skill Create!");
+	FLog::Print(OwnerCharacter->GetName() + "Skill Create!");
 
 	//TODO: 등록하는 기능 때문에 일반 스킬도 확장 시켜놔야할지도?
 	RegisterSkillPhase_Normal();
@@ -89,7 +89,7 @@ void UCActiveSkill::StartNextPhase()
 {
 	if (currentPhase == ESkillPhase::Max)
 	{
-		CLog::Print("Skill Phase All Complete");
+		FLog::Print("Skill Phase All Complete");
 		return; 
 	}
 	
@@ -180,7 +180,7 @@ void UCActiveSkill::Update_Cooldown(float InDeltaTime)
 		return; 
 
 	currentCooldown -= InDeltaTime; 
-	/*CLog::Print(SkillInfo.SkillName + " "  + FString::SanitizeFloat(currentCooldown), 1,10.0f, FColor::Red);*/
+	/*FLog::Print(SkillInfo.SkillName + " "  + FString::SanitizeFloat(currentCooldown), 1,10.0f, FColor::Red);*/
 	currentCooldown = FMath::Clamp(currentCooldown, 0.0f, SkillInfo.CoolDown);
 
 	if (OnSkillCooldownUpdated.IsBound())
@@ -192,7 +192,7 @@ void UCActiveSkill::Update_Cooldown(float InDeltaTime)
 /// </summary>
 void UCActiveSkill::Begin_Casting()
 {
-	CLog::Print("Skill : Begin_Casting");
+	FLog::Print("Skill : Begin_Casting");
 	// 데이터의 함수 실행 
 	DoActionDatas[Index].Begin_Casting(OwnerCharacter);
 	
@@ -202,14 +202,14 @@ void UCActiveSkill::Begin_Casting()
 
 void UCActiveSkill::DoCasting()
 {
-	CLog::Print("Skill : DoCasting");
+	FLog::Print("Skill : DoCasting");
 	DoActionDatas[Index].DoCasting(OwnerCharacter);
 	// 다음 페이즈 처리는 Tick에서 함 
 }
 
 void UCActiveSkill::End_Casting()
 {
-	CLog::Print("Skill : End_Casting");
+	FLog::Print("Skill : End_Casting");
 	DoActionDatas[Index].End_Casting(OwnerCharacter);
 	
 	// 캐스팅이 끝났으므로 데이터에 처리할게 있으면 처리하라고 하고 다음 페이즈로 간다
@@ -222,14 +222,14 @@ void UCActiveSkill::End_Casting()
 /// </summary>
 void UCActiveSkill::Begin_Skill()
 {
-	CLog::Print("Skill : Begin_Skill");
+	FLog::Print("Skill : Begin_Skill");
 	// 스킬 동작 시작 
 	StartNextPhase(); 
 }
 
 void UCActiveSkill::DoAction_Skill()
 {
-	CLog::Print("Skill : DoAction_Skill");
+	FLog::Print("Skill : DoAction_Skill");
 	if (Index >= DoActionDatas.Num())
 		return;
 
@@ -242,12 +242,12 @@ void UCActiveSkill::Begin_Charging()
 
 void UCActiveSkill::Begin_WaitInput()
 {
-	CLog::Print("Skill Wait!");
+	FLog::Print("Skill Wait!");
 }
 
 void UCActiveSkill::End_Skill()
 {
-	CLog::Print("Skill : End_Skill");
+	FLog::Print("Skill : End_Skill");
 	Index++;
 
 	//TODO: 엉뚱한 로직이다. 나중에 스킬 데이터를 수정하면 여기를 수정해야한다. 

@@ -16,8 +16,8 @@ void UCDoAction::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCEq
 	OwnerCharacter = InOwner;
 	World = OwnerCharacter->GetWorld();
 
-	State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
-	Movement = CHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
+	State = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+	Movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
 
 	DoActionDatas = InDoActionDatas;
 	HitDatas = InHitDatas;

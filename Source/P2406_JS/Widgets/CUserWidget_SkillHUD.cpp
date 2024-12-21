@@ -9,16 +9,16 @@ void UCUserWidget_SkillHUD::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
-	CLog::Print("SkillHUD - NativeConstruct called");
+	FLog::Print("SkillHUD - NativeConstruct called");
 
     HotBar = Cast<UCUserWidget_Hotbar>(GetWidgetFromName(TEXT("WB_CSkillHotBar")));
     if (!!HotBar)
     {
-        CLog::Print("SkillHUD - Success to initialize HotBar", -1, 10.0, FColor::Green);
+        FLog::Print("SkillHUD - Success to initialize HotBar", -1, 10.0, FColor::Green);
     }
     else
     {
-        CLog::Print("SkillHUD - Failed to initialize HotBar", -1, 10.0, FColor::Red);
+        FLog::Print("SkillHUD - Failed to initialize HotBar", -1, 10.0, FColor::Red);
     }
 }
 
@@ -27,7 +27,7 @@ void UCUserWidget_SkillHUD::OnSetSkill(const TArray<UCActiveSkill*>& InActiveSki
 {
     CheckNull(HotBar);
 
-	CLog::Print("HUD - OnSet Skill Call");
+	FLog::Print("HUD - OnSet Skill Call");
 	HotBar->OnSetSkillSlots(InActiveSkills);
 }
 
@@ -35,10 +35,10 @@ void UCUserWidget_SkillHUD::OnSetOwner(ACharacter* InOwner)
 {
     CheckNull(InOwner); 
 
-    Skill = CHelpers::GetComponent<UCSkillComponent>(InOwner); 
+    Skill = FHelpers::GetComponent<UCSkillComponent>(InOwner); 
     CheckNull(Skill); 
 
-    CLog::Print("Skill HUD Delegate Set", -1, 10, FColor::Magenta);
+    FLog::Print("Skill HUD Delegate Set", -1, 10, FColor::Magenta);
     Skill->OnSetSkills.AddDynamic(this, &UCUserWidget_SkillHUD::OnSetSkill); 
 
     Skill->OnSkillSlotsCleared.AddDynamic(this, &UCUserWidget_SkillHUD::OnSetSkillSlotsCleared);

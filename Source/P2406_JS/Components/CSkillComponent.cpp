@@ -59,11 +59,11 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	if (SkillSlotTable.Contains((ESkillSlot)InSlot) == false)
 		return;
 
-	CLog::Print(FString::FromInt(InSlot) + " Call Skill");
+	FLog::Print(FString::FromInt(InSlot) + " Call Skill");
 
 	if (bIsSkillAction == true)
 	{
-		CLog::Print("Not Use a Skill Because Player is doing Skill");
+		FLog::Print("Not Use a Skill Because Player is doing Skill");
 		return;
 	}
 
@@ -71,7 +71,7 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	auto* skill = SkillSlotTable.FindRef((ESkillSlot)InSlot);
 	if(skill ==nullptr)
 	{
-		CLog::Log("Skill is Nullptr");
+		FLog::Log("Skill is Nullptr");
 		return; 
 	}
 
@@ -85,7 +85,7 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 
 	if (check == false)
 	{
-		CLog::Print("Not Use a Skill Because Skill is Cooldown");
+		FLog::Print("Not Use a Skill Because Skill is Cooldown");
 
 		return; // 무슨 버그인지는 몰라도 아래 check가 false여서 최종적으로 false인데도 불구하고 실행되는 버그
 	}
@@ -156,14 +156,14 @@ void UCSkillComponent::EndSkill()
 void UCSkillComponent::OnSkillCasting()
 {
 	CheckNull(CurrentSkill);
-	CLog::Print("Skill Comp => On Skill Cast");
+	FLog::Print("Skill Comp => On Skill Cast");
 	CurrentSkill->OnSkillCasting();
 
 }
 void UCSkillComponent::OffSkillCasting()
 {
 	CheckNull(CurrentSkill);
-	CLog::Print("Skill Comp => Off Skill Cast");
+	FLog::Print("Skill Comp => Off Skill Cast");
 	CurrentSkill->OffSkillCasting();
 }
 
@@ -217,7 +217,7 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InActiveSkills
 		cnt++;
 	}
 
-	CLog::Print("Skill Set Complete" + FString::FromInt(cnt));
+	FLog::Print("Skill Set Complete" + FString::FromInt(cnt));
 
 	if (OnSetSkills.IsBound())
 		OnSetSkills.Broadcast(InActiveSkills);
@@ -225,13 +225,13 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InActiveSkills
 
 void UCSkillComponent::OnSkillSoaring()
 {
-	CLog::Log("Skill Soar Begin ");
+	FLog::Log("Skill Soar Begin ");
 	bIsSkillSoaring = true;
 }
 
 void UCSkillComponent::OffSkillSoaring()
 {
-	CLog::Log("Skill Soar End ");
+	FLog::Log("Skill Soar End ");
 	bIsSkillSoaring = false;
 }
 
@@ -246,7 +246,7 @@ void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 
 			if (active->GetIsFinished())
 			{
-				CLog::Print("Remove Skill " + active->GetName(), -1, 10.0f, FColor::Red);
+				FLog::Print("Remove Skill " + active->GetName(), -1, 10.0f, FColor::Red);
 				ActiveSkills.Remove(active);
 			}
 		}

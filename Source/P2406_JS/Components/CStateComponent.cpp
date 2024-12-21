@@ -49,7 +49,7 @@ void UCStateComponent::SetDeadMode()
 	ChangeType(EStateType::Dead);
 }
 
-void UCStateComponent::SetActionborneMode()
+void UCStateComponent::SetAirborneMode()
 {
 	ChangeType(EStateType::Airborne);
 }
@@ -82,7 +82,7 @@ void UCStateComponent::ChangeType(EStateType InType)
 	EStateType prevType = Type;
 	Type = InType;
 	
-	CLog::Log(EnumToString(Type));
+	FLog::Log(EnumToString(Type));
 
 	if (OnStateTypeChanged.IsBound())
 		OnStateTypeChanged.Broadcast(prevType, InType);

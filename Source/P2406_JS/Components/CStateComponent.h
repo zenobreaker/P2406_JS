@@ -42,7 +42,7 @@ public:
 	void SetActionMode();
 	void SetDamagedMode();
 	void SetDeadMode();
-	void SetActionborneMode();
+	void SetAirborneMode();
 
 	FString EnumToString(EStateType State);
 

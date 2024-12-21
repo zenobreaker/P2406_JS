@@ -8,7 +8,7 @@
 
 ACGhostTrail::ACGhostTrail()
 {
-	CHelpers::CreateComponent<UPoseableMeshComponent>(this, &Mesh, "Mesh");
+	FHelpers::CreateComponent<UPoseableMeshComponent>(this, &Mesh, "Mesh");
 }
 
 void ACGhostTrail::BeginPlay()
@@ -18,7 +18,7 @@ void ACGhostTrail::BeginPlay()
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 
 	UMaterialInstanceConstant* material;
-	CHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&material, "MaterialInstanceConstant'/Game/Materials/M_GhostTrail_Inst.M_GhostTrail_Inst'");
+	FHelpers::GetAssetDynamic<UMaterialInstanceConstant>(&material, "MaterialInstanceConstant'/Game/Materials/M_GhostTrail_Inst.M_GhostTrail_Inst'");
 
 	Material = UMaterialInstanceDynamic::Create(material, this);
 	Material->SetVectorParameterValue("Color", Color);

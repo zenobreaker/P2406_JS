@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 
 
-class P2406_JS_API CLog
+class P2406_JS_API FLog
 {
 public:
 	static void Log(int32 InValue);

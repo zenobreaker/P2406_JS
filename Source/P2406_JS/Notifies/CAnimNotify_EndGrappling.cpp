@@ -13,7 +13,7 @@ void UCAnimNotify_EndGrappling::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCGrapplingComponent* grappling = CHelpers::GetComponent<UCGrapplingComponent>(MeshComp->GetOwner());
+	UCGrapplingComponent* grappling = FHelpers::GetComponent<UCGrapplingComponent>(MeshComp->GetOwner());
 	CheckNull(grappling);
 
 	grappling->End_DoGrappling();

@@ -29,7 +29,7 @@ void UCWeaponComponent::BeginPlay()
 		}
 	}
 	// 주인한테 있는 컴포넌트 가져옴
-	Skill = CHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+	Skill = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
 }
 
 
@@ -46,7 +46,7 @@ void UCWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 bool UCWeaponComponent::IsIdleMode()
 {
-	return CHelpers::GetComponent<UCStateComponent>(OwnerCharacter)->IsIdleMode();
+	return FHelpers::GetComponent<UCStateComponent>(OwnerCharacter)->IsIdleMode();
 }
 
 
@@ -134,7 +134,7 @@ void UCWeaponComponent::SetBowMode()
 
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {
-	class UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
+	class UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
 	if (state != nullptr)
 	{
 		if (state->IsActionMode())
@@ -188,7 +188,7 @@ void UCWeaponComponent::DoAction()
 
 void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 {
-	CLog::Log("Call Exectue Skill");
+	FLog::Log("Call Exectue Skill");
 	//TODO: 스킬이 일부 모션 캔슬 가능이라면 이 로직은 수정해야할지도. 
 	CheckFalse(IsIdleMode());
 	CheckNull(Skill);

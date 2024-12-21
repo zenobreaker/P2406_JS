@@ -20,7 +20,7 @@ EBTNodeResult::Type UCBTTaskNode_Action::ExecuteTask(UBehaviorTreeComponent& Own
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(ai);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 	CheckNullResult(weapon, EBTNodeResult::Failed);
 	CheckTrueResult(weapon->IsUnarmedMode(), EBTNodeResult::Failed);
 
@@ -37,8 +37,8 @@ void UCBTTaskNode_Action::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(ai);
-	UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
 
 
 	bool bCheck = true;
@@ -56,7 +56,7 @@ EBTNodeResult::Type UCBTTaskNode_Action::AbortTask(UBehaviorTreeComponent& Owner
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(ai);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 
 	bool bBgeinAction = weapon->GetDoAction()->GetBeginAction();
 

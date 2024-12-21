@@ -6,7 +6,7 @@
 
 ACAttachment::ACAttachment()
 {
-	CHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
+	FHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
 }
 
 void ACAttachment::BeginPlay()

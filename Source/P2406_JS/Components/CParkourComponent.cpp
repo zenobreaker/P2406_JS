@@ -10,7 +10,7 @@ void FParkourData::PlayMontage(ACharacter* InCharacter)
 {
 	if (bFixedCamera)
 	{
-		UCMovementComponent* movement = CHelpers::GetComponent<UCMovementComponent>(InCharacter);
+		UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(InCharacter);
 
 		if (!!movement)
 			movement->EnableFixedCamera();
@@ -25,7 +25,7 @@ UCParkourComponent::UCParkourComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	CHelpers::GetAsset<UDataTable>(&DataTable, "DataTable'/Game/Parkour/DT_Parkour.DT_Parkour'");
+	FHelpers::GetAsset<UDataTable>(&DataTable, "DataTable'/Game/Parkour/DT_Parkour.DT_Parkour'");
 }
 
 
@@ -67,7 +67,7 @@ void UCParkourComponent::BeginPlay()
 	CheckNull(OwnerCharacter);
 
 
-	USceneComponent* arrows = CHelpers::GetComponent<USceneComponent>(OwnerCharacter, "Arrows");
+	USceneComponent* arrows = FHelpers::GetComponent<USceneComponent>(OwnerCharacter, "Arrows");
 
 	TArray<USceneComponent*> components;
 	arrows->GetChildrenComponents(false, components);
@@ -179,7 +179,7 @@ void UCParkourComponent::End_DoParkour()
 
 	Type = EParkourType::Max;
 
-	UCMovementComponent* movement = CHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
+	UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
 
 	if (!!movement)
 	{
@@ -214,7 +214,7 @@ void UCParkourComponent::CheckTrace_Center()
 	CheckFalse(hitResult.bBlockingHit);
 
 
-	UStaticMeshComponent* mesh = CHelpers::GetComponent<UStaticMeshComponent>(hitResult.GetActor());
+	UStaticMeshComponent* mesh = FHelpers::GetComponent<UStaticMeshComponent>(hitResult.GetActor());
 	CheckNull(mesh);
 
 

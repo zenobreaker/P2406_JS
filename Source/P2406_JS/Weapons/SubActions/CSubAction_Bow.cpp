@@ -9,15 +9,15 @@
 
 UCSubAction_Bow::UCSubAction_Bow()
 {
-	/*CHelpers::GetAsset<UCurveVector>(&Curve, "/Script/Engine.CurveVector'/Game/Weapons/Bow/Curve_Aiming.Curve_Aiming'");*/
+	FHelpers::GetAsset<UCurveVector>(&Curve, "/Script/Engine.CurveVector'/Game/Weapons/Bow/Curve_Aiming.Curve_Aiming'");
 }
 
 void UCSubAction_Bow::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCDoAction* InDoAction)
 {
 	Super::BeginPlay(InOwner, InAttachment, InDoAction);
 
-	SpringArm = CHelpers::GetComponent<USpringArmComponent>(InOwner);
-	Camera = CHelpers::GetComponent<UCameraComponent>(InOwner); 
+	SpringArm = FHelpers::GetComponent<USpringArmComponent>(InOwner);
+	Camera = FHelpers::GetComponent<UCameraComponent>(InOwner); 
 
 	FOnTimelineVector timeline; 
 	timeline.BindUFunction(this, "OnAiming");

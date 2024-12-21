@@ -10,7 +10,7 @@
 
 void FDoActionData::DoAction(ACharacter* InOwner)
 {
-	UCMovementComponent* movement = CHelpers::GetComponent<UCMovementComponent>(InOwner);
+	UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
 
 	if (!!movement)
 	{

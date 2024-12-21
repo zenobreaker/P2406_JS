@@ -7,7 +7,7 @@ void UCUserWidget_Hotbar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	CLog::Print("HotBar - NativeConstruct called");
+	FLog::Print("HotBar - NativeConstruct called");
 	// Slots √ ±‚»≠
 }
 
@@ -16,7 +16,7 @@ void UCUserWidget_Hotbar::OnSetSkillSlots_Implementation(const TArray<UCActiveSk
 	CheckTrue(InActiveSkills.Num() <= 0);
 	check(SkillSlots.Num() > 0);
 
-	CLog::Print("Hot bar  : Call Set Skill Slot ", -1, 10.0f, FColor::Yellow);
+	FLog::Print("Hot bar  : Call Set Skill Slot ", -1, 10.0f, FColor::Yellow);
 	int cnt = 0;
 	for (const UCActiveSkill* activeSkill : InActiveSkills)
 	{
@@ -50,11 +50,11 @@ void UCUserWidget_Hotbar::OnUpdateCooldown_Implementation(int32 InSkillID, float
 //{
 //    //if (InActiveSkills.Num() != SkillSlots.Num())
 //    //{
-//    //    CLog::Print("SkillSlot- OnSet Slot Failed " + FString::FromInt(MaxSlots) + " " + FString::FromInt(InActiveSkills.Num()), -1, 10.0f, FColor::Red);
+//    //    FLog::Print("SkillSlot- OnSet Slot Failed " + FString::FromInt(MaxSlots) + " " + FString::FromInt(InActiveSkills.Num()), -1, 10.0f, FColor::Red);
 //    //    return;
 //    //}
 //
-//    //CLog::Print("SkillSlot- OnSet Slot Call", -1, 10.0f, FColor::Black);
+//    //FLog::Print("SkillSlot- OnSet Slot Call", -1, 10.0f, FColor::Black);
 //
 //    //for (int32 i = 0; i < InActiveSkills.Num(); ++i)
 //    //{

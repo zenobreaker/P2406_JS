@@ -13,7 +13,7 @@ void UCAnimNotify_EndParkour::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCParkourComponent* parkour = CHelpers::GetComponent<UCParkourComponent>(MeshComp->GetOwner());
+	UCParkourComponent* parkour = FHelpers::GetComponent<UCParkourComponent>(MeshComp->GetOwner());
 	CheckNull(parkour);
 
 	parkour->End_DoParkour();

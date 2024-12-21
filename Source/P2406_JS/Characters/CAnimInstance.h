@@ -35,6 +35,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	bool bIsAirborneHit;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	bool bDown;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	float State_Progress;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	bool bBow_Aiming;
@@ -59,7 +65,13 @@ private:
 	void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 
 	UFUNCTION()
-	void OnOnCharacterLanded();
+	void OnCharacterLanded();
+
+	UFUNCTION()
+	void OnCharacterDowned();
+
+	UFUNCTION()
+	void OnCharacterRaised();
 
 private:
 	class ACharacter* OwnerCharacter;
@@ -67,7 +79,7 @@ private:
 	class UCStateComponent* State;
 	class UCSkillComponent* Skill;
 	class UCGrapplingComponent* Grapple; 
-
+	class UCConditionComponent* Condition;
 private:
 	FRotator PrevRotation;
 

@@ -6,7 +6,7 @@
 
 ACGameMode::ACGameMode()
 {
-	CHelpers::GetClass<APawn>(&DefaultPawnClass, L"/Script/Engine.Blueprint'/Game/Player/BP_CPlayerTest.BP_CPlayerTest_C'");
+	FHelpers::GetClass<APawn>(&DefaultPawnClass, L"/Script/Engine.Blueprint'/Game/Player/BP_CPlayerTest.BP_CPlayerTest_C'");
 
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -16,7 +16,7 @@ void ACGameMode::BeginPlay()
 	GameInstance = Cast<UCGameInstance>(GetGameInstance());
 	
 	if (GameInstance != nullptr)
-		CLog::Log("Success Find the GameInstance ");
+		FLog::Log("Success Find the GameInstance ");
 }
 
 void ACGameMode::Tick(float DeltaSeconds)

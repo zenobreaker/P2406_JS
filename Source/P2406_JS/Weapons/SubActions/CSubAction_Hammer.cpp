@@ -18,7 +18,7 @@ void UCSubAction_Hammer::Pressed()
 	CheckFalse(ActionDatas.Num() > 0);
 	CheckTrue(State->IsActionMode());
 
-	CLog::Print("Hammer SubAction Start");
+	FLog::Print("Hammer SubAction Start");
 
 
 	ResetCharging();
@@ -62,7 +62,7 @@ void UCSubAction_Hammer::Tick(float DeltaTime)
 	if (CurrentChargeTime >= MaxChargeTime)
 	{
 		// 충전 완료 애님 재생
-		CLog::Print("Sub Action Charge Complete", 1, 2);
+		FLog::Print("Sub Action Charge Complete", 1, 2);
 		bActionable = true;
 	}
 }
@@ -75,25 +75,25 @@ void UCSubAction_Hammer::CreateEffect_Charging()
 	Effects[0].PlaySoundWave(Owner);
 
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(Owner);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(Owner);
 	CheckNull(weapon);
 
 	class ACAttachment* hammer =  weapon->GetAttachment();
 	CheckNull(hammer);
 
-	USkeletalMeshComponent * skeletalMesh = CHelpers::GetComponent<USkeletalMeshComponent>(hammer, "SkeletalMesh");
+	USkeletalMeshComponent * skeletalMesh = FHelpers::GetComponent<USkeletalMeshComponent>(hammer, "SkeletalMesh");
 	CheckNull(skeletalMesh);
 
 	if (skeletalMesh->DoesSocketExist("Hammer_Head"))
 	{
 		FVector socketLocation = skeletalMesh->GetSocketLocation("Hammer_Head");
-		CLog::Log("Hammer_Head Socket Location:" + socketLocation.ToString());
+		FLog::Log("Hammer_Head Socket Location:" + socketLocation.ToString());
 	}
 	else if(skeletalMesh == nullptr){
-		CLog::Log("skeletalMesh is null!");
+		FLog::Log("skeletalMesh is null!");
 	}
 	else if (skeletalMesh->DoesSocketExist("Hammer_Head")) {
-		CLog::Log("Soket Not foind !");
+		FLog::Log("Soket Not foind !");
 	}
 
 

@@ -18,9 +18,9 @@ void UCSubAction::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCD
 	Attachment = InAttachment;
 	DoAction = InDoAction;
 
-	State = CHelpers::GetComponent<UCStateComponent>(Owner);
-	Movement = CHelpers::GetComponent<UCMovementComponent>(Owner);
-	Weapon = CHelpers::GetComponent<UCWeaponComponent>(Owner);
+	State = FHelpers::GetComponent<UCStateComponent>(Owner);
+	Movement = FHelpers::GetComponent<UCMovementComponent>(Owner);
+	Weapon = FHelpers::GetComponent<UCWeaponComponent>(Owner);
 }
 
 void UCSubAction::Pressed()

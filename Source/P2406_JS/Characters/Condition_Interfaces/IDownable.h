@@ -16,6 +16,8 @@ class P2406_JS_API IIDownable
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
 	virtual void OnDownConditionActivated() {};
+	UFUNCTION()
 	virtual void OnDownConditionDeactivated() {};
 };

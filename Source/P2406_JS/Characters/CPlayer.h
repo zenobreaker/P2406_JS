@@ -141,6 +141,13 @@ private:
 public:
 	void Landed(const FHitResult& Hit) override;
 
+
+private:
+	void OnIncreaseTimeScale();
+	void OnDecreaseTimeScale();
+
+	void AdjustTimeScale(float InTimeScaleData);
+
 private:
 	class UCUserWidget_Player* UserInterface;
 	class UCUserWidget_SkillHUD* SkillHUD;

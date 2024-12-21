@@ -19,7 +19,7 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
-	UCAIBehaviorComponent* behavior = CHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
 
 
 	// Å¸°ÙÀÌ ¾øÀ¸¸é ¼øÂû
@@ -36,7 +36,7 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	float distance = ai->GetDistanceTo(target);
 	if (distance < ActionRange)
 	{ 
-		UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
+		UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
 
 		if (state->IsIdleMode() == false)
 			return;

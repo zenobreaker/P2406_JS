@@ -19,8 +19,8 @@ void UCBTService_Range::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
-	UCAIBehaviorComponent* behavior = CHelpers::GetComponent<UCAIBehaviorComponent>(ai);
-	UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
 
 
 	if (bDrawDebug)

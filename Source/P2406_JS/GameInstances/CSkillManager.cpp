@@ -19,7 +19,7 @@ void UCSkillManager::UpdateCooldown(int32 InSkillID, float InDeltaTime)
 
 		if (CooldownTable[InSkillID] > 0.0f)
 		{
-			CLog::Print(FString::SanitizeFloat(InSkillID) + " : " + FString::SanitizeFloat(CooldownTable[InSkillID]), 1, 10.0f, FColor::Red);
+			FLog::Print(FString::SanitizeFloat(InSkillID) + " : " + FString::SanitizeFloat(CooldownTable[InSkillID]), 1, 10.0f, FColor::Red);
 		}
 
 		if(OnUpdateCooldown.IsBound())
@@ -35,7 +35,7 @@ void UCSkillManager::ExecuteSkill(int32 InSkillID, float InCooldown)
 	{
 		// 쿨다운이 있을 경우 값을 갱신
 		CooldownTable[InSkillID] = InCooldown;
-		CLog::Log("this refresh " + FString::FromInt(InSkillID));
+		FLog::Log("this refresh " + FString::FromInt(InSkillID));
 	}
 	else
 	{

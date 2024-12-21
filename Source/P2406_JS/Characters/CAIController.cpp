@@ -11,9 +11,9 @@
 
 ACAIController::ACAIController()
 {
-	CHelpers::CreateActorComponent<UAIPerceptionComponent>(this, &Perception, "Perception");
+	FHelpers::CreateActorComponent<UAIPerceptionComponent>(this, &Perception, "Perception");
 
-	CHelpers::CreateActorComponent<UBlackboardComponent>(this, &Blackboard, "Blackboard");
+	FHelpers::CreateActorComponent<UBlackboardComponent>(this, &Blackboard, "Blackboard");
 
 	// 시야 구성 
 	Sight = CreateDefaultSubobject<UAISenseConfig_Sight>("Sight");
@@ -53,7 +53,7 @@ void ACAIController::OnPossess(APawn* InPawn)
 	// Enemy에 Blackboard asset을 사용한다고 명시
 	UseBlackboard(Enemy->GetBehaviorTree()->BlackboardAsset, blackboard);
 
-	Behavior = CHelpers::GetComponent<UCAIBehaviorComponent>(Enemy);
+	Behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(Enemy);
 	CheckNull(Behavior);
 	Behavior->SetBlackboard(Blackboard);
 

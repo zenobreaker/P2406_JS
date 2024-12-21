@@ -24,6 +24,10 @@ class P2406_JS_API UCConditionComponent : public UActorComponent
 	GENERATED_BODY()
   
 
+public:
+    FORCEINLINE bool GetAirborneCondition() { return HasCondition(EConditionState::CONDITION_AIRBORNE); }
+    FORCEINLINE bool GetDownCondition() { return HasCondition(EConditionState::CONDITION_DOWNED); }
+
 public:	
 	UCConditionComponent();
 
@@ -31,15 +35,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+    UFUNCTION()
     void AddAirborneCondition();
+    
+    UFUNCTION()
     void RemoveAirborneCondition();
 
+    UFUNCTION()
     void AddDownCondition();
+
+    UFUNCTION()
     void RemoveDownCondition();
 
 private:
     bool HasCondition(EConditionState InCondition);
-    
+    bool IsSameCondition(EConditionState InCondition1, EConditionState InCondition2);
+
+private:
     void AddCondition(EConditionState NewCondition);
     void RemoveCondition(EConditionState NewCondition);
 

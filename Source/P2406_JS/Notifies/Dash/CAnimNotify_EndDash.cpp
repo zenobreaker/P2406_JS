@@ -13,7 +13,7 @@ void UCAnimNotify_EndDash::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenc
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCDashComponent* dash = CHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
+	UCDashComponent* dash = FHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
 	CheckNull(dash);
 
 	dash->DestroyEvadeOverlap();

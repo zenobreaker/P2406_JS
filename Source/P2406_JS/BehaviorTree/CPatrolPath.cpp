@@ -7,9 +7,9 @@ ACPatrolPath::ACPatrolPath()
 {
 	//bRunConstructionScriptOnDrag = false;
 
-	CHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
-	CHelpers::CreateComponent<USplineComponent>(this, &Spline, "Spline", Root);
-	CHelpers::CreateComponent<UTextRenderComponent>(this, &Text, "Text", Root);
+	FHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
+	FHelpers::CreateComponent<USplineComponent>(this, &Spline, "Spline", Root);
+	FHelpers::CreateComponent<UTextRenderComponent>(this, &Text, "Text", Root);
 
 	Spline->SetRelativeLocation(FVector(0, 0, 30));
 

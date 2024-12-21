@@ -5,8 +5,8 @@
 
 ACArrow::ACArrow()
 {
-	CHelpers::CreateComponent<UCapsuleComponent>(this, &Capsule, "Capsule");
-	CHelpers::CreateActorComponent<UProjectileMovementComponent>(this, &Projectile, "Projectile");
+	FHelpers::CreateComponent<UCapsuleComponent>(this, &Capsule, "Capsule");
+	FHelpers::CreateActorComponent<UProjectileMovementComponent>(this, &Projectile, "Projectile");
 
 	Projectile->ProjectileGravityScale = 0.0f;
 
@@ -53,7 +53,7 @@ void ACArrow::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	for (AActor* actor : Ignores)
 		CheckTrue(actor == OtherActor);
 	
-	CLog::Print(OtherActor->GetName());
+	FLog::Print(OtherActor->GetName());
 
 	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

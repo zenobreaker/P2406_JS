@@ -13,7 +13,7 @@ void ACSkillCollision::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CLog::Print("Begin Effect");
+	FLog::Print("Begin Effect");
 
 	ActivateCollision();
 }
@@ -24,7 +24,7 @@ void ACSkillCollision::SetSkillOwnerData(ACharacter* InOwner,
 	OwnerCharacter = InOwner;
 	HitDatas = InHitDatas;
 
-	CLog::Print("Set Skill Data", -1, 10.0f, FColor::Green);
+	FLog::Print("Set Skill Data", -1, 10.0f, FColor::Green);
 }
 
 
@@ -47,7 +47,7 @@ void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 
 	CheckTrue(HitDatas.Num() - 1 < Index);
 
-	CLog::Print("Hit Object" + OtherActor->GetName());
+	FLog::Print("Hit Object" + OtherActor->GetName());
 
 	ACharacter* character = Cast<ACharacter>(OtherActor);
 	CheckNull(character);
@@ -61,7 +61,7 @@ void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 
 void ACSkillCollision::HandleCollision(AActor* HitActor)
 {
-	CLog::Print("Collision Target!! ", -1, 10.0f, FColor::Red);
+	FLog::Print("Collision Target!! ", -1, 10.0f, FColor::Red);
 }
 
 void ACSkillCollision::DestroyProcess()

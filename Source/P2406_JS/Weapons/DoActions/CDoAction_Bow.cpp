@@ -16,8 +16,8 @@ void UCDoAction_Bow::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, 
 {
 	Super::BeginPlay(InOwner, InAttachment, InEquipment, InDoActionDatas, InHitDatas);
 
-	SkeletalMesh = CHelpers::GetComponent<USkeletalMeshComponent>(InAttachment);
-	PoseableMesh = CHelpers::GetComponent<UPoseableMeshComponent>(InAttachment);
+	SkeletalMesh = FHelpers::GetComponent<USkeletalMeshComponent>(InAttachment);
+	PoseableMesh = FHelpers::GetComponent<UPoseableMeshComponent>(InAttachment);
 
 
 	OriginLocation = PoseableMesh->GetBoneLocationByName("bow_string_mid", EBoneSpaces::ComponentSpace);

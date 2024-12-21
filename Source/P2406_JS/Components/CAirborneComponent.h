@@ -27,7 +27,8 @@ public:
 	//void LaunchIntoAir(float LaunchPower, AActor* InCauser = nullptr);
 	float GetAddedAirValue(float LaunchPower, AActor* InCauser = nullptr);
 
-	void Landed(const FHitResult& Hit);
+	UFUNCTION()
+	void Landed();
 	
 private:
 	bool bIsAirborne;

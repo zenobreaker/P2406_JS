@@ -4,6 +4,7 @@
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Characters/IDamagable.h"
+#include "Characters/Condition_Interfaces/IAirborne.h"
 #include "Characters/Condition_Interfaces/IDownable.h"
 #include "Components/CStateComponent.h"
 #include "CEnemy.generated.h"
@@ -16,6 +17,7 @@ class P2406_JS_API ACEnemy
 	, public IIStatable
 	, public IIDamagable
 	, public IIDownable
+	, public IIAirborne
 
 {
 	GENERATED_BODY()
@@ -70,6 +72,7 @@ private:
 
 protected:
 	virtual void Damaged();
+	virtual void Play_DamageMontage(struct FHitData& hitData);
 
 public:
 	virtual void End_Damaged() override;
@@ -81,13 +84,21 @@ private:
 public:
 	void End_Dead() override;
 
-private:
-	FTimerHandle ChangeColor_TimerHandle;
-
-
 public: 
+	// IIAirborne을(를) 통해 상속됨
+	void OnAirborneConditionActivated() override;
+	void OnAirborneConditionDeactivated() override;
+
+
+	void StartDownTimer();
 	virtual void OnDownConditionActivated() override;
 	virtual void OnDownConditionDeactivated() override; 
+
+private:
+	FTimerHandle ChangeColor_TimerHandle;
+	FTimerHandle ChangeConditionHandle; 
+
+	bool bShouldCountDownOnLand = false; 
 
 };
 

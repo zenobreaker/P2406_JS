@@ -31,7 +31,7 @@ void UCBTTaskNode_Damaged::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
 	if (state->IsDamagedMode() == false)
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }

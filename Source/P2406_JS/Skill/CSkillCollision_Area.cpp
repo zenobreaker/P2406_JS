@@ -5,7 +5,7 @@
 ACSkillCollision_Area::ACSkillCollision_Area()
 {
 	Index = 0; 
-	CHelpers::CreateComponent<USphereComponent>(this, &AreaCollisionComponent, "Area");
+	FHelpers::CreateComponent<USphereComponent>(this, &AreaCollisionComponent, "Area");
 	CheckNull(AreaCollisionComponent);
 
 
@@ -28,7 +28,7 @@ void ACSkillCollision_Area::ActivateCollision()
 	AreaCollisionComponent->MarkRenderStateDirty();
 	CollisionComponent = AreaCollisionComponent;
 
-	CLog::Print("Overlap Activate ", -1, 10.0f, FColor::Green);
+	FLog::Print("Overlap Activate ", -1, 10.0f, FColor::Green);
 
 	// 충돌 활성화 로직 (예: 콜리전 켜기)
 	SetActorEnableCollision(true);
@@ -38,7 +38,7 @@ void ACSkillCollision_Area::ActivateCollision()
 	ApplyCollisionEffect();
 
 	if (GetWorld() == nullptr)
-		CLog::Log("Skill Calls Get World() is Null");
+		FLog::Log("Skill Calls Get World() is Null");
 
 	/// 일정 시간 후 비활성화
 	if (CollisionTimerHandle.IsValid() == false)

@@ -8,7 +8,7 @@ UCTargetComponent::UCTargetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	CHelpers::GetAsset<UParticleSystem>(&ParticleAsset, "/Script/Engine.ParticleSystem'/Game/AdvancedMagicFX12/particles/P_ky_aura_shine.P_ky_aura_shine'");
+	FHelpers::GetAsset<UParticleSystem>(&ParticleAsset, "/Script/Engine.ParticleSystem'/Game/AdvancedMagicFX12/particles/P_ky_aura_shine.P_ky_aura_shine'");
 }
 
 
@@ -25,7 +25,7 @@ void UCTargetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	CheckNull(Target);
 
-	UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(Target);
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(Target);
 	CheckNull(state);
 	CheckTrue(state->IsDeadMode());
 

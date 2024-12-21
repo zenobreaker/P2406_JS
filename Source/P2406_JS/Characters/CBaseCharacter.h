@@ -6,6 +6,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterEndDamaged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDowned);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterRaised);
 
 UCLASS()
 class P2406_JS_API ACBaseCharacter : public ACharacter
@@ -22,19 +24,20 @@ protected:
 	class UAnimMontage* AirborneDamagedMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DeadMontage;
+	class UAnimMontage* DownMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DownedMontage;  // 다운 상태 애니메이션
-
+	class UAnimMontage* DeadMontage;
+	
 public:
 	ACBaseCharacter();
 
 
 public:
-	FOnCharacterLanded OnCharacterLandedDelegate;
+	FOnCharacterLanded OnCharacterLanded;
 	FOnCharacterEndDamaged OnCharacterEndDamaged;
-
+	FOnCharacterDowned OnCharacterDowned;
+	FOnCharacterRaised OnCharacterRaised;
 protected:
 	virtual void Landed(const FHitResult& Hit) override;
 

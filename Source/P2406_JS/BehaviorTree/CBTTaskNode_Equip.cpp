@@ -19,7 +19,7 @@ EBTNodeResult::Type UCBTTaskNode_Equip::ExecuteTask(UBehaviorTreeComponent& Owne
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(ai);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 	CheckNullResult(weapon, EBTNodeResult::Failed);
 	CheckTrueResult(Type == EWeaponType::Max, EBTNodeResult::Failed);
 
@@ -45,10 +45,10 @@ void UCBTTaskNode_Equip::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(ai);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 	const bool* bEquipped = weapon->GetEquipment()->GetEquipped();
 
-	UCStateComponent* state = CHelpers::GetComponent<UCStateComponent>(ai);
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
 
 	//TODO: 여기서 뭔가 터지는데 ..
 	if (*bEquipped && state->IsIdleMode())
@@ -62,7 +62,7 @@ EBTNodeResult::Type UCBTTaskNode_Equip::AbortTask(UBehaviorTreeComponent& OwnerC
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
-	UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(ai);
+	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 
 	bool bBeginEquip = weapon->GetEquipment()->GetBeginEquip();
 	if (bBeginEquip == false)

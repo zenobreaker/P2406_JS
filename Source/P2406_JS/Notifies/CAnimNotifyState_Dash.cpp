@@ -15,7 +15,7 @@ void UCAnimNotifyState_Dash::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCDashComponent* dash = CHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
+	UCDashComponent* dash = FHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
 	CheckNull(dash);
 
 	dash->Begin_DashSpeed();
@@ -29,7 +29,7 @@ void UCAnimNotifyState_Dash::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCDashComponent* dash = CHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
+	UCDashComponent* dash = FHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
 	CheckNull(dash);
 
 	dash->End_DashSpeed();
