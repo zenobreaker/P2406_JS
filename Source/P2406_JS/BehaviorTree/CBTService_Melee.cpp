@@ -21,10 +21,13 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
 
-
+	// 공격 딜레이 타이머 
+	if(CurrentDelay > 0.0f )
+		CurrentDelay -= DeltaSeconds;
+	
 	// 타겟이 없으면 순찰
 	ACharacter* target = behavior->GetTarget(); 
-	if (target == nullptr)
+	if (target == nullptr )
 	{
 		//behavior->SetWaitMode();
 		behavior->SetPatrolMode();
@@ -34,7 +37,7 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	// 범위 내에 적이 잇으면 공격
 	float distance = ai->GetDistanceTo(target);
-	if (distance < ActionRange)
+	if (distance < ActionRange && CurrentDelay <= 0.0f)
 	{ 
 		UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
 
@@ -43,6 +46,8 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 		behavior->SetActionMode();
 
+		RadnomActionDelay();
+
 		return; 
 	}
 
@@ -50,3 +55,9 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	behavior->SetApproachMode();
 
 }
+
+void UCBTService_Melee::RadnomActionDelay()
+{
+	CurrentDelay = FMath::RandRange(ActionDelay.X, ActionDelay.Y);
+}
+

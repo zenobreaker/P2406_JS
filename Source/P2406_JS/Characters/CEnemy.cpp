@@ -185,6 +185,30 @@ void ACEnemy::Damaged()
 	DamageData.Event = nullptr;
 }
 
+void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
+{
+	Super::Launch(InHitData, bIsGuarding);
+
+	FVector start = GetActorLocation();
+	FVector target = DamageData.Attacker->GetActorLocation();
+	FVector direction = target - start;
+	direction.Normalize();
+
+	// 기본 런치 값 
+	float launchStrength = InHitData.Launch;
+
+	if (bIsGuarding)
+	{
+		launchStrength *= 0.5f;
+	}
+
+	LaunchCharacter(-direction * launchStrength, false, false);
+
+	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+	targetRotator.Pitch = 0;
+	SetActorRotation(targetRotator);
+}
+
 void Test_Trash()
 {
 	//if (check)
@@ -197,8 +221,10 @@ void Test_Trash()
 	*/
 }
 
-void ACEnemy::Play_DamageMontage(FHitData& hitData)
+void ACEnemy::Play_DamageMontage(const FHitData& hitData)
 {
+	Super::Play_DamageMontage(hitData);
+
 	UAnimMontage* montage = hitData.Montage;
 	float playRate = hitData.PlayRate;
 
@@ -219,9 +245,9 @@ void ACEnemy::Play_DamageMontage(FHitData& hitData)
 		check = isAirborne == false && isDowned == false;
 		if (check == true)
 		{
-			// 지상 상태에서 맞는 애니메이션 처리
+			// 그러면 다운 시작 애니메이션 재생
 			if (hitData.bDown)
-				montage = DownMontage;
+				montage = DownBeginMontage;
 			else
 			{
 				montage = DamagedMontage;
@@ -233,6 +259,10 @@ void ACEnemy::Play_DamageMontage(FHitData& hitData)
 			// 공중 상태에서 맞는 애니메이션 처리
 			montage = AirborneDamagedMontage;
 			playRate = 1.5f;
+		}
+		else if(isDowned == true)
+		{
+			montage = DownDamgeMontage;
 		}
 	}
 
@@ -282,7 +312,8 @@ void ACEnemy::End_Dead()
 void ACEnemy::OnAirborneConditionActivated()
 {
 	// 딱히 뭐 할 건 없지만 상태 변수를 조진다
-	bShouldCountDownOnLand = true; 
+	bShouldCountDownOnLand = true;
+
 }
 
 void ACEnemy::OnAirborneConditionDeactivated()
@@ -303,6 +334,9 @@ void ACEnemy::StartDownTimer()
 		//capsule->SetCapsuleHalfHeight(40.0f); // 크기 축소
 		//capsule->SetCapsuleRadius(20.0f); // 반지름 축소
 	}
+
+	if (!!State)
+		State->SetDownMode();
 
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
@@ -350,6 +384,10 @@ void ACEnemy::OnDownConditionDeactivated()
 		//capsule->SetCapsuleHalfHeight(88.0f); // 기본 크기로 복구
 		//capsule->SetCapsuleRadius(34.0f); // 기본 반지름으로 복구
     }
+
+	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
+	PlayAnimMontage(RaiseMontage);
+
 
 	bShouldCountDownOnLand = false;
 	if (OnCharacterRaised.IsBound())

@@ -19,6 +19,9 @@ public:
 public:
 	void SubscribeToSkillEvents(class UCUserWidget_SkillHUD* SkillHUD);
 
+public:
+	void OrderToAllActorDown();
+
 private:
 	UPROPERTY()
 	class UCGameInstance* GameInstance;

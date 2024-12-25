@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/CBaseCharacter.h"
 #include "Components/ActorComponent.h"
 #include "CWeaponComponent.generated.h"
 
@@ -61,6 +62,9 @@ public:
 public:
 	void SubAction_Pressed();
 	void SubAction_Released();
+
+public:
+	bool TryGuard(ACBaseCharacter::FDamageData& DamageData);
 
 private:
 	void SetMode(EWeaponType InType);

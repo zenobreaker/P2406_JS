@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
+//TODO: 이거 상태 전용으로 구성한 컴포넌트인데.. 상태용으로 만든게 있어서 이걸 유지할지 고민해야겟다.
 UCAirborneComponent::UCAirborneComponent()
 {
 	//PrimaryComponentTick.bCanEverTick = true;

@@ -4,6 +4,8 @@
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Characters/IDamagable.h"
+#include "Characters/Condition_Interfaces/IAirborne.h"
+#include "Characters/Condition_Interfaces/IDownable.h"
 #include "Components/CStateComponent.h"
 #include "Components/CParkourComponent.h"
 #include "Components/CWeaponComponent.h"
@@ -16,6 +18,8 @@ class P2406_JS_API ACPlayer
 	: public ACBaseCharacter
 	, public IIStatable
 	, public IIDamagable
+	, public IIAirborne
+	, public IIDownable
 	, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
@@ -60,11 +64,11 @@ private:
 	class UCWeaponComponent* Weapon;
 
 	UPROPERTY(VisibleAnywhere)
-	class UCSkillComponent* Skill; 
+	class UCSkillComponent* Skill;
 
 	UPROPERTY(VisibleAnywhere)
 	class UCMovementComponent* Movement;
-	
+
 	UPROPERTY(VisibleAnywhere)
 	class UCDashComponent* Dash;
 
@@ -79,6 +83,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCGrapplingComponent* Grapple;
+
+public:
+	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue;  }
+	FORCEINLINE bool GetCanInput() { return bCanInput; }
 
 public:
 	ACPlayer();
@@ -100,6 +108,8 @@ private:
 
 protected:
 	void Damaged();
+	virtual void Launch(const FHitData& InHitData,const bool bIsGuarding = false);
+	virtual void Play_DamageMontage(const struct FHitData& hitData) override;
 
 public:
 	void End_Damaged() override;
@@ -118,12 +128,12 @@ private:
 private:
 	void OnJumpAction();
 	void OnJumpActionEnd();
-	void Jump() override; 
+	void Jump() override;
 
 private:
 	void OnGrapple();
 	void InterruptGrapple();
-	
+
 private:
 	void OnDash();
 	void PlayEvadeEffetc();
@@ -148,7 +158,21 @@ private:
 
 	void AdjustTimeScale(float InTimeScaleData);
 
+public:
+	// IIAirborne을(를) 통해 상속됨
+	void OnAirborneConditionActivated() override;
+	void OnAirborneConditionDeactivated() override;
+	
+	void StartDownTimer();
+	virtual void OnDownConditionActivated() override;
+	virtual void OnDownConditionDeactivated() override;
+
 private:
 	class UCUserWidget_Player* UserInterface;
 	class UCUserWidget_SkillHUD* SkillHUD;
+
+	FTimerHandle ChangeConditionHandle;
+
+private:
+	bool bCanInput = true; 
 };

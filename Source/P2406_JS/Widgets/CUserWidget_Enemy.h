@@ -18,4 +18,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateControllerName(const FString& InName);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateStateName(const FString& InName);
 };

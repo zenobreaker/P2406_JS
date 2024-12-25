@@ -38,13 +38,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCStateComponent* State;
 
-protected:
-	UPROPERTY(VisibleAnywhere)
-	class UCAirborneComponent* Airborne;
 
-protected:
-	UPROPERTY(VisibleAnywhere)
-	class UCConditionComponent* Condition; 
+
 
 public:
 	ACEnemy();
@@ -63,16 +58,17 @@ private:
 	UFUNCTION()
 	void RestoreColor();
 
-private:
+protected:
 	UFUNCTION()
-	void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
+	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 	
 	UFUNCTION()
 	void OnConditionTypeChanged(EConditionState InPrevCondition, EConditionState InNewCondition);
 
 protected:
 	virtual void Damaged();
-	virtual void Play_DamageMontage(struct FHitData& hitData);
+	virtual void Launch(const FHitData& InHitData, const bool bIsGuarding = false);
+	virtual void Play_DamageMontage(const FHitData& hitData) override;
 
 public:
 	virtual void End_Damaged() override;
@@ -97,8 +93,6 @@ public:
 private:
 	FTimerHandle ChangeColor_TimerHandle;
 	FTimerHandle ChangeConditionHandle; 
-
-	bool bShouldCountDownOnLand = false; 
 
 };
 

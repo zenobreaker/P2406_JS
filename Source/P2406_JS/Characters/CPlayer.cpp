@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Characters/CBaseCharacter.h"
 #include "Characters/CGhostTrail.h"
 
 #include "Camera/CameraComponent.h"
@@ -16,6 +17,8 @@
 #include "Components/CSkillComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CHealthPointComponent.h"
+#include "Components/CConditionComponent.h"
+#include "Components/CAirborneComponent.h"
 
 #include "Weapons/CWeaponStructures.h"
 
@@ -36,6 +39,9 @@ ACPlayer::ACPlayer()
 	FHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
 	FHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
 	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
+
+	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
+	
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -211,6 +217,11 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		&ACPlayer::OnDecreaseTimeScale);
 
 	//////////////////////////////////////////////////////////////////////////////
+
+	ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>();
+	PlayerInputComponent->BindAction("State_Down", IE_Pressed, gameMode,
+		&ACGameMode::OrderToAllActorDown);
+
 }
 
 float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -221,6 +232,26 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
 	DamageData.Causer = DamageCauser;
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
+
+	//Guard Check
+	bool isGuardMode = State->IsGuardMode();
+	if (isGuardMode)
+	{
+		// 무기에게 가드 판정 갖고옴 
+		bool isGuard = false;
+		if (!!Weapon)
+			isGuard = Weapon->TryGuard(DamageData);
+
+		if (isGuard)
+		{
+			FLog::Print(" Guard Success!!", 2, 5.0f, FColor::Yellow);
+			Launch(*DamageData.Event->HitData, true);
+			return Damage;
+		}
+
+		FLog::Print(" Guard Faild...", 2, 5.0f, FColor::Magenta);
+	}
+
 
 	State->SetDamagedMode();
 
@@ -257,6 +288,30 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 	}
 }
 
+void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
+{
+	Super::Launch(InHitData, bIsGuarding);
+
+	FVector start = GetActorLocation();
+	FVector target = DamageData.Attacker->GetActorLocation();
+	FVector direction = target - start;
+	direction.Normalize();
+
+	// 기본 런치 값 
+	float launchStrength = InHitData.Launch;
+
+	if(bIsGuarding)
+	{
+		launchStrength *= 0.5f;
+	}
+	
+	LaunchCharacter(-direction * launchStrength, false, false);
+
+	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+	targetRotator.Pitch = 0;
+	SetActorRotation(targetRotator);
+}
+
 void ACPlayer::Damaged()
 {
 	// 플레이어가 대쉬 혹은 Evade 일대 
@@ -272,7 +327,7 @@ void ACPlayer::Damaged()
 		}
 	}
 
-	//Appyl Damage
+	//Appyle Damage
 	{
 		if (!!HealthPoint)
 			HealthPoint->Damage(DamageData.Power);
@@ -285,17 +340,7 @@ void ACPlayer::Damaged()
 	{
 		FHitData* hitData = DamageData.Event->HitData;
 
-
-		UAnimMontage* montage = hitData->Montage;
-		float playRate = hitData->PlayRate;
-
-		if (montage == nullptr)
-		{
-			montage = DamagedMontage;
-			playRate = 1.5f;
-		}
-		PlayAnimMontage(montage, playRate);
-
+		Play_DamageMontage(*hitData);
 
 		hitData->PlayHitStop(GetWorld());
 		hitData->PlaySoundWave(this);
@@ -303,15 +348,7 @@ void ACPlayer::Damaged()
 
 		if (HealthPoint->IsDead() == false)
 		{
-			FVector start = GetActorLocation();
-			FVector target = DamageData.Attacker->GetActorLocation();
-			FVector direction = target - start;
-			direction.Normalize();
-
-			LaunchCharacter(-direction * hitData->Launch, false, false);
-			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
-			targetRotator.Pitch = 0;
-			SetActorRotation(targetRotator);
+			Launch(*hitData);
 
 			// 공중에 띄우기
 			/*if(!!Airborne)
@@ -329,6 +366,56 @@ void ACPlayer::Damaged()
 	DamageData.Attacker = nullptr;
 	DamageData.Causer = nullptr;
 	DamageData.Event = nullptr;
+}
+
+void ACPlayer::Play_DamageMontage(const FHitData& hitData)
+{
+	Super::Play_DamageMontage(hitData);
+
+
+	UAnimMontage* montage = hitData.Montage;
+	float playRate = hitData.PlayRate;
+
+	if (montage == nullptr)
+	{
+
+		bool check = false;
+
+		// 공중 상태일 경우 
+		bool isAirborne = true;
+		isAirborne &= Airborne != nullptr && Airborne->GetIsAirborne() == true;
+
+		// 지상에 다운된 상태인  경우  ( 공중 X 땅 O)
+		bool isDowned = true;
+		isDowned &= Condition != nullptr && Condition->GetDownCondition() == true;
+
+		// 다운 상태도 아니고 공중 상태도 아니면 지상에 서있는 상태
+		check = isAirborne == false && isDowned == false;
+		if (check == true)
+		{
+			// 그러면 다운 시작 애니메이션 재생
+			if (hitData.bDown)
+				montage = DownBeginMontage;
+			else
+			{
+				montage = DamagedMontage;
+				playRate = 1.5f;
+			}
+		}
+		else if (isAirborne == true)
+		{
+			// 공중 상태에서 맞는 애니메이션 처리
+			montage = AirborneDamagedMontage;
+			playRate = 1.5f;
+		}
+		else if (isDowned == true)
+		{
+			montage = DownDamgeMontage;
+		}
+	}
+
+	PlayAnimMontage(montage, playRate);
+
 }
 
 void ACPlayer::End_Damaged()
@@ -484,8 +571,11 @@ void ACPlayer::Landed(const FHitResult& Hit)
 
 	Parkour->DoParkour(true);
 
-	CheckNull(Grapple);
-	Grapple->ResetGrapple();
+	if (bShouldCountDownOnLand)
+		StartDownTimer();
+
+	if(!!Grapple)
+		Grapple->ResetGrapple();
 
 	FRotator ResetRotation = FRotator(0.0f, GetActorRotation().Yaw, 0.0f);
 	SetActorRotation(ResetRotation);
@@ -517,4 +607,85 @@ void ACPlayer::AdjustTimeScale(float InTimeScaleData)
 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), newTimeScale);
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////
+void ACPlayer::OnAirborneConditionActivated()
+{
+	bShouldCountDownOnLand = true;
+}
+
+void ACPlayer::OnAirborneConditionDeactivated()
+{
+}
+
+
+void ACPlayer::StartDownTimer()
+{
+	UCapsuleComponent* capsule = GetCapsuleComponent();
+	if (capsule)
+	{
+		//capsule->SetCapsuleHalfHeight(40.0f); // 크기 축소
+		//capsule->SetCapsuleRadius(20.0f); // 반지름 축소
+	}
+
+	if (!!State)
+		State->SetDownMode();
+
+	FTimerDelegate timerDelegate;
+	timerDelegate.BindLambda([this]()
+	{
+		if (!!Condition)
+			Condition->RemoveDownCondition();
+	});
+
+	GetWorld()->GetTimerManager().SetTimer(ChangeConditionHandle, timerDelegate, 5.0f, false);
+}
+
+void ACPlayer::OnDownConditionActivated()
+{
+	CheckNull(Condition);
+	check(Condition != nullptr);
+
+	// 공중 상태라면 다운 상태에 관한 로직을 바로 하지 않고 델리게이트에 맞겨놓는다.
+	if (Condition->GetAirborneCondition())
+	{
+		bShouldCountDownOnLand = true;
+		FLog::Log("Target has Airborne : " + GetName());
+
+		return;
+	}
+
+	StartDownTimer();
+
+	if (OnCharacterDowned.IsBound())
+		OnCharacterDowned.Broadcast();
+}
+
+void ACPlayer::OnDownConditionDeactivated()
+{
+	// 다운 상태 풀어볼려했는데 그럴만한 여건이 안되면? 수행안함
+	if (GetCharacterMovement()->IsFalling())
+	{
+		// 착지될 때 시점에 맡긴ㄷㅏ.
+
+		return;
+	}
+
+	UCapsuleComponent* capsule = GetCapsuleComponent();
+	if (capsule)
+	{
+		//capsule->SetCapsuleHalfHeight(88.0f); // 기본 크기로 복구
+		//capsule->SetCapsuleRadius(34.0f); // 기본 반지름으로 복구
+	}
+
+	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
+	PlayAnimMontage(RaiseMontage);
+
+
+	bShouldCountDownOnLand = false;
+	if (OnCharacterRaised.IsBound())
+		OnCharacterRaised.Broadcast();
+}
+
 

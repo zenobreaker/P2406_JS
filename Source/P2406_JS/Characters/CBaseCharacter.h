@@ -9,12 +9,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterEndDamaged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDowned);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterRaised);
 
+
 UCLASS()
 class P2406_JS_API ACBaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
-
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
@@ -24,7 +23,14 @@ protected:
 	class UAnimMontage* AirborneDamagedMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DownMontage;
+	class UAnimMontage* DownBeginMontage; 
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	class UAnimMontage* DownDamgeMontage; 
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	class UAnimMontage* RaiseMontage;
+
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	class UAnimMontage* DeadMontage;
@@ -38,10 +44,23 @@ public:
 	FOnCharacterEndDamaged OnCharacterEndDamaged;
 	FOnCharacterDowned OnCharacterDowned;
 	FOnCharacterRaised OnCharacterRaised;
-protected:
-	virtual void Landed(const FHitResult& Hit) override;
 
 protected:
+	virtual void Launch(const struct FHitData& InHitData, const bool bIsGuarding = false) {};
+	
+	virtual void Landed(const FHitResult& Hit) override;
+
+	virtual void Play_DamageMontage(const struct FHitData& hitData) {};
+
+protected:
+	protected:
+	UPROPERTY(VisibleAnywhere, Category ="Components")
+	class UCAirborneComponent* Airborne;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UCConditionComponent* Condition; 
+
+public:
 	struct FDamageData
 	{
 		float Power;
@@ -50,4 +69,7 @@ protected:
 
 		struct FActionDamageEvent* Event;
 	} DamageData;
+
+protected:
+	bool bShouldCountDownOnLand = false;
 };

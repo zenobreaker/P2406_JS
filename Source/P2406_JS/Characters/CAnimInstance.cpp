@@ -93,11 +93,11 @@ void UCAnimInstance::OnCharacterLanded()
 
 void UCAnimInstance::OnCharacterDowned()
 {
-	State_Progress = 0.0f;
+	DownBlendValue = 0.0f;
 }
 
 void UCAnimInstance::OnCharacterRaised()
 {
-	State_Progress = 100.0f;
+	DownBlendValue = 100.0f;
 }
 

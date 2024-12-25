@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Characters/CBaseCharacter.h"
 #include "CSubAction.generated.h"
 
 
@@ -24,6 +25,10 @@ public:
 public:
 	virtual void Pressed();
 	virtual void Released();
+
+public:
+	virtual bool TryGuard(ACBaseCharacter::FDamageData& DamageData);
+
 
 public:
 	UFUNCTION(BlueprintNativeEvent)

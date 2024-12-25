@@ -9,6 +9,7 @@
 #include "Weapons/CDoAction.h"
 #include "Weapons/CSubAction.h"
 #include "Skill/CActiveSkill.h"
+#include <Characters/CPlayer.h>
 
 
 UCWeaponComponent::UCWeaponComponent()
@@ -180,6 +181,13 @@ void UCWeaponComponent::ChangeType(EWeaponType InType)
 
 void UCWeaponComponent::DoAction()
 {
+	bool canInput = true; 
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (!!player)
+		canInput = player->GetCanInput();
+
+	CheckFalse(canInput);
+
 	if (!!GetDoAction())
 	{
 		GetDoAction()->DoAction();
@@ -206,5 +214,16 @@ void UCWeaponComponent::SubAction_Released()
 {
 	if (!!GetSubAction())
 		GetSubAction()->Released();
+}
+
+bool UCWeaponComponent::TryGuard(ACBaseCharacter::FDamageData& DamageData)
+{
+	CheckTrueResult(OwnerCharacter == nullptr, false);
+
+	// 방어 각도 계산은 서브액션무기에게 전달
+	if (!!GetSubAction())
+		return GetSubAction()->TryGuard(DamageData);
+
+	return false;
 }
 

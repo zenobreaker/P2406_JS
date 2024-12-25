@@ -54,6 +54,16 @@ void UCStateComponent::SetAirborneMode()
 	ChangeType(EStateType::Airborne);
 }
 
+void UCStateComponent::SetDownMode()
+{
+	ChangeType(EStateType::Down);
+}
+
+void UCStateComponent::SetGuardMode()
+{
+	ChangeType(EStateType::Guard);
+}
+
 FString UCStateComponent::EnumToString(EStateType State)
 {
 	static const TMap<EStateType, FString> EnumToStringMap =
@@ -66,6 +76,7 @@ FString UCStateComponent::EnumToString(EStateType State)
 		{EStateType::Action, TEXT("Action")},
 		{EStateType::Airborne, TEXT("Airborne")},
 		{EStateType::Dead, TEXT("Dead")},
+		{EStateType::Guard, TEXT("Guard")},
 		{EStateType::Max, TEXT("Max")}
 	};
 

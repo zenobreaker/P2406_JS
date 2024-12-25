@@ -1,5 +1,6 @@
 #include "Weapons/CSubAction.h"
 #include "Global.h"
+#include "Characters/CBaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "Components/CStateComponent.h"
 #include "Components/CMovementComponent.h"
@@ -31,6 +32,11 @@ void UCSubAction::Pressed()
 void UCSubAction::Released()
 {
 	bInAction = false; 
+}
+
+bool UCSubAction::TryGuard(ACBaseCharacter::FDamageData& DamageData)
+{
+	return false;
 }
 
 

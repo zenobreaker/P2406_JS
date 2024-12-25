@@ -53,6 +53,8 @@ private:
 	UFUNCTION()
 	void OnHealthPointChanged(float InHealth, float InMaxHealth);
 
+	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
+
 private:
 	void Tick_LabelRenderScale();
 
@@ -61,4 +63,5 @@ protected:
 
 public:
 	void End_Damaged() override; 
+
 };

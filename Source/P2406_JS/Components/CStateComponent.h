@@ -4,10 +4,10 @@
 #include "Components/ActorComponent.h"
 #include "CStateComponent.generated.h"
 
-UENUM()
+UENUM(BlueprintType)
 enum class EStateType : uint8
 {
-	Idle = 0, Evade , Dash, Equip, Damaged, Action, Airborne, Dead, Max, 
+	Idle = 0, Evade , Dash, Equip, Damaged, Action, Airborne, Down, Guard,Dead, Max, 
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FStateTypeChanged, EStateType, InPrevType, EStateType, InNewType);
@@ -26,6 +26,8 @@ public:
 	FORCEINLINE bool IsActionMode() { return Type == EStateType::Action; }
 	FORCEINLINE bool IsDamagedMode() { return Type == EStateType::Damaged; }
 	FORCEINLINE bool IsAirborneMode() { return Type == EStateType::Airborne; }
+	FORCEINLINE bool IsDownMode() { return Type == EStateType::Down; }
+	FORCEINLINE bool IsGuardMode() { return Type == EStateType::Guard; }
 	FORCEINLINE bool IsSubActionMode() { return bInSubActionMode; }
 
 public:	
@@ -43,6 +45,8 @@ public:
 	void SetDamagedMode();
 	void SetDeadMode();
 	void SetAirborneMode();
+	void SetDownMode();
+	void SetGuardMode();
 
 	FString EnumToString(EStateType State);
 

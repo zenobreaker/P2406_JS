@@ -39,7 +39,7 @@ protected:
 	bool bDown;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
-	float State_Progress;
+	float DownBlendValue;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
