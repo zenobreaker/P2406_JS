@@ -2,21 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Enums/FEnum.h"
 #include "CConditionComponent.generated.h"
 
 
 
-UENUM(BlueprintType)
-enum class EConditionState : uint8
-{
-    CONDITION_NONE = 0 UMETA(DisplayName = "None"),
-    CONDITION_DOWNED = 1 << 0 UMETA(DisplayName = "Downed"),
-    CONDITION_STRUNED = 1 << 1 UMETA(DisplayName = "Stunned"),
-    CONDITION_FROZEN = 1 << 2 UMETA(DisplayName = "Frozen"),
-    CONDITION_AIRBORNE = 1 << 3 UMETA(DisplayName = "Airborne"),
-    // 필요 상태 추가
-};
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAddCondiitionType, EConditionState, InType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRemoveCondiitionType, EConditionState, InType);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCConditionComponent : public UActorComponent
@@ -48,6 +42,9 @@ public:
     void RemoveDownCondition();
 
 private:
+    //void ChangeType(EConditionState InPrevType, EConditionState InNewType);
+
+private:
     bool HasCondition(EConditionState InCondition);
     bool IsSameCondition(EConditionState InCondition1, EConditionState InCondition2);
 
@@ -55,7 +52,11 @@ private:
     void AddCondition(EConditionState NewCondition);
     void RemoveCondition(EConditionState NewCondition);
 
+public:
+    FAddCondiitionType OnAddCondiitionType;
+    FRemoveCondiitionType OnRemoveCondiitionType;
+
 private:
-    EConditionState Condition; 
+	EConditionState Condition;
     class ACharacter* OwnerCharacter; 
 };

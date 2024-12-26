@@ -2,20 +2,22 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Enums/FEnum.h"
 #include "CAIBehaviorComponent.generated.h"
 
-UENUM(BlueprintType)
-enum class EAIStateType : uint8
-{
-	Wait = 0, Approach, Action, Patrol, Hitted, Avoid, Dead, Max,
-};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAIStateTypeChanged, EAIStateType, InPrevType, EAIStateType, InNewType);
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCAIBehaviorComponent : public UActorComponent
 {
 	GENERATED_BODY()
+
+
+public:
+	FORCEINLINE bool GetCandMove() { return bCanMove; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")
@@ -40,6 +42,9 @@ public:
 	bool IsPatrolMode();
 	bool IsHittedMode();
 	bool IsAvoidMode();
+	bool IsAirborneMode();
+	bool IsDownMode();
+	bool IsGuardMode();
 	bool IsDeadMode();
 
 public:	
@@ -68,16 +73,32 @@ public:
 	void SetPatrolMode();
 	void SetHittedMode();
 	void SetAvoidMode();
+	void SetAriborneMode();
+	void SetDownMode();
+	void SetGuardMode();
 	void SetDeadMode();
 
 private:
 	void ChangeType(EAIStateType InType);
 
+public: 
+	UFUNCTION()
+	void OnStateChanged(EStateType InPrevType, EStateType InNewType);
 
+	UFUNCTION()
+	void OnAddCondiitionType(EConditionState InType);
+
+	UFUNCTION()
+	void OnRemoveConditionType(EConditionState InType);
+	
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;
+
+	
 
 private:
 	class UBlackboardComponent* Blackboard;
 		
+private:
+	bool bCanMove = true; 
 };

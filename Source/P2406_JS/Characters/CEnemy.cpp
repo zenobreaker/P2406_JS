@@ -387,7 +387,7 @@ void ACEnemy::OnDownConditionDeactivated()
 
 	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
 	PlayAnimMontage(RaiseMontage);
-
+	State->SetIdleMode();
 
 	bShouldCountDownOnLand = false;
 	if (OnCharacterRaised.IsBound())

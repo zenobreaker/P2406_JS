@@ -25,6 +25,17 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	if(CurrentDelay > 0.0f )
 		CurrentDelay -= DeltaSeconds;
 	
+	// 행동 제약 상태라면 행동을 개시하지 않는다. 
+	bool bCanMove = true; 
+	bCanMove = behavior->GetCandMove();
+	
+	if (bCanMove == false)
+	{
+		behavior->SetWaitMode();
+
+		return;
+	}
+
 	// 타겟이 없으면 순찰
 	ACharacter* target = behavior->GetTarget(); 
 	if (target == nullptr )

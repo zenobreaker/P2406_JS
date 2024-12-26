@@ -20,4 +20,5 @@ public:
 	virtual void End_Backstep() {}
 	virtual void End_Dead() {}
 	virtual void End_Damaged() {}
+	//virtual void End_Downed() {} 
 };

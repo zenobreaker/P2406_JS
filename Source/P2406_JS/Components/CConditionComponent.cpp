@@ -38,7 +38,6 @@ void UCConditionComponent::RemoveDownCondition()
 
 
 
-
 //TODO: 다운상태는 어느 정도 시간이 지나면 일어나야 한다. => 이러한 정보 데이터를 구현해야할것
 
 bool UCConditionComponent::HasCondition(EConditionState InCondition)
@@ -76,6 +75,9 @@ void UCConditionComponent::AddCondition(EConditionState NewCondition)
 		// EConditionState가 강타입 열거형이므로 정수형으로 변환해야한다. 
 		Condition = static_cast<EConditionState>(static_cast<uint8>(Condition)
 			| static_cast<uint8>(NewCondition));
+
+		if (OnAddCondiitionType.IsBound())
+			OnAddCondiitionType.Broadcast(NewCondition);
 	}
 
 }
@@ -100,6 +102,9 @@ void UCConditionComponent::RemoveCondition(EConditionState NewCondition)
 		}
 
 		Condition = static_cast<EConditionState>(static_cast<uint8>(Condition) & ~static_cast<uint8>(NewCondition));
+
+		if (OnRemoveCondiitionType.IsBound())
+			OnRemoveCondiitionType.Broadcast(NewCondition);
 	}
 }
 

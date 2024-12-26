@@ -1,7 +1,11 @@
 #include "Components/CAIBehaviorComponent.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "Characters/CEnemy_AI.h"
 #include "BehaviorTree/BlackboardComponent.h"
+
+#include "Components/CStateComponent.h"
+#include "Components/CConditionComponent.h"
 
 
 UCAIBehaviorComponent::UCAIBehaviorComponent()
@@ -13,7 +17,22 @@ void UCAIBehaviorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	ACEnemy_AI* ai = Cast<ACEnemy_AI>(GetOwner());
+	CheckNull(ai); 
+
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
+	if(!!state)
+	{
+		state->OnStateTypeChanged.AddDynamic(this, &UCAIBehaviorComponent::OnStateChanged);
+	}
+
+	UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(ai); 
+	if(!!condition)
+	{
+		condition->OnAddCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnAddCondiitionType);
+
+		condition->OnRemoveCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnRemoveConditionType);
+	}
 }
 
 EAIStateType UCAIBehaviorComponent::GetType()
@@ -23,7 +42,7 @@ EAIStateType UCAIBehaviorComponent::GetType()
 
 FVector UCAIBehaviorComponent::GetPatrolLocation()
 {
-	return Blackboard->GetValueAsVector(PatrolLocationKey); 
+	return Blackboard->GetValueAsVector(PatrolLocationKey);
 }
 
 
@@ -74,6 +93,21 @@ bool UCAIBehaviorComponent::IsAvoidMode()
 	return GetType() == EAIStateType::Avoid;
 }
 
+bool UCAIBehaviorComponent::IsAirborneMode()
+{
+	return GetType() == EAIStateType::Airborne;
+}
+
+bool UCAIBehaviorComponent::IsDownMode()
+{
+	return GetType() == EAIStateType::Down;
+}
+
+bool UCAIBehaviorComponent::IsGuardMode()
+{
+	return GetType() == EAIStateType::Guard;
+}
+
 bool UCAIBehaviorComponent::IsDeadMode()
 {
 	return GetType() == EAIStateType::Dead;
@@ -109,6 +143,21 @@ void UCAIBehaviorComponent::SetAvoidMode()
 	ChangeType(EAIStateType::Avoid);
 }
 
+void UCAIBehaviorComponent::SetAriborneMode()
+{
+	ChangeType(EAIStateType::Airborne);
+}
+
+void UCAIBehaviorComponent::SetDownMode()
+{
+	ChangeType(EAIStateType::Down);
+}
+
+void UCAIBehaviorComponent::SetGuardMode()
+{
+	ChangeType(EAIStateType::Guard);
+}
+
 void UCAIBehaviorComponent::SetDeadMode()
 {
 	ChangeType(EAIStateType::Dead);
@@ -123,6 +172,45 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 
 	if (OnAIStateTypeChanged.IsBound())
 		OnAIStateTypeChanged.Broadcast(prevType, InType);
+}
+
+void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InNewType)
+{
+	switch (InNewType)
+	{
+		case EStateType::Down:
+		case EStateType::Airborne:
+		case EStateType::Damaged:
+		bCanMove = false;
+		break;
+
+		case EStateType::Idle:
+		bCanMove = true;
+		default:
+		bCanMove = true;
+		break;
+	}
+}
+
+void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
+{
+	switch (InType)
+	{
+		case EConditionState::CONDITION_DOWNED:
+		case EConditionState::CONDITION_AIRBORNE:
+		bCanMove = false;
+		break;
+	}
+}
+
+void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
+{
+	switch (InType)
+	{
+		case EConditionState::CONDITION_DOWNED:
+		case EConditionState::CONDITION_AIRBORNE:
+		bCanMove = true;
+	}
 }
 
 
