@@ -93,7 +93,7 @@ void UCStateComponent::ChangeType(EStateType InType)
 	EStateType prevType = Type;
 	Type = InType;
 	
-	FLog::Log(EnumToString(Type));
+	FLog::Log(GetOwner()->GetName() + " " + EnumToString(Type));
 
 	if (OnStateTypeChanged.IsBound())
 		OnStateTypeChanged.Broadcast(prevType, InType);

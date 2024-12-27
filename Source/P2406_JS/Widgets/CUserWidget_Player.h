@@ -17,4 +17,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateCrossHairVisibility(bool bInVisible);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateGuardGaugeVisibility(bool bInVisible);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateGuardGauge(float InValue, float InMaxValue);
 };

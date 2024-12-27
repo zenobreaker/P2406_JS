@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Weapons/CWeaponStructures.h"
+#include "Enums/FEnum.h"
 #include "Components/CWeaponComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"

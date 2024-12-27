@@ -3,15 +3,16 @@
 #include "CoreMinimal.h"
 #include "Characters/CBaseCharacter.h"
 #include "Components/ActorComponent.h"
+#include "Enums/FEnum.h"
 #include "CWeaponComponent.generated.h"
 
-UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	Fist, Sword, Hammer, Warp, Bow, Max,
-};
+
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGuardValueChanged, float, InValue,
+	float, InMaxValue);
 
 UCLASS(  )
 class P2406_JS_API UCWeaponComponent : public UActorComponent
@@ -71,7 +72,12 @@ private:
 	void ChangeType(EWeaponType InType);
 
 public:
+	UFUNCTION()
+	void ChangeGuardValue(float InValue, float InMaxValue);
+
+public:
 	FWeaponTypeChanged OnWeaponTypeChanged;
+	FGuardValueChanged OnGuardValueChanged; 
 
 private:
 	EWeaponType Type = EWeaponType::Max;

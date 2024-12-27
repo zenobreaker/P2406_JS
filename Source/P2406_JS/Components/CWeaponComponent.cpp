@@ -158,6 +158,12 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 	if (!!Datas[(int32)InType])
 	{
 		Datas[(int32)InType]->GetEquipment()->Equip();
+
+		UCSubAction* subaction = Datas[(int32)InType]->GetSubAction();
+		if(!!subaction)
+		{
+			REGISTER_EVENT_WITH_REPLACE(subaction, OnGuardValueChanged, this, UCWeaponComponent::ChangeGuardValue);
+		}
 	}
 	
 	ChangeType(InType);
@@ -168,14 +174,24 @@ void UCWeaponComponent::ChangeType(EWeaponType InType)
 	EWeaponType prevType = Type;
 	Type = InType;
 
-	if (InType != EWeaponType::Max && !!Skill)
-		Skill->SetSkillList(Datas[(int32)InType]->GetSkills());
-	// 스킬이 없는 타입이나 그런거면 아무것도 없이 보내 
-	else if (InType == EWeaponType::Max)
-		Skill->SetEmptySkillList();
+	if (!!Datas[(int32)InType])
+	{
+		if (InType != EWeaponType::Max && !!Skill)
+			Skill->SetSkillList(Datas[(int32)InType]->GetSkills());
+		// 스킬이 없는 타입이나 그런거면 아무것도 없이 보내 
+		else if (InType == EWeaponType::Max)
+			Skill->SetEmptySkillList();
+	}
+
 
 	if (OnWeaponTypeChanged.IsBound())
 		OnWeaponTypeChanged.Broadcast(prevType, InType);
+}
+
+void UCWeaponComponent::ChangeGuardValue(float InValue, float InMaxValue)
+{
+	if (OnGuardValueChanged.IsBound())
+		OnGuardValueChanged.Broadcast(InValue, InMaxValue);
 }
 
 

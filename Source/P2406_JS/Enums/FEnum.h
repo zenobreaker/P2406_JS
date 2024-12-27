@@ -4,9 +4,27 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Fist, Sword, Hammer, Warp, Bow, Max,
+};
+
+///////////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
 enum class EStateType : uint8
 {
-	Idle = 0, Evade , Dash, Equip, Damaged, Action, Airborne, Down, Guard,Dead, Max, 
+	Idle = 0, 
+	Evade ,
+	Dash, 
+	Equip, 
+	Damaged, 
+	Action,
+	Airborne, 
+	Down, 
+	Guard,
+	Dead, 
+
+	Max, 
 };
 
 
@@ -24,6 +42,7 @@ enum class EAIStateType : uint8
 	Down, 
 	Guard, 
 	Dead,
+
 	Max,
 };
 
@@ -40,3 +59,24 @@ enum class EConditionState : uint8
     // 필요 상태 추가
 };
 
+
+///////////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class EEntityGrade : uint8
+{
+	None = 0, 
+	Normal ,
+	Elite,
+	Boss, 
+
+	MAX,
+};
+
+///////////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class EParryType : uint8
+{
+	None,
+	Special,
+	MAX,
+};

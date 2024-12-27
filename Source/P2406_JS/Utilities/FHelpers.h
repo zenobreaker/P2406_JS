@@ -21,6 +21,33 @@
 	Text->HorizontalAlignment = EHorizTextAligment::EHTA_Center;\
 	Text->Text = FText::FromString(GetName().Replace(L"Default__", L""));\
 }
+// 이벤트 등록 매크로
+#define REGISTER_EVENT(Component, EventName, Listener, Function)\
+{ \
+    if (Component) \
+	{ \
+        Component->EventName.AddDynamic(Listener, &Function); \
+    }\
+}
+
+// 이벤트 해제 매크로
+#define UNREGISTER_EVENT(Component, EventName, Listener, Function) \
+{\
+	if (Component) \
+	{\
+		Component->EventName.RemoveDynamic(Listener, &Function); \
+	}\
+}
+
+// 이벤트 등록: 이미 등록된 리스너가 있으면 먼저 삭제하고 새로운 리스너를 등록
+#define REGISTER_EVENT_WITH_REPLACE(Component, EventName, Listener, Function)\
+{\
+    if (Component)\
+	 {\
+        Component->EventName.RemoveDynamic(Listener, &Function);  \
+        Component->EventName.AddDynamic(Listener, &Function);     \
+    }\
+}
 
 class P2406_JS_API FHelpers
 {

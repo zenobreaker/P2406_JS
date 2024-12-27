@@ -5,6 +5,8 @@
 #include "Characters/CBaseCharacter.h"
 #include "CSubAction.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSAGuardValueChanged, float, InValue,
+	float, InMaxValue);
 
 UCLASS()
 class P2406_JS_API UCSubAction : public UObject
@@ -38,6 +40,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void End_DoSubAction(); 
 	virtual void End_DoSubAction_Implementation() {}
+
+public:
+	FSAGuardValueChanged OnGuardValueChanged;
 
 protected:
 	bool bInAction;

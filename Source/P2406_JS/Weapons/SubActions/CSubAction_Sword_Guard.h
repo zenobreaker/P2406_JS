@@ -4,12 +4,17 @@
 #include "Weapons/CSubAction.h"
 #include "../CWeaponStructures.h"
 #include "Components/TimelineComponent.h"
+#include "Enums/FEnum.h"
 #include "CSubAction_Sword_Guard.generated.h"
 
 UCLASS(Blueprintable)
 class P2406_JS_API UCSubAction_Sword_Guard : public UCSubAction
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	float MaxGuardHealth = 10.0f;
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Action")
@@ -34,6 +39,10 @@ public:
 	struct FHitData HitData; 
 
 public:
+	FORCEINLINE float GetGuardGuage() { return GuardHP; }
+	FORCEINLINE float GetMaxGuardGuage() { return MaxGuardHealth; }
+
+public:
 	UCSubAction_Sword_Guard();
 
 
@@ -48,7 +57,6 @@ public:
 	void Released() override;
 
 public:
-
 	virtual bool TryGuard(struct ACBaseCharacter::FDamageData& DamageData) override;
 
 public:
@@ -72,7 +80,8 @@ public:
 
 public:
 	void Evaluate_JustTiming(AActor* InAttacker); 
-	void Evaluate_GuradStance();
+	void Evaluate_GuradStance(const float InValue);
+	void Damaged();
 
 private:
 	void DebugLine(FVector InAttack, FVector InForward);
@@ -89,6 +98,7 @@ private:
 
 	bool bIsDamaged; 
 	bool bIsGuard;
+	bool bJustTime; 
 	bool bDebug = false;
 
 	TArray<class ACharacter*> Hitted;

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Enums/FEnum.h"
 #include "CBaseCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
@@ -14,6 +15,10 @@ UCLASS()
 class P2406_JS_API ACBaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Grade")
+	EEntityGrade Grade = EEntityGrade::MAX;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
@@ -35,6 +40,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	class UAnimMontage* DeadMontage;
 	
+public:
+	FORCEINLINE EEntityGrade GetGrade() { return Grade; }
+
 public:
 	ACBaseCharacter();
 

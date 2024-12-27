@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Components/CWeaponComponent.h"
+#include "Enums/FEnum.h"
 #include "Skill/CSkillStructures.h"
 #include "CActiveSkill.generated.h"
 

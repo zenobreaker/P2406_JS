@@ -14,6 +14,7 @@
 #include "Weapons/CDoAction.h"
 #include "Weapons/CSubAction.h"
 
+#include "Widgets/CUserWidget_Player.h"
 
 UCSubAction_Sword_Guard::UCSubAction_Sword_Guard()
 {
@@ -27,13 +28,24 @@ void UCSubAction_Sword_Guard::BeginPlay(ACharacter* InOwner, ACAttachment* InAtt
 	Movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
 	State = FHelpers::GetComponent<UCStateComponent>(InOwner);
 	if (!!State)
-		State->OnStateTypeChanged.AddDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
+	{
+		//// 기존 이벤트 핸들러가 등록되어 있으면 해제
+		//State->OnStateTypeChanged.RemoveDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
+
+		//// 새로운 이벤트 핸들러 등록
+		//State->OnStateTypeChanged.AddDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
+
+		REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCSubAction_Sword_Guard::OnStateTypeChanged);
+	}
+		
 }
 
 void UCSubAction_Sword_Guard::Tick(float InDeltaTime)
 {
 	Super::Tick(InDeltaTime);
 
+	// 가드 게이지를 지속적으로 내린다. 
+	Evaluate_GuradStance(InDeltaTime);
 }
 
 void UCSubAction_Sword_Guard::OffGuardStance()
@@ -42,7 +54,8 @@ void UCSubAction_Sword_Guard::OffGuardStance()
 
 	bIsDamaged = false; 
 	bIsGuard = false; 
-
+	bJustTime = false; 
+	
 	CheckNull(Movement);
 
 	Movement->Move();
@@ -62,6 +75,9 @@ void UCSubAction_Sword_Guard::Pressed()
 
 	if (State->IsDamagedMode())
 		return;
+
+
+	GuardHP = MaxGuardHealth;
 
 	State->SetGuardMode();
 
@@ -108,11 +124,12 @@ bool UCSubAction_Sword_Guard::TryGuard(ACBaseCharacter::FDamageData& DamageData)
 
 void UCSubAction_Sword_Guard::OnGuard()
 {
-	bIsGuard = !bIsGuard;
+	bJustTime = !bJustTime;
+	bIsGuard = true;
 
-	FString debug = (bIsGuard == true) ? "On" : "Off";
+	FString debug = (bJustTime == true) ? "On" : "Off";
 
-	FLog::Print("Guard Time " + debug);
+	FLog::Print("Just Guard Time " + debug);
 }
 
 void UCSubAction_Sword_Guard::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
@@ -186,11 +203,11 @@ void UCSubAction_Sword_Guard::Evaluate_JustTiming(AActor* InAttacker)
 	CheckNull(InAttacker);
 
 
-	bDebug = true; 
+	//bDebug = true; 
 	// 이 변수가 변경된 타이밍이 이 함수가 호출된 타이밍이라면? 
-	if (bIsGuard || bDebug)
+	if (bJustTime || bDebug)
 	{
-		ACharacter* character = Cast<ACharacter>(InAttacker);
+		ACBaseCharacter* character = Cast<ACBaseCharacter>(InAttacker);
 		
 		if (!!character)
 		{
@@ -202,15 +219,41 @@ void UCSubAction_Sword_Guard::Evaluate_JustTiming(AActor* InAttacker)
 			character->LaunchCharacter(-direction * 200.0f, false, false);
 		}
 		FLog::Print("Just Timing!! ", -1, 5.0f, FColor::Yellow);
-		//TODO: 이제 공격자에게 나 패링성공했으니까 너 패링모션해! 해야한다
-		//Owner->PlayAnimMontage(ParringAttackMontage);
-		ActionData.DoAction(Owner);
+		
 		//TODO : 쎄한점 공격자가 패링당하는 상태에 대한 처리가 안되어 있어서 무조건 공격 ㅇㅈㄹ할수있다
+		//TODO: 적이 특정한 반격모션을 던져주도록 하자
+		ActionData.DoAction(Owner);
+
+		return; 
+	}
+
+	// 데미지 입음 
+	Damaged();
+}
+
+void UCSubAction_Sword_Guard::Evaluate_GuradStance(const float InValue)
+{
+	CheckFalse(bIsGuard);
+
+	GuardHP -= InValue;
+
+	// 가드 게이지가 다 떨어지면 가드를 해제한다. 
+	if(GuardHP <= 0.0f)
+	{
+		OffGuardStance(); 
+	}
+	else 
+	{
+		FLog::Print("Guard HP : " + FString::SanitizeFloat(GuardHP), 100, 10.0f, FColor::Orange);
+
+		if (OnGuardValueChanged.IsBound())
+			OnGuardValueChanged.Broadcast(GuardHP, MaxGuardHealth);
 	}
 }
 
-void UCSubAction_Sword_Guard::Evaluate_GuradStance()
+void UCSubAction_Sword_Guard::Damaged()
 {
+	GuardHP += (MaxGuardHealth * 0.1f) * -1.0f;
 }
 
 

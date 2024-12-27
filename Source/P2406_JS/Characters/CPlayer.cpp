@@ -41,7 +41,7 @@ ACPlayer::ACPlayer()
 	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
 
 	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
-	
+
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -73,30 +73,30 @@ ACPlayer::ACPlayer()
 
 		switch ((EParkourArrowType)i)
 		{
-		case EParkourArrowType::Center:
+			case EParkourArrowType::Center:
 			Arrows[i]->ArrowColor = FColor::Red;
 			break;
-		case EParkourArrowType::Head:
+			case EParkourArrowType::Head:
 			Arrows[i]->ArrowColor = FColor::Green;
 			Arrows[i]->SetRelativeLocation(FVector(0, 0, 100));
 			break;
 
-		case EParkourArrowType::Foot:
+			case EParkourArrowType::Foot:
 			Arrows[i]->ArrowColor = FColor::Blue;
 			Arrows[i]->SetRelativeLocation(FVector(0, 0, -80));
 			break;
 
-		case EParkourArrowType::Left:
+			case EParkourArrowType::Left:
 			Arrows[i]->ArrowColor = FColor::Magenta;
 			Arrows[i]->SetRelativeLocation(FVector(0, -30, 0));
 			break;
 
-		case EParkourArrowType::Right:
+			case EParkourArrowType::Right:
 			Arrows[i]->ArrowColor = FColor::Magenta;
 			Arrows[i]->SetRelativeLocation(FVector(0, +30, 0));
 			break;
 
-		case EParkourArrowType::Land:
+			case EParkourArrowType::Land:
 			Arrows[i]->ArrowColor = FColor::Yellow;
 			Arrows[i]->SetRelativeLocation(FVector(200, 0, 100));
 			Arrows[i]->SetRelativeRotation(FRotator(-90, 0, 0));
@@ -142,6 +142,12 @@ void ACPlayer::BeginPlay()
 			UserInterface->AddToViewport();
 			//UserInterface->UpdateWeaponType(EWeaponType::Max);
 			UserInterface->UpdateCrossHairVisibility(false);
+			UserInterface->UpdateGuardGaugeVisibility(false);
+
+			if(!!Weapon)
+			{
+				REGISTER_EVENT_WITH_REPLACE(Weapon, OnGuardValueChanged, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
+			}
 		}
 	}
 
@@ -152,7 +158,7 @@ void ACPlayer::BeginPlay()
 
 		if (!!SkillHUD)
 		{
-			SkillHUD->OnSetOwner(this); 
+			SkillHUD->OnSetOwner(this);
 			SkillHUD->AddToViewport();
 		}
 
@@ -260,10 +266,21 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 
 void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
+	bool bGuardgaugeVisible = false;
 	switch (InNewType)
 	{
-	case EStateType::Evade: Backstep(); break;
-	case EStateType::Damaged: Damaged(); break;
+		case EStateType::Evade: Backstep(); break;
+		case EStateType::Damaged: Damaged(); break;
+		case EStateType::Guard:
+		{
+			bGuardgaugeVisible = true; 
+		}
+		break; 
+	}
+
+	if (!!UserInterface)
+	{
+		UserInterface->UpdateGuardGaugeVisibility(bGuardgaugeVisible);
 	}
 }
 
@@ -300,11 +317,11 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;
 
-	if(bIsGuarding)
+	if (bIsGuarding)
 	{
 		launchStrength *= 0.5f;
 	}
-	
+
 	LaunchCharacter(-direction * launchStrength, false, false);
 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
@@ -574,7 +591,7 @@ void ACPlayer::Landed(const FHitResult& Hit)
 	if (bShouldCountDownOnLand)
 		StartDownTimer();
 
-	if(!!Grapple)
+	if (!!Grapple)
 		Grapple->ResetGrapple();
 
 	FRotator ResetRotation = FRotator(0.0f, GetActorRotation().Yaw, 0.0f);
