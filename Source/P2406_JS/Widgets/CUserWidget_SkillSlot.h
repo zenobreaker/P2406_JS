@@ -16,7 +16,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
-	void OnSkillSlot(const class UCActiveSkill* InActiveSkill);
+	void OnSkillSlot(class UCActiveSkill* InActiveSkill);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void OnCooldown(int32 InSkillID, float InCooldown);

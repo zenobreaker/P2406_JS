@@ -29,7 +29,7 @@ struct FParkourData : public FTableRowBase
 
 public:
 	UPROPERTY(EditAnywhere)
-	EParkourType Type;
+	EParkourType Type = EParkourType::Max;
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* Montage;
@@ -41,23 +41,23 @@ public:
 	FName SectionName;
 
 	UPROPERTY(EditAnywhere)
-	float MinDistance;
+	float MinDistance = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	float MaxDistance;
+	float MaxDistance = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	float Extent;
+	float Extent = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	bool bFixedCamera;
+	bool bFixedCamera = false;
 
 public:
 	void PlayMontage(class ACharacter* InCharacter);
 };
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class P2406_JS_API UCParkourComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -78,14 +78,14 @@ private:
 	TEnumAsByte<EDrawDebugTrace::Type> DebugType;
 
 
-public:	
-	
+public:
+
 	UCParkourComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:

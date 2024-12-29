@@ -18,10 +18,10 @@ public:
 	FVector SocketOffset = FVector(0, 30, 10);
 
 	UPROPERTY(EditAnywhere)
-	bool bEnableCameraLag;
+	bool bEnableCameraLag = false;
 
 	UPROPERTY(EditAnywhere)
-	FVector CameraLocation;
+	FVector CameraLocation = FVector::OneVector;
 };
 
 

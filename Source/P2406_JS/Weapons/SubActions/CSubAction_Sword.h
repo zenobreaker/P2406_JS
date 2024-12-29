@@ -18,7 +18,7 @@ public:
 	float PlayRate = 1;
 
 	UPROPERTY(EditAnywhere)
-	FVector Location;
+	FVector Location = FVector::OneVector;
 
 	UPROPERTY(EditAnywhere)
 	float forward = 100.0f;

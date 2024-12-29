@@ -46,11 +46,12 @@ void UCBTTaskNode_Equip::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
+	CheckNullResult(weapon, FinishLatentTask(OwnerComp, EBTNodeResult::Failed));
 	const bool* bEquipped = weapon->GetEquipment()->GetEquipped();
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
+	CheckNullResult(state, FinishLatentTask(OwnerComp, EBTNodeResult::Failed));
 
-	//TODO: 여기서 뭔가 터지는데 ..
 	if (*bEquipped && state->IsIdleMode())
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
@@ -63,6 +64,7 @@ EBTNodeResult::Type UCBTTaskNode_Equip::AbortTask(UBehaviorTreeComponent& OwnerC
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
+	CheckNullResult(weapon, EBTNodeResult::Failed);
 
 	bool bBeginEquip = weapon->GetEquipment()->GetBeginEquip();
 	if (bBeginEquip == false)

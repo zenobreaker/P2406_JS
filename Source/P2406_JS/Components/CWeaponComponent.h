@@ -1,12 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/CBaseCharacter.h"
-#include "Components/ActorComponent.h"
 #include "Enums/FEnum.h"
+#include "Components/ActorComponent.h"
+#include "Characters/CBaseCharacter.h"
 #include "CWeaponComponent.generated.h"
-
-
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
@@ -14,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, In
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGuardValueChanged, float, InValue,
 	float, InMaxValue);
 
-UCLASS(  )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class P2406_JS_API UCWeaponComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -85,7 +83,7 @@ private:
 
 private:
 	class ACharacter* OwnerCharacter;
-	class UCSkillComponent* Skill;
+	class UCSkillComponent* SkillComp;
 
 private:
 	UPROPERTY()

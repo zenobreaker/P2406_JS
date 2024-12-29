@@ -48,6 +48,7 @@ void UCDashComponent::OnDash()
 void UCDashComponent::DashAction()
 {
 	CheckNull(Movement);
+	CheckNull(Weapon);
 	CheckTrue(State->IsDashMode());
 	//CheckNull(target);
 
@@ -60,6 +61,8 @@ void UCDashComponent::DashAction()
 	if (Weapon->GetEquipment() == nullptr
 		|| Weapon->GetEquipment()->GetControlRotation() == false)
 	{
+		CheckTrue(DashMontages.Num() == 0);
+		
 		// Àü¹æ
 		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Forward]);
 	}
@@ -76,6 +79,8 @@ void UCDashComponent::DashAction()
 			dir = DashDirection::Right;
 		else if (input->Y < 0)
 			dir = DashDirection::Left;
+
+		CheckTrue(DashMontages.Num() == 0);
 
 		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)dir]);
 	}

@@ -30,7 +30,7 @@ ACPlayer::ACPlayer()
 	FHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
 	FHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
 
-	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
+	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon"); 
 	FHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
 	FHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
 	FHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
@@ -111,7 +111,7 @@ ACPlayer::ACPlayer()
 
 	FHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
 
-	FHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_SkillSlotHUD.WB_SkillSlotHUD_C'");
+	FHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/MyCUserWidget_SkillHUD.MyCUserWidget_SkillHUD_C'");
 
 	if (!!Grapple)
 	{
@@ -127,10 +127,14 @@ void ACPlayer::BeginPlay()
 
 	Movement->OnRun();
 	Movement->DisableControlRotation();
+	
+	ensure(Weapon != nullptr);  // Weapon이 nullptr이라면 경고 출력
+	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
 
-
-	State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
-	Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
+	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
+	//State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
+	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, ACPlayer::OnWeaponTypeChanged);
+		//Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
 
 	// 일반 캐릭터 UI
@@ -144,10 +148,7 @@ void ACPlayer::BeginPlay()
 			UserInterface->UpdateCrossHairVisibility(false);
 			UserInterface->UpdateGuardGaugeVisibility(false);
 
-			if(!!Weapon)
-			{
-				REGISTER_EVENT_WITH_REPLACE(Weapon, OnGuardValueChanged, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
-			}
+			REGISTER_EVENT_WITH_REPLACE(Weapon, OnGuardValueChanged, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
 		}
 	}
 
@@ -156,10 +157,13 @@ void ACPlayer::BeginPlay()
 	{
 		SkillHUD = Cast<UCUserWidget_SkillHUD>(CreateWidget(GetController<APlayerController>(), SkillHUDClass));
 
+		REGISTER_EVENT_WITH_REPLACE(Skill, OnSetSkills, SkillHUD, UCUserWidget_SkillHUD::OnSetSkill);
+		REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillSlotsCleared, SkillHUD, UCUserWidget_SkillHUD::OnSetSkillSlotsCleared);
+
 		if (!!SkillHUD)
 		{
-			SkillHUD->OnSetOwner(this);
 			SkillHUD->AddToViewport();
+			SkillHUD->OnSetSkillSlotsCleared();	// 하위 Widget은 화면에 배치되어야 호출됨
 		}
 
 		// 게임모드에 이벤트 구독시키기 
@@ -466,6 +470,8 @@ void ACPlayer::End_Backstep()
 
 void ACPlayer::OnSubAction()
 {
+	CheckNull(Weapon);
+
 	if (Weapon->IsUnarmedMode())
 	{
 		CheckFalse(State->IsIdleMode());
@@ -480,6 +486,7 @@ void ACPlayer::OnSubAction()
 
 void ACPlayer::OffSubAction()
 {
+	CheckNull(Weapon); 
 	CheckTrue(Weapon->IsUnarmedMode());
 
 	Weapon->SubAction_Released();

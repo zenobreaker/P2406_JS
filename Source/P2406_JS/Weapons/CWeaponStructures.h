@@ -44,7 +44,7 @@ public:
 	bool bCanMove = true;
 
 	UPROPERTY(EditAnywhere)
-	bool bFixedCamera;
+	bool bFixedCamera = false;
 	/*UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACGhostTrail> GhostTrailClass;*/
 
@@ -70,7 +70,7 @@ public:
 	float PlayRate = 1;
 
 	UPROPERTY(EditAnywhere)
-	float Power;
+	float Power =0.0f;
 
 	UPROPERTY(EditAnywhere)
 	float Launch = 100;
@@ -79,7 +79,7 @@ public:
 	float Airial = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	float StopTime;
+	float StopTime =0.0f;
 
 	UPROPERTY(EditAnywhere)
 	bool bDown = false; 

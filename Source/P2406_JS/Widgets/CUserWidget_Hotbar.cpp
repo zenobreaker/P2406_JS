@@ -18,7 +18,7 @@ void UCUserWidget_Hotbar::OnSetSkillSlots_Implementation(const TArray<UCActiveSk
 
 	FLog::Print("Hot bar  : Call Set Skill Slot ", -1, 10.0f, FColor::Yellow);
 	int cnt = 0;
-	for (const UCActiveSkill* activeSkill : InActiveSkills)
+	for (UCActiveSkill* activeSkill : InActiveSkills)
 	{
 		if (activeSkill == nullptr)
 			continue;

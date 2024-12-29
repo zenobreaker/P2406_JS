@@ -20,9 +20,6 @@ public:
 		// HotBar À§Á¬ º¯¼ö
 	UPROPERTY(BlueprintReadOnly, Category = "SkillHUD")
 	UCUserWidget_Hotbar* HotBar;
-	
-public:
-	void OnSetOwner(ACharacter* InOwner); 
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -33,7 +30,5 @@ public:
 
 	UFUNCTION()
 	void OnUpdateCooldown(int32 InSkillID, float InDeltaTime);
-	
-private:
-	class UCSkillComponent* Skill; 
+
 };

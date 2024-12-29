@@ -30,7 +30,7 @@ void UCWeaponComponent::BeginPlay()
 		}
 	}
 	// 주인한테 있는 컴포넌트 가져옴
-	Skill = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+	SkillComp = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
 }
 
 
@@ -135,7 +135,8 @@ void UCWeaponComponent::SetBowMode()
 
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {
-	class UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
+	
 	if (state != nullptr)
 	{
 		if (state->IsActionMode())
@@ -160,10 +161,8 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 		Datas[(int32)InType]->GetEquipment()->Equip();
 
 		UCSubAction* subaction = Datas[(int32)InType]->GetSubAction();
-		if(!!subaction)
-		{
-			REGISTER_EVENT_WITH_REPLACE(subaction, OnGuardValueChanged, this, UCWeaponComponent::ChangeGuardValue);
-		}
+		
+		REGISTER_EVENT_WITH_REPLACE(subaction, OnGuardValueChanged, this, UCWeaponComponent::ChangeGuardValue);
 	}
 	
 	ChangeType(InType);
@@ -174,14 +173,12 @@ void UCWeaponComponent::ChangeType(EWeaponType InType)
 	EWeaponType prevType = Type;
 	Type = InType;
 
-	if (!!Datas[(int32)InType])
-	{
-		if (InType != EWeaponType::Max && !!Skill)
-			Skill->SetSkillList(Datas[(int32)InType]->GetSkills());
-		// 스킬이 없는 타입이나 그런거면 아무것도 없이 보내 
-		else if (InType == EWeaponType::Max)
-			Skill->SetEmptySkillList();
-	}
+
+	if (InType != EWeaponType::Max && !!SkillComp)
+		SkillComp->SetSkillList(Datas[(int32)InType]->GetSkills());
+	// 스킬이 없는 타입이나 그런거면 아무것도 없이 보내 
+	else if (InType == EWeaponType::Max)
+		SkillComp->SetEmptySkillList();
 
 
 	if (OnWeaponTypeChanged.IsBound())
@@ -215,9 +212,9 @@ void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 	FLog::Log("Call Exectue Skill");
 	//TODO: 스킬이 일부 모션 캔슬 가능이라면 이 로직은 수정해야할지도. 
 	CheckFalse(IsIdleMode());
-	CheckNull(Skill);
+	CheckNull(SkillComp);
 
-	Skill->ExecuteSkill(InIndex);
+	SkillComp->ExecuteSkill(InIndex);
 }
 
 void UCWeaponComponent::SubAction_Pressed()

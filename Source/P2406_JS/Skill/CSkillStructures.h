@@ -45,7 +45,7 @@ struct FSkillActionData : public FDoActionData
 
 public:
 	UPROPERTY(EditAnywhere)
-	float HitDelay;
+	float HitDelay =0.0f;
 
 	UPROPERTY(EditAnywhere)
 	class USoundWave* Sound;
@@ -97,7 +97,7 @@ struct FSkillHitData : public FHitData
 
 public:
 	UPROPERTY(EditAnywhere)
-	float CollisionInterval;
+	float CollisionInterval = 0.0f;
 };
 
 

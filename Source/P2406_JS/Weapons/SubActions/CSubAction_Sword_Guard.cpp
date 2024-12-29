@@ -27,17 +27,14 @@ void UCSubAction_Sword_Guard::BeginPlay(ACharacter* InOwner, ACAttachment* InAtt
 
 	Movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
 	State = FHelpers::GetComponent<UCStateComponent>(InOwner);
-	if (!!State)
-	{
-		//// 기존 이벤트 핸들러가 등록되어 있으면 해제
-		//State->OnStateTypeChanged.RemoveDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
 
-		//// 새로운 이벤트 핸들러 등록
-		//State->OnStateTypeChanged.AddDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
+	//// 기존 이벤트 핸들러가 등록되어 있으면 해제
+	//State->OnStateTypeChanged.RemoveDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
 
-		REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCSubAction_Sword_Guard::OnStateTypeChanged);
-	}
-		
+	//// 새로운 이벤트 핸들러 등록
+	//State->OnStateTypeChanged.AddDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
+	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCSubAction_Sword_Guard::OnStateTypeChanged);
+
 }
 
 void UCSubAction_Sword_Guard::Tick(float InDeltaTime)

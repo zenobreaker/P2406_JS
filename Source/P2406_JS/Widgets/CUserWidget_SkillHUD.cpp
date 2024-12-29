@@ -2,8 +2,6 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "Skill/CActiveSkill.h"
-#include "Components/CSkillComponent.h"
-
 	
 void UCUserWidget_SkillHUD::NativeConstruct()
 {
@@ -29,22 +27,6 @@ void UCUserWidget_SkillHUD::OnSetSkill(const TArray<UCActiveSkill*>& InActiveSki
 
 	FLog::Print("HUD - OnSet Skill Call");
 	HotBar->OnSetSkillSlots(InActiveSkills);
-}
-
-void UCUserWidget_SkillHUD::OnSetOwner(ACharacter* InOwner)
-{
-    CheckNull(InOwner); 
-
-    Skill = FHelpers::GetComponent<UCSkillComponent>(InOwner); 
-    CheckNull(Skill); 
-
-    FLog::Print("Skill HUD Delegate Set", -1, 10, FColor::Magenta);
-    Skill->OnSetSkills.AddDynamic(this, &UCUserWidget_SkillHUD::OnSetSkill); 
-
-    Skill->OnSkillSlotsCleared.AddDynamic(this, &UCUserWidget_SkillHUD::OnSetSkillSlotsCleared);
-
-    //TODO: 정말 개념이 없는 행위지만 일단은..
-    
 }
 
 void UCUserWidget_SkillHUD::OnSetSkillSlotsCleared()

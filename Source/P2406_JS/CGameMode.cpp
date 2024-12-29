@@ -8,7 +8,7 @@
 
 ACGameMode::ACGameMode()
 {
-	FHelpers::GetClass<APawn>(&DefaultPawnClass, L"/Script/Engine.Blueprint'/Game/Player/BP_CPlayerTest.BP_CPlayerTest_C'");
+	FHelpers::GetClass<APawn>(&DefaultPawnClass, "/Script/Engine.Blueprint'/Game/Player/BP_CPlayer2.BP_CPlayer2_C'");
 
 	PrimaryActorTick.bCanEverTick = true;
 }
