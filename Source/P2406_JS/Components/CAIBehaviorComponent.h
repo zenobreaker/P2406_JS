@@ -57,6 +57,7 @@ protected:
 public:
 	FORCEINLINE void SetBlackboard(class UBlackboardComponent* InBlackboard) { Blackboard = InBlackboard; }
 
+
 public:
 	class ACharacter* GetTarget();
 

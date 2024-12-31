@@ -1,6 +1,7 @@
 #include "Notifies/CAnimNotifyState_Collision.h"
 #include "Global.h"
 #include "Components/CWeaponComponent.h"
+#include "Components/CAttackTraceComponent.h"
 #include "Weapons/CAttachment.h"
 
 FString UCAnimNotifyState_Collision::GetNotifyName_Implementation() const

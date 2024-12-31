@@ -21,4 +21,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateStateName(const FString& InName);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateGuardGaugeVisibility(bool bInVisible);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateGuardGauge(float InValue, float InMaxValue);
 };

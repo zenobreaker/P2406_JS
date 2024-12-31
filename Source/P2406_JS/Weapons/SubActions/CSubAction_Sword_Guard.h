@@ -30,7 +30,7 @@ public:
 	float PlayRate = 1.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Action")
-	class USoundWave*  GuardSound; 
+	class USoundWave* GuardSound;
 
 	UPROPERTY(EditAnywhere, Category = "Action")
 	struct FDoActionData ActionData; 

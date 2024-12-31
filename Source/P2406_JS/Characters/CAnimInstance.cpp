@@ -4,6 +4,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Characters/CBaseCharacter.h"
 #include "Characters/CPlayer.h"
+#include "Characters/IGuardable.h"
+
 #include "Components/CConditionComponent.h"
 #include "Components/CGrapplingComponent.h"
 #include "Weapons/CSubAction.h"
@@ -51,31 +53,34 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Pitch = UKismetMathLibrary::FInterpTo(Pitch, OwnerCharacter->GetBaseAimRotation().Pitch, DeltaSeconds, 25);
 
+
+
 	// 애님인스턴스에서 처리함 .
 	if (Skill != nullptr)
 	{
 		bSkillSoaring = Skill->GetSkillSoaring(); 
 	}
 
-	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling(); /*&& bSkillSoaring == false;*/
-	//FLog::Print("Anim bFalling : " + FString::FromInt(bFalling));
-	bIsAirborneHit = bFalling && StateType == EStateType::Damaged;
+	// Falling 
+	ChangeFalling(); 
 	
-	if (!!Condition)
-		bDown = Condition->GetDownCondition();
+	// Airborne
+	ChangeAirborne(); 
+	
+	// Down 
+	ChangeDown(); 
 
-	CheckNull(Grapple);
-	bGrappling = Grapple->GetGrappling();
-	
-	CheckNull(Weapon);
-	if (!!Weapon->GetSubAction())
-	{
-		bBow_Aiming = true;
-		bBow_Aiming &= WeaponType == EWeaponType::Bow;
-		bBow_Aiming &= Weapon->GetSubAction()->GetInAction();
-	}
+	// Grappling 
+	ChangeGrappling(); 
+
+	// Bow Aim
+	ChangeBowAiming(); 
+
+	// Gaurd 
+	ChangeGuardState();
 }
 
+//-----------------------------------------------------------------------------
 void UCAnimInstance::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
 {
 	WeaponType = InNewType;
@@ -99,5 +104,53 @@ void UCAnimInstance::OnCharacterDowned()
 void UCAnimInstance::OnCharacterRaised()
 {
 	DownBlendValue = 100.0f;
+}
+
+//-----------------------------------------------------------------------------
+
+void UCAnimInstance::ChangeGuardState()
+{
+	// 내가 가져올 때 인터페이스에서 가져오고 거기서 값을 그걸로 바꾼다. 
+	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter); 
+	CheckNull(guardable);
+
+	bGuarding = guardable->GetGuarding();
+}
+
+void UCAnimInstance::ChangeFalling()
+{
+	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling(); 
+	/*&& bSkillSoaring == false;*/
+
+}
+
+void UCAnimInstance::ChangeBowAiming()
+{
+	CheckNull(Weapon);
+	if (!!Weapon->GetSubAction())
+	{
+		bBow_Aiming = true;
+		bBow_Aiming &= WeaponType == EWeaponType::Bow;
+		bBow_Aiming &= Weapon->GetSubAction()->GetInAction();
+	}
+}
+
+void UCAnimInstance::ChangeGrappling()
+{
+	CheckNull(Grapple);
+	bGrappling = Grapple->GetGrappling();
+
+}
+
+void UCAnimInstance::ChangeAirborne()
+{
+	bIsAirborneHit = bFalling && StateType == EStateType::Damaged;
+}
+
+void UCAnimInstance::ChangeDown()
+{
+	CheckNull(Condition);
+
+	bDown = Condition->GetDownCondition();
 }
 

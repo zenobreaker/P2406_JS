@@ -16,6 +16,14 @@ class P2406_JS_API ACAttachment : public AActor
 {
 	GENERATED_BODY()
 	
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Soket")
+	FName TraceGoalName = "";
+
+public:
+	FORCEINLINE FName GetTraceGoalName() { return TraceGoalName; }
+
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	class USceneComponent* Root; 
@@ -29,6 +37,8 @@ protected:
 public:
 	void OnCollisions();
 	void OffCollisions(); 
+
+	void HandleAttachmentOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
 
 public:
 	UFUNCTION(BlueprintNativeEvent)
@@ -68,4 +78,5 @@ protected:
 
 protected:
 	TArray<class UShapeComponent*> Collisions;
+
 };

@@ -19,6 +19,7 @@
 #include "Components/CHealthPointComponent.h"
 #include "Components/CConditionComponent.h"
 #include "Components/CAirborneComponent.h"
+#include "Components/CAttackTraceComponent.h"
 
 #include "Weapons/CWeaponStructures.h"
 
@@ -39,8 +40,8 @@ ACPlayer::ACPlayer()
 	FHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
 	FHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
 	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
-
 	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
+	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "A_Trace");
 
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
@@ -134,7 +135,7 @@ void ACPlayer::BeginPlay()
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
 	//State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, ACPlayer::OnWeaponTypeChanged);
-		//Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
+	//Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
 
 	// 일반 캐릭터 UI

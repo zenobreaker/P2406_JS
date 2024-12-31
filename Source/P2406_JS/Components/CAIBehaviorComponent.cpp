@@ -18,16 +18,16 @@ void UCAIBehaviorComponent::BeginPlay()
 	Super::BeginPlay();
 
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(GetOwner());
-	CheckNull(ai); 
+	CheckNull(ai);
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
-	if(!!state)
+	if (!!state)
 	{
 		state->OnStateTypeChanged.AddDynamic(this, &UCAIBehaviorComponent::OnStateChanged);
 	}
 
-	UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(ai); 
-	if(!!condition)
+	UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(ai);
+	if (!!condition)
 	{
 		condition->OnAddCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnAddCondiitionType);
 
@@ -166,6 +166,9 @@ void UCAIBehaviorComponent::SetDeadMode()
 
 void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 {
+	if (Blackboard == nullptr)
+		return; 
+
 	EAIStateType prevType = GetType();
 
 	Blackboard->SetValueAsEnum(AIStateTypeKey, (uint8)InType);
@@ -184,6 +187,7 @@ void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InN
 		bCanMove = false;
 		break;
 
+		case EStateType::Guard:
 		case EStateType::Idle:
 		bCanMove = true;
 		default:

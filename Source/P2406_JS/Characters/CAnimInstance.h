@@ -45,6 +45,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	bool bBow_Aiming;
 
+protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	bool bGuarding = false;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
@@ -56,6 +59,7 @@ protected:
 public:
 	void NativeBeginPlay() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
+
 
 private:
 	UFUNCTION()
@@ -72,6 +76,21 @@ private:
 
 	UFUNCTION()
 	void OnCharacterRaised();
+
+private:
+	void ChangeFalling(); 
+
+	void ChangeBowAiming();
+	
+	void ChangeGrappling();
+
+	void ChangeAirborne(); 
+
+	void ChangeDown();
+
+	void ChangeGuardState();
+	
+
 
 private:
 	class ACharacter* OwnerCharacter;

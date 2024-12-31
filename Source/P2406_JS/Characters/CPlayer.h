@@ -84,6 +84,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCGrapplingComponent* Grapple;
 
+	UPROPERTY(VisibleAnywhere)
+	class UCAttackTraceComponent* ATrace;
+
 public:
 	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue;  }
 	FORCEINLINE bool GetCanInput() { return bCanInput; }

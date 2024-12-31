@@ -2,10 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Characters/CEnemy.h"
+#include "Characters/IGuardable.h"
 #include "CEnemy_AI.generated.h"
 
 UCLASS()
-class P2406_JS_API ACEnemy_AI : public ACEnemy
+class P2406_JS_API ACEnemy_AI 
+	: public ACEnemy
+	, public IIGuardable
 {
 	GENERATED_BODY()
 
@@ -17,7 +20,16 @@ private:
 	class UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(EditAnywhere, Category = "Patrol")
-	class ACPatrolPath* PatrolPath;
+	TSoftObjectPtr<class ACPatrolPath> PatrolPath;
+	
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	bool bCanGuard;
+
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	class USoundWave*  GuardSound; 
+
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	float MaxGuardHealth = 50.0f; 
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Label")
@@ -38,12 +50,17 @@ public:
 	FORCEINLINE uint8 GetTeamID() { return TeamID; }
 
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
-	FORCEINLINE class ACPatrolPath* GetPatrolPath() { return PatrolPath; }
+	FORCEINLINE TSoftObjectPtr<class ACPatrolPath> GetPatrolPath() { return PatrolPath; }
 public:
 	ACEnemy_AI();
 
 protected:
 	virtual void BeginPlay() override; 
+
+
+	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+
 
 public:
 	virtual void Tick(float DeltaTime) override; 
@@ -64,4 +81,19 @@ protected:
 public:
 	void End_Damaged() override; 
 
+	// IIGuardable을(를) 통해 상속됨
+	bool CanGuard() const override;
+
+	bool GetGuarding() const override;
+
+	void StartGuard() override;
+
+	void StopGuard() override;
+
+	bool CheckBlocking(FDamageData& InDamagedata);
+
+private: 
+	bool bGuarding = false;
+	float GuardAngle = 60.0f; 
+	float GuardHP;
 };

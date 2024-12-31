@@ -77,14 +77,22 @@ void ACAttachment::OffCollisions()
 		shape->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void ACAttachment::HandleAttachmentOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+{
+
+	if (OnAttachmentBeginOverlap.IsBound())
+		OnAttachmentBeginOverlap.Broadcast(OwnerCharacter, this, InOther);
+}
+
 
 
 void ACAttachment::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CheckTrue(OwnerCharacter == OtherActor);
 
-	if (OnAttachmentBeginOverlap.IsBound())
-		OnAttachmentBeginOverlap.Broadcast(OwnerCharacter, this, Cast<ACharacter>(OtherActor));
+	ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
+	if(HitCharacter)
+		HandleAttachmentOverlap(OwnerCharacter, this, HitCharacter);
 }
 
 void ACAttachment::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

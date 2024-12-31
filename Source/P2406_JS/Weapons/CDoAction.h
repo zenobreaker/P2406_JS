@@ -33,6 +33,9 @@ public:
 	virtual void DoAction();
 	virtual void Begin_DoAction();
 	virtual void End_DoAction();
+	
+	
+
 
 public:
 	UFUNCTION()

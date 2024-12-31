@@ -50,7 +50,7 @@ void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, AChara
 {
 	FActionDamageEvent e;
 	e.HitData = this;
-
+	
 	InOther->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
 }
 
