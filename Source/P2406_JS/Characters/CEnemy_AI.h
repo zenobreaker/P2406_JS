@@ -21,12 +21,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Patrol")
 	TSoftObjectPtr<class ACPatrolPath> PatrolPath;
-	
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	bool bCanGuard;
-
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	class USoundWave*  GuardSound; 
 
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	float MaxGuardHealth = 50.0f; 
@@ -41,6 +35,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCAIBehaviorComponent* Behavior;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCGuardComponent* Guard; 
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -81,6 +78,8 @@ protected:
 public:
 	void End_Damaged() override; 
 
+	virtual bool HasGuard() const override;
+
 	// IIGuardable을(를) 통해 상속됨
 	bool CanGuard() const override;
 
@@ -92,8 +91,6 @@ public:
 
 	bool CheckBlocking(FDamageData& InDamagedata);
 
-private: 
-	bool bGuarding = false;
-	float GuardAngle = 60.0f; 
-	float GuardHP;
+private:
+	class UCUserWidget_Enemy* EnemyWidget; 
 };

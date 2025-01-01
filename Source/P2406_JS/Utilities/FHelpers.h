@@ -61,6 +61,28 @@
 		FLog::Log(FString::Printf(TEXT("Listener is Null. Tried to use: %s"), TEXT(#Listener)));\
 }
 
+// 다이나믹 이벤트 콜 : 이벤트를 검사한 후 있으면 호출
+#define DYNAMIC_EVENT_CALL(EventName)\
+{\
+	if(EventName.IsBound())\
+		EventName.Broadcast();\
+}
+
+#define DYNAMIC_EVENT_CALL_ONE_PARAM(EventName, InParam)\
+{\
+	if(EventName.IsBound())\
+		EventName.Broadcast(InParam);\
+}
+
+#define DYNAMIC_EVENT_CALL_TWO_PARAM(EventName, InParam1, InParam2)\
+{\
+	if(EventName.IsBound())\
+	{\
+		FLog::Log(FString::Printf(TEXT("Event Call : %s"), TEXT(#EventName)));\
+		EventName.Broadcast(InParam1, InParam2); \
+	}\
+}
+
 class P2406_JS_API FHelpers
 {
 public:

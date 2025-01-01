@@ -4,6 +4,7 @@
 #include "Components/CHealthPointComponent.h"
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/CGuardComponent.h"
 #include "Widgets/CUserWidget_Enemy.h"
 #include "BehaviorTree/BehaviorTree.h"
 
@@ -26,6 +27,11 @@ ACEnemy_AI::ACEnemy_AI()
 	LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	FHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BehaviorTree'/Game/Enemies/Melee/BT_Melee.BT_Melee'");
+
+	if (IIGuardable::Execute_HasGuard(this))
+	{
+		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
+	}
 }
 
 void ACEnemy_AI::BeginPlay()
@@ -41,6 +47,17 @@ void ACEnemy_AI::BeginPlay()
 	enemyLabel->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
 	enemyLabel->UpdateName(GetName());
 	enemyLabel->UpdateControllerName(GetController()->GetName());
+
+	if (!!Guard)
+	{
+		EnemyWidget = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
+		CheckNull(EnemyWidget);
+
+		REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardVisiable, EnemyWidget, UCUserWidget_Enemy::UpdateGuardGaugeVisibility);
+
+		REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, EnemyWidget, UCUserWidget_Enemy::UpdateGuardGauge);
+	}
+
 }
 
 void ACEnemy_AI::Tick(float DeltaTime)
@@ -156,63 +173,55 @@ void ACEnemy_AI::End_Damaged()
 	Behavior->SetWaitMode();
 }
 
+bool ACEnemy_AI::HasGuard() const
+{
+	return true; 
+}
+
 bool ACEnemy_AI::CanGuard() const
 {
-	return bCanGuard;
+	CheckNullResult(Guard, false);
+
+	return Guard->GetCanGuard();
 }
 
 void ACEnemy_AI::StartGuard()
 {
 	// 가드 상태를 할 수 없다면 호출해도 의미 없게 
-	CheckFalse(bCanGuard);
-
-	bGuarding = true;
+	CheckNull(Guard);
+	CheckFalse(Guard->GetCanGuard());
 
 	State->SetGuardMode();
-
-	GuardHP = MaxGuardHealth;
-	//PlayAnimMontage(GuardMontage, 1.0f);
+	Guard->StartGuard();
 }
 
 void ACEnemy_AI::StopGuard()
 {
-	bGuarding = false;
+	CheckNull(Guard);
 
 	State->SetIdleMode();
-	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
-	enemyLabel->UpdateGuardGaugeVisibility(false);
-	//StopAnimMontage(GuardMontage);
+	Guard->StopGuard();
+
+	/*UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
+	enemyLabel->UpdateGuardGaugeVisibility(false);*/
 }
 
 bool ACEnemy_AI::CheckBlocking(FDamageData& InDamagedata)
 {
-	if (GuardHP <= 0.0f)
-		return false; 
+	CheckNullResult(Guard, false);
+		
 
-	FVector attackerLocation = InDamagedata.Attacker->GetActorLocation();
+	//UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 
-	FVector toAttack = (attackerLocation - GetActorLocation()).GetSafeNormal();
-	FVector forward = GetActorForwardVector();
-
-	float dotProduct = FVector::DotProduct(forward, toAttack);
-
-	if(dotProduct > FMath::Cos(FMath::DegreesToRadians(GuardAngle)))
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), GuardSound, GetActorLocation());
-
-		GuardHP += (MaxGuardHealth * 0.1f) * -1.0f;
-		UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
-
-		enemyLabel->UpdateGuardGaugeVisibility(true);
-		enemyLabel->UpdateGuardGauge(GuardHP, MaxGuardHealth);
-
-		return true; 
-	}
-
-	return false; 
+	//enemyLabel->UpdateGuardGaugeVisibility(true);
+		
+		
+	return Guard->CheckBlocking(InDamagedata);
 }
 
 bool ACEnemy_AI::GetGuarding() const
 {
-	return bGuarding;
+	CheckNullResult(Guard, false); 
+
+	return Guard->GetGuarding();
 }
