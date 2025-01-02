@@ -97,6 +97,10 @@ void UCStateComponent::ChangeType(EStateType InType)
 
 	if (OnStateTypeChanged.IsBound())
 		OnStateTypeChanged.Broadcast(prevType, InType);
+}
+
+void UCStateComponent::HandleGuardState()
+{
 
 }
 

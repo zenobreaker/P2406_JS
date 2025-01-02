@@ -1,6 +1,9 @@
 #include "Components/CGuardComponent.h"
 #include "Global.h"
 
+#include "Characters/IGuardable.h"
+#include "Components/CStateComponent.h"
+
 UCGuardComponent::UCGuardComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -13,6 +16,9 @@ void UCGuardComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	CheckNull(OwnerCharacter);
+
+	State = FHelpers::GetComponent <UCStateComponent>(OwnerCharacter); 
 }
 
 
@@ -22,6 +28,11 @@ void UCGuardComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
+void UCGuardComponent::OnJustGuard()
+{
+	bJustTime = !bJustTime; 
+}
+
 void UCGuardComponent::StartGuard()
 {
 	CheckFalse(bCanGuard);
@@ -29,11 +40,30 @@ void UCGuardComponent::StartGuard()
 	bGuarding = true; 
 
 	GuardHP = MaxGuardHP;
+
+	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter); 
+	CheckNull(guardable); 
+
+	guardable->StartGuard();
+	OwnerCharacter->PlayAnimMontage(GuardMontage);
+
+	CheckNull(State);
+	State->SetGuardMode();
 }
 
 void UCGuardComponent::StopGuard()
 {
 	bGuarding = false; 
+
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, false);
+
+	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter);
+	CheckNull(guardable);
+
+	guardable->StopGuard();
+	OwnerCharacter->StopAnimMontage(GuardMontage);
+	CheckNull(State);
+	State->SetIdleMode();
 }
 
 bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
@@ -62,12 +92,14 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 
 		GuardHP += (MaxGuardHP * 0.1f) * -1.0f;
 
+		Evaluate_JustTime(); 
+
 
 		DYNAMIC_EVENT_CALL(OnGuardDamaged);
 		
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, true);
-		if (OnUpdatedGuardVisiable.IsBound())
-			OnUpdatedGuardVisiable.Broadcast(true);
+		//if (OnUpdatedGuardVisiable.IsBound())
+		//	OnUpdatedGuardVisiable.Broadcast(true);
 
 		DYNAMIC_EVENT_CALL_TWO_PARAM(OnUpdatedGuardGauge, GuardHP, MaxGuardHP);
 		/*if (OnUpdatedGuardGauge.IsBound())
@@ -77,5 +109,14 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 	}
 
 	return false;
+}
+
+void UCGuardComponent::Evaluate_JustTime()
+{
+	if (bJustTime == false)
+		return; 
+
+	//OwnerCharacter->PlayAnimMontage(ParryMontage);
+	ParryActionData.DoAction(OwnerCharacter);
 }
 

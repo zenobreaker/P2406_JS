@@ -13,7 +13,7 @@ class P2406_JS_API UCBTService_Melee : public UBTService
 private:
 	UPROPERTY(EditAnywhere, Category = "Action")
 	float ActionRange = 150;
-
+	
 	UPROPERTY(EditAnywhere, Category = "Action")
 	FVector2D ActionDelay = FVector2D::TVector2(1.5f, 2.0f);
 
@@ -31,7 +31,7 @@ private:
 	bool Tick_CheckPatrol(ACharacter** OutTarget) const;
 	bool Tick_CheckAttack(const ACharacter* InTarget);
 	bool Tick_CheckGuard(const ACharacter* InTarget) const;
-	bool Tick_CheckApproach() const;
+	bool Tick_CheckApproach(const ACharacter* InTarget) const;
 private:
 	float CurrentDelay;
 

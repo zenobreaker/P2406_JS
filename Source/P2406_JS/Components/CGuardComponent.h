@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Characters/CBaseCharacter.h"
+#include "Weapons/CWeaponStructures.h"
 #include "CGuardComponent.generated.h"
 
 
@@ -32,6 +33,8 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void OnJustGuard(); 
+
 public:
 	void StartGuard();
 
@@ -39,11 +42,8 @@ public:
 
 	bool CheckBlocking(ACBaseCharacter::FDamageData& InDamageData);
 
-public:
-	FOnGuardDamaged OnGuardDamaged;
-	FOnUpdatedGuardVisiable  OnUpdatedGuardVisiable;
-	FOnUpdatedGuardGauge OnUpdatedGuardGauge;
-
+private:
+	void Evaluate_JustTime();
 private:
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	bool bCanGuard = false;
@@ -57,9 +57,29 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	class USoundWave* GuardSound = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	class UAnimMontage* GuardMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Parry")
+	struct FDoActionData ParryActionData; 
+	
+	UPROPERTY(EditAnywhere, Category = "Parry")
+	struct FHitData HitData; 
+
+	//class UAnimMontage* ParryMontage;
+
+public:
+	FOnGuardDamaged OnGuardDamaged;
+	FOnUpdatedGuardVisiable  OnUpdatedGuardVisiable;
+	FOnUpdatedGuardGauge OnUpdatedGuardGauge;
+
+
 private:
 	class ACharacter* OwnerCharacter = nullptr;
+	class UCStateComponent* State = nullptr; 
 
 	bool bGuarding = false;
 	float GuardHP = 0.0f;
+
+	bool bJustTime = false; 
 };

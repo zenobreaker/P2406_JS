@@ -1,12 +1,16 @@
 #include "Characters/CEnemy_AI.h"
 #include "Global.h"
+
 #include "Components/CWeaponComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CGuardComponent.h"
+#include "Components/CAttackTraceComponent.h"
+
 #include "Widgets/CUserWidget_Enemy.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Weapons/CEquipment.h"
 
 ACEnemy_AI::ACEnemy_AI()
 {
@@ -17,6 +21,8 @@ ACEnemy_AI::ACEnemy_AI()
 
 	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
 	FHelpers::CreateActorComponent<UCAIBehaviorComponent>(this, &Behavior, "Behavior");
+	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "ATrace");
+
 
 	TSubclassOf<UCUserWidget_Enemy> labelClass;
 	FHelpers::GetClass(&labelClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Enemy.WB_Enemy_C'");
@@ -74,9 +80,9 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	DamageData.Causer = DamageCauser;
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
 
-	bool bBlocking = false; 
-	if(State->IsGuardMode())
-		bBlocking = CheckBlocking(DamageData);
+	bool bBlocking = false;
+	if (State->IsGuardMode())
+		bBlocking = Guard->CheckBlocking(DamageData);
 
 	if (bBlocking)
 		return Damage;
@@ -94,7 +100,7 @@ void ACEnemy_AI::OnHealthPointChanged(float InHealth, float InMaxHealth)
 void ACEnemy_AI::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	Super::OnStateTypeChanged(InPrevType, InNewType);
-	
+
 	switch (InNewType)
 	{
 		case EStateType::Guard:
@@ -175,7 +181,7 @@ void ACEnemy_AI::End_Damaged()
 
 bool ACEnemy_AI::HasGuard() const
 {
-	return true; 
+	return true;
 }
 
 bool ACEnemy_AI::CanGuard() const
@@ -191,16 +197,22 @@ void ACEnemy_AI::StartGuard()
 	CheckNull(Guard);
 	CheckFalse(Guard->GetCanGuard());
 
-	State->SetGuardMode();
-	Guard->StartGuard();
+
+	/*CheckNull(Weapon);
+	bool bCheck = true;
+	bCheck &= static_cast<bool>(Weapon->GetEquipment()->GetEquipped());
+	bCheck &= Weapon->GetEquipment()->GetBeginEquip() == false;*/
+	//State->SetGuardMode();
+	//Guard->StartGuard();
+
 }
 
 void ACEnemy_AI::StopGuard()
 {
 	CheckNull(Guard);
 
-	State->SetIdleMode();
-	Guard->StopGuard();
+	//State->SetIdleMode();
+	//Guard->StopGuard();
 
 	/*UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	enemyLabel->UpdateGuardGaugeVisibility(false);*/
@@ -209,19 +221,19 @@ void ACEnemy_AI::StopGuard()
 bool ACEnemy_AI::CheckBlocking(FDamageData& InDamagedata)
 {
 	CheckNullResult(Guard, false);
-		
+
 
 	//UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 
 	//enemyLabel->UpdateGuardGaugeVisibility(true);
-		
-		
-	return Guard->CheckBlocking(InDamagedata);
+
+
+	return true;
 }
 
 bool ACEnemy_AI::GetGuarding() const
 {
-	CheckNullResult(Guard, false); 
+	CheckNullResult(Guard, false);
 
-	return Guard->GetGuarding();
+	return true;
 }

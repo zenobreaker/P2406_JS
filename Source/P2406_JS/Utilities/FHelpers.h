@@ -78,7 +78,6 @@
 {\
 	if(EventName.IsBound())\
 	{\
-		FLog::Log(FString::Printf(TEXT("Event Call : %s"), TEXT(#EventName)));\
 		EventName.Broadcast(InParam1, InParam2); \
 	}\
 }

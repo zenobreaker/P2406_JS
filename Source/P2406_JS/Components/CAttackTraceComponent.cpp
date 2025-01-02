@@ -61,14 +61,15 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 		Hits.AddUnique(Cast<ACharacter>(TraceHitResult.GetActor()));
 		HandleTrace(TraceHitResult.GetActor());
+
+		if (OnHandledTrace.IsBound())
+		{
+			OnHandledTrace.Broadcast(OwnerCharacter, attachment, Cast<ACharacter>(TraceHitResult.GetActor()));
+		}
 	}
 	FColor LineColor = bCheck ? FColor::Red : FColor::Blue;
 	DrawDebugLine(GetWorld(), StartVec, EndVec, LineColor, false, 1);
 }
-
-
-
-
 
 void UCAttackTraceComponent::SetTrace()
 {
@@ -104,8 +105,10 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 
 	CheckNull(Weapon->GetAttachment());
 	
+	//TODO : 이부분 델리게이션 처리해서 누구나 공용으로 쓰게 하기 
 	// 필요한 추가 처리
 	Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+
 }
 
 void UCAttackTraceComponent::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)

@@ -41,20 +41,32 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		CurrentDelay -= DeltaSeconds;
 
 	// 행동 제약 상태라면 행동을 개시하지 않는다. 
-	CheckTrue(Tick_CheckWait());
+	//CheckTrue(Tick_CheckWait());
+	ACharacter* target = nullptr;
+	target = CachedBehavior->GetTarget();
+	if (Tick_CheckGuard(target))
+	{
+
+		return; 
+	}
+	
+	bool bCanMove = true;
+	bCanMove = CachedBehavior->GetCanMove();
+	//if (bCanMove == false)
+	{
+		CachedBehavior->SetWaitMode();
+	}
+
 
 	// 타겟이 없으면 순찰
-	ACharacter* target = nullptr;
-	CheckTrue(Tick_CheckPatrol(&target));
+	//CheckTrue(Tick_CheckPatrol(&target));
+	// 가드가 가능하면 가드 하기
 
 	// 범위 내에 적이 있으면 공격
-	CheckTrue(Tick_CheckAttack(target));
-
-	// 가드가 가능하면 가드 하기
-	CheckTrue(Tick_CheckGuard(target));
+//	CheckTrue(Tick_CheckAttack(target));
 
 	// 이 외엔 추격
-	CheckTrue(Tick_CheckApproach());
+	//CheckTrue(Tick_CheckApproach(target));
 
 }
 
@@ -70,7 +82,7 @@ bool UCBTService_Melee::Tick_CheckWait() const
 	CheckNullResult(CachedBehavior, false);
 
 	bool bCanMove = true;
-	bCanMove = CachedBehavior->GetCandMove();
+	bCanMove = CachedBehavior->GetCanMove();
 	if (bCanMove == false)
 	{
 		CachedBehavior->SetWaitMode();
@@ -88,7 +100,6 @@ bool UCBTService_Melee::Tick_CheckPatrol(ACharacter** OutTarget) const
 	*OutTarget = CachedBehavior->GetTarget();
 	if (*OutTarget == nullptr)
 	{
-		//behavior->SetWaitMode();
 		CachedBehavior->SetPatrolMode();
 
 		return true;
@@ -138,29 +149,29 @@ bool UCBTService_Melee::Tick_CheckGuard(const ACharacter* InTarget) const
 	{
 		return false;
 	}
-
+	
 
 	float distance = CachedAI->GetDistanceTo(InTarget);
-
-	if (CachedState->IsIdleMode() == false)
-		return false;
-
-	// 적이 감지되고 상대가 나보다 거리가 멀면 일단 가드 올린다.
-	if (distance > ActionRange)
+	// 적이 감지되고 상대와의 거리가 일정하면 가드 올림.
+	if (distance <= ActionRange)
 	{
 		CachedBehavior->SetGuardMode();
-		CachedState->SetGuardMode();
+		//CachedState->SetGuardMode();
 
 		return true;
 	}
+
+
+	CachedBehavior->SetWaitMode();
 
 	return false;
 
 }
 
-bool UCBTService_Melee::Tick_CheckApproach() const
+bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget) const
 {
 	CheckNullResult(CachedBehavior, false);
+	CheckNullResult(InTarget, false);
 
 	CachedBehavior->SetApproachMode();
 

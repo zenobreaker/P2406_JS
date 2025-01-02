@@ -14,17 +14,17 @@ class P2406_JS_API UCStateComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE bool IsIdleMode() { return Type == EStateType::Idle; }
-	FORCEINLINE bool IsEquipMode() { return Type == EStateType::Equip; }
-	FORCEINLINE bool IsEvadeMode() { return Type == EStateType::Evade; }
-	FORCEINLINE bool IsDashMode() { return Type == EStateType::Dash; }
-	FORCEINLINE bool IsDeadMode() { return Type == EStateType::Dead; }
-	FORCEINLINE bool IsActionMode() { return Type == EStateType::Action; }
-	FORCEINLINE bool IsDamagedMode() { return Type == EStateType::Damaged; }
-	FORCEINLINE bool IsAirborneMode() { return Type == EStateType::Airborne; }
-	FORCEINLINE bool IsDownMode() { return Type == EStateType::Down; }
-	FORCEINLINE bool IsGuardMode() { return Type == EStateType::Guard; }
-	FORCEINLINE bool IsSubActionMode() { return bInSubActionMode; }
+	FORCEINLINE bool IsIdleMode() const { return Type == EStateType::Idle; }
+	FORCEINLINE bool IsEquipMode() const { return Type == EStateType::Equip; }
+	FORCEINLINE bool IsEvadeMode() const { return Type == EStateType::Evade; }
+	FORCEINLINE bool IsDashMode() const { return Type == EStateType::Dash; }
+	FORCEINLINE bool IsDeadMode() const { return Type == EStateType::Dead; }
+	FORCEINLINE bool IsActionMode() const { return Type == EStateType::Action; }
+	FORCEINLINE bool IsDamagedMode() const { return Type == EStateType::Damaged; }
+	FORCEINLINE bool IsAirborneMode() const { return Type == EStateType::Airborne; }
+	FORCEINLINE bool IsDownMode() const { return Type == EStateType::Down; }
+	FORCEINLINE bool IsGuardMode() const { return Type == EStateType::Guard; }
+	FORCEINLINE bool IsSubActionMode() const { return bInSubActionMode; }
 
 public:	
 	UCStateComponent();
@@ -51,6 +51,8 @@ public:
 
 private:
 	void ChangeType(EStateType InType);
+
+	void HandleGuardState();
 
 public:
 	FStateTypeChanged OnStateTypeChanged;

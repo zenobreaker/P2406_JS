@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "CAttackTraceComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledTrace, class ACharacter*, InAttacker,class AActor*, InAttackCauser, class ACharacter*, InOther);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCAttackTraceComponent : public UActorComponent
@@ -40,6 +41,9 @@ public:
 public:
 	UFUNCTION()
     void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
+
+public:
+    FOnHandledTrace OnHandledTrace;
 
 private:
     bool bIsAttacking = false; 

@@ -17,7 +17,7 @@ class P2406_JS_API UCAIBehaviorComponent : public UActorComponent
 
 
 public:
-	FORCEINLINE bool GetCandMove() { return bCanMove; }
+	FORCEINLINE bool GetCanMove() { return bCanMove; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")

@@ -39,6 +39,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCGuardComponent* Guard; 
 
+	UPROPERTY(VisibleAnywhere)
+	class UCAttackTraceComponent* ATrace; 
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class UWidgetComponent* LabelWidget;

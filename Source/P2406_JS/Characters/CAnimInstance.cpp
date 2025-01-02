@@ -8,6 +8,7 @@
 
 #include "Components/CConditionComponent.h"
 #include "Components/CGrapplingComponent.h"
+#include "Components/CGuardComponent.h"
 #include "Weapons/CSubAction.h"
 
 void UCAnimInstance::NativeBeginPlay()
@@ -111,10 +112,10 @@ void UCAnimInstance::OnCharacterRaised()
 void UCAnimInstance::ChangeGuardState()
 {
 	// 내가 가져올 때 인터페이스에서 가져오고 거기서 값을 그걸로 바꾼다. 
-	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter); 
-	CheckNull(guardable);
+	UCGuardComponent* guard= FHelpers::GetComponent<UCGuardComponent>(OwnerCharacter);
+	CheckNull(guard);
 
-	bGuarding = guardable->GetGuarding();
+	bGuarding = guard->GetGuarding();
 }
 
 void UCAnimInstance::ChangeFalling()
