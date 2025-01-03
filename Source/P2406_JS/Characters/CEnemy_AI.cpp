@@ -84,8 +84,14 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	if (State->IsGuardMode())
 		bBlocking = Guard->CheckBlocking(DamageData);
 
+	// 가드 됐다면 쪼금만 밀리게 
 	if (bBlocking)
+	{
+		// 이미 구현된함수 호출 
+		Launch(*DamageData.Event->HitData, true);
+
 		return Damage;
+	}
 
 	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	return Damage;
