@@ -33,7 +33,7 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void OnJustGuard(); 
+	void OnJustGuard();
 
 public:
 	void StartGuard();
@@ -43,7 +43,15 @@ public:
 	bool CheckBlocking(ACBaseCharacter::FDamageData& InDamageData);
 
 private:
+	UFUNCTION()
+	void OnHandledTrace(class ACharacter* InAttacker, class AActor* InAttackCauser, class ACharacter* InOther);
+	
+	UFUNCTION()
+	void GuardComp_OnEndTrace();
+
+private:
 	void Evaluate_JustTime();
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	bool bCanGuard = false;
@@ -61,10 +69,10 @@ private:
 	class UAnimMontage* GuardMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Parry")
-	struct FDoActionData ParryActionData; 
-	
+	struct FDoActionData ParryActionData;
+
 	UPROPERTY(EditAnywhere, Category = "Parry")
-	struct FHitData HitData; 
+	struct FHitData HitData;
 
 	//class UAnimMontage* ParryMontage;
 
@@ -76,10 +84,14 @@ public:
 
 private:
 	class ACharacter* OwnerCharacter = nullptr;
-	class UCStateComponent* State = nullptr; 
+	class UCStateComponent* State = nullptr;
+	class UCAttackTraceComponent* ATrace = nullptr;
 
+private:
 	bool bGuarding = false;
 	float GuardHP = 0.0f;
 
-	bool bJustTime = false; 
+	bool bJustTime = false;
+
+	TArray<class ACharacter*> Hits;
 };

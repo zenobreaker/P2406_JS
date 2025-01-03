@@ -443,6 +443,8 @@ void ACPlayer::Play_DamageMontage(const FHitData& hitData)
 void ACPlayer::End_Damaged()
 {
 	State->SetIdleMode();
+
+	Tags.Remove(FName("HitByWeapon"));
 }
 
 void ACPlayer::OnEvade()

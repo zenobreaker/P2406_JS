@@ -2,7 +2,11 @@
 #include "Global.h"
 
 #include "Characters/IGuardable.h"
+
 #include "Components/CStateComponent.h"
+#include "Components/CWeaponComponent.h"
+#include "Components/CAttackTraceComponent.h"
+
 
 UCGuardComponent::UCGuardComponent()
 {
@@ -18,7 +22,15 @@ void UCGuardComponent::BeginPlay()
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
 
-	State = FHelpers::GetComponent <UCStateComponent>(OwnerCharacter); 
+	State = FHelpers::GetComponent <UCStateComponent>(OwnerCharacter);
+	ATrace = FHelpers::GetComponent<UCAttackTraceComponent>(OwnerCharacter);
+
+	CheckNull(ATrace);
+
+	REGISTER_EVENT_WITH_REPLACE(ATrace, OnHandledTrace, this, UCGuardComponent::OnHandledTrace);
+
+	REGISTER_EVENT_WITH_REPLACE(ATrace, OnEndTrace, this,
+		UCGuardComponent::GuardComp_OnEndTrace);
 }
 
 
@@ -30,19 +42,20 @@ void UCGuardComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCGuardComponent::OnJustGuard()
 {
-	bJustTime = !bJustTime; 
+	bJustTime = !bJustTime;
 }
 
 void UCGuardComponent::StartGuard()
 {
 	CheckFalse(bCanGuard);
 
-	bGuarding = true; 
+	bGuarding = true;
+	bJustTime = false;
 
 	GuardHP = MaxGuardHP;
 
-	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter); 
-	CheckNull(guardable); 
+	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter);
+	CheckNull(guardable);
 
 	guardable->StartGuard();
 	OwnerCharacter->PlayAnimMontage(GuardMontage);
@@ -53,7 +66,7 @@ void UCGuardComponent::StartGuard()
 
 void UCGuardComponent::StopGuard()
 {
-	bGuarding = false; 
+	bGuarding = false;
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, false);
 
@@ -71,7 +84,7 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 	CheckNullResult(OwnerCharacter, false);
 
 	if (GuardHP <= 0.0f)
-		return false; 
+		return false;
 
 
 	FVector attackerLocation = InDamageData.Attacker->GetActorLocation();
@@ -85,18 +98,18 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 	{
 		UGameplayStatics::PlaySoundAtLocation
 		(
-			GetWorld(), 
-			GuardSound, 
+			GetWorld(),
+			GuardSound,
 			OwnerCharacter->GetActorLocation()
 		);
 
 		GuardHP += (MaxGuardHP * 0.1f) * -1.0f;
 
-		Evaluate_JustTime(); 
+		Evaluate_JustTime();
 
 
 		DYNAMIC_EVENT_CALL(OnGuardDamaged);
-		
+
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, true);
 		//if (OnUpdatedGuardVisiable.IsBound())
 		//	OnUpdatedGuardVisiable.Broadcast(true);
@@ -111,10 +124,27 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 	return false;
 }
 
+void UCGuardComponent::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+{
+	// 반격 시 충돌 처리	
+	 // 캐릭터 여부 확인
+
+	CheckNull(InAttackCauser);
+
+	HitData.SendDamage(InAttacker, InAttackCauser, InOther);
+	//// 필요한 추가 처리
+	/*Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), InOther);*/
+}
+
+void UCGuardComponent::GuardComp_OnEndTrace()
+{
+	Hits.Empty();
+}
+
 void UCGuardComponent::Evaluate_JustTime()
 {
-	if (bJustTime == false)
-		return; 
+	//if (bJustTime == false)
+	//	return; 
 
 	//OwnerCharacter->PlayAnimMontage(ParryMontage);
 	ParryActionData.DoAction(OwnerCharacter);

@@ -44,9 +44,9 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	//CheckTrue(Tick_CheckWait());
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
-	if (Tick_CheckGuard(target))
+	bool bCheck = Tick_CheckGuard(target);
+	if (bCheck)
 	{
-
 		return; 
 	}
 	
@@ -110,10 +110,21 @@ bool UCBTService_Melee::Tick_CheckPatrol(ACharacter** OutTarget) const
 
 bool UCBTService_Melee::Tick_CheckAttack(const ACharacter* InTarget)
 {
-	CheckNullResult(CachedBehavior, false);
+	if (CachedBehavior == nullptr)
+		return false; 
+
+	if (CachedState == nullptr)
+		return false;
+	if (CachedAI == nullptr)
+		return false;
+
+	if (InTarget == nullptr)
+		return false;
+
+	/*CheckNullResult(CachedBehavior, false);
 	CheckNullResult(CachedState, false);
 	CheckNullResult(CachedAI, false);
-	CheckNullResult(InTarget, false);
+	CheckNullResult(InTarget, false);*/
 
 	float distance = CachedAI->GetDistanceTo(InTarget);
 	if (distance < ActionRange && CurrentDelay <= 0.0f)

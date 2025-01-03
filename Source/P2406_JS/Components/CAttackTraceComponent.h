@@ -6,6 +6,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledTrace, class ACharacter*, InAttacker,class AActor*, InAttackCauser, class ACharacter*, InOther);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndTrace);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCAttackTraceComponent : public UActorComponent
 {
@@ -44,6 +46,7 @@ public:
 
 public:
     FOnHandledTrace OnHandledTrace;
+    FOnEndTrace OnEndTrace; 
 
 private:
     bool bIsAttacking = false; 
