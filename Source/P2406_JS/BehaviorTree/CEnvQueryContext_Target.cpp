@@ -12,7 +12,12 @@ void UCEnvQueryContext_Target::ProvideContext(FEnvQueryInstance& QueryInstance, 
 	// Owner는 QueryContext를 실행 시키는 실행자 (Enemy)
 	// 스마트 포인터이므로 Get하면 된다.
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(QueryInstance.Owner.Get());
+	CheckNull(ai);
 	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+	CheckNull(behavior);
 
-	UEnvQueryItemType_Actor::SetContextHelper(ContextData, behavior->GetTarget());
+	auto target = behavior->GetTarget();
+	CheckNull(target);
+
+	UEnvQueryItemType_Actor::SetContextHelper(ContextData, target);
 }

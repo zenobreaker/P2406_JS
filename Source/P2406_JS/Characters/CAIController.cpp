@@ -8,6 +8,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+#include "EnvironmentQuery/EnvQueryManager.h"
 
 ACAIController::ACAIController()
 {
@@ -84,3 +85,4 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 
 	Blackboard->SetValueAsObject("Target", nullptr);
 }
+

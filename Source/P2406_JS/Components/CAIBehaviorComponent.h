@@ -10,14 +10,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAIStateTypeChanged, EAIStateType, 
 
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class P2406_JS_API UCAIBehaviorComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 
 public:
-	FORCEINLINE bool GetCanMove() { return bCanMove; }
+	FORCEINLINE bool GetCanMove() const { return bCanMove; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")
@@ -47,7 +47,7 @@ public:
 	bool IsGuardMode();
 	bool IsDeadMode();
 
-public:	
+public:
 	UCAIBehaviorComponent();
 
 protected:
@@ -82,7 +82,7 @@ public:
 private:
 	void ChangeType(EAIStateType InType);
 
-public: 
+public:
 	UFUNCTION()
 	void OnStateChanged(EStateType InPrevType, EStateType InNewType);
 
@@ -91,15 +91,16 @@ public:
 
 	UFUNCTION()
 	void OnRemoveConditionType(EConditionState InType);
-	
+
+
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;
 
-	
+
 
 private:
 	class UBlackboardComponent* Blackboard;
-		
+
 private:
-	bool bCanMove = true; 
+	bool bCanMove = true;
 };

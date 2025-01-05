@@ -163,7 +163,6 @@ void UCAIBehaviorComponent::SetDeadMode()
 	ChangeType(EAIStateType::Dead);
 }
 
-
 void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 {
 	if (Blackboard == nullptr)

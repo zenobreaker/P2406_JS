@@ -11,6 +11,7 @@ class P2406_JS_API ACAIController : public AAIController
 	GENERATED_BODY()
 
 
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class UAIPerceptionComponent* Perception;

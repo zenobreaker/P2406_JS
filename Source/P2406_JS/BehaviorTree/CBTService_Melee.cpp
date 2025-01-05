@@ -42,20 +42,22 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	// 행동 제약 상태라면 행동을 개시하지 않는다. 
 	//CheckTrue(Tick_CheckWait());
-	ACharacter* target = nullptr;
+	/*ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
 	bool bCheck = Tick_CheckGuard(target);
 	if (bCheck)
 	{
 		return; 
-	}
+	}*/
 	
-	bool bCanMove = true;
-	bCanMove = CachedBehavior->GetCanMove();
-	//if (bCanMove == false)
-	{
-		CachedBehavior->SetWaitMode();
-	}
+
+	CachedBehavior->SetWaitMode();
+	//bool bCanMove = true;
+	//bCanMove = CachedBehavior->GetCanMove();
+	////if (bCanMove == false)
+	//{
+	//	CachedBehavior->SetWaitMode();
+	//}
 
 
 	// 타겟이 없으면 순찰
