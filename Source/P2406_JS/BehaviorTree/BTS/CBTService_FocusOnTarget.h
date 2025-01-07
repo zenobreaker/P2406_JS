@@ -14,6 +14,12 @@ public:
 	UCBTService_FocusOnTarget();
 
 protected:
+	void OnSearchStart(FBehaviorTreeSearchData& SearchData) override; 
+
 	void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
+private:
+	class ACAIController * CachedController = nullptr;
+	class ACEnemy_AI  * CachedAI = nullptr;
+	class UCAIBehaviorComponent* CachedBehavior = nullptr;
 };

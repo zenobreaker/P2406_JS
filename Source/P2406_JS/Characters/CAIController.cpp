@@ -67,6 +67,7 @@ void ACAIController::OnUnPossess()
 
 }
 
+
 void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
 	TArray<AActor*> actors;
@@ -85,4 +86,6 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 
 	Blackboard->SetValueAsObject("Target", nullptr);
 }
+
+
 

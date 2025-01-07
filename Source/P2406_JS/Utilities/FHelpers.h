@@ -180,4 +180,9 @@ public:
 		return nullptr;
 	}
 
+	static void AttachTo(AActor* InActor, USceneComponent* InParent, FName InSocketName, EAttachmentRule InRule = EAttachmentRule::KeepRelative)
+	{
+		InActor->AttachToComponent(InParent, FAttachmentTransformRules(InRule, true), InSocketName);
+	}
+
 };

@@ -102,5 +102,8 @@ private:
 	class UBlackboardComponent* Blackboard;
 
 private:
+	class ACEnemy_AI* CachedAI;
+
 	bool bCanMove = true;
+
 };

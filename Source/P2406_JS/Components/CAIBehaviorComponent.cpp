@@ -17,16 +17,17 @@ void UCAIBehaviorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ACEnemy_AI* ai = Cast<ACEnemy_AI>(GetOwner());
-	CheckNull(ai);
+	CachedAI = Cast<ACEnemy_AI>(GetOwner());
+	CheckNull(CachedAI);
 
-	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
+
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(CachedAI);
 	if (!!state)
 	{
 		state->OnStateTypeChanged.AddDynamic(this, &UCAIBehaviorComponent::OnStateChanged);
 	}
 
-	UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(ai);
+	UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(CachedAI);
 	if (!!condition)
 	{
 		condition->OnAddCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnAddCondiitionType);
@@ -220,5 +221,18 @@ void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 
 ACharacter* UCAIBehaviorComponent::GetTarget()
 {
-	return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));
+	uint8 myTeamID = -1;
+	if(!!CachedAI)
+		myTeamID = CachedAI->GetTeamID();
+
+	uint8 targetID = -2;
+	 auto*  targetAI = Cast<ACEnemy_AI>(Blackboard->GetValueAsObject(TargetKey));
+	 if (targetAI != nullptr)
+	 {
+		 targetID = targetAI->GetTeamID();
+	 }
+
+	 CheckTrueResult(myTeamID == targetID, nullptr); 
+
+	 return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));
 }
