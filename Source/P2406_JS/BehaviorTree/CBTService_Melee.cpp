@@ -41,35 +41,34 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		CurrentDelay -= DeltaSeconds;
 
 	// 행동 제약 상태라면 행동을 개시하지 않는다. 
-	//CheckTrue(Tick_CheckWait());
-	/*ACharacter* target = nullptr;
+	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
-	bool bCheck = Tick_CheckGuard(target);
+	/*bool bCheck = Tick_CheckGuard(target);
 	if (bCheck)
 	{
 		return; 
 	}*/
-	
-
-	CachedBehavior->SetWaitMode();
-	//bool bCanMove = true;
-	//bCanMove = CachedBehavior->GetCanMove();
-	////if (bCanMove == false)
-	//{
-	//	CachedBehavior->SetWaitMode();
-	//}
-
+	//FLog::Print("Can movable : " + FString::FromInt(CachedBehavior->GetCanMove()), 1240);
 
 	// 타겟이 없으면 순찰
 	//CheckTrue(Tick_CheckPatrol(&target));
-	// 가드가 가능하면 가드 하기
+	//if (target == nullptr)
+	//{
+	//	CachedBehavior->SetPatrolMode();
 
-	// 범위 내에 적이 있으면 공격
-//	CheckTrue(Tick_CheckAttack(target));
+	//	return;
+	//}
 
-	// 이 외엔 추격
+	//// 가드가 가능하면 가드 하기
+
+	//// 범위 내에 적이 있으면 공격
+	//CheckTrue(Tick_CheckAttack(target));
+
+	//// 이 외엔 추격
 	//CheckTrue(Tick_CheckApproach(target));
 
+	// 추격도 안되면 대기 
+	CheckTrue(Tick_CheckWait());
 }
 
 void UCBTService_Melee::RadnomActionDelay()
@@ -97,7 +96,9 @@ bool UCBTService_Melee::Tick_CheckWait() const
 
 bool UCBTService_Melee::Tick_CheckPatrol(ACharacter** OutTarget) const
 {
-	CheckNullResult(CachedBehavior, false);
+	if (CachedBehavior == nullptr)
+		return false; 
+	//CheckNullResult(CachedBehavior, false);
 
 	*OutTarget = CachedBehavior->GetTarget();
 	if (*OutTarget == nullptr)
@@ -112,21 +113,11 @@ bool UCBTService_Melee::Tick_CheckPatrol(ACharacter** OutTarget) const
 
 bool UCBTService_Melee::Tick_CheckAttack(const ACharacter* InTarget)
 {
-	if (CachedBehavior == nullptr)
-		return false; 
-
-	if (CachedState == nullptr)
-		return false;
-	if (CachedAI == nullptr)
-		return false;
-
-	if (InTarget == nullptr)
-		return false;
-
-	/*CheckNullResult(CachedBehavior, false);
+	CheckNullResult(CachedBehavior, false);
 	CheckNullResult(CachedState, false);
 	CheckNullResult(CachedAI, false);
-	CheckNullResult(InTarget, false);*/
+	CheckNullResult(InTarget, false);
+
 
 	float distance = CachedAI->GetDistanceTo(InTarget);
 	if (distance < ActionRange && CurrentDelay <= 0.0f)
@@ -186,7 +177,15 @@ bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget) const
 	CheckNullResult(CachedBehavior, false);
 	CheckNullResult(InTarget, false);
 
-	CachedBehavior->SetApproachMode();
 
-	return true;
+	// 적이 있고 공격할 수 있을 때 공격 범위 밖이면 공격하러 감
+	float distance = CachedAI->GetDistanceTo(InTarget);
+	if (CurrentDelay <= 0.0f && ActionRange > distance)
+	{
+		CachedBehavior->SetApproachMode();
+
+		return true; 
+	}
+
+	return false;
 }

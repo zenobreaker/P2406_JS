@@ -18,6 +18,9 @@ protected:
 
 	void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
+	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	virtual void OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 private:
 	class ACAIController * CachedController = nullptr;
 	class ACEnemy_AI  * CachedAI = nullptr;

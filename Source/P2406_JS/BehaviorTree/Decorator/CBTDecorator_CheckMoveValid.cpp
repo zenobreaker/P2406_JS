@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/CMovementComponent.h"
 
 UCBTDecorator_CheckMoveValid::UCBTDecorator_CheckMoveValid()
 {
@@ -67,7 +68,12 @@ bool UCBTDecorator_CheckMoveValid::CheckPathValidity(ACAIController& InControlle
 
 	if (bHit)
 	{
+		/*UCMovementComponent* move = FHelpers::GetComponent<UCMovementComponent>(ai);
 		FLog::Log("Condition = Trace hit Obstable !! "); 
+		if (move != nullptr)
+		{
+			move->EnableControlRotation();
+		}*/
 		return false; 
 	}
 

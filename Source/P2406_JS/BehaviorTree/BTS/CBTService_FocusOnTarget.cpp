@@ -5,11 +5,12 @@
 #include "Characters/CEnemy_AI.h"
 
 #include "Components/CAIBehaviorComponent.h"
+#include "Components/CMovementComponent.h"
 
 UCBTService_FocusOnTarget::UCBTService_FocusOnTarget()
 {
 	NodeName = "FoucsOnTarget";
-	Interval = 0.1f;
+	//Interval = 0.1f;
 }
 
 void UCBTService_FocusOnTarget::OnSearchStart(FBehaviorTreeSearchData& SearchData)
@@ -35,7 +36,35 @@ void UCBTService_FocusOnTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		// Å¸°Ù °Ë»ç 
 		ACharacter* target = nullptr;
 		target = CachedBehavior->GetTarget();
-		CachedController->SetFocus(target);
+		if (target != nullptr)
+		{
+			CachedController->SetFocus(target);
+		}
+	}
+}
+
+void UCBTService_FocusOnTarget::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
+
+	if (!!CachedBehavior && !!CachedController)
+	{
+		ACharacter* target = nullptr;
+		target = CachedBehavior->GetTarget();
+		if (target != nullptr)
+		{
+			CachedController->SetFocus(target);
+		}
+	}
+}
+
+void UCBTService_FocusOnTarget::OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	Super::OnCeaseRelevant(OwnerComp, NodeMemory);
+
+	if (!!CachedBehavior && !!CachedController)
+	{
+		CachedController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
 }
 
