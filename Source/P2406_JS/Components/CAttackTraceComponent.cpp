@@ -4,11 +4,13 @@
 
 #include "Weapons/CAttachment.h"
 
+#include "GenericTeamAgentInterface.h"
+
 UCAttackTraceComponent::UCAttackTraceComponent()
 {
 
 	PrimaryComponentTick.bCanEverTick = true;
-	
+
 }
 
 
@@ -40,21 +42,21 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FHitResult TraceHitResult;
 	FCollisionQueryParams QueryParams;
 
-	QueryParams.AddIgnoredActor(OwnerCharacter); 
+	QueryParams.AddIgnoredActor(OwnerCharacter);
 	QueryParams.AddIgnoredActor(attachment);
-	
+
 	// 메시 갖고옴 
 	USkeletalMeshComponent* mesh = FHelpers::GetComponent<USkeletalMeshComponent>(Weapon->GetAttachment());
 	CheckNull(mesh);
-	
+
 	// 위치 갱신 
 	FVector newVec = mesh->GetSocketLocation(attachment->GetTraceGoalName());
 	EndVec = newVec;
 	StartVec = OwnerCharacter->GetActorLocation();
 
 	bool bCheck = GetWorld()->LineTraceSingleByChannel(TraceHitResult, StartVec, EndVec, ECC_Pawn, QueryParams);
-	
-	if(bCheck)
+
+	if (bCheck)
 	{
 		for (ACharacter* hit : Hits)
 			CheckTrue(hit == TraceHitResult.GetActor());
@@ -62,7 +64,7 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		Hits.AddUnique(Cast<ACharacter>(TraceHitResult.GetActor()));
 		HandleTrace(TraceHitResult.GetActor());
 
-	
+
 	}
 	FColor LineColor = bCheck ? FColor::Red : FColor::Blue;
 	DrawDebugLine(GetWorld(), StartVec, EndVec, LineColor, false, 1);
@@ -73,16 +75,16 @@ void UCAttackTraceComponent::SetTrace()
 	//StartVec = InStart;
 	//EndVec = InEnd; 
 
-	bIsAttacking = true; 
+	bIsAttacking = true;
 }
 
 void UCAttackTraceComponent::SetEndTrace()
 {
-	 bIsAttacking = false; 
+	bIsAttacking = false;
 
-	 Hits.Empty();
+	Hits.Empty();
 
-	 DYNAMIC_EVENT_CALL(OnEndTrace); 
+	DYNAMIC_EVENT_CALL(OnEndTrace);
 }
 
 void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
@@ -93,6 +95,11 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	 // 캐릭터 여부 확인
 	ACharacter* hitCharacter = Cast<ACharacter>(InHitActor);
 	CheckNull(hitCharacter);
+
+	// 아군 검사 
+	bool bFriend = GetMyTeam(InHitActor);
+	if (bFriend)
+		return; 
 
 	// 이미 무기로 충돌 처리된 경우 무시
 	if (hitCharacter->Tags.Contains(FName("HitByWeapon")))
@@ -107,7 +114,7 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	{
 		OnHandledTrace.Broadcast(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
 	}
-	
+
 	// 필요한 추가 처리
 	Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
 }
@@ -115,6 +122,21 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 void UCAttackTraceComponent::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
 {
 	SetEndTrace();
+}
+
+bool UCAttackTraceComponent::GetMyTeam(AActor* InHitTarget)
+{
+	// Team id 가져와서 자기랑 같으면 넘김 
+	IGenericTeamAgentInterface* agent = Cast<IGenericTeamAgentInterface>(OwnerCharacter);
+	CheckNullResult(agent, false);
+
+	ETeamAttitude::Type type = agent->GetTeamAttitudeTowards(*InHitTarget);
+
+	if (type == ETeamAttitude::Friendly)
+		return true;
+
+
+	return false;
 }
 
 

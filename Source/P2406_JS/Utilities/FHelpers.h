@@ -82,6 +82,16 @@
 	}\
 }
 
+#define DYNAMIC_EVENT_CALL_THREE_PARAM(EventName, InParam1, InParam2, InParam3)\
+{\
+	if(EventName.IsBound())\
+	{\
+		EventName.Broadcast(InParam1, InParam2, InParam3); \
+	}\
+}
+
+
+
 class P2406_JS_API FHelpers
 {
 public:

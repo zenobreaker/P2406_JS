@@ -174,6 +174,9 @@ public:
 	virtual void OnDownConditionActivated() override;
 	virtual void OnDownConditionDeactivated() override;
 
+public:
+	FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
+
 private:
 	class UCUserWidget_Player* UserInterface;
 	class UCUserWidget_SkillHUD* SkillHUD;

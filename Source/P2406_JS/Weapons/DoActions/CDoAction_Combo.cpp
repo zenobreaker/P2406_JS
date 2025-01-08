@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/CStateComponent.h"
 
+#include "GenericTeamAgentInterface.h"
+
 void UCDoAction_Combo::DoAction()
 {
 	CheckTrue(DoActionDatas.Num() < 1);
@@ -84,6 +86,16 @@ void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 	CheckNull(InOther);
+
+	// Team id 가져와서 자기랑 같으면 넘김 
+	IGenericTeamAgentInterface* agent = Cast<IGenericTeamAgentInterface>(InAttacker);
+	CheckNull(agent);
+
+	ETeamAttitude::Type type = agent->GetTeamAttitudeTowards(*InOther);
+
+	if (type == ETeamAttitude::Friendly)
+		return;
+
 
 	for (ACharacter* hitted : Hitted)
 		CheckTrue(hitted == InOther);

@@ -44,6 +44,9 @@ public:
 	UFUNCTION()
     void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
 
+private:
+    bool GetMyTeam(class AActor* InHitTarget);
+
 public:
     FOnHandledTrace OnHandledTrace;
     FOnEndTrace OnEndTrace; 

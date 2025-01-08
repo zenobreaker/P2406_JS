@@ -14,9 +14,6 @@ class P2406_JS_API ACEnemy_AI
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Team")
-	uint8 TeamID = 2;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Team")
 	class UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(EditAnywhere, Category = "Patrol")
