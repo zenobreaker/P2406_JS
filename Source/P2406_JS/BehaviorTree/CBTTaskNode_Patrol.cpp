@@ -52,7 +52,7 @@ EBTNodeResult::Type UCBTTaskNode_Patrol::ExecuteTask(UBehaviorTreeComponent& Own
 	}
 
 	// 지정된 위치로 위치값 세팅
-	behavior->SetPatrolLocation(location);
+	behavior->SetPatrolLocation(point.Location);
 
 	if (bDebugMode)
 		DrawDebugSphere(ai->GetWorld(), point.Location, 10, 10, FColor::Green, false, 5);

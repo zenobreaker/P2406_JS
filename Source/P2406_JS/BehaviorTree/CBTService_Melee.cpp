@@ -43,32 +43,24 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 행동 제약 상태라면 행동을 개시하지 않는다. 
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
-	/*bool bCheck = Tick_CheckGuard(target);
-	if (bCheck)
-	{
-		return; 
-	}*/
-	//FLog::Print("Can movable : " + FString::FromInt(CachedBehavior->GetCanMove()), 1240);
 
 	// 타겟이 없으면 순찰
-	//CheckTrue(Tick_CheckPatrol(&target));
-	//if (target == nullptr)
-	//{
-	//	CachedBehavior->SetPatrolMode();
+	bool bPatrol = Tick_CheckPatrol(target);
+	CheckTrue(bPatrol);
 
-	//	return;
-	//}
+	//TODO: 가드가 가능하면 가드 하기
 
-	//// 가드가 가능하면 가드 하기
+	// 범위 내에 적이 있으면 공격
+	bool bAttack = Tick_CheckAttack(target);
+	CheckTrue(bAttack);
 
-	//// 범위 내에 적이 있으면 공격
-	//CheckTrue(Tick_CheckAttack(target));
-
-	//// 이 외엔 추격
-	//CheckTrue(Tick_CheckApproach(target));
+	// 적이 있고 공격할 수 있을 때 공격 범위 밖이면 공격하러 감
+	bool bApproach = Tick_CheckApproach(target);
+	CheckTrue(bApproach);
 
 	// 추격도 안되면 대기 
-	CheckTrue(Tick_CheckWait());
+	bool bWait = Tick_CheckWait();
+	CheckTrue(bWait);
 }
 
 void UCBTService_Melee::RadnomActionDelay()
@@ -94,14 +86,11 @@ bool UCBTService_Melee::Tick_CheckWait() const
 	return false;
 }
 
-bool UCBTService_Melee::Tick_CheckPatrol(ACharacter** OutTarget) const
+bool UCBTService_Melee::Tick_CheckPatrol(const ACharacter* InTarget)
 {
-	if (CachedBehavior == nullptr)
-		return false; 
-	//CheckNullResult(CachedBehavior, false);
-
-	*OutTarget = CachedBehavior->GetTarget();
-	if (*OutTarget == nullptr)
+	CheckNullResult(CachedBehavior, false); 
+	
+	if (InTarget == nullptr)
 	{
 		CachedBehavior->SetPatrolMode();
 
@@ -172,7 +161,7 @@ bool UCBTService_Melee::Tick_CheckGuard(const ACharacter* InTarget) const
 
 }
 
-bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget) const
+bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
 {
 	CheckNullResult(CachedBehavior, false);
 	CheckNullResult(InTarget, false);
@@ -180,7 +169,7 @@ bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget) const
 
 	// 적이 있고 공격할 수 있을 때 공격 범위 밖이면 공격하러 감
 	float distance = CachedAI->GetDistanceTo(InTarget);
-	if (CurrentDelay <= 0.0f && ActionRange > distance)
+	if (CurrentDelay <= 0.0f && distance > ActionRange)
 	{
 		CachedBehavior->SetApproachMode();
 
