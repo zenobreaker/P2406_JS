@@ -38,7 +38,10 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	// 공격 딜레이 타이머 
 	if (CurrentDelay > 0.0f)
+	{
 		CurrentDelay -= DeltaSeconds;
+		FLog::Print("Current Delay " + FString::SanitizeFloat (CurrentDelay), 1992);
+	}
 
 	// 행동 제약 상태라면 행동을 개시하지 않는다. 
 	ACharacter* target = nullptr;

@@ -4,6 +4,7 @@
 #include "Characters/CAIController.h"
 #include "Components/CStateComponent.h"
 #include "Components/CWeaponComponent.h"
+#include "Components/CAIBehaviorComponent.h"
 #include "Weapons/CDoAction.h"
 
 UCBTTaskNode_Action::UCBTTaskNode_Action()
@@ -45,8 +46,17 @@ void UCBTTaskNode_Action::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 	bCheck &= (state->IsIdleMode());
 	bCheck &= (weapon->GetDoAction()->GetInAction() == false);
 
+	// 여기가 액션 완료 
 	if (bCheck)
+	{
+		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+		if (!!behavior)
+		{
+			behavior->SetWaitMode();
+		}
+
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	}
 }
 
 EBTNodeResult::Type UCBTTaskNode_Action::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
