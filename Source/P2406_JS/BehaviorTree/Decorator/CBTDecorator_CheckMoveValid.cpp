@@ -43,7 +43,7 @@ bool UCBTDecorator_CheckMoveValid::CheckPathValidity(ACAIController& InControlle
 	QueryParams.AddIgnoredActor(ai); // 자기 자신은 무시
 
 	FHitResult HitResult;
-	bool bHit = GetWorld()->SweepSingleByChannel(
+	bool bHit = ai->GetWorld()->SweepSingleByChannel(
 		HitResult,                // 충돌 결과
 		start,                    // 시작 지점
 		InLocation,                      // 끝 지점
@@ -55,7 +55,7 @@ bool UCBTDecorator_CheckMoveValid::CheckPathValidity(ACAIController& InControlle
 	);
 
 	DrawDebugLine(
-		GetWorld(),
+		ai->GetWorld(),
 		start,
 		InLocation,
 		FColor::Green,    // 적중 여부에 따라 색상 변경
