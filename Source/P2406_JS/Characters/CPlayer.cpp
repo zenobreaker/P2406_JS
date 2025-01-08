@@ -126,9 +126,17 @@ void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	APlayerCameraManager* camearManager= GetController<APlayerController>()->PlayerCameraManager;
+
+	camearManager->ViewPitchMin = PitchAngle.X;
+	camearManager->ViewPitchMax = PitchAngle.Y;
+
+
+
 	Movement->OnRun();
 	Movement->DisableControlRotation();
 	
+
 	ensure(Weapon != nullptr);  // Weapon이 nullptr이라면 경고 출력
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
 

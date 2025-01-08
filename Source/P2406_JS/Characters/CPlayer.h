@@ -43,6 +43,10 @@ private:
 
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	FVector2D PitchAngle = FVector2D(-40, +40);
+
+private:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArm;
 

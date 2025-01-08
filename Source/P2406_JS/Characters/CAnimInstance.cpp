@@ -45,7 +45,7 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CheckNull(OwnerCharacter);
 
 	Speed = OwnerCharacter->GetVelocity().Size2D();
-
+	// Áü¹ú¶ô ¹æÁö 
 	FRotator rotator = OwnerCharacter->GetVelocity().ToOrientationRotator();
 	FRotator rotator2 = OwnerCharacter->GetControlRotation();
 	FRotator delta = UKismetMathLibrary::NormalizedDeltaRotator(rotator, rotator2);
