@@ -32,6 +32,8 @@ private:
 	bool Tick_CheckAttack(const ACharacter* InTarget);
 	bool Tick_CheckGuard(const ACharacter* InTarget) const;
 	bool Tick_CheckApproach(const ACharacter* InTarget);
+
+
 private:
 	float CurrentDelay;
 

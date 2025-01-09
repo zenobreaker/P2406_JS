@@ -20,6 +20,7 @@ void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkill
 	FLog::Print("Dragon Fall Begin Play!!!!!" + OwnerCharacter->GetName()); 
 
 
+
 	// ÄÄÆ÷³ÍÆ®
 	{
 		SpringArm = FHelpers::GetComponent<USpringArmComponent>(InOwner);

@@ -8,11 +8,8 @@
 
 UCAttackTraceComponent::UCAttackTraceComponent()
 {
-
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
-
 
 void UCAttackTraceComponent::BeginPlay()
 {
@@ -24,7 +21,6 @@ void UCAttackTraceComponent::BeginPlay()
 		Weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
 
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, UCAttackTraceComponent::OnWeaponTypeChanged);
-
 }
 
 void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

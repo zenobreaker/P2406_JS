@@ -48,8 +48,13 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	target = CachedBehavior->GetTarget();
 
 	// 타겟이 없으면 순찰
-	bool bPatrol = Tick_CheckPatrol(target);
-	CheckTrue(bPatrol);
+	/*bool bPatrol = Tick_CheckPatrol(target);
+	CheckTrue(bPatrol);*/
+	if (target == nullptr)
+	{
+		CachedBehavior->SetPatrolMode();
+		return; 
+	}
 
 	//TODO: 가드가 가능하면 가드 하기
 
@@ -64,6 +69,17 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 추격도 안되면 대기 
 	bool bWait = Tick_CheckWait();
 	CheckTrue(bWait);
+
+	//{
+	//	FVector AIPosition = GetActorLocation();
+	//	FVector TargetPosition = Target->GetActorLocation();
+	//	float Distance = FVector::Dist(AIPosition, TargetPosition);
+
+	//	FLog::Print("AI Position: " + AIPosition.ToString(), 1992);
+	//	FLog::Print("Target Position: " + TargetPosition.ToString(), 1992);
+	//	FLog::Print("Calculated Distance: " + FString::SanitizeFloat(Distance), 1992);
+	//	FLog::Print("Max Distance: " + FString::FromInt(MaxDistance), 1992);
+	//}
 }
 
 void UCBTService_Melee::RadnomActionDelay()
