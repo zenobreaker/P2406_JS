@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 
+#include "Curves/CurveVector.h"
+
 UCSwordSkill_DragonFall::UCSwordSkill_DragonFall()
 {
 	FHelpers::GetAsset<UCurveVector>(&Curve,
