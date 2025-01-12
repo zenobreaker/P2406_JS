@@ -127,6 +127,7 @@ bool UCBTService_Melee::Tick_CheckAttack(const ACharacter* InTarget)
 	CheckNullResult(InTarget, false);
 
 
+
 	float distance = CachedAI->GetDistanceTo(InTarget);
 	if (distance < ActionRange && CurrentDelay <= 0.0f)
 	{
@@ -173,11 +174,7 @@ bool UCBTService_Melee::Tick_CheckGuard(const ACharacter* InTarget) const
 		return true;
 	}
 
-
-	CachedBehavior->SetWaitMode();
-
 	return false;
-
 }
 
 bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
@@ -190,6 +187,11 @@ bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
 	float distance = CachedAI->GetDistanceTo(InTarget);
 	if (CurrentDelay <= 0.0f && distance > ActionRange)
 	{
+		if (CachedState->IsIdleMode() == false)
+		{
+			return false;
+		}
+
 		CachedBehavior->SetApproachMode();
 
 		return true; 

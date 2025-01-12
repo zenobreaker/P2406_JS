@@ -18,6 +18,9 @@ class P2406_JS_API UCWeaponComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Type")
+	EWeaponType InitType = EWeaponType::Max;
+
 	UPROPERTY(EditAnywhere, Category = "DataAsset")
 	class UCWeaponAsset* DataAssets[(int32)EWeaponType::Max];
 
@@ -54,6 +57,12 @@ public:
 	void SetBowMode();
 
 public:
+	void InitEquip();
+
+	void BeginEquip();
+	void EndEquip();
+
+public:
 	void DoAction();
 
 	void ExecuteSkill(const int32 InIndex); 
@@ -79,7 +88,6 @@ public:
 
 private:
 	EWeaponType Type = EWeaponType::Max;
-
 
 private:
 	class ACharacter* OwnerCharacter;

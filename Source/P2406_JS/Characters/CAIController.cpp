@@ -83,7 +83,7 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 
 		return;
 	}
-
+	SetFocus(nullptr);
 	Blackboard->SetValueAsObject("Target", nullptr);
 }
 

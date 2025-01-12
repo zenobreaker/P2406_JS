@@ -82,7 +82,10 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	bool bBlocking = false;
 	if (State->IsGuardMode())
+	{
+		CheckNullResult(Guard, Damage);
 		bBlocking = Guard->CheckBlocking(DamageData);
+	}
 
 	// 가드 됐다면 쪼금만 밀리게 
 	if (bBlocking)
@@ -106,24 +109,6 @@ void ACEnemy_AI::OnHealthPointChanged(float InHealth, float InMaxHealth)
 void ACEnemy_AI::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	Super::OnStateTypeChanged(InPrevType, InNewType);
-
-	switch (InNewType)
-	{
-		case EStateType::Guard:
-		// 이전에 가드였다면 굳이 할 이유는 없겠지?
-		if (InPrevType != InNewType)
-		{
-			StartGuard();
-		}
-		break;
-
-		case EStateType::Damaged:
-		{
-			StopGuard();
-		}
-		break;
-	}
-
 
 	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	enemyLabel->UpdateStateName(StaticEnum<EStateType>()->GetNameStringByValue((int64)InNewType));

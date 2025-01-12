@@ -71,7 +71,7 @@ EBTNodeResult::Type UCBTTaskNode_Guard::AbortTask(UBehaviorTreeComponent& OwnerC
 	UCGuardComponent* guard = FHelpers::GetComponent<UCGuardComponent>(ai);
 	CheckNullResult(guard, EBTNodeResult::Failed);
 
-	guard->StopGuard();
+	//guard->StopGuard();
 
 	return EBTNodeResult::Succeeded;
 }

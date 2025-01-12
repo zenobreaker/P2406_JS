@@ -31,6 +31,9 @@ void UCWeaponComponent::BeginPlay()
 	}
 	// 주인한테 있는 컴포넌트 가져옴
 	SkillComp = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+
+	// begin 처리가 다 되면 호출
+	InitEquip();
 }
 
 
@@ -92,6 +95,8 @@ UCWeaponData* UCWeaponComponent::GetCurrentWeaponData()
 
 void UCWeaponComponent::SetUnarmedMode()
 {
+	CheckNull(GetEquipment());
+
 	GetEquipment()->Unequip();
 
 	ChangeType(EWeaponType::Max);
@@ -132,6 +137,20 @@ void UCWeaponComponent::SetBowMode()
 
 	SetMode(EWeaponType::Bow);
 }
+
+void UCWeaponComponent::InitEquip()
+{
+	SetMode(InitType);
+}
+
+//void UCWeaponComponent::BeginEquip()
+//{
+//
+//}
+//
+//void UCWeaponComponent::EndEquip()
+//{
+//}
 
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {

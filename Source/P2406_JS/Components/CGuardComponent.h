@@ -42,25 +42,41 @@ public:
 
 	bool CheckBlocking(ACBaseCharacter::FDamageData& InDamageData);
 
+	void CalcGuardHP(const float InDeltaTime = 0.0f);
+
+	void CalcGuardCooldown(const float InDeltaTime);
+
+	void StartCounterGuard();
+
+	void StopCounterGuard();
+
+	void DebugLine(FVector InAttack, FVector InForward);
+
 private:
 	UFUNCTION()
 	void OnHandledTrace(class ACharacter* InAttacker, class AActor* InAttackCauser, class ACharacter* InOther);
-	
+
 	UFUNCTION()
 	void GuardComp_OnEndTrace();
+
+	UFUNCTION()
+	void OnStateTypeChanged(EStateType InPrevType, EStateType  InNewType);
 
 private:
 	void Evaluate_JustTime();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Guard")
-	bool bCanGuard = false;
+	bool bCanGuard = true;
 
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	float GuardAngle = 60.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Guard")
-	float MaxGuardHP = 100.0f;
+	float MaxGuardHP = 10.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	float MaxGuardCooldown = 10.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Guard")
 	class USoundWave* GuardSound = nullptr;
@@ -75,6 +91,16 @@ private:
 	struct FHitData HitData;
 
 	//class UAnimMontage* ParryMontage;
+private:
+	UPROPERTY(EditAnywhere, Category = "Counter")
+	float MaxCounterTime = 5.0f; 
+
+	UPROPERTY(EditAnywhere, Category = "Counter")
+	float MaxCounterRecoveryTime = 7.0f; 
+
+
+	UPROPERTY(EditAnywhere, Category = "Counter")
+	class UAnimMontage* CounterWaitMontage; 
 
 public:
 	FOnGuardDamaged OnGuardDamaged;
@@ -89,7 +115,12 @@ private:
 
 private:
 	bool bGuarding = false;
+	bool bCountering = false;
+
 	float GuardHP = 0.0f;
+	float GuardCooldown = 0.0f; 
+	float CounterTime = 0.0f; 
+	float CounterRecoveryTime = 0.0f;
 
 	bool bJustTime = false;
 
