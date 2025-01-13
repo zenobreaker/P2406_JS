@@ -74,6 +74,10 @@ void UCBTService_Guard::OnGuardState()
 	//FLog::Log("On Guard State Gaurding " + FString::FromInt(bCheck));
 	if (bCheck)
 		CachedBehavior->SetGuardMode();
-	else 
-		CachedBehavior->SetWaitMode();
+	else
+	{
+		// 이전에 선택된 모드가 가드 모드라면 wait로 
+		if (CachedBehavior->IsGuardMode())
+			CachedBehavior->SetWaitMode();
+	}
 }

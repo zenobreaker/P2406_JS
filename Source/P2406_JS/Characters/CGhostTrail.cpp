@@ -79,7 +79,7 @@ void ACGhostTrail::SetSubMeshes(USkeletalMeshComponent* InParentMesh)
 			{
 				pose->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 				pose->RegisterComponent();
-
+				
 				pose->SetVisibility(false);
 				pose->SetSkeletalMesh(childMesh->GetSkeletalMeshAsset());
 				// 자식의 포즈는 부모에서 처리

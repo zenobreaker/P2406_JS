@@ -36,7 +36,7 @@ void UCBTService_Range::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	if (state->IsDamagedMode())
 	{
-		behavior->SetHittedMode();
+		behavior->SetDamageMode();
 
 		return;
 	}

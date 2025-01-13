@@ -84,9 +84,9 @@ bool UCAIBehaviorComponent::IsPatrolMode()
 	return GetType() == EAIStateType::Patrol;
 }
 
-bool UCAIBehaviorComponent::IsHittedMode()
+bool UCAIBehaviorComponent::IsDamageMode()
 {
-	return GetType() == EAIStateType::Hitted;
+	return GetType() == EAIStateType::Damage;
 }
 
 bool UCAIBehaviorComponent::IsAvoidMode()
@@ -134,9 +134,9 @@ void UCAIBehaviorComponent::SetPatrolMode()
 	ChangeType(EAIStateType::Patrol);
 }
 
-void UCAIBehaviorComponent::SetHittedMode()
+void UCAIBehaviorComponent::SetDamageMode()
 {
-	ChangeType(EAIStateType::Hitted);
+	ChangeType(EAIStateType::Damage);
 }
 
 void UCAIBehaviorComponent::SetAvoidMode()
@@ -164,10 +164,38 @@ void UCAIBehaviorComponent::SetDeadMode()
 	ChangeType(EAIStateType::Dead);
 }
 
+
+
+FString UCAIBehaviorComponent::EnumToString(EAIStateType InType)
+{
+	static const TMap<EAIStateType, FString> EnumToStringMap =
+	{
+		{EAIStateType::Wait, TEXT("Wait")},
+		{EAIStateType::Approach, TEXT("Approach")},
+		{EAIStateType::Patrol, TEXT("Approach")},
+		{EAIStateType::Action, TEXT("Action")},
+		{EAIStateType::Dead, TEXT("Dead")},
+		{EAIStateType::Guard, TEXT("Guard")},
+		{EAIStateType::Max, TEXT("Max")}
+	};
+
+	if (const FString* Result = EnumToStringMap.Find(InType))
+	{
+		return *Result;
+	}
+
+	return TEXT("Unknown");
+}
+
+
 void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 {
 	if (Blackboard == nullptr)
-		return; 
+		return;
+
+
+	FString curType = StaticEnum<EAIStateType>()->GetNameStringByValue((int64)InType);
+	FLog::Log(GetOwner()->GetName() + " " + curType);
 
 	EAIStateType prevType = GetType();
 
@@ -222,17 +250,17 @@ void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 ACharacter* UCAIBehaviorComponent::GetTarget()
 {
 	uint8 myTeamID = -1;
-	if(!!CachedAI)
+	if (!!CachedAI)
 		myTeamID = CachedAI->GetTeamID();
 
 	uint8 targetID = -2;
-	 auto*  targetAI = Cast<ACEnemy_AI>(Blackboard->GetValueAsObject(TargetKey));
-	 if (targetAI != nullptr)
-	 {
-		 targetID = targetAI->GetTeamID();
-	 }
+	auto* targetAI = Cast<ACEnemy_AI>(Blackboard->GetValueAsObject(TargetKey));
+	if (targetAI != nullptr)
+	{
+		targetID = targetAI->GetTeamID();
+	}
 
-	 CheckTrueResult(myTeamID == targetID, nullptr); 
+	CheckTrueResult(myTeamID == targetID, nullptr);
 
-	 return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));
+	return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));
 }

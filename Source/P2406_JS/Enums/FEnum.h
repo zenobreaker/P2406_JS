@@ -36,7 +36,7 @@ enum class EAIStateType : uint8
 	Approach,
 	Action, 
 	Patrol, 
-	Hitted, 
+	Damage, 
 	Avoid, 
 	Airborne, 
 	Down, 

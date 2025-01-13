@@ -160,7 +160,7 @@ void ACEnemy_AI::Damaged()
 	Super::Damaged();
 	CheckTrue(State->IsDeadMode());
 
-	Behavior->SetHittedMode();
+	Behavior->SetDamageMode();
 }
 
 void ACEnemy_AI::End_Damaged()

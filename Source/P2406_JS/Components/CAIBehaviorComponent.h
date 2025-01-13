@@ -40,7 +40,7 @@ public:
 	bool IsApproachMode();
 	bool IsActionMode();
 	bool IsPatrolMode();
-	bool IsHittedMode();
+	bool IsDamageMode();
 	bool IsAvoidMode();
 	bool IsAirborneMode();
 	bool IsDownMode();
@@ -72,7 +72,7 @@ public:
 	void SetApproachMode();
 	void SetActionMode();
 	void SetPatrolMode();
-	void SetHittedMode();
+	void SetDamageMode();
 	void SetAvoidMode();
 	void SetAriborneMode();
 	void SetDownMode();
@@ -80,6 +80,8 @@ public:
 	void SetDeadMode();
 
 private:
+	FString EnumToString(EAIStateType InType);
+
 	void ChangeType(EAIStateType InType);
 
 public:
