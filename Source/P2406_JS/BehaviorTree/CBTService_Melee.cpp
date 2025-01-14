@@ -20,10 +20,10 @@ void UCBTService_Melee::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 {
 	Super::OnSearchStart(SearchData);
 
-	ACAIController* controller = Cast<ACAIController>(SearchData.OwnerComp.GetOwner());
-	if (!!controller)
+	CachedController = Cast<ACAIController>(SearchData.OwnerComp.GetOwner());
+	if (!!CachedController)
 	{
-		CachedAI = Cast<ACEnemy_AI>(controller->GetPawn());
+		CachedAI = Cast<ACEnemy_AI>(CachedController->GetPawn());
 
 		CachedBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(CachedAI);
 		CachedState = FHelpers::GetComponent<UCStateComponent>(CachedAI);
@@ -47,16 +47,24 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
 
-	// 타겟이 없으면 순찰
-	/*bool bPatrol = Tick_CheckPatrol(target);
-	CheckTrue(bPatrol);*/
-	if (target == nullptr)
+	
+	// 내가 움직일 수 있는 상태인지 
+	bool bCanMove = CachedBehavior->GetCanMove();
+	if (bCanMove == false)
 	{
-		CachedBehavior->SetPatrolMode();
-		return; 
+		//TODO: 음 로직이 뭔가 맘에 안드는데 
+		bool bWait = Tick_CheckWait();
+
+		SetFocus(nullptr);
+
+		CheckTrue(bWait);
 	}
 
-	//TODO: 가드가 가능하면 가드 하기
+	SetFocus(target);
+
+	// 타겟이 없으면 순찰
+	bool bPatrol = Tick_CheckPatrol(target);
+	CheckTrue(bPatrol);
 
 	// 범위 내에 적이 있으면 공격
 	bool bAttack = Tick_CheckAttack(target);
@@ -65,6 +73,12 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 적이 있고 공격할 수 있을 때 공격 범위 밖이면 공격하러 감
 	bool bApproach = Tick_CheckApproach(target);
 	CheckTrue(bApproach);
+
+
+	// 적이 있고 위에 조건들이 통합되지 않으면 회피(배회)
+	bool bAvoid = Tick_CheckAvoid(target); 
+	CheckTrue(bAvoid);
+
 
 	// 추격도 안되면 대기 
 	bool bWait = Tick_CheckWait();
@@ -103,6 +117,18 @@ bool UCBTService_Melee::Tick_CheckWait() const
 	}
 
 	return false;
+}
+
+bool UCBTService_Melee::Tick_CheckAvoid(const ACharacter* InTarget) const
+{
+	CheckNullResult(CachedBehavior, false);
+	CheckFalseResult(InTarget != nullptr, false); 
+	
+
+	CachedBehavior->SetAvoidMode();
+
+
+	return true;
 }
 
 bool UCBTService_Melee::Tick_CheckPatrol(const ACharacter* InTarget)
@@ -144,39 +170,7 @@ bool UCBTService_Melee::Tick_CheckAttack(const ACharacter* InTarget)
 
 	return false;
 }
-
-bool UCBTService_Melee::Tick_CheckGuard(const ACharacter* InTarget) const
-{
-	CheckNullResult(CachedBehavior, false);
-	CheckNullResult(CachedState, false);
-	CheckNullResult(CachedAI, false);
-	CheckNullResult(InTarget, false);
-
-	bool bGuardale = false;
-	if (CachedGuardable)
-	{
-		bGuardale = true;
-	}
-
-	if (bGuardale == false)
-	{
-		return false;
-	}
-	
-
-	float distance = CachedAI->GetDistanceTo(InTarget);
-	// 적이 감지되고 상대와의 거리가 일정하면 가드 올림.
-	if (distance <= ActionRange)
-	{
-		CachedBehavior->SetGuardMode();
-		//CachedState->SetGuardMode();
-
-		return true;
-	}
-
-	return false;
-}
-
+//
 bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
 {
 	CheckNullResult(CachedBehavior, false);
@@ -199,3 +193,51 @@ bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
 
 	return false;
 }
+
+void UCBTService_Melee::SetFocus(ACharacter* InTarget)
+{
+	CheckNull(CachedController); 
+
+	if (InTarget == nullptr)
+	{
+		CachedController->ClearFocus(EAIFocusPriority::Gameplay);
+
+		return; 
+	}
+
+	CachedController->SetFocus(InTarget); 
+}
+
+
+
+//bool UCBTService_Melee::Tick_CheckGuard(const ACharacter* InTarget) const
+//{
+//	CheckNullResult(CachedBehavior, false);
+//	CheckNullResult(CachedState, false);
+//	CheckNullResult(CachedAI, false);
+//	CheckNullResult(InTarget, false);
+//
+//	bool bGuardale = false;
+//	if (CachedGuardable)
+//	{
+//		bGuardale = true;
+//	}
+//
+//	if (bGuardale == false)
+//	{
+//		return false;
+//	}
+//	
+//
+//	float distance = CachedAI->GetDistanceTo(InTarget);
+//	// 적이 감지되고 상대와의 거리가 일정하면 가드 올림.
+//	if (distance <= ActionRange)
+//	{
+//		CachedBehavior->SetGuardMode();
+//		//CachedState->SetGuardMode();
+//
+//		return true;
+//	}
+//
+//	return false;
+//}

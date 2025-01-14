@@ -74,7 +74,7 @@ void UCAirborneComponent::BeginPlay()
 //	OwnerCharacter->LaunchCharacter(LaunchVelocity, false, true); // 캐릭터를 위로 발사 시킴
 //}
 
-float UCAirborneComponent::GetAddedAirValue(float LaunchPower, AActor* InCauser)
+float UCAirborneComponent::Calc_AirborenValue(float LaunchPower, AActor* InCauser)
 {
 	float finalLaunchPower = 0.0f;
 	if (bIsAirborne == false && LaunchPower > 0.0f)

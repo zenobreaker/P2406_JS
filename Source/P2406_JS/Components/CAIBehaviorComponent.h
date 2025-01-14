@@ -19,6 +19,8 @@ class P2406_JS_API UCAIBehaviorComponent : public UActorComponent
 public:
 	FORCEINLINE bool GetCanMove() const { return bCanMove; }
 
+	FORCEINLINE void SetBlackboard(class UBlackboardComponent* InBlackboard) { Blackboard = InBlackboard; }
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName AIStateTypeKey = "AIState";
@@ -53,9 +55,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-
-public:
-	FORCEINLINE void SetBlackboard(class UBlackboardComponent* InBlackboard) { Blackboard = InBlackboard; }
 
 
 public:

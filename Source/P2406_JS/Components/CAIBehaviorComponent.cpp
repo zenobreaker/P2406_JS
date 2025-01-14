@@ -195,7 +195,7 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 
 
 	FString curType = StaticEnum<EAIStateType>()->GetNameStringByValue((int64)InType);
-	FLog::Log(GetOwner()->GetName() + " " + curType);
+	//FLog::Log(GetOwner()->GetName() + " " + curType);
 
 	EAIStateType prevType = GetType();
 
@@ -226,6 +226,8 @@ void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InN
 
 void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 {
+	FLog::Log("OnAddCondiitionType Call");
+
 	switch (InType)
 	{
 		case EConditionState::CONDITION_DOWNED:
@@ -237,6 +239,8 @@ void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 
 void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 {
+	FLog::Log("OnAddCondiitionType Call");
+
 	switch (InType)
 	{
 		case EConditionState::CONDITION_DOWNED:

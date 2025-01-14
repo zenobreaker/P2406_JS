@@ -28,11 +28,13 @@ protected:
 
 private:
 	bool Tick_CheckWait() const;
+	bool Tick_CheckAvoid(const ACharacter* InTarget) const;
 	bool Tick_CheckPatrol(const ACharacter* InTarget);
 	bool Tick_CheckAttack(const ACharacter* InTarget);
-	bool Tick_CheckGuard(const ACharacter* InTarget) const;
+	//bool Tick_CheckGuard(const ACharacter* InTarget) const;
 	bool Tick_CheckApproach(const ACharacter* InTarget);
 
+	void SetFocus(class ACharacter* InTarget); 
 
 private:
 	float CurrentDelay;

@@ -90,6 +90,9 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	// 가드 됐다면 쪼금만 밀리게 
 	if (bBlocking)
 	{
+		// 데미지 입었다는 신호 전달
+		// 막히면 Damaged 함수가 콜이 안되므로 StateComp의 변화는 되지 않음
+		Behavior->SetDamageMode();
 		// 이미 구현된함수 호출 
 		Launch(*DamageData.Event->HitData, true);
 

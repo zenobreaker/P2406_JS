@@ -25,8 +25,9 @@ public:
 
 public:
 	//void LaunchIntoAir(float LaunchPower, AActor* InCauser = nullptr);
-	float GetAddedAirValue(float LaunchPower, AActor* InCauser = nullptr);
-
+	//GetAddedAirValue
+	float Calc_AirborenValue(float LaunchPower, AActor* InCauser = nullptr);
+	
 	UFUNCTION()
 	void Landed();
 	

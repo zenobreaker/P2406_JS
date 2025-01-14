@@ -142,24 +142,21 @@ void ACEnemy::Damaged()
 
 		if (HealthPoint->IsDead() == false)
 		{
-			FVector start = GetActorLocation();
+			Launch(*hitData);
+
+			/*FVector start = GetActorLocation();
 			FVector target = DamageData.Attacker->GetActorLocation();
 			FVector direction = target - start;
-			direction.Normalize();
+			direction.Normalize();*/
 			
-			// 공중에 띄우기
-			float dirZ = 0.0f;
-			if (!!Airborne)
-			{
-				dirZ = Airborne->GetAddedAirValue(hitData->Airial, DamageData.Attacker);
-			}
-			FVector LaunchVelocity = -direction * hitData->Launch + FVector(0, 0, dirZ);
-			LaunchCharacter(LaunchVelocity, false, true);
+		
+			//FVector LaunchVelocity = -direction * hitData->Launch + FVector(0, 0, dirZ);
+			//LaunchCharacter(LaunchVelocity, false, true);
 
-			// 방향 조절
-			FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
-			targetRotator.Pitch = 0;
-			SetActorRotation(targetRotator);
+			//// 방향 조절
+			//FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+			//targetRotator.Pitch = 0;
+			//SetActorRotation(targetRotator);
 		}
 
 		//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
@@ -193,6 +190,14 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FVector target = DamageData.Attacker->GetActorLocation();
 	FVector direction = target - start;
 	direction.Normalize();
+
+	// 공중에 띄우기
+	float dirZ = 0.0f;
+	if (!!Airborne)
+	{
+		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
+	}
+	direction += FVector(0, 0, dirZ); 
 
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;

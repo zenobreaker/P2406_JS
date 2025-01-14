@@ -47,7 +47,7 @@ ACPlayer::ACPlayer()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	USkeletalMesh* mesh;
+	USkeletalMesh* mesh = nullptr;
 	FHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
 	GetMesh()->SetSkeletalMesh(mesh);
 
