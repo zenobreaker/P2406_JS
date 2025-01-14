@@ -12,10 +12,13 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "Weapons/CEquipment.h"
 
+int32 ACEnemy_AI::GlobalID = 1;
+
 ACEnemy_AI::ACEnemy_AI()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	AIID = GlobalID++;
 
 	FHelpers::CreateComponent<UWidgetComponent>(this, &LabelWidget, "Label", GetMesh());
 
@@ -164,6 +167,14 @@ void ACEnemy_AI::Damaged()
 	CheckTrue(State->IsDeadMode());
 
 	Behavior->SetDamageMode();
+}
+
+void ACEnemy_AI::Dead()
+{
+	Super::Dead(); 
+
+	//State->SetDeadMode();
+	Behavior->SetDeadMode();
 }
 
 void ACEnemy_AI::End_Damaged()

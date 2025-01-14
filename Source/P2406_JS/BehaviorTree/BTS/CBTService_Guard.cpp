@@ -34,6 +34,9 @@ void UCBTService_Guard::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 void UCBTService_Guard::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
+	
+	CheckTrue(CachedBehavior->IsDeadMode());
+	CheckTrue(CachedBehavior->IsActionMode());
 
 	auto* target = CachedBehavior->GetTarget();
 	if (target == nullptr)
@@ -66,6 +69,7 @@ void UCBTService_Guard::OnGuardState()
 {
 	CheckNull(CachedBehavior);
 	
+
 	//FLog::Log("On Guard State Call"); 
 	bool bCheck = true; 
 	bCheck &= GuardComp->GetCanGuard() == true;

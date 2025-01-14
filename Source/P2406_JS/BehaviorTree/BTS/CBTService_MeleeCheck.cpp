@@ -29,6 +29,8 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	CheckNull(CachedBehavior); 
+	CheckTrue(CachedBehavior->IsApproachMode());
+	CheckTrue(CachedBehavior->IsDeadMode());
 
 	// 공격할 대상을 찾는다. 
 	ACharacter* target = nullptr; 
@@ -41,6 +43,7 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(CachedAI);
+	QueryParams.AddIgnoredActor(target);
 
 	bool bOverlapped = GetWorld()->OverlapMultiByChannel(
 		results,
@@ -53,23 +56,51 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 
 	CheckFalse(bOverlapped);
 
+	int32 myTeam_id = CachedAI->GetTeamID();
 	for (const FOverlapResult& result : results)
 	{
-		ACEnemy_AI* enemyAi = Cast<ACEnemy_AI>(result.GetActor());
-		if (enemyAi == nullptr)
+		ACEnemy_AI* other_Ai = Cast<ACEnemy_AI>(result.GetActor());
+		if (other_Ai == nullptr)
+			continue; 
+		// 다른 팀인지 구분 
+		int32 other_id = other_Ai->GetTeamID();
+		// 다른 팀은 생각안 함
+		if (other_id != myTeam_id)
 			continue; 
 
-		UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(enemyAi);
+		UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(other_Ai);
 		if (state == nullptr)
 			continue; 
 
+		CheckTrue(Calc_ThinkValue());
+		CheckTrue(CachedBehavior->IsActionMode());
+		
+		
 		// 하나라도 공격자가 있으면 자신의 상태는 Wait으로 대기한다. 
 		if (state->IsActionMode())
 		{
+			FLog::Log("who are ? Attack" + other_Ai->GetName());
 			CachedBehavior->SetWaitMode();
 
 			return; 
 		}
 	}
 
+}
+
+bool UCBTService_MeleeCheck::Calc_ThinkValue()
+{
+	if (ThinkValue.X <= 0.0f)
+		return false; 
+
+	//ThinkValue 내에 값이 온다면 공격자가 있어도 공격하게 한다. 
+	float randValue = FMath::RandRange(0.0f, (float)ThinkValue.Y);
+
+	// 생각한 결과가 조건과 맞아 떨어지면 그대로 수행하게 한다.
+	if (randValue <= ThinkValue.X)
+	{
+		return true;
+	}
+
+	return false;
 }

@@ -13,6 +13,10 @@ class P2406_JS_API ACEnemy_AI
 	GENERATED_BODY()
 
 private:
+	static int32 GlobalID;
+	int32 AIID;
+
+private:
 	UPROPERTY(EditDefaultsOnly, Category = "Team")
 	class UBehaviorTree* BehaviorTree;
 
@@ -45,6 +49,7 @@ private:
 
 public:
 	FORCEINLINE uint8 GetTeamID() { return TeamID; }
+	FORCEINLINE int32 GetAIID() { return AIID; }
 
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
 	FORCEINLINE TSoftObjectPtr<class ACPatrolPath> GetPatrolPath() { return PatrolPath; }
@@ -56,8 +61,6 @@ protected:
 
 
 	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-
 
 public:
 	virtual void Tick(float DeltaTime) override; 
@@ -75,9 +78,15 @@ private:
 protected:
 	void Damaged() override; 
 
+protected:
+	void Dead() override;
+
+
 public:
 	void End_Damaged() override; 
 
+
+public:
 	virtual bool HasGuard() const override;
 
 	// IIGuardable을(를) 통해 상속됨

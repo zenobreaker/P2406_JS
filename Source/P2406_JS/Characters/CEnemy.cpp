@@ -209,6 +209,7 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 
 	LaunchCharacter(-direction * launchStrength, false, false);
 
+	// 나 공격한 대상 바라보기 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 	targetRotator.Pitch = 0;
 	SetActorRotation(targetRotator);
@@ -389,6 +390,9 @@ void ACEnemy::OnDownConditionDeactivated()
 		//capsule->SetCapsuleHalfHeight(88.0f); // 기본 크기로 복구
 		//capsule->SetCapsuleRadius(34.0f); // 기본 반지름으로 복구
     }
+
+	CheckTrue(HealthPoint->IsDead());
+	CheckTrue(State->IsDeadMode());
 
 	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
 	PlayAnimMontage(RaiseMontage);

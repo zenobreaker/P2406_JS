@@ -10,16 +10,24 @@ class P2406_JS_API UCBTService_MeleeCheck : public UBTService
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category= "Melee")
+	UPROPERTY(EditAnywhere, Category = "Melee")
 	float DetectionRadius = 150.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Melee")
+	FVector2D ThinkValue;
+
+
+
 public:
-	UCBTService_MeleeCheck(); 
+	UCBTService_MeleeCheck();
 
 
 protected:
 	void OnSearchStart(FBehaviorTreeSearchData& SearchData) override;
 	void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+private:
+	bool Calc_ThinkValue();
 
 private:
 	class ACAIController* CachedController = nullptr;
