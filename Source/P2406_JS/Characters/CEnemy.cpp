@@ -174,6 +174,8 @@ void ACEnemy::Damaged()
 	{
 		State->SetDeadMode();
 
+		DYNAMIC_EVENT_CALL(OnCharacterDead);
+
 		return;
 	}
 
@@ -299,6 +301,8 @@ void ACEnemy::Dead()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	PlayAnimMontage(DeadMontage);
+
+	DYNAMIC_EVENT_CALL(OnCharacterDead);
 }
 
 void ACEnemy::End_Dead()
