@@ -2,7 +2,7 @@
 .vs/
 
 #My Ignore
-Environment/Map/*
+Content/Environment/Map/*
 
 # Compiled Object files
 *.slo
