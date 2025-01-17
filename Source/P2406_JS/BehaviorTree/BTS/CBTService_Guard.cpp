@@ -37,6 +37,7 @@ void UCBTService_Guard::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	
 	CheckTrue(CachedBehavior->IsDeadMode());
 	CheckTrue(CachedBehavior->IsActionMode());
+	CheckFalse(CachedBehavior->GetCanMove());
 
 	auto* target = CachedBehavior->GetTarget();
 	if (target == nullptr)

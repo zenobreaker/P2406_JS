@@ -38,6 +38,17 @@ void UCBTService_FocusOnTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		target = CachedBehavior->GetTarget();
 		if (target != nullptr)
 		{
+			UCAIBehaviorComponent* otherHavior = FHelpers::GetComponent<UCAIBehaviorComponent>(target);
+			if (!!otherHavior)
+			{
+				if (otherHavior->IsDeadMode())
+				{
+					CachedController->ClearFocus(EAIFocusPriority::Gameplay);
+
+					return;
+				}
+			}
+
 			CachedController->SetFocus(target);
 		}
 	}

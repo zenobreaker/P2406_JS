@@ -9,7 +9,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterEndDamaged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDowned);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterRaised);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDead);
 
 UCLASS()
 class P2406_JS_API ACBaseCharacter : public ACharacter
@@ -52,6 +52,7 @@ public:
 	FOnCharacterEndDamaged OnCharacterEndDamaged;
 	FOnCharacterDowned OnCharacterDowned;
 	FOnCharacterRaised OnCharacterRaised;
+	FOnCharacterDead OnCharacterDead;
 
 protected:
 	virtual void Launch(const struct FHitData& InHitData, const bool bIsGuarding = false) {};

@@ -27,13 +27,21 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override; 
 	virtual void OnUnPossess() override; 
 
+public:
+	void HandleSightPerception(class AActor* InActor);
+	void HandleTeamPerception(class AActor* InActor);
+
 private:
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
+
+	UFUNCTION()
+	void OnEnemyDead();
 
 private:
 	class ACEnemy_AI* Enemy;
 	class UCAIBehaviorComponent* Behavior;
 
 	class UAISenseConfig_Sight* Sight; // 감지용 클래스 
+	class UAISenseConfig_Team* TeamConfig;
 };

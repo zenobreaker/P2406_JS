@@ -29,7 +29,6 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	CheckNull(CachedBehavior); 
-	CheckTrue(CachedBehavior->IsApproachMode());
 	CheckTrue(CachedBehavior->IsDeadMode());
 
 	// 공격할 대상을 찾는다. 
@@ -79,8 +78,8 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		// 하나라도 공격자가 있으면 자신의 상태는 Wait으로 대기한다. 
 		if (state->IsActionMode())
 		{
-			FLog::Log("who are ? Attack" + other_Ai->GetName());
-			CachedBehavior->SetWaitMode();
+			//FLog::Log("who are ? Attack" + other_Ai->GetName());
+			Calc_WaitAndAvoidWithWeight();
 
 			return; 
 		}
@@ -103,4 +102,20 @@ bool UCBTService_MeleeCheck::Calc_ThinkValue()
 	}
 
 	return false;
+}
+
+void UCBTService_MeleeCheck::Calc_WaitAndAvoidWithWeight()
+{
+	// WeightValue에 x값보다 작으면 wait 크면 avoid 하기로 한다. 
+
+	float randWeight = FMath::RandRange(0.0f, (float)WeightValue.Y);
+
+	if (randWeight <= WeightValue.X)
+	{
+		CachedBehavior->SetWaitMode();
+
+		return;
+	}
+
+	CachedBehavior->SetAvoidMode();
 }

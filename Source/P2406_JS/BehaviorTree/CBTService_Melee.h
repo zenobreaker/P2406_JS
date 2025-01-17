@@ -34,7 +34,7 @@ private:
 	//bool Tick_CheckGuard(const ACharacter* InTarget) const;
 	bool Tick_CheckApproach(const ACharacter* InTarget);
 
-	void SetFocus(class ACharacter* InTarget); 
+	void SetFocus(class ACharacter* InTarget) const; 
 
 private:
 	float CurrentDelay;

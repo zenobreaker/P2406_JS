@@ -14,9 +14,10 @@ private:
 	float DetectionRadius = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Melee")
-	FVector2D ThinkValue;
+	FVector2D ThinkValue = FVector2D(0.0f, 1.0f);
 
-
+	UPROPERTY(EditAnywhere, Category = "Melee")
+	FVector2D WeightValue = FVector2D(0.0f, 1.0f);
 
 public:
 	UCBTService_MeleeCheck();
@@ -28,6 +29,9 @@ protected:
 
 private:
 	bool Calc_ThinkValue();
+	
+	// 공격이나 추격을 못하게 하기 위한 행위를 어떤 것으로 할 것인지 결정하는 함수
+	void Calc_WaitAndAvoidWithWeight();
 
 private:
 	class ACAIController* CachedController = nullptr;

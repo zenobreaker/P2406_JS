@@ -5,6 +5,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Components/CAIBehaviorComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AISenseConfig_Team.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -31,6 +32,10 @@ ACAIController::ACAIController()
 	// 갖는 대상이 배열일 땐 객체로 전달한다.
 	Perception->ConfigureSense(*Sight);
 	Perception->SetDominantSense(*Sight->GetSenseImplementation());
+
+	// 팀 구성
+	TeamConfig = CreateDefaultSubobject<UAISenseConfig_Team>("Team");
+	Perception->ConfigureSense(*TeamConfig);
 }
 
 void ACAIController::BeginPlay()
@@ -48,6 +53,9 @@ void ACAIController::OnPossess(APawn* InPawn)
 	SetGenericTeamId(Enemy->GetTeamID());
 
 	CheckNull(Enemy->GetBehaviorTree());
+
+	REGISTER_EVENT_WITH_REPLACE(Enemy, OnCharacterDead, this,
+		ACAIController::OnEnemyDead);
 
 	// 스마트 포인터의 주소에 대한 레퍼런스 값 반환
 	UBlackboardComponent* blackboard = Blackboard.Get();
@@ -67,23 +75,88 @@ void ACAIController::OnUnPossess()
 
 }
 
+void ACAIController::HandleSightPerception(AActor* InActor)
+{
+	// 가장 가까운 유효한 타겟을 찾기
+	AActor* validTarget = nullptr;
+	bool bCheck = true;
+
+	UCAIBehaviorComponent* otherBehavior = FHelpers::GetComponent <UCAIBehaviorComponent>(InActor);
+	if (!!otherBehavior)
+	{
+		bCheck &= otherBehavior->IsDeadMode() == false;
+	}
+
+	bCheck &= IsValid(InActor);
+	bCheck &= InActor->IsPendingKill() == false;
+
+	if (bCheck)
+	{
+		validTarget = InActor;
+	}
+
+	// Blackboard에 유효한 타겟 설정
+	Blackboard->SetValueAsObject("Target", validTarget);
+}
+
+void ACAIController::HandleTeamPerception(AActor* InActor)
+{
+
+}
+
 
 void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
-	TArray<AActor*> actors;
+	CheckNull(Perception);
+
 	// nullptr은 다 감지하는 것을 의미
+	TArray<AActor*> actors;
 	Perception->GetCurrentlyPerceivedActors(nullptr, actors);
 
-	//for (AActor* actor : actors)
-		//CLog::Print(actor->GetName());
-
-	if (actors.Num() > 0)
+	for (AActor* actor : actors)
 	{
-		Blackboard->SetValueAsObject("Target", actors[0]);
+		if (actor == nullptr || !actor->IsValidLowLevelFast() || actor->IsPendingKill())
+			continue; 
 
-		return;
+		// Sight 감각에 대해 처리
+		if (Sight != nullptr && 
+			Perception->HasActiveStimulus(*actor, Sight->GetSenseID()))
+		{
+			HandleSightPerception(actor);
+		}
+
+		if (TeamConfig != nullptr && 
+			Perception->HasActiveStimulus(*actor, TeamConfig->GetSenseID()))
+		{
+			HandleTeamPerception(actor);
+		}
 	}
-	
+
+
+	//TArray<AActor*> sightActors;
+	//Perception->GetCurrentlyPerceivedActors(UAISenseConfig_Sight::StaticClass(), sightActors);
+
+	/*TArray<AActor*> teamActors;
+	Perception->GetCurrentlyPerceivedActors(TeamConfig->StaticClass(), teamActors);
+	if (teamActors.Num() > 0)
+		FLog::Print(Enemy->GetName() + "Team count " + FString::FromInt(teamActors.Num()), 1985 + Enemy->GetAIID());*/
+
+
+	//for (AActor* actor : sightActors)
+	//{
+	//	HandleSightPerception(actor);
+	//}
+	//
+	//for (AActor* actor : teamActors)
+	//{
+	//	HandleTeamPerception(actor);
+	//}
+}
+
+void ACAIController::OnEnemyDead()
+{
+	ClearFocus(EAIFocusPriority::Gameplay);
+
 	Blackboard->SetValueAsObject("Target", nullptr);
 }
 

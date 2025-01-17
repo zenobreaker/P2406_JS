@@ -93,6 +93,8 @@ public:
 	UFUNCTION()
 	void OnRemoveConditionType(EConditionState InType);
 
+	UFUNCTION()
+	void OnCharacterDead();
 
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;

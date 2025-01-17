@@ -7,6 +7,7 @@
 
 #include "Components/CStateComponent.h"
 #include "Components/CAIBehaviorComponent.h"
+#include "Components/CHealthPointComponent.h"
 
 UCBTService_Melee::UCBTService_Melee()
 {
@@ -49,7 +50,6 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
 
-
 	// 내가 움직일 수 있는 상태인지 
 	bool bCanMove = CachedBehavior->GetCanMove();
 	if (bCanMove == false)
@@ -62,6 +62,8 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		CheckTrue(bWait);
 	}
 
+	// 여기에서 뻗는다 
+	// target이 중간에 nullptr이 되서 그런가?
 	SetFocus(target);
 
 	// 타겟이 없으면 순찰
@@ -112,16 +114,10 @@ bool UCBTService_Melee::Tick_CheckWait() const
 	if (CachedBehavior->IsActionMode() || CachedBehavior->IsApproachMode())
 		return false;
 
-	bool bCanMove = true;
-	bCanMove = CachedBehavior->GetCanMove();
-	if (bCanMove == false)
-	{
-		CachedBehavior->SetWaitMode();
+	CachedBehavior->SetWaitMode();
 
-		return true;
-	}
+	return true;
 
-	return false;
 }
 
 bool UCBTService_Melee::Tick_CheckAvoid(const ACharacter* InTarget) const
@@ -131,7 +127,7 @@ bool UCBTService_Melee::Tick_CheckAvoid(const ACharacter* InTarget) const
 
 
 	if (CachedBehavior->IsActionMode() || CachedBehavior->IsApproachMode())
-		return false; 
+		return false;
 
 	CachedBehavior->SetAvoidMode();
 
@@ -207,7 +203,7 @@ bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
 	return false;
 }
 
-void UCBTService_Melee::SetFocus(ACharacter* InTarget)
+void UCBTService_Melee::SetFocus(ACharacter* InTarget) const
 {
 	CheckNull(CachedController);
 

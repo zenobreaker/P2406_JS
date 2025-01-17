@@ -20,6 +20,7 @@ void UCAIBehaviorComponent::BeginPlay()
 	CachedAI = Cast<ACEnemy_AI>(GetOwner());
 	CheckNull(CachedAI);
 
+	REGISTER_EVENT_WITH_REPLACE(CachedAI, OnCharacterDead, this, UCAIBehaviorComponent::OnCharacterDead);
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(CachedAI);
 	if (!!state)
@@ -199,6 +200,9 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 
 	EAIStateType prevType = GetType();
 
+	//TODO: 임시 코드 
+	
+
 	Blackboard->SetValueAsEnum(AIStateTypeKey, (uint8)InType);
 
 	if (OnAIStateTypeChanged.IsBound())
@@ -239,7 +243,7 @@ void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 
 void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 {
-	FLog::Log("OnAddCondiitionType Call");
+	FLog::Log("OnRemoveConditionType Call");
 
 	switch (InType)
 	{
@@ -249,7 +253,12 @@ void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 	}
 }
 
-
+void UCAIBehaviorComponent::OnCharacterDead()
+{
+	FLog::Log(CachedAI->GetName() + "Dead Call");
+	// 아아 죽었나이까?.. 
+	SetDeadMode();
+}
 
 ACharacter* UCAIBehaviorComponent::GetTarget()
 {

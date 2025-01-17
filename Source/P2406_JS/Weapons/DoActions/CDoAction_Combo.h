@@ -14,6 +14,10 @@ public:
 	FORCEINLINE void EnableCombo() { bEnable = true; }
 	FORCEINLINE void DisableCombo() { bEnable = false; }
 
+	FORCEINLINE bool GetEnableCombo() const { return  bEnable; }
+	FORCEINLINE bool GetExistComob() const { return bExist; }
+
+
 public:
 	void DoAction() override;
 	void Begin_DoAction() override;

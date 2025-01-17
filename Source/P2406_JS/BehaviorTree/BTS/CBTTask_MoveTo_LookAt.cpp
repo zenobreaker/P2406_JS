@@ -19,7 +19,7 @@ EBTNodeResult::Type UCBTTask_MoveTo_LookAt::ExecuteTask(UBehaviorTreeComponent& 
 
 	// Focus ¼³Á¤
 	ACAIController* aiController = Cast<ACAIController>(OwnerComp.GetAIOwner());
-	CheckNullResult(aiController, EBTNodeResult::Failed); 
+	CheckNullResult(aiController, EBTNodeResult::Failed);
 
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(aiController->GetPawn());
 	CheckNullResult(ai, EBTNodeResult::Failed);
@@ -27,11 +27,26 @@ EBTNodeResult::Type UCBTTask_MoveTo_LookAt::ExecuteTask(UBehaviorTreeComponent& 
 	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
 	CheckNullResult(behavior, EBTNodeResult::Failed);
 
+
 	ACharacter* target = behavior->GetTarget();
 
-	if (aiController && target != nullptr)
+	bool bCheck = false;
+	if (target != nullptr)
+	{
+		bCheck = target != nullptr;
+
+		UCAIBehaviorComponent* otherBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(target);
+		if (!!otherBehavior)
+			bCheck &= otherBehavior->IsDeadMode() == false;
+	}
+
+	if (bCheck)
 	{
 		aiController->SetFocus(target, EAIFocusPriority::Gameplay);
+	}
+	else
+	{
+		aiController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
 
 	return Result;
