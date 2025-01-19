@@ -86,6 +86,9 @@ public:
 	void End_Damaged() override; 
 
 
+protected:
+	void SetRegisterToBattleManager();
+
 public:
 	virtual bool HasGuard() const override;
 

@@ -42,6 +42,7 @@ EAIStateType UCAIBehaviorComponent::GetType()
 	return (EAIStateType)Blackboard->GetValueAsEnum(AIStateTypeKey);
 }
 
+
 FVector UCAIBehaviorComponent::GetPatrolLocation()
 {
 	return Blackboard->GetValueAsVector(PatrolLocationKey);
@@ -145,7 +146,7 @@ void UCAIBehaviorComponent::SetAvoidMode()
 	ChangeType(EAIStateType::Avoid);
 }
 
-void UCAIBehaviorComponent::SetAriborneMode()
+void UCAIBehaviorComponent::SetAirborneMode()
 {
 	ChangeType(EAIStateType::Airborne);
 }
@@ -165,7 +166,10 @@ void UCAIBehaviorComponent::SetDeadMode()
 	ChangeType(EAIStateType::Dead);
 }
 
-
+void UCAIBehaviorComponent::SetNoneMode()
+{
+	ChangeType(EAIStateType::Max);
+}
 
 FString UCAIBehaviorComponent::EnumToString(EAIStateType InType)
 {
@@ -196,17 +200,17 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 
 
 	FString curType = StaticEnum<EAIStateType>()->GetNameStringByValue((int64)InType);
-	//FLog::Log(GetOwner()->GetName() + " " + curType);
+	//FLog::Print(GetOwner()->GetName() + " " + curType + " " );
 
-	EAIStateType prevType = GetType();
+	PrevType = GetType();
 
 	//TODO: 임시 코드 
-	
+	if (PrevType == EAIStateType::Dead)
+		return;
 
 	Blackboard->SetValueAsEnum(AIStateTypeKey, (uint8)InType);
-
 	if (OnAIStateTypeChanged.IsBound())
-		OnAIStateTypeChanged.Broadcast(prevType, InType);
+		OnAIStateTypeChanged.Broadcast(PrevType, InType);
 }
 
 void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InNewType)
@@ -276,4 +280,11 @@ ACharacter* UCAIBehaviorComponent::GetTarget()
 	CheckTrueResult(myTeamID == targetID, nullptr);
 
 	return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));
+}
+
+void UCAIBehaviorComponent::SetTarget(ACharacter* InTarget)
+{
+	CheckNull(InTarget);
+
+	Blackboard->SetValueAsObject(TargetKey, InTarget);
 }

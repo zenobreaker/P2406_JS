@@ -8,6 +8,9 @@
 #include "Components/CStateComponent.h"
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/CGuardComponent.h"
+#include "Components/CConditionComponent.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
 
 
 UCBTService_Guard::UCBTService_Guard()
@@ -29,15 +32,27 @@ void UCBTService_Guard::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 	CachedState = FHelpers::GetComponent<UCStateComponent>(CachedAI);
 
 	GuardComp = FHelpers::GetComponent<UCGuardComponent>(CachedAI);
+	Condition = FHelpers::GetComponent<UCConditionComponent>(CachedAI); 
+
+	Blackboard = SearchData.OwnerComp.GetBlackboardComponent();
 }
 
 void UCBTService_Guard::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 	
+	CheckNull(Blackboard); 
+	CheckNull(CachedBehavior);
+	CheckNull(CachedAI);
+	CheckNull(Condition);
+	CheckNull(CachedState);
+
 	CheckTrue(CachedBehavior->IsDeadMode());
 	CheckTrue(CachedBehavior->IsActionMode());
+	CheckTrue(CachedBehavior->IsApproachMode());
 	CheckFalse(CachedBehavior->GetCanMove());
+	CheckFalse(CachedBehavior->IsWaitMode());
+	CheckFalse(Condition->IsNoneCondition());
 
 	auto* target = CachedBehavior->GetTarget();
 	if (target == nullptr)
@@ -70,19 +85,9 @@ void UCBTService_Guard::OnGuardState()
 {
 	CheckNull(CachedBehavior);
 	
-
-	//FLog::Log("On Guard State Call"); 
 	bool bCheck = true; 
 	bCheck &= GuardComp->GetCanGuard() == true;
-	//FLog::Log("On Guard State Can Guard " + FString::FromInt(bCheck));
 	bCheck &= GuardComp->GetGuarding() == false;
-	//FLog::Log("On Guard State Gaurding " + FString::FromInt(bCheck));
-	if (bCheck)
-		CachedBehavior->SetGuardMode();
-	else
-	{
-		// 이전에 선택된 모드가 가드 모드라면 wait로 
-		if (CachedBehavior->IsGuardMode())
-			CachedBehavior->SetWaitMode();
-	}
+	Blackboard->SetValueAsBool("bGuarding", bCheck);
+
 }

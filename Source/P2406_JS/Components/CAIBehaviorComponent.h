@@ -8,7 +8,11 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAIStateTypeChanged, EAIStateType, InPrevType, EAIStateType, InNewType);
 
-
+//UENUM()
+//enum class EWaitPatternState : uint8
+//{
+//	IdleWait = 0, CircleAvoid, Max
+//};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class P2406_JS_API UCAIBehaviorComponent : public UActorComponent
@@ -20,6 +24,8 @@ public:
 	FORCEINLINE bool GetCanMove() const { return bCanMove; }
 
 	FORCEINLINE void SetBlackboard(class UBlackboardComponent* InBlackboard) { Blackboard = InBlackboard; }
+
+	FORCEINLINE UBlackboardComponent* GetBlackboard() const { return Blackboard; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")
@@ -59,6 +65,7 @@ protected:
 
 public:
 	class ACharacter* GetTarget();
+	void SetTarget(class ACharacter* InTarget);
 
 	FVector GetPatrolLocation();
 	void SetPatrolLocation(const FVector& InLocation);
@@ -73,10 +80,12 @@ public:
 	void SetPatrolMode();
 	void SetDamageMode();
 	void SetAvoidMode();
-	void SetAriborneMode();
+	void SetAirborneMode();
 	void SetDownMode();
 	void SetGuardMode();
 	void SetDeadMode();
+	void SetNoneMode();
+
 
 private:
 	FString EnumToString(EAIStateType InType);
@@ -108,5 +117,6 @@ private:
 	class ACEnemy_AI* CachedAI;
 
 	bool bCanMove = true;
-
+	
+	EAIStateType PrevType; 
 };

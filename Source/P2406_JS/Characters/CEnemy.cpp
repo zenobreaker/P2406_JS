@@ -362,6 +362,8 @@ void ACEnemy::OnDownConditionActivated()
 {
 	CheckNull(Condition);
 	check(Condition != nullptr);
+	
+	CheckTrue(HealthPoint->IsDead());
 
 	// 공중 상태라면 다운 상태에 관한 로직을 바로 하지 않고 델리게이트에 맞겨놓는다.
 	if(Condition->GetAirborneCondition())

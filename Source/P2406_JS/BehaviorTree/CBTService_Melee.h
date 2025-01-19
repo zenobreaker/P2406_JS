@@ -27,21 +27,24 @@ protected:
 	void RadnomActionDelay();
 
 private:
-	bool Tick_CheckWait() const;
-	bool Tick_CheckAvoid(const ACharacter* InTarget) const;
-	bool Tick_CheckPatrol(const ACharacter* InTarget);
-	bool Tick_CheckAttack(const ACharacter* InTarget);
-	//bool Tick_CheckGuard(const ACharacter* InTarget) const;
-	bool Tick_CheckApproach(const ACharacter* InTarget);
-
 	void SetFocus(class ACharacter* InTarget) const; 
 
+	void Calc_DelayTimer(float DeltaSeconds);
+
+	void Notify_Battle_FindBattle(class ACharacter** OutTarget);
+	void Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_AI* Initiator, class ACharacter* InTarget);
+
 private:
-	float CurrentDelay;
+	float CurrentDelay = 2.0f;
 
 	class ACAIController* CachedController = nullptr;
 	class ACEnemy_AI* CachedAI = nullptr;
 	class UCAIBehaviorComponent* CachedBehavior = nullptr;
 	class UCStateComponent* CachedState = nullptr;
 	class IIGuardable* CachedGuardable = nullptr;
+	class UBlackboardComponent* Blackboard = nullptr;
+
+private:
+	bool isFirstAttack = false;
+
 };

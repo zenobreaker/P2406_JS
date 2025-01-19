@@ -17,6 +17,10 @@ class P2406_JS_API ACBaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Group")
+	int32 GroupID = 0; 
+
+protected:
 	UPROPERTY(EditAnywhere, Category = "Grade")
 	EEntityGrade Grade = EEntityGrade::MAX;
 
@@ -42,6 +46,8 @@ protected:
 	
 public:
 	FORCEINLINE EEntityGrade GetGrade() { return Grade; }
+	FORCEINLINE int32 GetGroupID()const { return GroupID; }
+	FORCEINLINE void SetGroupID(int32 InGroupID) { GroupID = InGroupID; }
 
 public:
 	ACBaseCharacter();

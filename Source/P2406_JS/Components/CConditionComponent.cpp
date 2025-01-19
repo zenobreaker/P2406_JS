@@ -48,7 +48,7 @@ bool UCConditionComponent::HasCondition(EConditionState InCondition)
 
 bool UCConditionComponent::IsSameCondition(EConditionState InCondition1, EConditionState InCondition2)
 {
-	return (static_cast<uint8>(InCondition1) & static_cast<uint8>(InCondition2)) != 0;;
+	return (static_cast<uint8>(InCondition1) & static_cast<uint8>(InCondition2)) != 0;
 }
 
 void UCConditionComponent::AddCondition(EConditionState NewCondition)

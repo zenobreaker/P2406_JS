@@ -39,6 +39,8 @@ private:
 	class UCAIBehaviorComponent* CachedBehavior = nullptr;
 	class UCStateComponent* CachedState = nullptr;
 	class UCGuardComponent* GuardComp = nullptr; 
+	class UCConditionComponent* Condition = nullptr;
+	class UBlackboardComponent* Blackboard = nullptr;
 
 private:
 	float CurrentParry = 0.0f;

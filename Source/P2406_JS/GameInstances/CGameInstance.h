@@ -19,4 +19,7 @@ public:
 public:
 	UPROPERTY()
 	class UCSkillManager* SkillManager;
+
+	UPROPERTY()
+	class UCBattleManager* BattleManager;
 };

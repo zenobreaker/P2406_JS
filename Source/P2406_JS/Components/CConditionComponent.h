@@ -6,9 +6,6 @@
 #include "CConditionComponent.generated.h"
 
 
-
-
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAddCondiitionType, EConditionState, InType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRemoveCondiitionType, EConditionState, InType);
 
@@ -19,6 +16,7 @@ class P2406_JS_API UCConditionComponent : public UActorComponent
   
 
 public:
+    FORCEINLINE bool IsNoneCondition() { return Condition == EConditionState::CONDITION_NONE; }
     FORCEINLINE bool GetAirborneCondition() { return HasCondition(EConditionState::CONDITION_AIRBORNE); }
     FORCEINLINE bool GetDownCondition() { return HasCondition(EConditionState::CONDITION_DOWNED); }
 

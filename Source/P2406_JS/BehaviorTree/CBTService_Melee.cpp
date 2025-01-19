@@ -9,6 +9,10 @@
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/CHealthPointComponent.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+#include "GameInstances/CBattleManager.h"
+#include "GameInstances/CGameInstance.h" 
+
 UCBTService_Melee::UCBTService_Melee()
 {
 	NodeName = "Melee";
@@ -29,75 +33,94 @@ void UCBTService_Melee::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 		CachedBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(CachedAI);
 		CachedState = FHelpers::GetComponent<UCStateComponent>(CachedAI);
 		CachedGuardable = Cast<IIGuardable>(CachedAI);
+
+		Blackboard = SearchData.OwnerComp.GetBlackboardComponent();
 	}
 }
+static int notifyCallCount = 0; // 호출 횟수 제한용
+const int maxNotifyCalls = 5;  // 최대 호출 횟수
 
 void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	CheckTrue(CachedBehavior->IsDeadMode());
-	CheckTrue(CachedBehavior->IsDamageMode());
+	CheckNull(CachedBehavior);
+	CheckNull(CachedState);
 
-	// 공격 딜레이 타이머 
-	if (CurrentDelay > 0.0f)
+	bool bCheck = false;
+	bCheck |= (CachedBehavior->IsDeadMode());
+	//	bCheck |= (CachedBehavior->IsDamageMode());
+	bCheck |= (CachedState->IsDeadMode());
+	bCheck |= (CachedState->IsDamagedMode());
+	bCheck |= CachedBehavior->GetCanMove() == false;
+	if (bCheck)
 	{
-		CurrentDelay -= DeltaSeconds;
-		FLog::Print(CachedAI->GetName() + "Current Delay " + FString::SanitizeFloat(CurrentDelay), 1992 + CachedAI->GetAIID());
+		SetFocus(nullptr);
+		CachedBehavior->SetNoneMode();
+
+		return;
 	}
 
-	// 행동 제약 상태라면 행동을 개시하지 않는다. 
+
+	Calc_DelayTimer(DeltaSeconds);
+
+	// 감지된 적 
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
 
-	// 내가 움직일 수 있는 상태인지 
-	bool bCanMove = CachedBehavior->GetCanMove();
-	if (bCanMove == false)
+	if (target == nullptr)
 	{
-		//TODO: 음 로직이 뭔가 맘에 안드는데 
-		bool bWait = Tick_CheckWait();
+		// 적이 없으면 배틀매니저에게 호출
+		Notify_Battle_FindBattle(&target);
+		notifyCallCount--;
+		if (target == nullptr)
+		{
+			Blackboard->SetValueAsBool("bInBattle", false);
+			// 적이 없으면 그냥 순찰할래
+			CachedBehavior->SetPatrolMode();
+			// 비전투면 이 플래그를 해제 
+			isFirstAttack = false;
+			
+			return;
+		}
+	}
+	if (!!Blackboard)
+		Blackboard->SetValueAsBool("bInBattle", true);
 
-		SetFocus(nullptr);
+	// 적을 발견 했다면 결정한다. 
+	// 1. 먼저 대기 하거나 적을 보면서 순찰한다.
 
-		CheckTrue(bWait);
+	// 2. 공격 조건이 달성되면 공격하러 간다. 
+
+	CheckTrue(CachedBehavior->IsActionMode());
+	if (CurrentDelay > 0.0f)
+		return;
+
+	if (CachedState->IsIdleMode() == false)
+		return;
+
+	UCStateComponent* targetState = FHelpers::GetComponent<UCStateComponent>(target); 
+	if (targetState && targetState->IsDownMode())
+	{
+		CachedBehavior->SetWaitMode();
+
+		return; 
 	}
 
-	// 여기에서 뻗는다 
-	// target이 중간에 nullptr이 되서 그런가?
-	SetFocus(target);
+	float distance = CachedAI->GetDistanceTo(target);
+	if (distance <= ActionRange)
+	{
+		CachedBehavior->SetActionMode();
+		if(isFirstAttack == false)
+			isFirstAttack = true;
+		RadnomActionDelay();
 
-	// 타겟이 없으면 순찰
-	bool bPatrol = Tick_CheckPatrol(target);
-	CheckTrue(bPatrol);
+		return;
+	}
 
-	// 범위 내에 적이 있으면 공격
-	bool bAttack = Tick_CheckAttack(target);
-	CheckTrue(bAttack);
+	CachedBehavior->SetApproachMode();
 
-	// 적이 있고 공격할 수 있을 때 공격 범위 밖이면 공격하러 감
-	bool bApproach = Tick_CheckApproach(target);
-	CheckTrue(bApproach);
-
-
-	// 적이 있고 위에 조건들이 통합되지 않으면 회피(배회)
-	bool bAvoid = Tick_CheckAvoid(target);
-	CheckTrue(bAvoid);
-
-
-	// 추격도 안되면 대기 
-	bool bWait = Tick_CheckWait();
-	CheckTrue(bWait);
-
-	//{
-	//	FVector AIPosition = GetActorLocation();
-	//	FVector TargetPosition = Target->GetActorLocation();
-	//	float Distance = FVector::Dist(AIPosition, TargetPosition);
-
-	//	FLog::Print("AI Position: " + AIPosition.ToString(), 1992);
-	//	FLog::Print("Target Position: " + TargetPosition.ToString(), 1992);
-	//	FLog::Print("Calculated Distance: " + FString::SanitizeFloat(Distance), 1992);
-	//	FLog::Print("Max Distance: " + FString::FromInt(MaxDistance), 1992);
-	//}
+	Notify_Battle_JoinBattle(CachedAI->GetGroupID(), CachedAI, target);
 }
 
 void UCBTService_Melee::RadnomActionDelay()
@@ -106,102 +129,6 @@ void UCBTService_Melee::RadnomActionDelay()
 }
 
 
-
-bool UCBTService_Melee::Tick_CheckWait() const
-{
-	CheckNullResult(CachedBehavior, false);
-
-	if (CachedBehavior->IsActionMode() || CachedBehavior->IsApproachMode())
-		return false;
-
-	CachedBehavior->SetWaitMode();
-
-	return true;
-
-}
-
-bool UCBTService_Melee::Tick_CheckAvoid(const ACharacter* InTarget) const
-{
-	CheckNullResult(CachedBehavior, false);
-	CheckFalseResult(InTarget != nullptr, false);
-
-
-	if (CachedBehavior->IsActionMode() || CachedBehavior->IsApproachMode())
-		return false;
-
-	CachedBehavior->SetAvoidMode();
-
-
-	return true;
-}
-
-bool UCBTService_Melee::Tick_CheckPatrol(const ACharacter* InTarget)
-{
-	CheckNullResult(CachedBehavior, false);
-
-	if (InTarget == nullptr)
-	{
-		CachedBehavior->SetPatrolMode();
-
-		return true;
-	}
-
-	return false;
-}
-
-bool UCBTService_Melee::Tick_CheckAttack(const ACharacter* InTarget)
-{
-	CheckNullResult(CachedBehavior, false);
-	CheckNullResult(CachedState, false);
-	CheckNullResult(CachedAI, false);
-	CheckNullResult(InTarget, false);
-
-	// 내가 공격 상태면 공격을 다했는지 알아야 한다. 
-	if (CachedBehavior->IsActionMode())
-	{
-
-	}
-
-
-	float distance = CachedAI->GetDistanceTo(InTarget);
-	if (distance < ActionRange && CurrentDelay <= 0.0f)
-	{
-
-		if (CachedState->IsIdleMode() == false)
-			return false;
-
-		CachedBehavior->SetActionMode();
-
-		RadnomActionDelay();
-
-		return true;
-	}
-
-	return false;
-}
-//
-bool UCBTService_Melee::Tick_CheckApproach(const ACharacter* InTarget)
-{
-	CheckNullResult(CachedBehavior, false);
-	CheckNullResult(InTarget, false);
-
-
-	// 적이 있고 공격할 수 있을 때 공격 범위 밖이면 공격하러 감
-	float distance = CachedAI->GetDistanceTo(InTarget);
-	if (CurrentDelay <= 0.0f && distance > ActionRange)
-	{
-		if (CachedState->IsIdleMode() == false)
-		{
-			return false;
-		}
-
-		CachedBehavior->SetApproachMode();
-
-		return true;
-	}
-
-	return false;
-}
 
 void UCBTService_Melee::SetFocus(ACharacter* InTarget) const
 {
@@ -217,36 +144,75 @@ void UCBTService_Melee::SetFocus(ACharacter* InTarget) const
 	CachedController->SetFocus(InTarget);
 }
 
+void UCBTService_Melee::Notify_Battle_FindBattle(class ACharacter** OutTarget)
+{
+	CheckNull(Blackboard);
+	CheckNull(CachedAI);
 
 
-//bool UCBTService_Melee::Tick_CheckGuard(const ACharacter* InTarget) const
-//{
-//	CheckNullResult(CachedBehavior, false);
-//	CheckNullResult(CachedState, false);
-//	CheckNullResult(CachedAI, false);
-//	CheckNullResult(InTarget, false);
-//
-//	bool bGuardale = false;
-//	if (CachedGuardable)
-//	{
-//		bGuardale = true;
-//	}
-//
-//	if (bGuardale == false)
-//	{
-//		return false;
-//	}
-//	
-//
-//	float distance = CachedAI->GetDistanceTo(InTarget);
-//	// 적이 감지되고 상대와의 거리가 일정하면 가드 올림.
-//	if (distance <= ActionRange)
-//	{
-//		CachedBehavior->SetGuardMode();
-//		//CachedState->SetGuardMode();
-//
-//		return true;
-//	}
-//
-//	return false;
-//}
+	if (notifyCallCount >= maxNotifyCalls)
+	{
+		FLog::Print("Notify_Battle_FindBattle exceeded max calls.", 2700);
+		return;
+	}
+	notifyCallCount++;
+
+
+	bool value = Blackboard->GetValueAsBool("bInBattle");
+	if (value == false)
+		return;
+
+	// 배틀매니저한테 전투 끝났으니까 주위에 다른 친구 싸우고 있어? 물어봄
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	// 이전에 한 번 전투 돌입 상태였다면 
+	if (!!instance && value)
+	{
+		UCBattleManager* battleManager = instance->BattleManager;
+
+		if (!!battleManager)
+		{
+			ACharacter* target = battleManager->GetBattleAttackerOfTarget(CachedAI->GetGroupID(), CachedAI);
+			*OutTarget = target;
+			if (*OutTarget != nullptr)
+				FLog::Print("Battle!!! ", 2700);
+
+			return;
+		}
+	}
+}
+
+void UCBTService_Melee::Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_AI* Initiator, class ACharacter* InTarget)
+{
+	CheckNull(Initiator);
+	CheckNull(InTarget); 
+
+
+	// 첫 전투 돌입 시에 호출
+	// 체력이 없을 때 호출 
+	// 공격 대상이 바꼈을 때? 
+	// 대미지 입었을 때? 
+
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance);
+	UCBattleManager* battleManager = instance->BattleManager;
+
+	CheckNull(battleManager);
+
+	if (isFirstAttack)
+	{
+		battleManager->RequestBattleParticipation(InGroupID, Initiator, InTarget);
+	
+	}
+
+}
+
+void UCBTService_Melee::Calc_DelayTimer(float DeltaSeconds)
+{
+	// 공격 딜레이 타이머 
+	if (CurrentDelay > 0.0f)
+	{
+		CurrentDelay -= DeltaSeconds;
+		FLog::Print(CachedAI->GetName() + "Current Delay " + FString::SanitizeFloat(CurrentDelay), 1992 + CachedAI->GetAIID());
+	}
+}
+

@@ -12,6 +12,9 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "Weapons/CEquipment.h"
 
+#include "GameInstances/CGameInstance.h"
+#include "GameInstances/CBattleManager.h"
+
 int32 ACEnemy_AI::GlobalID = 1;
 
 ACEnemy_AI::ACEnemy_AI()
@@ -41,6 +44,8 @@ ACEnemy_AI::ACEnemy_AI()
 	{
 		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
 	}
+
+
 }
 
 void ACEnemy_AI::BeginPlay()
@@ -67,6 +72,7 @@ void ACEnemy_AI::BeginPlay()
 		REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, EnemyWidget, UCUserWidget_Enemy::UpdateGuardGauge);
 	}
 
+	SetRegisterToBattleManager();
 }
 
 void ACEnemy_AI::Tick(float DeltaTime)
@@ -175,6 +181,14 @@ void ACEnemy_AI::Dead()
 
 	//State->SetDeadMode();
 	Behavior->SetDeadMode();
+
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance);
+
+	UCBattleManager* battleManager = instance->BattleManager;
+	CheckNull(battleManager);
+
+	battleManager->UnregisterGroup(GroupID, this);
 }
 
 void ACEnemy_AI::End_Damaged()
@@ -187,6 +201,20 @@ void ACEnemy_AI::End_Damaged()
 bool ACEnemy_AI::HasGuard() const
 {
 	return true;
+}
+
+void ACEnemy_AI::SetRegisterToBattleManager()
+{
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance);
+
+	UCBattleManager* battleManager = instance->BattleManager;
+	CheckNull(battleManager);
+
+
+	// µî·Ï
+	battleManager->RegisterGroup(GroupID, this);
+
 }
 
 bool ACEnemy_AI::CanGuard() const

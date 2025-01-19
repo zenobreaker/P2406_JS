@@ -77,31 +77,12 @@ void ACAIController::OnUnPossess()
 
 void ACAIController::HandleSightPerception(AActor* InActor)
 {
-	// 가장 가까운 유효한 타겟을 찾기
-	AActor* validTarget = nullptr;
-	bool bCheck = true;
-
-	UCAIBehaviorComponent* otherBehavior = FHelpers::GetComponent <UCAIBehaviorComponent>(InActor);
-	if (!!otherBehavior)
-	{
-		bCheck &= otherBehavior->IsDeadMode() == false;
-	}
-
-	bCheck &= IsValid(InActor);
-	bCheck &= InActor->IsPendingKill() == false;
-
-	if (bCheck)
-	{
-		validTarget = InActor;
-	}
-
-	// Blackboard에 유효한 타겟 설정
-	Blackboard->SetValueAsObject("Target", validTarget);
+	
 }
 
 void ACAIController::HandleTeamPerception(AActor* InActor)
 {
-
+	FLog::Log("this calling team Percept");
 }
 
 
@@ -112,45 +93,38 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 	// nullptr은 다 감지하는 것을 의미
 	TArray<AActor*> actors;
 	Perception->GetCurrentlyPerceivedActors(nullptr, actors);
+	AActor* nearestTarget = nullptr;
+	float nearestDistance = FLT_MAX;
 
 	for (AActor* actor : actors)
 	{
+		// 유효성 체크
 		if (actor == nullptr || !actor->IsValidLowLevelFast() || actor->IsPendingKill())
-			continue; 
+			continue;
 
-		// Sight 감각에 대해 처리
-		if (Sight != nullptr && 
-			Perception->HasActiveStimulus(*actor, Sight->GetSenseID()))
-		{
-			HandleSightPerception(actor);
-		}
+		ACEnemy_AI* otherAI = Cast<ACEnemy_AI>(actor);
+		// 팀 구분 체크 추가
+		if (otherAI && otherAI->GetTeamID() == Enemy->GetTeamID ())
+			continue; // 아군이면 무시
 
-		if (TeamConfig != nullptr && 
-			Perception->HasActiveStimulus(*actor, TeamConfig->GetSenseID()))
+
+		// 거리 계산
+		float distance = FVector::Dist(GetPawn()->GetActorLocation(), actor->GetActorLocation());
+
+		// 가장 가까운 타겟 찾기
+		if (distance < nearestDistance)
 		{
-			HandleTeamPerception(actor);
+			UCAIBehaviorComponent* otherBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(actor);
+			if (otherBehavior && !otherBehavior->IsDeadMode())
+			{
+				nearestTarget = actor;
+				nearestDistance = distance;
+			}
 		}
 	}
 
-
-	//TArray<AActor*> sightActors;
-	//Perception->GetCurrentlyPerceivedActors(UAISenseConfig_Sight::StaticClass(), sightActors);
-
-	/*TArray<AActor*> teamActors;
-	Perception->GetCurrentlyPerceivedActors(TeamConfig->StaticClass(), teamActors);
-	if (teamActors.Num() > 0)
-		FLog::Print(Enemy->GetName() + "Team count " + FString::FromInt(teamActors.Num()), 1985 + Enemy->GetAIID());*/
-
-
-	//for (AActor* actor : sightActors)
-	//{
-	//	HandleSightPerception(actor);
-	//}
-	//
-	//for (AActor* actor : teamActors)
-	//{
-	//	HandleTeamPerception(actor);
-	//}
+	// 루프 끝난 후 Blackboard 설정
+	Blackboard->SetValueAsObject("Target", nearestTarget);
 }
 
 void ACAIController::OnEnemyDead()

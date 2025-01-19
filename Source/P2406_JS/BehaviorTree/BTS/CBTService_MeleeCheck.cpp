@@ -30,12 +30,16 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 
 	CheckNull(CachedBehavior); 
 	CheckTrue(CachedBehavior->IsDeadMode());
+	
+	CheckTrue(CachedBehavior->IsActionMode());
 
 	// 공격할 대상을 찾는다. 
 	ACharacter* target = nullptr; 
 	target = CachedBehavior->GetTarget(); 
 	CheckNull(target);
 	
+
+	float distance = CachedAI->GetDistanceTo(target);
 	FVector targetPosition = target->GetActorLocation();
 	// 타겟이 있으면 타겟 주변에 다른 팀원들 검사 
 	TArray<FOverlapResult> results; 
@@ -49,7 +53,7 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		targetPosition,
 		FQuat::Identity,
 		ECC_Pawn,
-		FCollisionShape::MakeSphere(DetectionRadius),
+		FCollisionShape::MakeSphere(distance),
 		QueryParams
 	);
 
@@ -67,14 +71,18 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		if (other_id != myTeam_id)
 			continue; 
 
+		// 추격하는 대상도 제외 
+
 		UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(other_Ai);
 		if (state == nullptr)
 			continue; 
 
-		CheckTrue(Calc_ThinkValue());
-		CheckTrue(CachedBehavior->IsActionMode());
+		bool bCheck = true; 
+		bCheck = Calc_ThinkValue();
+		if (bCheck)
+			return;
 		
-		
+		// 왜 추격하다가 공격타이밍 때 되돌아갈까? 
 		// 하나라도 공격자가 있으면 자신의 상태는 Wait으로 대기한다. 
 		if (state->IsActionMode())
 		{
@@ -89,8 +97,7 @@ void UCBTService_MeleeCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 
 bool UCBTService_MeleeCheck::Calc_ThinkValue()
 {
-	if (ThinkValue.X <= 0.0f)
-		return false; 
+	CheckTrueResult(ThinkValue.X <= 0.0f, false);
 
 	//ThinkValue 내에 값이 온다면 공격자가 있어도 공격하게 한다. 
 	float randValue = FMath::RandRange(0.0f, (float)ThinkValue.Y);
@@ -112,10 +119,10 @@ void UCBTService_MeleeCheck::Calc_WaitAndAvoidWithWeight()
 
 	if (randWeight <= WeightValue.X)
 	{
+		FLog::Print(CachedAI->GetName() + " Wait call!!"); 
 		CachedBehavior->SetWaitMode();
 
 		return;
 	}
 
-	CachedBehavior->SetAvoidMode();
 }

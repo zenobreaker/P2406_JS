@@ -56,8 +56,8 @@ void UCGrapplingComponent::OnGrappling_Pressed()
 	CheckNull(OwnerCharacter);
 	CheckTrue(bIsGrappling);
 
+	bIsGrappling = true;
 	OnGrapple();
-	//bIsGrappling = true;
 }
 
 void UCGrapplingComponent::OnGrappling_Released()
@@ -70,7 +70,7 @@ void UCGrapplingComponent::OnGrappling_Released()
 
 void UCGrapplingComponent::ResetGrapple()
 {
-	bIsGrappling = false;
+ 	bIsGrappling = false;
 	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
