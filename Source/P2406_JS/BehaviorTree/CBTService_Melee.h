@@ -34,6 +34,9 @@ private:
 	void Notify_Battle_FindBattle(class ACharacter** OutTarget);
 	void Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_AI* Initiator, class ACharacter* InTarget);
 
+	void ChangeTarget(class ACharacter* InTarget);
+	bool IsTargetAttackable(class ACharacter* InTarget);
+
 private:
 	float CurrentDelay = 2.0f;
 
@@ -46,5 +49,6 @@ private:
 
 private:
 	bool isFirstAttack = false;
+	class ACharacter* PrevTarget = nullptr;
 
 };

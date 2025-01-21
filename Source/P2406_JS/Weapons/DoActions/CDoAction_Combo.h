@@ -15,7 +15,7 @@ public:
 	FORCEINLINE void DisableCombo() { bEnable = false; }
 
 	FORCEINLINE bool GetEnableCombo() const { return  bEnable; }
-	FORCEINLINE bool GetExistComob() const { return bExist; }
+	FORCEINLINE void SetExist(bool InValue) { bExist = InValue; }
 
 
 public:

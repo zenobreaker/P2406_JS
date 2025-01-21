@@ -45,18 +45,20 @@ void UCBTService_Guard::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	CheckNull(CachedBehavior);
 	CheckNull(CachedAI);
 	CheckNull(Condition);
-	CheckNull(CachedState);
 
 	CheckTrue(CachedBehavior->IsDeadMode());
-	CheckTrue(CachedBehavior->IsActionMode());
-	CheckTrue(CachedBehavior->IsApproachMode());
 	CheckFalse(CachedBehavior->GetCanMove());
-	CheckFalse(CachedBehavior->IsWaitMode());
+	
 	CheckFalse(Condition->IsNoneCondition());
 
 	auto* target = CachedBehavior->GetTarget();
 	if (target == nullptr)
+	{
+		// 타겟이 없다고? 그럼 방패를 들일이 없군. 
+		Blackboard->SetValueAsBool("bGuarding", false);
+
 		return;
+	}
 
 	// 이 서비스는 가드를 할 수 있게 한다. 
 	CalcParryTimer();
@@ -84,10 +86,9 @@ void UCBTService_Guard::OnCounterState()
 void UCBTService_Guard::OnGuardState()
 {
 	CheckNull(CachedBehavior);
-	
+
 	bool bCheck = true; 
 	bCheck &= GuardComp->GetCanGuard() == true;
 	bCheck &= GuardComp->GetGuarding() == false;
 	Blackboard->SetValueAsBool("bGuarding", bCheck);
-
 }

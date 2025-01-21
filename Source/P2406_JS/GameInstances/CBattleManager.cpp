@@ -89,10 +89,10 @@ void UCBattleManager::RequestBattleParticipation(int32 InGroupID, ACEnemy_AI* In
 		auto* blackboard = behavior->GetBlackboard();
 		if (blackboard == nullptr)
 			continue;
-		
+
 		bool bCheck = blackboard->GetValueAsBool("bInBattle");
 		if (bCheck == true)
-			continue; 
+			continue;
 		behavior->SetTarget(InTarget);
 		FLog::Log(ai->GetName() + " Participanet! ");
 	}
@@ -134,5 +134,34 @@ TArray<class ACEnemy_AI*> UCBattleManager::GetAttackers(AActor* InTarget) const
 		return TargetToAttackers[InTarget];
 
 	return TArray<ACEnemy_AI*>();
+}
+
+bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttacker)
+{
+	// 등록되지 않은 타겟 
+	if (!TargetToAttackers.Contains(InTarget))
+	{
+		return false;
+	}
+
+	bool bAttack = true;
+	float challengers_Token = FMath::RandRange(0, 10000);
+
+	for (ACEnemy_AI* attacker : TargetToAttackers[InTarget])
+	{
+		if (attacker == nullptr)
+			continue;
+
+		UCAIBehaviorComponent* behavior = FHelpers::GetComponent< UCAIBehaviorComponent>(attacker);
+
+		if (behavior == nullptr)
+			continue;
+
+		if (behavior->IsActionMode())
+			return false; 
+	}
+
+
+	return true;
 }
 

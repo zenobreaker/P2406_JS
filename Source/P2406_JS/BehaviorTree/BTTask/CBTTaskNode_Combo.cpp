@@ -28,10 +28,14 @@ EBTNodeResult::Type UCBTTaskNode_Combo::ExecuteTask(UBehaviorTreeComponent& Owne
 	CheckNullResult(weapon, EBTNodeResult::Failed);
 	CheckTrueResult(weapon->IsUnarmedMode(), EBTNodeResult::Failed);
 
-	CurrentValue = FMath::RandRange(0.0f, (float)ComboDecideValue.Y);
 
+	// 일단 모두 리셋시켜 
+	weapon->GetDoAction()->End_DoAction();
+	
 	controller->StopMovement();
-	weapon->DoAction();
+	//weapon->DoAction();
+
+	ComboState = EComboState::Idle;
 
 	return EBTNodeResult::InProgress;
 }
@@ -39,7 +43,6 @@ EBTNodeResult::Type UCBTTaskNode_Combo::ExecuteTask(UBehaviorTreeComponent& Owne
 void UCBTTaskNode_Combo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
@@ -49,40 +52,56 @@ void UCBTTaskNode_Combo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	if (weapon->GetDoAction() == nullptr)
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 
-	if (CurrentValue < ComboDecideValue.X)
-	{
 
-		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
-		if (!!behavior)
-		{
-			behavior->SetWaitMode();
-		}
-
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-
-		return;
-	}
-
+	//UCDoAction_Combo* combo = Cast<UCDoAction_Combo>(weapon->GetDoAction());
 	bool bCheck = true;
-	UCDoAction_Combo* combo = Cast<UCDoAction_Combo>(weapon->GetDoAction());
-	
-	combo->EnableCombo();
-	
-	bCheck &= (state->IsIdleMode());
-	bCheck &= (weapon->GetDoAction()->GetInAction() == false);
-	
-	// 액션 완료면 한 번 더 
-	if (bCheck == false)
-		weapon->DoAction();
-	else
-	{
-		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
-		if (!!behavior)
-		{
-			behavior->SetWaitMode();
-		}
 
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	switch (ComboState)
+	{
+		case UCBTTaskNode_Combo::EComboState::Idle:
+		{
+			CurrentValue = FMath::RandRange(0.0f, (float)ComboDecideValue.Y);
+			ComboState = EComboState::InProgress;
+			weapon->DoAction();
+		}
+		break;
+		case UCBTTaskNode_Combo::EComboState::InProgress:
+		{
+
+			bool bBeginAction = weapon->GetDoAction()->GetBeginAction();
+			bool bInAction = weapon->GetDoAction()->GetInAction();
+
+			if (bInAction && CurrentValue >= ComboDecideValue.X)
+			{
+				UCDoAction_Combo* combo = Cast<UCDoAction_Combo>(weapon->GetDoAction());
+				combo->SetExist(true);
+				weapon->DoAction();
+
+				return;
+			}
+			ComboState = EComboState::Completed; // 콤보 상태 완료로 전환
+		}
+		break;
+		case UCBTTaskNode_Combo::EComboState::Completed:
+		{
+			bCheck &= (state->IsIdleMode());
+			bCheck &= (weapon->GetDoAction()->GetInAction() == false);
+
+			// 액션 완료면 한 번 더 
+			if (bCheck)
+			{
+				UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+				if (!!behavior)
+				{
+					behavior->SetWaitMode();
+				}
+
+				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			}
+		}
+		break;
+		default:
+		break;
 	}
 }
 

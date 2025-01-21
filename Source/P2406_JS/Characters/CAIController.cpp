@@ -3,11 +3,13 @@
 #include "GameFramework/Character.h"
 #include "Characters/CEnemy_AI.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "Components/CAIBehaviorComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Team.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+
+#include "Components/CAIBehaviorComponent.h"
+#include "Components/CHealthPointComponent.h"
 
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -114,8 +116,8 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 		// 가장 가까운 타겟 찾기
 		if (distance < nearestDistance)
 		{
-			UCAIBehaviorComponent* otherBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(actor);
-			if (otherBehavior && !otherBehavior->IsDeadMode())
+			UCHealthPointComponent* otherHealth = FHelpers::GetComponent<UCHealthPointComponent>(actor);
+			if (otherHealth && !otherHealth->IsDead())
 			{
 				nearestTarget = actor;
 				nearestDistance = distance;

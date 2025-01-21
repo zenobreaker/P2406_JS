@@ -12,6 +12,16 @@ class P2406_JS_API UCBTTaskNode_Combo : public UBTTaskNode
 public:
 	UCBTTaskNode_Combo();
 
+
+public:
+	enum class EComboState
+	{
+		Idle,
+		InProgress,
+		Completed
+	};
+
+
 protected:
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
@@ -22,5 +32,6 @@ public:
 	FVector2D ComboDecideValue = FVector2D(0.0f, 1.0f);
 
 private:
+	EComboState ComboState = EComboState::Idle;
 	float CurrentValue;
 };
