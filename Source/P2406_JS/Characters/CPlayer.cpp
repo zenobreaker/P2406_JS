@@ -31,7 +31,7 @@ ACPlayer::ACPlayer()
 	FHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
 	FHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
 
-	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon"); 
+	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
 	FHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
 	FHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
 	FHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
@@ -126,7 +126,7 @@ void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerCameraManager* camearManager= GetController<APlayerController>()->PlayerCameraManager;
+	APlayerCameraManager* camearManager = GetController<APlayerController>()->PlayerCameraManager;
 
 	camearManager->ViewPitchMin = PitchAngle.X;
 	camearManager->ViewPitchMax = PitchAngle.Y;
@@ -135,7 +135,7 @@ void ACPlayer::BeginPlay()
 
 	Movement->OnRun();
 	Movement->DisableControlRotation();
-	
+
 
 	ensure(Weapon != nullptr);  // Weapon이 nullptr이라면 경고 출력
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
@@ -286,9 +286,9 @@ void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 		case EStateType::Damaged: Damaged(); break;
 		case EStateType::Guard:
 		{
-			bGuardgaugeVisible = true; 
+			bGuardgaugeVisible = true;
 		}
-		break; 
+		break;
 	}
 
 	if (!!UserInterface)
@@ -379,10 +379,14 @@ void ACPlayer::Damaged()
 		if (HealthPoint->IsDead() == false)
 		{
 			Launch(*hitData);
+		}
 
-			// 공중에 띄우기
-			/*if(!!Airborne)
-				Airborne->LaunchIntoAir(hitData->Airial, DamageData.Attacker);*/
+		if (!!Condition)
+		{
+			if (GetCharacterMovement()->IsFalling())
+				Condition->AddAirborneCondition();
+			if (hitData->bDown)
+				Condition->AddDownCondition();
 		}
 	}
 
@@ -497,7 +501,7 @@ void ACPlayer::OnSubAction()
 
 void ACPlayer::OffSubAction()
 {
-	CheckNull(Weapon); 
+	CheckNull(Weapon);
 	CheckTrue(Weapon->IsUnarmedMode());
 
 	Weapon->SubAction_Released();
@@ -681,6 +685,8 @@ void ACPlayer::OnDownConditionActivated()
 {
 	CheckNull(Condition);
 	check(Condition != nullptr);
+	CheckTrue(HealthPoint->IsDead());
+
 
 	// 공중 상태라면 다운 상태에 관한 로직을 바로 하지 않고 델리게이트에 맞겨놓는다.
 	if (Condition->GetAirborneCondition())
@@ -691,6 +697,9 @@ void ACPlayer::OnDownConditionActivated()
 		return;
 	}
 
+
+	Movement->Stop();
+	
 	StartDownTimer();
 
 	if (OnCharacterDowned.IsBound())
@@ -717,6 +726,7 @@ void ACPlayer::OnDownConditionDeactivated()
 	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
 	PlayAnimMontage(RaiseMontage);
 
+	Movement->Move();
 
 	bShouldCountDownOnLand = false;
 	if (OnCharacterRaised.IsBound())
