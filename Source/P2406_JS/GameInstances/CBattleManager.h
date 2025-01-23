@@ -8,7 +8,9 @@ UCLASS()
 class P2406_JS_API UCBattleManager : public UObject
 {
 	GENERATED_BODY()
-	
+
+
+
 
 public:
 	UCBattleManager();
@@ -26,7 +28,7 @@ public:
 public:
 	UFUNCTION()
 	void RegisterAttacker(class AActor* InTarget, class ACEnemy_AI* InAttacker);
-	
+
 	UFUNCTION()
 	void UnregisterAttacker(class AActor* InTarget, class ACEnemy_AI* InAttacker);
 
@@ -41,6 +43,10 @@ private:
 	TMap<class AActor*, TArray<class ACEnemy_AI*>> TargetToAttackers; // 타겟별 공격자 리스트
 	FCriticalSection Mutex; // 멀티스레드 보호
 
-	TMap<int32, TArray<class ACEnemy_AI*>> GroupAITable; 
+	TMap<int32, TArray<class ACEnemy_AI*>> GroupAITable;
+
+public:
+	TMap<AActor*, int32> TargetToTokenCount; // 각 타겟에 대해 현재 할당된 토큰 수
+	const int32 MaxAttackersPerTarget = 1;	// 타겟에 대해 현재 최대 공격 가능 적 수
 
 };

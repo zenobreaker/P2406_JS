@@ -13,6 +13,9 @@ class P2406_JS_API UCBTService_Melee : public UBTService
 private:
 	UPROPERTY(EditAnywhere, Category = "Action")
 	float ActionRange = 150;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	float WaitRange = 250;
 	
 	UPROPERTY(EditAnywhere, Category = "Action")
 	FVector2D ActionDelay = FVector2D::TVector2(1.5f, 2.0f);

@@ -106,17 +106,28 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	UCConditionComponent* targetCondition = FHelpers::GetComponent<UCConditionComponent>(target);
 	if ((targetCondition && targetCondition->GetDownCondition()) )
 	{
-		CachedBehavior->SetWaitMode();
+		CachedBehavior->SetNoneMode();
 
 		return;
 	}
 
+
+
 	if (CurrentDelay > 0.0f)
 		return; 
 
-	bool isAttackable = IsTargetAttackable(target);
-	if (isAttackable == false)
-		return; 
+	// 일정 범위로 오면 계산
+	float waitDistance = CachedAI->GetDistanceTo(target);
+	if (waitDistance <= WaitRange)
+	{
+		bool isAttackable = IsTargetAttackable(target);
+		if (isAttackable == false)
+		{
+			CachedBehavior->SetWaitMode();
+
+			return;
+		}
+	}
 
 	float distance = CachedAI->GetDistanceTo(target);
 	if (distance <= ActionRange)
@@ -136,15 +147,7 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 		return;
 	}
-	//else if(IsTargetAttackable(target) == false)
-	//{
-	//	// 쿨타임이 돌고 있을 땐 대기 상태로 
-	//	if (CachedBehavior->IsWaitMode() == false)
-	//		CachedBehavior->SetWaitMode();
-
-	//	return;
-	//}
-
+	
 	if (CachedBehavior->IsApproachMode())
 		return;
 

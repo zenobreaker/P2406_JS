@@ -41,15 +41,7 @@ void UCBTService_Guard::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 	
-	CheckNull(Blackboard); 
-	CheckNull(CachedBehavior);
-	CheckNull(CachedAI);
-	CheckNull(Condition);
-
-	CheckTrue(CachedBehavior->IsDeadMode());
-	CheckFalse(CachedBehavior->GetCanMove());
-	
-	CheckFalse(Condition->IsNoneCondition());
+	CheckTrue(Condition->IsNoneCondition());
 
 	auto* target = CachedBehavior->GetTarget();
 	if (target == nullptr)
