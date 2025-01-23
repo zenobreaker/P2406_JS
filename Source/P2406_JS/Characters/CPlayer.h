@@ -20,13 +20,8 @@ class P2406_JS_API ACPlayer
 	, public IIDamagable
 	, public IIAirborne
 	, public IIDownable
-	, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "Team")
-	uint8 TeamID = 1;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "UserInterface")

@@ -61,6 +61,8 @@ protected:
 
 	virtual void DestroyProcess();
 
+private: 
+	bool CheckMyTeam(AActor* InOtherActor);
 
 public:
 	TArray<AActor*> Hitted;

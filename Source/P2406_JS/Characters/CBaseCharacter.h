@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Enums/FEnum.h"
+#include "GenericTeamAgentInterface.h"
 #include "CBaseCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterLanded);
@@ -12,10 +13,19 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterRaised);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDead);
 
 UCLASS()
-class P2406_JS_API ACBaseCharacter : public ACharacter
+class P2406_JS_API ACBaseCharacter 
+	: public ACharacter
+	, public IGenericTeamAgentInterface
+
 {
 	GENERATED_BODY()
 
+
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Team")
+	uint8 TeamID = 2;
+	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Group")
 	int32 GroupID = 0; 
@@ -48,6 +58,9 @@ public:
 	FORCEINLINE EEntityGrade GetGrade() { return Grade; }
 	FORCEINLINE int32 GetGroupID()const { return GroupID; }
 	FORCEINLINE void SetGroupID(int32 InGroupID) { GroupID = InGroupID; }
+
+public:
+	FORCEINLINE FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
 
 public:
 	ACBaseCharacter();

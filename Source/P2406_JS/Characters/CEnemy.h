@@ -7,7 +7,7 @@
 #include "Characters/Condition_Interfaces/IAirborne.h"
 #include "Characters/Condition_Interfaces/IDownable.h"
 #include "Components/CStateComponent.h"
-#include "GenericTeamAgentInterface.h"
+
 #include "CEnemy.generated.h"
 
 
@@ -19,15 +19,11 @@ class P2406_JS_API ACEnemy
 	, public IIDamagable
 	, public IIDownable
 	, public IIAirborne
-	, public IGenericTeamAgentInterface
+
 
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Team")
-	uint8 TeamID = 2;
-	
 private:
 	UPROPERTY(EditAnywhere, Category = "Color")
 	FLinearColor OriginColor = FLinearColor::White;
@@ -96,8 +92,7 @@ public:
 	virtual void OnDownConditionActivated() override;
 	virtual void OnDownConditionDeactivated() override; 
 
-public:
-	FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
+
 
 
 private:

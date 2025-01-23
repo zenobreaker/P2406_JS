@@ -141,9 +141,8 @@ void ACPlayer::BeginPlay()
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
 
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
-	//State->OnStateTypeChanged.AddDynamic(this, &ACPlayer::OnStateTypeChanged);
+	
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, ACPlayer::OnWeaponTypeChanged);
-	//Weapon->OnWeaponTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponTypeChanged);
 
 
 	// 일반 캐릭터 UI
