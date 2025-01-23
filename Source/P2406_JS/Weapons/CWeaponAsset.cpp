@@ -27,6 +27,12 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 		params.Owner = InOwner;
 
 		attachment = InOwner->GetWorld()->SpawnActor<ACAttachment>(AttachmentClass, params);
+
+		ACBaseCharacter* baseCharacter = Cast<ACBaseCharacter>(InOwner);
+		if (baseCharacter != nullptr)
+		{
+			REGISTER_EVENT_WITH_REPLACE(baseCharacter, OnCharacterDead, attachment, ACAttachment::OnDestroy);
+		}
 	}
 
 	UCEquipment* equipment = nullptr;
@@ -47,7 +53,7 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 	{
 		doAction = NewObject<UCDoAction>(this, DoActionClass);
 		doAction->BeginPlay(InOwner, attachment, equipment, DoActionDatas, HitDatas);
-		
+
 		if (!!attachment)
 		{
 			attachment->OnAttachmentBeginCollision.AddDynamic(doAction, &UCDoAction::OnAttachmentBeginCollision);
@@ -76,7 +82,7 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 	(*OutWeaponData)->Equipment = equipment;
 	(*OutWeaponData)->DoAction = doAction;
 	(*OutWeaponData)->SubAction = subAction;
-	
+
 	// WeaponAsset에 있는 스킬 정보를 가져옴 
 	if (ActiveSkillAssets.Num() > 0)
 	{

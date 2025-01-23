@@ -44,7 +44,7 @@ void ACAttachment::AttachTo(FName InSocketName)
 {
 	if (OwnerCharacter->GetMesh()->DoesSocketExist(InSocketName) == false)
 	{
-		FString string = "Socek is Null " + InSocketName.ToString() + "Witth "+ this->GetName();
+		FString string = "Socek is Null " + InSocketName.ToString() + "Witth " + this->GetName();
 		FLog::Log(string);
 	}
 
@@ -98,7 +98,7 @@ void ACAttachment::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	CheckTrue(OwnerCharacter == OtherActor);
 
 	ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
-	if(HitCharacter)
+	if (HitCharacter)
 		HandleAttachmentOverlap(OwnerCharacter, this, HitCharacter);
 }
 
@@ -108,5 +108,11 @@ void ACAttachment::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponen
 
 	if (OnAttachmentEndOverlap.IsBound())
 		OnAttachmentEndOverlap.Broadcast(OwnerCharacter, Cast<ACharacter>(OtherActor));
+}
+
+void ACAttachment::OnDestroy()
+{
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	Destroy();
 }
 

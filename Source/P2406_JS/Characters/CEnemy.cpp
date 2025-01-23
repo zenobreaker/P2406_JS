@@ -26,7 +26,7 @@ ACEnemy::ACEnemy()
 
 	USkeletalMesh* mesh = nullptr; // 포인터를 명시적으로 nullptr로 초기화
 	FHelpers::GetAsset<USkeletalMesh>(&mesh, "/Script/Engine.SkeletalMesh'/Game/Characters/Mesh/SK_Mannequin.SK_Mannequin'");
-	if(mesh != nullptr)
+	if (mesh != nullptr)
 		GetMesh()->SetSkeletalMesh(mesh);
 
 	TSubclassOf<UCAnimInstance> animInstance;
@@ -58,7 +58,7 @@ void ACEnemy::BeginPlay()
 
 	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
 
-	if(!!Condition)
+	if (!!Condition)
 	{
 		OnCharacterLanded.AddDynamic(Condition, &UCConditionComponent::RemoveAirborneCondition);
 	}
@@ -98,14 +98,14 @@ void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
 	{
-	case EStateType::Damaged: Damaged(); break;
-	case EStateType::Dead: Dead(); break;
+		case EStateType::Damaged: Damaged(); break;
+		case EStateType::Dead: Dead(); break;
 	}
 }
 
 void ACEnemy::OnConditionTypeChanged(EConditionState InPrevCondition, EConditionState InNewCondition)
 {
-	
+
 }
 
 void ACEnemy::Damaged()
@@ -129,7 +129,7 @@ void ACEnemy::Damaged()
 	if (!!DamageData.Event && !!DamageData.Event->HitData)
 	{
 		FHitData* hitData = DamageData.Event->HitData;
-		
+
 		Play_DamageMontage(*hitData);
 
 		// 히트 및 효과 처리 
@@ -148,8 +148,8 @@ void ACEnemy::Damaged()
 			FVector target = DamageData.Attacker->GetActorLocation();
 			FVector direction = target - start;
 			direction.Normalize();*/
-			
-		
+
+
 			//FVector LaunchVelocity = -direction * hitData->Launch + FVector(0, 0, dirZ);
 			//LaunchCharacter(LaunchVelocity, false, true);
 
@@ -161,11 +161,11 @@ void ACEnemy::Damaged()
 
 		//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
 		//TODO: 상태 변화에 대한 정보를 받는 처리를 따로 호출할 수 있도록 해야하지않을까?
-		if(!!Condition)
+		if (!!Condition)
 		{
 			if (GetCharacterMovement()->IsFalling())
 				Condition->AddAirborneCondition();
-			if(hitData->bDown)
+			if (hitData->bDown)
 				Condition->AddDownCondition();
 		}
 	}
@@ -199,7 +199,7 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	{
 		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
 	}
-	direction += FVector(0, 0, dirZ); 
+	direction += FVector(0, 0, dirZ);
 
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;
@@ -268,7 +268,7 @@ void ACEnemy::Play_DamageMontage(const FHitData& hitData)
 			montage = AirborneDamagedMontage;
 			playRate = 1.5f;
 		}
-		else if(isDowned == true)
+		else if (isDowned == true)
 		{
 			montage = DownDamgeMontage;
 		}
@@ -292,17 +292,17 @@ void ACEnemy::Landed(const FHitResult& Hit)
 	/*CheckNull(Airborne);
 	Airborne->Landed(Hit);*/
 
-	if(bShouldCountDownOnLand)
+	if (bShouldCountDownOnLand)
 		StartDownTimer();
 }
 
 void ACEnemy::Dead()
 {
+	Super::Dead();
+
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	PlayAnimMontage(DeadMontage);
-
-	DYNAMIC_EVENT_CALL(OnCharacterDead);
 }
 
 void ACEnemy::End_Dead()
@@ -338,7 +338,7 @@ void ACEnemy::OnAirborneConditionDeactivated()
 void ACEnemy::StartDownTimer()
 {
 
-	UCapsuleComponent* capsule= GetCapsuleComponent();
+	UCapsuleComponent* capsule = GetCapsuleComponent();
 	if (capsule)
 	{
 		//capsule->SetCapsuleHalfHeight(40.0f); // 크기 축소
@@ -351,27 +351,27 @@ void ACEnemy::StartDownTimer()
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
 	{
-		if(!!Condition)
+		if (!!Condition)
 			Condition->RemoveDownCondition();
 	});
 
 	GetWorld()->GetTimerManager().SetTimer(ChangeConditionHandle, timerDelegate, 5.0f, false);
 }
 
-void ACEnemy::OnDownConditionActivated() 
+void ACEnemy::OnDownConditionActivated()
 {
 	CheckNull(Condition);
 	check(Condition != nullptr);
-	
+
 	CheckTrue(HealthPoint->IsDead());
 
 	// 공중 상태라면 다운 상태에 관한 로직을 바로 하지 않고 델리게이트에 맞겨놓는다.
-	if(Condition->GetAirborneCondition())
+	if (Condition->GetAirborneCondition())
 	{
-		bShouldCountDownOnLand = true; 
+		bShouldCountDownOnLand = true;
 		FLog::Log("Target has Airborne : " + GetName());
 
-		return; 
+		return;
 	}
 
 	StartDownTimer();
@@ -380,22 +380,22 @@ void ACEnemy::OnDownConditionActivated()
 		OnCharacterDowned.Broadcast();
 }
 
-void ACEnemy::OnDownConditionDeactivated() 
+void ACEnemy::OnDownConditionDeactivated()
 {
 	// 다운 상태 풀어볼려했는데 그럴만한 여건이 안되면? 수행안함
-	if(GetCharacterMovement()->IsFalling())
+	if (GetCharacterMovement()->IsFalling())
 	{
 		// 착지될 때 시점에 맡긴ㄷㅏ.
 
-		return; 
+		return;
 	}
 
 	UCapsuleComponent* capsule = GetCapsuleComponent();
-    if (capsule)
-    {
+	if (capsule)
+	{
 		//capsule->SetCapsuleHalfHeight(88.0f); // 기본 크기로 복구
 		//capsule->SetCapsuleRadius(34.0f); // 기본 반지름으로 복구
-    }
+	}
 
 	CheckTrue(HealthPoint->IsDead());
 	CheckTrue(State->IsDeadMode());

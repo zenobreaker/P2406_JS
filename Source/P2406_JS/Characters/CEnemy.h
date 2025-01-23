@@ -81,7 +81,7 @@ private:
 	void Landed(const FHitResult& Hit) override;
 
 protected:
-	virtual void Dead();
+	virtual void Dead() override;
 
 public:
 	void End_Dead() override;

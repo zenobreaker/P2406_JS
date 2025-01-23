@@ -63,6 +63,9 @@ private:
 	UFUNCTION()
 	void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+public:
+	UFUNCTION()
+	void OnDestroy();
 
 public:
 	FAttachmentBeginCollision OnAttachmentBeginCollision;

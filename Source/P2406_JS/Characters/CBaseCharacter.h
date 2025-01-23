@@ -68,6 +68,9 @@ protected:
 	virtual void Play_DamageMontage(const struct FHitData& hitData) {};
 
 protected:
+	virtual void Dead();
+
+protected:
 	protected:
 	UPROPERTY(VisibleAnywhere, Category ="Components")
 	class UCAirborneComponent* Airborne;
