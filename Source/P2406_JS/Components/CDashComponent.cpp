@@ -62,7 +62,7 @@ void UCDashComponent::DashAction()
 		|| Weapon->GetEquipment()->GetControlRotation() == false)
 	{
 		CheckTrue(DashMontages.Num() == 0);
-		
+
 		// 전방
 		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Forward]);
 	}
@@ -157,7 +157,7 @@ void UCDashComponent::End_DashSpeed()
 	}
 
 	// 공격 중이였다면 공격 종료 
-	if(Weapon->GetDoAction() != nullptr)
+	if (Weapon->GetDoAction() != nullptr)
 		Weapon->GetDoAction()->End_DoAction();
 
 	if (State->IsIdleMode() == false)
@@ -240,46 +240,49 @@ void UCDashComponent::DestroyEvadeOverlap()
 
 void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	FLog::Print(" Is Evade!");
+	CheckNull(GhostTrailClass);
 
-	if (!!GhostTrailClass)
+	// 자신이 충돌되면 제외 
+	CheckTrue(OtherActor == OwnerCharacter);
+
+	FLog::Print(" Is Evade!" + OtherActor->GetName());
+
+	// 고스트 트레일 스폰 
+	FTimerDelegate SpawnDelegate;
+	SpawnDelegate.BindLambda([this]()
 	{
-		// 고스트 트레일 스폰 
-		FTimerDelegate SpawnDelegate;
-		SpawnDelegate.BindLambda([this]()
+		FVector location = OwnerCharacter->GetActorLocation();
+		location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+		FActorSpawnParameters param;
+		param.Owner = OwnerCharacter;
+		param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+		FTransform transform;
+		transform.SetTranslation(location);
+
+
+		ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
+
+		GhostTrails.Add(GhostTrail);
+
+
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindLambda([this]()
 		{
-			FVector location = OwnerCharacter->GetActorLocation();
-			location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-
-			FActorSpawnParameters param;
-			param.Owner = OwnerCharacter;
-			param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-			FTransform transform;
-			transform.SetTranslation(location);
-
-
-			ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
-
-			GhostTrails.Add(GhostTrail);
-
-
-			FTimerDelegate TimerDelegate;
-			TimerDelegate.BindLambda([this]()
+			for (ACGhostTrail* ghost : GhostTrails)
 			{
-				for (ACGhostTrail* ghost : GhostTrails)
-				{
-					if (ghost)
-						ghost->Destroy();
-				}
-			});
-
-			// 타이머 설정 (예: 0.5초 후 제거)
-			OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, TimerDelegate, 0.5f, false);
+				if (ghost)
+					ghost->Destroy();
+			}
 		});
 
-		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
-	}
+		// 타이머 설정 (예: 0.5초 후 제거)
+		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, TimerDelegate, 0.5f, false);
+	});
+
+	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
+
 }
 

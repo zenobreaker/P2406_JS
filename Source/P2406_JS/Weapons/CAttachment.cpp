@@ -11,6 +11,7 @@ ACAttachment::ACAttachment()
 
 void ACAttachment::BeginPlay()
 {
+	// 블루프린트에서 BeginPlay가 먼저 호출되므로 그 전에 먼저 세팅해야한다. 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 
 	TArray<USceneComponent*> children;
@@ -41,6 +42,12 @@ void ACAttachment::BeginPlay()
 
 void ACAttachment::AttachTo(FName InSocketName)
 {
+	if (OwnerCharacter->GetMesh()->DoesSocketExist(InSocketName) == false)
+	{
+		FString string = "Socek is Null " + InSocketName.ToString() + "Witth "+ this->GetName();
+		FLog::Log(string);
+	}
+
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), InSocketName);
 }
 
