@@ -18,8 +18,8 @@ EBTNodeResult::Type UCBTTaskNode_Damaged::ExecuteTask(UBehaviorTreeComponent& Ow
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
+	CheckNullResult(controller, EBTNodeResult::Failed);
 	controller->StopMovement();
-
 
 	return EBTNodeResult::InProgress;
 }

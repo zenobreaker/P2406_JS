@@ -98,6 +98,11 @@ void UCBattleManager::RequestBattleParticipation(int32 InGroupID, ACEnemy_AI* In
 		bool bCheck = blackboard->GetValueAsBool("bInBattle");
 		if (bCheck == true)
 			continue;
+
+		auto* prevTarget = behavior->GetTarget(); 
+		if (prevTarget != nullptr)
+			continue; 
+
 		behavior->SetTarget(InTarget);
 		FLog::Log(ai->GetName() + " Participanet! ");
 	}
@@ -248,7 +253,7 @@ bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttac
 	}
 
 	// 이미 한 번에 공격할 수 있는 적의 인원수를 넘음 
-	if (TargetToAttackers.Num() > MaxAttackersPerTarget)
+	if (TargetToAttackers[InTarget].Num() > MaxAttackersPerTarget)
 	{
 		FLog::Log("IsAttackableToTarget - Over Attacker Count ");
 		return false;
@@ -294,7 +299,8 @@ bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttac
 
 	if (myToken < TargetToTokenCount[InTarget])
 	{
-		FLog::Log("IsAttackableToTarget - Missed Token");
+		FLog::Log("IsAttackableToTarget - Missed Token" + FString::FromInt(myToken) + " / " + FString::FromInt(TargetToTokenCount[InTarget]));
+		SetTokenAttacker(InAttacker);
 		return false;
 	}
 

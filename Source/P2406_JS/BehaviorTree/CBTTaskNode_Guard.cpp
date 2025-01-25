@@ -7,6 +7,8 @@
 #include "Components/CGuardComponent.h"
 #include "Components/CWeaponComponent.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+
 UCBTTaskNode_Guard::UCBTTaskNode_Guard()
 {
 	NodeName = "Guard";
@@ -57,7 +59,7 @@ void UCBTTaskNode_Guard::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	if(Guard->GetGuarding() == false)
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 	else 
-		FinishLatentTask(OwnerComp, EBTNodeResult::InProgress);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 
 }
 

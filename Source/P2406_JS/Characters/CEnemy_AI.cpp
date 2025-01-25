@@ -90,10 +90,20 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
 
 	bool bBlocking = false;
+	bool bCountering = false; 
 	if (State->IsGuardMode())
 	{
 		CheckNullResult(Guard, Damage);
 		bBlocking = Guard->CheckBlocking(DamageData);
+
+		bCountering = Guard->GetCountering();
+	}
+
+	// 카운터 중이라면 데미지를 입지 않는다. 
+	if (bCountering)
+	{
+
+		return Damage;
 	}
 
 	// 가드 됐다면 쪼금만 밀리게 
@@ -171,7 +181,12 @@ void ACEnemy_AI::Damaged()
 {
 	Super::Damaged();
 	CheckTrue(State->IsDeadMode());
+	CheckNull(Behavior); 
 
+	auto* target = Behavior->GetTarget();
+	if (target == nullptr)
+		Behavior->SetTarget(target);
+	
 	Behavior->SetDamageMode();
 }
 

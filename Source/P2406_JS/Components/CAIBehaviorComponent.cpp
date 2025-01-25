@@ -7,6 +7,8 @@
 #include "Components/CStateComponent.h"
 #include "Components/CConditionComponent.h"
 
+#include "GameInstances/CGameInstance.h"
+#include "GameInstances/CBattleManager.h"
 
 UCAIBehaviorComponent::UCAIBehaviorComponent()
 {
@@ -35,6 +37,9 @@ void UCAIBehaviorComponent::BeginPlay()
 
 		condition->OnRemoveCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnRemoveConditionType);
 	}
+
+	if(!!Blackboard)
+		Blackboard->SetValueAsBool("bCanAct", true);
 }
 
 EAIStateType UCAIBehaviorComponent::GetType()
@@ -214,6 +219,52 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 	Blackboard->SetValueAsEnum(AIStateTypeKey, (uint8)InType);
 	if (OnAIStateTypeChanged.IsBound())
 		OnAIStateTypeChanged.Broadcast(PrevType, InType);
+
+	bool bCheck = false;
+
+	switch (InType)
+	{
+	case EAIStateType::Wait:
+		break;
+	case EAIStateType::Approach:
+		break;
+	case EAIStateType::Action:
+		bCheck |= Blackboard->GetValueAsBool("bFirstAttack");
+		break;
+	case EAIStateType::Patrol:
+		break;
+	case EAIStateType::Damage:
+		bCheck |= Blackboard->GetValueAsBool("bFirstDamage");
+		break;
+	case EAIStateType::Avoid:
+		break;
+	case EAIStateType::Airborne:
+		break;
+	case EAIStateType::Down:
+		break;
+	case EAIStateType::Guard:
+		break;
+	case EAIStateType::Dead:
+		break;
+	case EAIStateType::Max:
+		break;
+	default:
+		break;
+	}
+	
+	
+	if (bCheck)
+	{
+
+		UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		CheckNull(instance);
+		UCBattleManager* battleManager = instance->BattleManager;
+		CheckNull(battleManager);
+
+		auto* target = GetTarget();
+		CheckNull(target);
+		battleManager->RequestBattleParticipation(CachedAI->GetGroupID(), CachedAI, target);
+	}
 }
 
 void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InNewType)
@@ -244,6 +295,7 @@ void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 		case EConditionState::CONDITION_DOWNED:
 		case EConditionState::CONDITION_AIRBORNE:
 		bCanMove = false;
+		Blackboard->SetValueAsBool("bCanAct", false);
 		break;
 	}
 }
@@ -257,6 +309,8 @@ void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 		case EConditionState::CONDITION_DOWNED:
 		case EConditionState::CONDITION_AIRBORNE:
 		bCanMove = true;
+		Blackboard->SetValueAsBool("bCanAct", true);
+		break; 
 	}
 }
 

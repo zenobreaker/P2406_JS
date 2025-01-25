@@ -36,9 +36,9 @@ private:
 
 private:
 	
-	bool Notify_Battle_IsContainAttakcer(class ACharacter* InTarget);
+	bool Notify_Battle_IsContainAttacker(class ACharacter* InTarget);
 	void Notify_Battle_FindBattle(class ACharacter** OutTarget);
-	void Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_AI* Initiator, class ACharacter* InTarget);
+	//void Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_AI* Initiator, class ACharacter* InTarget);
 	void Notify_Battle_RemoveBattle(class ACharacter* InTarget, class ACEnemy_AI* Initiator);
 	void Notify_Battle_SetJoinBattle(class ACharacter* InTarget, class ACEnemy_AI* Initiator);
 
@@ -56,7 +56,8 @@ private:
 	class UBlackboardComponent* Blackboard = nullptr;
 
 private:
-	bool isFirstAttack = false;
 	class ACharacter* PrevTarget = nullptr;
+	bool isFirstAttack = false;
+	bool isFirstDamage = false; 
 
 };

@@ -5,6 +5,7 @@
 #include "Characters/CEnemy_AI.h"
 
 #include "Components/CAIBehaviorComponent.h"
+#include "Components/CStateComponent.h"
 
 
 UCBTTaskNode_DamageEnd::UCBTTaskNode_DamageEnd()
@@ -26,7 +27,12 @@ EBTNodeResult::Type UCBTTaskNode_DamageEnd::ExecuteTask(UBehaviorTreeComponent& 
 	CheckNullResult(behavior, EBTNodeResult::Type::Failed);
 
 	// 끝나면 상태값을 원래상태로 복귀하면 좋겠지만 그런거 없으므로 초기로
-	behavior->SetWaitMode(); 
+	behavior->SetNoneMode(); 
+
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai); 
+	CheckNullResult(state, EBTNodeResult::Type::Failed);
+
+	state->SetIdleMode();
 
 	return EBTNodeResult::Succeeded;
 }

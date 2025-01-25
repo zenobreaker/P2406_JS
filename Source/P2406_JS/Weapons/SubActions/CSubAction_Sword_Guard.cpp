@@ -13,6 +13,7 @@
 #include "Weapons/CAttachment.h"
 #include "Weapons/CDoAction.h"
 #include "Weapons/CSubAction.h"
+#include "Weapons/DoActions/CDoAction_Combo.h"
 
 #include "Widgets/CUserWidget_Player.h"
 
@@ -73,13 +74,11 @@ void UCSubAction_Sword_Guard::Pressed()
 	if (State->IsDamagedMode())
 		return;
 
-
-	GuardHP = MaxGuardHealth;
-
 	State->SetGuardMode();
 
+	GuardHP = MaxGuardHealth;
 	Owner->PlayAnimMontage(GuardMontage, PlayRate);
-
+	
 	CheckNull(Movement);
 	Movement->Stop();
 }
@@ -136,8 +135,11 @@ void UCSubAction_Sword_Guard::OnStateTypeChanged(EStateType InPrevType, EStateTy
 	case EStateType::Damaged:
 		OffGuardStance();
 		break;
-	default:
-		break;
+	case EStateType::Idle:
+		ACPlayer* player = Cast<ACPlayer>(Owner);
+		if (!!player)
+			*player->bCountering = false;
+		break; 
 	}
 }
 
@@ -219,6 +221,9 @@ void UCSubAction_Sword_Guard::Evaluate_JustTiming(AActor* InAttacker)
 		
 		//TODO : 쎄한점 공격자가 패링당하는 상태에 대한 처리가 안되어 있어서 무조건 공격 ㅇㅈㄹ할수있다
 		//TODO: 적이 특정한 반격모션을 던져주도록 하자
+		ACPlayer* player = Cast<ACPlayer>(Owner);
+		if (!!player)
+			*player->bCountering = true; 
 		ActionData.DoAction(Owner);
 
 		return; 

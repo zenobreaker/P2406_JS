@@ -23,6 +23,7 @@ public:
 public:
 	FORCEINLINE bool GetCanGuard() const { return bCanGuard; }
 	FORCEINLINE bool GetGuarding() const { return bGuarding; }
+	FORCEINLINE bool GetCountering() const { return bCountering; }
 
 	FORCEINLINE void SetCanGuard(const bool InValue) { bCanGuard = InValue; }
 

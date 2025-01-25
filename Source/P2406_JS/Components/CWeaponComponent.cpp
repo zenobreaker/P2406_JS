@@ -252,6 +252,12 @@ bool UCWeaponComponent::TryGuard(ACBaseCharacter::FDamageData& DamageData)
 {
 	CheckTrueResult(OwnerCharacter == nullptr, false);
 
+	UCDoAction* doAction = GetDoAction();
+	if (!!doAction)
+	{
+		doAction->End_DoAction();
+	}
+
 	// 방어 각도 계산은 서브액션무기에게 전달
 	if (!!GetSubAction())
 		return GetSubAction()->TryGuard(DamageData);

@@ -180,4 +180,7 @@ private:
 
 private:
 	bool bCanInput = true; 
+	
+public:
+	bool* bCountering; 
 };
