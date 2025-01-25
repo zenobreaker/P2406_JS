@@ -5,29 +5,34 @@
 #include "Components/CAIBehaviorComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+int32 UCBattleManager::MaxTokenValue = 1000;
+
 UCBattleManager::UCBattleManager()
 {
 
 }
 
-void UCBattleManager::RegisterGroup(int32 InGroupID, ACEnemy_AI* InTarget)
+// 타겟을 비롯하여 그룹을 생성
+void UCBattleManager::RegistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 {
 	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (!GroupAITable.Contains(InGroupID))
 		GroupAITable.Add(InGroupID, TArray<ACEnemy_AI*>());
 
 	TArray<ACEnemy_AI*>& ais = GroupAITable[InGroupID];
-	if (!ais.Contains(InTarget))
-		ais.Add(InTarget);
+	if (!ais.Contains(InMember))
+	{
+		ais.Add(InMember);
+	}
 }
 
-void UCBattleManager::UnregisterGroup(int32 InGroupID, ACEnemy_AI* InTarget)
+void UCBattleManager::UnregistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 {
 	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (GroupAITable.Contains(InGroupID))
 	{
 		TArray<ACEnemy_AI*>& ais = GroupAITable[InGroupID];
-		ais.Remove(InTarget);
+		ais.Remove(InMember);
 
 		if (ais.Num() == 0)
 			GroupAITable.Remove(InGroupID);
@@ -98,18 +103,39 @@ void UCBattleManager::RequestBattleParticipation(int32 InGroupID, ACEnemy_AI* In
 	}
 }
 
-void UCBattleManager::RegisterAttacker(AActor* InTarget, ACEnemy_AI* InAttacker)
+// 해당 타겟의 그룹의 등록
+void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 {
+	CheckNull(InTarget);
+	CheckNull(InAttacker);
+
 	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (!TargetToAttackers.Contains(InTarget))
+	{
+		// 타겟에게 죽으면 해제하도록이벤트 추가 
+		ACBaseCharacter* character = Cast<ACBaseCharacter>(InTarget);
+		if(character != nullptr)
+			REGISTER_EVENT_WITH_REPLACE(character, OnCharacterDead_One, this, UCBattleManager::UnregistTarget);
+		
+		SetTokenTarget(InTarget);
+
 		TargetToAttackers.Add(InTarget, TArray<ACEnemy_AI*>());
+	}
 
 	TArray<ACEnemy_AI*>& attackers = TargetToAttackers[InTarget];
 	if (!attackers.Contains(InAttacker))
+	{
+		// 대상이 공격자인 경우 - 공격자가 죽으면 해제하도록 
+		REGISTER_EVENT_WITH_REPLACE(InAttacker, OnCharacterDead_One, this, UCBattleManager::UnregistAttacker);
+
+		// 그룹에 추가 될 때 
+		SetTokenAttacker(InAttacker);
+
 		attackers.Add(InAttacker);
+	}
 }
 
-void UCBattleManager::UnregisterAttacker(AActor* InTarget, ACEnemy_AI* InAttacker)
+void UCBattleManager::UnregistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 {
 	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (TargetToAttackers.Contains(InTarget))
@@ -122,10 +148,82 @@ void UCBattleManager::UnregisterAttacker(AActor* InTarget, ACEnemy_AI* InAttacke
 	}
 }
 
-bool UCBattleManager::IsBeingAttacked(AActor* InTarget) const
+// 공격자 등록 제거 
+void UCBattleManager::UnregistAttacker(ACharacter* InAttacker)
+{
+	CheckNull(InAttacker);
+
+	ACEnemy_AI* ai = Cast<ACEnemy_AI>(InAttacker);
+	CheckNull(ai);
+
+	for (auto& Pair : GroupAITable)
+	{
+		TArray<ACEnemy_AI*>& AIList = Pair.Value;
+		AIList.Remove(ai);
+
+		return;
+	}
+}
+
+// 타겟 등록 제거 
+void UCBattleManager::UnregistTarget(ACharacter* InTarget)
+{
+	CheckNull(InTarget);
+
+	// 이 대상이 등록되어 있지 않다면?
+	if (!TargetToAttackers.Contains(InTarget))
+	{
+		return;
+	}
+
+	//TODO: 이제 이 Target 키값을 가진 Value 들에게 나 죽었으니까 너네 다 꺼져 선언
+
+	TargetToTokenCount.Remove(InTarget);
+	TargetToAttackers.Remove(InTarget);
+}
+
+
+void UCBattleManager::SetTokenAttacker(ACEnemy_AI* InAttacker)
+{
+	CheckNull(InAttacker);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(InAttacker);
+	CheckNull(behavior);
+
+	int32 tokenValue = FMath::RandRange(0, MaxTokenValue);
+	behavior->SetMyToken(tokenValue);
+}
+
+void UCBattleManager::SetTokenTarget(AActor* InTarget)
+{
+	CheckNull(InTarget);
+	CheckTrue(TargetToTokenCount.Contains(InTarget));
+
+	// 추가 된 적이 없을 때만 토큰 설정 
+	// 최대 값은 오지 않게 절반만 해봄
+	int32 token = FMath::RandRange(0, MaxTokenValue / 2);
+
+	TargetToTokenCount.Add(InTarget, token);
+}
+
+bool UCBattleManager::IsContainFromAttackers(AActor* InTarget, class ACEnemy_AI* InAttacker) const
 {
 	//FScopeLock Lock(&Mutex); // 멀티스레드 동기화
-	return TargetToAttackers.Contains(InTarget) && TargetToAttackers[InTarget].Num() > 0;
+	CheckNullResult(InTarget, false);
+	CheckNullResult(InAttacker, false);
+
+	if (!TargetToAttackers.Contains(InTarget))
+		return false; 
+	
+	for (const ACEnemy_AI* ai : TargetToAttackers[InTarget])
+	{
+		if (ai == nullptr)
+			continue;
+
+		if (ai == InAttacker)
+			return true; 
+	}
+
+	return false; 
 }
 
 TArray<class ACEnemy_AI*> UCBattleManager::GetAttackers(AActor* InTarget) const
@@ -139,29 +237,69 @@ TArray<class ACEnemy_AI*> UCBattleManager::GetAttackers(AActor* InTarget) const
 bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttacker)
 {
 	// 등록되지 않은 타겟 
-	if (!TargetToAttackers.Contains(InTarget))
+	if (TargetToAttackers.Contains(InTarget) == false)
 	{
+		FLog::Log("IsAttackableToTarget - No Regist Target");
+		
+		// 대상이 테이블에 없기 때문에 false 처리하고 등록해놓는다. 
+		RegistBattle(InTarget, InAttacker);
+
+		return false;
+	}
+
+	// 이미 한 번에 공격할 수 있는 적의 인원수를 넘음 
+	if (TargetToAttackers.Num() > MaxAttackersPerTarget)
+	{
+		FLog::Log("IsAttackableToTarget - Over Attacker Count ");
 		return false;
 	}
 
 	bool bAttack = true;
-	float challengers_Token = FMath::RandRange(0, 10000);
-
-	for (ACEnemy_AI* attacker : TargetToAttackers[InTarget])
+	/*for (ACEnemy_AI* attacker : TargetToAttackers[InTarget])
 	{
 		if (attacker == nullptr)
-			continue;
+		{
+			FLog::Log("IsAttackableToTarget - No Regist attacker");
+			return false;
+		}
 
-		UCAIBehaviorComponent* behavior = FHelpers::GetComponent< UCAIBehaviorComponent>(attacker);
-
+		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(attacker);
 		if (behavior == nullptr)
-			continue;
+			continue; 
+		
 
 		if (behavior->IsActionMode())
-			return false; 
+		{
+			FLog::Log("IsAttackableToTarget - ");
+			return false;
+		}
+
+		break;
+	}*/
+
+
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(InAttacker);
+	if (behavior == nullptr)
+	{
+		FLog::Log("IsAttackableToTarget - Attacker is Invalid Behaivor ");
+		return false;
+	}
+
+	int32 myToken = behavior->GetMyToken();
+	if (!TargetToTokenCount.Contains(InTarget))
+	{
+		FLog::Log("IsAttackableToTarget - TargetToTokenCount No Had");
+		return false;
+	}
+
+	if (myToken < TargetToTokenCount[InTarget])
+	{
+		FLog::Log("IsAttackableToTarget - Missed Token");
+		return false;
 	}
 
 
-	return true;
+	FLog::Log("IsAttackableToTarget - Catch the Token!");
+	return bAttack;
 }
 

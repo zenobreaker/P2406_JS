@@ -56,7 +56,7 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	bCheck |= (CachedState->IsDamagedMode());
 	bCheck |= CachedBehavior->GetCanMove() == false;
 	//bCheck |= CachedState->IsIdleMode() == false;
-	
+
 	if (bCheck)
 	{
 		SetFocus(nullptr);
@@ -70,8 +70,6 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 감지된 적 
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
-
-	ChangeTarget(target);
 
 	// 적이 없으면 순찰 
 	if (target == nullptr)
@@ -90,21 +88,10 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			return;
 		}
 	}
-	if (!!Blackboard)
-		Blackboard->SetValueAsBool("bInBattle", true);
 
-
-
-
-	// 적을 발견 했다면 결정한다. 
-	// 1. 먼저 대기 하거나 적을 보면서 순찰한다.
-
-	// 2. 공격 조건이 달성되면 공격하러 간다. 
-
-	//CheckTrue(CachedBehavior->IsActionMode());
 	//TODO: 이 내용은 조금 복잡해지는 내용이므로 어드밴스드 서비스나 다른 서비스에서 하는 것도
 	UCConditionComponent* targetCondition = FHelpers::GetComponent<UCConditionComponent>(target);
-	if ((targetCondition && targetCondition->GetDownCondition()) )
+	if ((targetCondition && targetCondition->GetDownCondition()))
 	{
 		CachedBehavior->SetNoneMode();
 
@@ -112,29 +99,39 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	}
 
 
-
 	if (CurrentDelay > 0.0f)
-		return; 
-
-	// 일정 범위로 오면 계산
-	float waitDistance = CachedAI->GetDistanceTo(target);
-	if (waitDistance <= WaitRange)
 	{
-		bool isAttackable = IsTargetAttackable(target);
+		if(CachedBehavior->IsActionMode() == false)
+			CachedBehavior->SetWaitMode();
+
+		return;
+	}
+
+	// 내가 공격자 명단에 있는지 확인
+	bool bContainAttacker = Notify_Battle_IsContainAttakcer(target);
+	// 명단에 없으므로 추가 
+	if (bContainAttacker == false)
+	{
+		// 내가 공격가능한 상태인지 물어본다 
+		bool isAttackable = true;
+		isAttackable &= IsTargetAttackable(target);
 		if (isAttackable == false)
 		{
-			CachedBehavior->SetWaitMode();
+			RadnomActionDelay();
 
 			return;
 		}
+
+		// 배틀매니저한테 등록
+		Notify_Battle_SetJoinBattle(target, CachedAI);
 	}
 
+	// 공격 기능
 	float distance = CachedAI->GetDistanceTo(target);
 	if (distance <= ActionRange)
 	{
-		// ㅈ같은 Check 이상한거 만들어서 개고생한다. 
 		CachedBehavior->SetActionMode();
-		
+
 		FLog::Print("Enemy Attack");
 
 		if (isFirstAttack == false)
@@ -143,15 +140,22 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			Notify_Battle_JoinBattle(CachedAI->GetGroupID(), CachedAI, target);
 		}
 
+		// 공격 완료되었으니 
+		// 그럼 배틀 매니저에게 자신을 탈락 시켜 달라고 전달 
+		Notify_Battle_RemoveBattle(target, CachedAI);
+
 		RadnomActionDelay();
 
 		return;
 	}
-	
-	if (CachedBehavior->IsApproachMode())
-		return;
+	else
+	{
+		if (CachedBehavior->IsActionMode() || CachedBehavior->IsApproachMode())
+			return;
 
-	CachedBehavior->SetApproachMode();
+		CachedBehavior->SetApproachMode();
+	}
+
 }
 
 void UCBTService_Melee::RadnomActionDelay()
@@ -173,6 +177,18 @@ void UCBTService_Melee::SetFocus(ACharacter* InTarget) const
 	}
 
 	CachedController->SetFocus(InTarget);
+}
+
+bool UCBTService_Melee::Notify_Battle_IsContainAttakcer(ACharacter* InTarget)
+{
+	CheckNullResult(InTarget, false);
+
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNullResult(instance, false);
+	UCBattleManager* battleManager = instance->BattleManager;
+	CheckNullResult(battleManager, false);
+
+	return battleManager->IsContainFromAttackers(InTarget, CachedAI);
 }
 
 void UCBTService_Melee::Notify_Battle_FindBattle(class ACharacter** OutTarget)
@@ -226,7 +242,6 @@ void UCBTService_Melee::Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_
 	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	CheckNull(instance);
 	UCBattleManager* battleManager = instance->BattleManager;
-
 	CheckNull(battleManager);
 
 	if (isFirstAttack)
@@ -237,31 +252,48 @@ void UCBTService_Melee::Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_
 
 }
 
-void UCBTService_Melee::ChangeTarget(ACharacter* InTarget)
+void UCBTService_Melee::Notify_Battle_RemoveBattle(ACharacter* InTarget, ACEnemy_AI* Initiator)
 {
-	if (PrevTarget != InTarget)
-	{
-		// 새로운 타겟은 배틀매니저한테 해당 타겟으로 싸운다고 등록한다. 
-	// 배틀매니저한테 전투 끝났으니까 주위에 다른 친구 싸우고 있어? 물어봄
-		UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(Initiator);
+	CheckNull(InTarget);
 
-		CheckNull(instance);
 
-		UCBattleManager* battleManager = instance->BattleManager;
-		CheckNull(battleManager);
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance);
 
-		// 이전에 등록한 대상으로는 지워 
-		battleManager->UnregisterAttacker(PrevTarget, CachedAI);
+	UCBattleManager* battleManager = instance->BattleManager;
+	CheckNull(battleManager);
 
-		// 새로운 타겟으로 싸우자 신청 ㄱㄱ
-		battleManager->RegisterAttacker(InTarget, CachedAI);
+	battleManager->UnregistBattle(InTarget, Initiator);
 
-		PrevTarget = InTarget;
-	}
+	if (!!Blackboard)
+		Blackboard->SetValueAsBool("bInBattle", false);
+
 }
+
+void UCBTService_Melee::Notify_Battle_SetJoinBattle(ACharacter* InTarget, ACEnemy_AI* Initiator)
+{
+	CheckNull(Initiator);
+	CheckNull(InTarget);
+
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance);
+
+	UCBattleManager* battleManager = instance->BattleManager;
+	CheckNull(battleManager);
+
+	battleManager->RegistBattle(InTarget, Initiator);
+
+	if (!!Blackboard)
+		Blackboard->SetValueAsBool("bInBattle", true);
+}
+
+
 
 bool UCBTService_Melee::IsTargetAttackable(ACharacter* InTarget)
 {
+	CheckNullResult(InTarget, false);
+
 	// 배틀매니저한테 전투 끝났으니까 주위에 다른 친구 싸우고 있어? 물어봄
 	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 

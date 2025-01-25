@@ -207,6 +207,9 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 	//TODO: 임시 코드 
 	if (PrevType == EAIStateType::Dead)
 		return;
+	// 과거와 현재가 같다면 그것은 수행하지 않음. 
+	if (PrevType == InType)
+		return; 
 
 	Blackboard->SetValueAsEnum(AIStateTypeKey, (uint8)InType);
 	if (OnAIStateTypeChanged.IsBound())

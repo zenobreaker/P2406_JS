@@ -26,6 +26,9 @@ public:
 	FORCEINLINE void SetBlackboard(class UBlackboardComponent* InBlackboard) { Blackboard = InBlackboard; }
 
 	FORCEINLINE UBlackboardComponent* GetBlackboard() const { return Blackboard; }
+	
+	FORCEINLINE int32 GetMyToken() const { return Token; }
+	FORCEINLINE void SetMyToken(int32 InValue) { Token= InValue; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")
@@ -119,4 +122,6 @@ private:
 	bool bCanMove = true;
 	
 	EAIStateType PrevType; 
+
+	int32 Token = -1;
 };

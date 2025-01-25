@@ -9,30 +9,42 @@ class P2406_JS_API UCBattleManager : public UObject
 {
 	GENERATED_BODY()
 
-
-
-
 public:
 	UCBattleManager();
 
 
 public:
-	void RegisterGroup(int32 InGroupID, class ACEnemy_AI* InTarget);
+	void RegistGroup(int32 InGroupID, class ACEnemy_AI* InMember);
 
-	void UnregisterGroup(int32 InGroupID, class ACEnemy_AI* InTarget);
+	void UnregistGroup(int32 InGroupID, class ACEnemy_AI* InMember);
 
 	class ACharacter* GetBattleAttackerOfTarget(int32 InGroupID, class ACEnemy_AI* InCaller);
 
 	void RequestBattleParticipation(int32 InGroupID, class ACEnemy_AI* InInitiator, class ACharacter* InTarget);
 
+
+public:
+	void RegistBattle(class AActor* InTarget, class ACEnemy_AI* InAttacker);
+	
+	void UnregistBattle(class AActor* InTarget, class ACEnemy_AI* InAttacker);
+
 public:
 	UFUNCTION()
-	void RegisterAttacker(class AActor* InTarget, class ACEnemy_AI* InAttacker);
+	void UnregistAttacker(class ACharacter* InAttacker);
 
 	UFUNCTION()
-	void UnregisterAttacker(class AActor* InTarget, class ACEnemy_AI* InAttacker);
+	void UnregistTarget(class ACharacter* InTarget);
 
-	bool IsBeingAttacked(AActor* InTarget) const;
+
+private:
+	// 공격자들에게 토큰을 부여 한다. 
+	void SetTokenAttacker(class ACEnemy_AI* InAttacker);
+
+	// 타겟에게 토큰값을 부여한다. 
+	void SetTokenTarget(class AActor* InTarget); 
+
+public:
+	bool IsContainFromAttackers(class AActor* InTarget, class ACEnemy_AI* InAttacker) const;
 
 	TArray<class ACEnemy_AI*> GetAttackers(AActor* InTarget) const;
 
@@ -47,6 +59,6 @@ private:
 
 public:
 	TMap<AActor*, int32> TargetToTokenCount; // 각 타겟에 대해 현재 할당된 토큰 수
-	const int32 MaxAttackersPerTarget = 1;	// 타겟에 대해 현재 최대 공격 가능 적 수
-
+	const int32 MaxAttackersPerTarget = 1;	// 타겟에 대해 현재 최대 공격 가능 적 수	
+	static int32 MaxTokenValue;
 };

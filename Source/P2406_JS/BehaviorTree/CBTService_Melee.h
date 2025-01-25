@@ -34,10 +34,15 @@ private:
 
 	void Calc_DelayTimer(float DeltaSeconds);
 
+private:
+	
+	bool Notify_Battle_IsContainAttakcer(class ACharacter* InTarget);
 	void Notify_Battle_FindBattle(class ACharacter** OutTarget);
 	void Notify_Battle_JoinBattle(int32 InGroupID, class ACEnemy_AI* Initiator, class ACharacter* InTarget);
+	void Notify_Battle_RemoveBattle(class ACharacter* InTarget, class ACEnemy_AI* Initiator);
+	void Notify_Battle_SetJoinBattle(class ACharacter* InTarget, class ACEnemy_AI* Initiator);
 
-	void ChangeTarget(class ACharacter* InTarget);
+private:
 	bool IsTargetAttackable(class ACharacter* InTarget);
 
 private:

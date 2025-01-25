@@ -16,7 +16,9 @@ void ACBaseCharacter::Landed(const FHitResult& Hit)
 void ACBaseCharacter::Dead()
 {
 	DYNAMIC_EVENT_CALL(OnCharacterDead);
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnCharacterDead_One, this);
 }
+
 
 
 

@@ -131,7 +131,7 @@ void ACEnemy_AI::Tick_LabelRenderScale()
 {
 	UCUserWidget_Enemy* label = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	CheckNull(label);
-
+	CheckNull(GetController());
 
 	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 
@@ -188,7 +188,7 @@ void ACEnemy_AI::Dead()
 	UCBattleManager* battleManager = instance->BattleManager;
 	CheckNull(battleManager);
 
-	battleManager->UnregisterGroup(GroupID, this);
+	battleManager->UnregistGroup(GroupID, this);
 }
 
 void ACEnemy_AI::End_Damaged()
@@ -213,7 +213,7 @@ void ACEnemy_AI::SetRegisterToBattleManager()
 
 
 	// µî·Ï
-	battleManager->RegisterGroup(GroupID, this);
+	battleManager->RegistGroup(GroupID, this);
 
 }
 

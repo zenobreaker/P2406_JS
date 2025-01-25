@@ -75,6 +75,13 @@ void ACAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
 
+	// : 비헤이비어 트리 중지
+	UBehaviorTreeComponent* BehaviorTreeComp = FindComponentByClass<UBehaviorTreeComponent>();
+	if (BehaviorTreeComp)
+	{
+		BehaviorTreeComp->StopTree(EBTStopMode::Safe);
+	}
+
 }
 
 void ACAIController::HandleSightPerception(AActor* InActor)
@@ -91,6 +98,7 @@ void ACAIController::HandleTeamPerception(AActor* InActor)
 void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
 	CheckNull(Perception);
+	CheckNull(GetPawn());
 
 	// nullptr은 다 감지하는 것을 의미
 	TArray<AActor*> actors;
@@ -131,6 +139,8 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 
 void ACAIController::OnEnemyDead()
 {
+	UnPossess();
+
 	ClearFocus(EAIFocusPriority::Gameplay);
 
 	Blackboard->SetValueAsObject("Target", nullptr);

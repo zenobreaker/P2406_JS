@@ -99,6 +99,21 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector EffectScale = FVector::OneVector;
 
+
+	//
+	//UPROPERTY(EditAnywhere)
+	//class UFXSystemAsset* Effect; 
+
+	//UPROPERTY(EditAnywhere)
+	//FVector EffectLocation = FVector::ZeroVector;
+
+	//UPROPERTY(EditAnywhere)
+	//FVector EffectScale = FVector::OneVector;
+
+	//UPROPERTY(EditAnywhere)
+	//TSubclassOf<class UCameraShakeBase> CameraShake; 
+
+
 public:
 	void SendDamage(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
 	void PlayHitStop(UWorld* InWorld);
