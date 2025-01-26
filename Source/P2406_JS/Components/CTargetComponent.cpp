@@ -2,13 +2,19 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "Particles/ParticleSystemComponent.h"
+
+#include "Characters/CBaseCharacter.h"
+
 #include "Components/CStateComponent.h"
+#include "Components/WidgetComponent.h"
 
 UCTargetComponent::UCTargetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	FHelpers::GetAsset<UParticleSystem>(&ParticleAsset, "/Script/Engine.ParticleSystem'/Game/AdvancedMagicFX12/particles/P_ky_aura_shine.P_ky_aura_shine'");
+	//FHelpers::GetAsset<UParticleSystem>(&ParticleAsset, "/Script/Engine.ParticleSystem'/Game/AdvancedMagicFX12/particles/P_ky_aura_shine.P_ky_aura_shine'");
+
+	FHelpers::GetClass<UUserWidget>(&TargetUiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/TargetCrossHair.TargetCrossHair_C'");
 }
 
 
@@ -88,8 +94,11 @@ void UCTargetComponent::End()
 {
 	Target = nullptr;
 
-	if (!!Particle)
-		Particle->DestroyComponent();
+	/*if (!!Particle)
+		Particle->DestroyComponent();*/
+
+	if (!!TargetUi)
+		TargetUi->DestroyComponent();
 }
 
 void UCTargetComponent::Change(ACharacter* InCandidate)
@@ -101,10 +110,29 @@ void UCTargetComponent::Change(ACharacter* InCandidate)
 		return;
 	}
 
-	if (!!Particle)
-		Particle->DestroyComponent();
+	//if (!!Particle)
+	//	Particle->DestroyComponent();
 
-	Particle = UGameplayStatics::SpawnEmitterAttached(ParticleAsset, InCandidate->GetMesh(), "Targeting", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+	//Particle = UGameplayStatics::SpawnEmitterAttached(ParticleAsset, InCandidate->GetMesh(), "Targeting", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
+
+	if (!!TargetUi)
+		TargetUi->DestroyComponent();
+
+	if (TargetUiClass != nullptr)
+	{
+		TargetUi = NewObject<UWidgetComponent>(InCandidate);
+		if (!!TargetUi)
+		{
+			TargetUi->AttachToComponent(InCandidate->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			TargetUi->RegisterComponent();
+
+			TargetUi->SetWidgetClass(TargetUiClass);
+			TargetUi->SetWidgetSpace(EWidgetSpace::Screen);
+			TargetUi->SetDrawSize(FVector2D(100, 100)); // 적절한 크기 설정
+			TargetUi->SetVisibility(true);
+		}
+	}
+
 	Target = InCandidate;
 }
 
@@ -115,6 +143,17 @@ ACharacter* UCTargetComponent::GetNearlyFrontAngle(const TArray<FHitResult>& InH
 
 	for (int i = 0; i < InHitResults.Num(); i++)
 	{
+		ACBaseCharacter* bc = Cast<ACBaseCharacter>(InHitResults[i].GetActor());
+		ACBaseCharacter* oc = Cast<ACBaseCharacter>(OwnerCharacter);
+		if (!!bc)
+		{
+			if (FGenericTeamId::GetAttitude(bc->GetGenericTeamId(), oc->GetGenericTeamId())
+				== ETeamAttitude::Type::Friendly)
+			{
+				continue;
+			}
+		}
+
 		FVector targetLocation = InHitResults[i].GetActor()->GetActorLocation();
 
 		FVector direction = targetLocation - OwnerCharacter->GetActorLocation();

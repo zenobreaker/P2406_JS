@@ -16,8 +16,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	TEnumAsByte<EDrawDebugTrace::Type> DrawDebug;
 
+	//UPROPERTY(EditAnywhere, Category = "Settings")
+	//class UParticleSystem* ParticleAsset; 
+
 	UPROPERTY(EditAnywhere, Category = "Settings")
-	class UParticleSystem* ParticleAsset; 
+	TSubclassOf<class UUserWidget> TargetUiClass; 
 
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	float TraceDistance = 1000.0f; 
@@ -60,7 +63,8 @@ private:
 	class ACharacter* OwnerCharacter;
 	class ACharacter* Target;
 
-	class UParticleSystemComponent* Particle;
+	//class UParticleSystemComponent* Particle;
+	class UWidgetComponent* TargetUi; 
 
 private:
 	bool bMovingFocus; 
