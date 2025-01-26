@@ -62,6 +62,9 @@ public:
 	FORCEINLINE void SetGroupID(int32 InGroupID) { GroupID = InGroupID; }
 
 public:
+	FORCEINLINE bool GetCanAct() const { return bCanAct; }
+
+public:
 	FORCEINLINE FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
 
 public:
@@ -106,4 +109,5 @@ public:
 
 protected:
 	bool bShouldCountDownOnLand = false;
+	bool bCanAct = true; 
 };

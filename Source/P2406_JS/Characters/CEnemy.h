@@ -81,6 +81,7 @@ protected:
 
 public:
 	void End_Dead() override;
+	void End_Downed() override;
 
 public: 
 	// IIAirborne을(를) 통해 상속됨

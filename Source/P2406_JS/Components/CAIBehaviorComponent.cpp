@@ -274,15 +274,12 @@ void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InN
 		case EStateType::Down:
 		case EStateType::Airborne:
 		case EStateType::Damaged:
-		bCanMove = false;
+
 		break;
 
 		case EStateType::Guard:
 		case EStateType::Idle:
-		bCanMove = true;
-		default:
-		bCanMove = true;
-		break;
+		break; 
 	}
 }
 
@@ -294,7 +291,6 @@ void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 	{
 		case EConditionState::CONDITION_DOWNED:
 		case EConditionState::CONDITION_AIRBORNE:
-		bCanMove = false;
 		Blackboard->SetValueAsBool("bCanAct", false);
 		break;
 	}
@@ -308,7 +304,7 @@ void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 	{
 		case EConditionState::CONDITION_DOWNED:
 		case EConditionState::CONDITION_AIRBORNE:
-		bCanMove = true;
+		//bCanMove = false;
 		Blackboard->SetValueAsBool("bCanAct", true);
 		break; 
 	}

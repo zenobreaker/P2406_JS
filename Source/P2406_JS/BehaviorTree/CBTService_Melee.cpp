@@ -51,9 +51,8 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 행동 불능 조건들 체크 
 	bool bCheck = false;
 	bCheck |= (CachedBehavior->IsDeadMode());
-	//bCheck |= (CachedState->IsDamageMode());
-	bCheck |= CachedBehavior->GetCanMove() == false;
 	bCheck |= Blackboard->GetValueAsBool("bCanAct") == false;
+	bCheck |= CachedAI->GetCanAct() == false;
 
 	if (bCheck)
 	{

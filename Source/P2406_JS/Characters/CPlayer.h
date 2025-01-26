@@ -115,6 +115,7 @@ protected:
 
 public:
 	void End_Damaged() override;
+	void End_Downed() override;
 
 private:
 	void OnEvade();

@@ -199,7 +199,7 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	{
 		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
 	}
-	
+
 
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;
@@ -310,6 +310,14 @@ void ACEnemy::End_Dead()
 	Destroy();
 }
 
+void ACEnemy::End_Downed()
+{
+	State->SetIdleMode();
+	bCanAct = true; 
+	if (OnCharacterRaised.IsBound())
+		OnCharacterRaised.Broadcast();
+}
+
 
 
 
@@ -323,12 +331,14 @@ void ACEnemy::OnAirborneConditionActivated()
 {
 	// 딱히 뭐 할 건 없지만 상태 변수를 조진다
 	bShouldCountDownOnLand = true;
+	bCanAct = false;
 
 }
 
 void ACEnemy::OnAirborneConditionDeactivated()
 {
-
+	if (OnCharacterRaised.IsBound())
+		OnCharacterRaised.Broadcast();
 }
 
 /// <summary>
@@ -361,8 +371,6 @@ void ACEnemy::StartDownTimer()
 void ACEnemy::OnDownConditionActivated()
 {
 	CheckNull(Condition);
-	check(Condition != nullptr);
-
 	CheckTrue(HealthPoint->IsDead());
 
 	// 공중 상태라면 다운 상태에 관한 로직을 바로 하지 않고 델리게이트에 맞겨놓는다.
@@ -375,6 +383,7 @@ void ACEnemy::OnDownConditionActivated()
 	}
 
 	StartDownTimer();
+	bCanAct = true; 
 
 	if (OnCharacterDowned.IsBound())
 		OnCharacterDowned.Broadcast();
@@ -401,11 +410,16 @@ void ACEnemy::OnDownConditionDeactivated()
 	CheckTrue(State->IsDeadMode());
 
 	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
-	PlayAnimMontage(RaiseMontage);
-	State->SetIdleMode();
-
 	bShouldCountDownOnLand = false;
-	if (OnCharacterRaised.IsBound())
-		OnCharacterRaised.Broadcast();
+
+	if (RaiseMontage != nullptr)
+	{
+		PlayAnimMontage(RaiseMontage);
+
+		return;
+	} 
+
+	End_Downed();
+
 }
 

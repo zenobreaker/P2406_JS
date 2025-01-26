@@ -42,7 +42,9 @@ void UCBTTaskNode_Damaged::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		{
 			ACharacter* target = behavior->GetTarget();
 			if (!!target)
-				controller->SetFocus(target); 
+			{
+				controller->SetFocus(target);
+			}
 		}
 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

@@ -466,6 +466,14 @@ void ACPlayer::End_Damaged()
 	Tags.Remove(FName("HitByWeapon"));
 }
 
+void ACPlayer::End_Downed()
+{
+	Movement->Move();
+
+	if (OnCharacterRaised.IsBound())
+		OnCharacterRaised.Broadcast();
+}
+
 void ACPlayer::OnEvade()
 {
 	CheckFalse(State->IsIdleMode());
@@ -691,7 +699,6 @@ void ACPlayer::StartDownTimer()
 void ACPlayer::OnDownConditionActivated()
 {
 	CheckNull(Condition);
-	check(Condition != nullptr);
 	CheckTrue(HealthPoint->IsDead());
 
 
@@ -731,13 +738,15 @@ void ACPlayer::OnDownConditionDeactivated()
 	}
 
 	// 일어나는 애님 진행 - 이 애니메이션에서 상태 바꿈 
-	PlayAnimMontage(RaiseMontage);
-
-	Movement->Move();
-
 	bShouldCountDownOnLand = false;
-	if (OnCharacterRaised.IsBound())
-		OnCharacterRaised.Broadcast();
+	if (RaiseMontage != nullptr)
+	{
+		PlayAnimMontage(RaiseMontage);
+
+		return; 
+	}
+
+	End_Downed();
 }
 
 
