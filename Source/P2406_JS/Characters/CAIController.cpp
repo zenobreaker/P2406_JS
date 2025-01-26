@@ -109,7 +109,7 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 	for (AActor* actor : actors)
 	{
 		// 유효성 체크
-		if (actor == nullptr || !actor->IsValidLowLevelFast() || actor->IsPendingKill())
+		if (actor == nullptr || !actor->IsValidLowLevelFast() /*|| actor->IsPendingKill()*/)
 			continue;
 
 		ACEnemy_AI* otherAI = Cast<ACEnemy_AI>(actor);

@@ -8,12 +8,15 @@
 #include "Components/CGuardComponent.h"
 #include "Components/CAttackTraceComponent.h"
 
+#include "Characters/CAIController.h"
+
 #include "Widgets/CUserWidget_Enemy.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "Weapons/CEquipment.h"
 
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CBattleManager.h"
+
 
 int32 ACEnemy_AI::GlobalID = 1;
 
@@ -120,6 +123,17 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	return Damage;
+}
+
+void ACEnemy_AI::Launch(const FHitData& InHitData, const bool bIsGuarding)
+{
+	Super::Launch(InHitData, bIsGuarding); 
+
+	ACAIController* controller = Cast<ACAIController>(GetController());
+	CheckNull(controller); 
+
+	// Focus 일시 해제
+	controller->ClearFocus(EAIFocusPriority::Gameplay);
 }
 
 void ACEnemy_AI::OnHealthPointChanged(float InHealth, float InMaxHealth)

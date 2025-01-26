@@ -98,8 +98,8 @@ void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
 	{
-		case EStateType::Damaged: Damaged(); break;
-		case EStateType::Dead: Dead(); break;
+	case EStateType::Damaged: Damaged(); break;
+	case EStateType::Dead: Dead(); break;
 	}
 }
 
@@ -199,7 +199,7 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	{
 		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
 	}
-	direction += FVector(0, 0, dirZ);
+	
 
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;
@@ -208,8 +208,8 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	{
 		launchStrength *= 0.5f;
 	}
-
-	LaunchCharacter(-direction * launchStrength, false, false);
+	FVector launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
+	LaunchCharacter(launchVelocity, false, false);
 
 	// 나 공격한 대상 바라보기 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
@@ -350,10 +350,10 @@ void ACEnemy::StartDownTimer()
 
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
-	{
-		if (!!Condition)
-			Condition->RemoveDownCondition();
-	});
+		{
+			if (!!Condition)
+				Condition->RemoveDownCondition();
+		});
 
 	GetWorld()->GetTimerManager().SetTimer(ChangeConditionHandle, timerDelegate, 5.0f, false);
 }

@@ -66,6 +66,9 @@ public:
 	virtual void Tick(float DeltaTime) override; 
 
 
+protected:
+	void Launch(const FHitData& InHitData, const bool bIsGuarding = false) override;
+
 private:
 	UFUNCTION()
 	void OnHealthPointChanged(float InHealth, float InMaxHealth);
