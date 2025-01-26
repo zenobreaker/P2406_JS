@@ -36,6 +36,7 @@ void UCSubAction_Sword_Guard::BeginPlay(ACharacter* InOwner, ACAttachment* InAtt
 	//State->OnStateTypeChanged.AddDynamic(this, &UCSubAction_Sword_Guard::OnStateTypeChanged);
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCSubAction_Sword_Guard::OnStateTypeChanged);
 
+	REGISTER_EVENT_WITH_REPLACE(InDoAction, OnEndedDoAction, this, UCSubAction_Sword_Guard::End_CounterAttack);
 }
 
 void UCSubAction_Sword_Guard::Tick(float InDeltaTime)
@@ -136,11 +137,16 @@ void UCSubAction_Sword_Guard::OnStateTypeChanged(EStateType InPrevType, EStateTy
 		OffGuardStance();
 		break;
 	case EStateType::Idle:
-		ACPlayer* player = Cast<ACPlayer>(Owner);
-		if (!!player)
-			*player->bCountering = false;
+
 		break; 
 	}
+}
+
+void UCSubAction_Sword_Guard::End_CounterAttack()
+{
+	ACPlayer* player = Cast<ACPlayer>(Owner);
+	if (!!player)
+		*player->bCountering = false;
 }
 
 void UCSubAction_Sword_Guard::Begin_DoSubAction_Implementation()
@@ -223,7 +229,7 @@ void UCSubAction_Sword_Guard::Evaluate_JustTiming(AActor* InAttacker)
 		//TODO: 적이 특정한 반격모션을 던져주도록 하자
 		ACPlayer* player = Cast<ACPlayer>(Owner);
 		if (!!player)
-			*player->bCountering = true; 
+			*(player->bCountering) = true; 
 		ActionData.DoAction(Owner);
 
 		return; 

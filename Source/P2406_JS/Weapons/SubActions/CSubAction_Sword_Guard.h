@@ -66,6 +66,9 @@ public:
 	UFUNCTION()
 	void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
 
+	UFUNCTION()
+	void End_CounterAttack();
+
 public:
 	//Notify 
 	virtual void Begin_DoSubAction_Implementation() override;

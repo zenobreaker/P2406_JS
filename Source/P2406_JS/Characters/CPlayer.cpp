@@ -132,6 +132,7 @@ void ACPlayer::BeginPlay()
 	camearManager->ViewPitchMax = PitchAngle.Y;
 
 	bCountering = new bool(); 
+	*bCountering = false; 
 
 	Movement->OnRun();
 	Movement->DisableControlRotation();
@@ -270,7 +271,7 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 		FLog::Print(" Guard Faild...", 2, 5.0f, FColor::Magenta);
 	}
 
-	if (bCountering)
+	if (*bCountering == true )
 	{
 		FLog::Print(" Damage in Counter ");
 

@@ -6,6 +6,8 @@
 #include "CDoAction.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndedDoAction);
+
 UCLASS()
 class P2406_JS_API UCDoAction : public UObject
 {
@@ -35,6 +37,8 @@ public:
 	virtual void End_DoAction();
 	
 	
+public:
+	FEndedDoAction OnEndedDoAction; 
 
 
 public:
