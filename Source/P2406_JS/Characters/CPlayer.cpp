@@ -20,6 +20,7 @@
 #include "Components/CConditionComponent.h"
 #include "Components/CAirborneComponent.h"
 #include "Components/CAttackTraceComponent.h"
+#include "Components/CGuardComponent.h"
 
 #include "Weapons/CWeaponStructures.h"
 
@@ -74,30 +75,30 @@ ACPlayer::ACPlayer()
 
 		switch ((EParkourArrowType)i)
 		{
-			case EParkourArrowType::Center:
+		case EParkourArrowType::Center:
 			Arrows[i]->ArrowColor = FColor::Red;
 			break;
-			case EParkourArrowType::Head:
+		case EParkourArrowType::Head:
 			Arrows[i]->ArrowColor = FColor::Green;
 			Arrows[i]->SetRelativeLocation(FVector(0, 0, 100));
 			break;
 
-			case EParkourArrowType::Foot:
+		case EParkourArrowType::Foot:
 			Arrows[i]->ArrowColor = FColor::Blue;
 			Arrows[i]->SetRelativeLocation(FVector(0, 0, -80));
 			break;
 
-			case EParkourArrowType::Left:
+		case EParkourArrowType::Left:
 			Arrows[i]->ArrowColor = FColor::Magenta;
 			Arrows[i]->SetRelativeLocation(FVector(0, -30, 0));
 			break;
 
-			case EParkourArrowType::Right:
+		case EParkourArrowType::Right:
 			Arrows[i]->ArrowColor = FColor::Magenta;
 			Arrows[i]->SetRelativeLocation(FVector(0, +30, 0));
 			break;
 
-			case EParkourArrowType::Land:
+		case EParkourArrowType::Land:
 			Arrows[i]->ArrowColor = FColor::Yellow;
 			Arrows[i]->SetRelativeLocation(FVector(200, 0, 100));
 			Arrows[i]->SetRelativeRotation(FRotator(-90, 0, 0));
@@ -119,7 +120,11 @@ ACPlayer::ACPlayer()
 		Grapple->PrimaryComponentTick.bCanEverTick = true;
 	}
 
-
+	// Guard 인터페이스를 구현했다면 컴포넌트가 자동으로 부착된다.
+	if (IIGuardable::Execute_HasGuard(this))
+	{
+		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
+	}
 }
 
 void ACPlayer::BeginPlay()
@@ -131,8 +136,8 @@ void ACPlayer::BeginPlay()
 	camearManager->ViewPitchMin = PitchAngle.X;
 	camearManager->ViewPitchMax = PitchAngle.Y;
 
-	bCountering = new bool(); 
-	*bCountering = false; 
+	bCountering = new bool();
+	*bCountering = false;
 
 	Movement->OnRun();
 	Movement->DisableControlRotation();
@@ -142,7 +147,7 @@ void ACPlayer::BeginPlay()
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
 
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
-	
+
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, ACPlayer::OnWeaponTypeChanged);
 
 
@@ -157,7 +162,7 @@ void ACPlayer::BeginPlay()
 			UserInterface->UpdateCrossHairVisibility(false);
 			UserInterface->UpdateGuardGaugeVisibility(false);
 
-			REGISTER_EVENT_WITH_REPLACE(Weapon, OnGuardValueChanged, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
+			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
 		}
 	}
 
@@ -258,20 +263,21 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 	{
 		// 무기에게 가드 판정 갖고옴 
 		bool isGuard = false;
-		if (!!Weapon)
-			isGuard = Weapon->TryGuard(DamageData);
+		if (!!Guard)
+			isGuard = Guard->CheckBlocking(DamageData);
 
 		if (isGuard)
 		{
 			FLog::Print(" Guard Success!!", 2, 5.0f, FColor::Yellow);
 			Launch(*DamageData.Event->HitData, true);
+
 			return Damage;
 		}
 
 		FLog::Print(" Guard Faild...", 2, 5.0f, FColor::Magenta);
 	}
 
-	if (*bCountering == true )
+	if (*bCountering == true)
 	{
 		FLog::Print(" Damage in Counter ");
 
@@ -289,13 +295,13 @@ void ACPlayer::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 	bool bGuardgaugeVisible = false;
 	switch (InNewType)
 	{
-		case EStateType::Evade: Backstep(); break;
-		case EStateType::Damaged: Damaged(); break;
-		case EStateType::Guard:
-		{
-			bGuardgaugeVisible = true;
-		}
-		break;
+	case EStateType::Evade: Backstep(); break;
+	case EStateType::Damaged: Damaged(); break;
+	case EStateType::Guard:
+	{
+		bGuardgaugeVisible = true;
+	}
+	break;
 	}
 
 	if (!!UserInterface)
@@ -688,10 +694,10 @@ void ACPlayer::StartDownTimer()
 
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
-	{
-		if (!!Condition)
-			Condition->RemoveDownCondition();
-	});
+		{
+			if (!!Condition)
+				Condition->RemoveDownCondition();
+		});
 
 	GetWorld()->GetTimerManager().SetTimer(ChangeConditionHandle, timerDelegate, 5.0f, false);
 }
@@ -713,7 +719,7 @@ void ACPlayer::OnDownConditionActivated()
 
 
 	Movement->Stop();
-	
+
 	StartDownTimer();
 
 	if (OnCharacterDowned.IsBound())
@@ -743,10 +749,41 @@ void ACPlayer::OnDownConditionDeactivated()
 	{
 		PlayAnimMontage(RaiseMontage);
 
-		return; 
+		return;
 	}
 
 	End_Downed();
+}
+
+bool ACPlayer::HasGuard() const
+{
+	return true;
+}
+
+bool ACPlayer::CanGuard() const
+{
+	CheckNullResult(Guard, false);
+
+	return Guard->GetCanGuard();
+}
+
+bool ACPlayer::GetGuarding() const
+{
+	CheckNullResult(Guard, false);
+
+	return Guard->GetGuarding();
+}
+
+void ACPlayer::StartGuard()
+{
+	// 가드 상태를 할 수 없다면 호출해도 의미 없게 
+	CheckNull(Guard);
+	CheckFalse(Guard->GetCanGuard());
+}
+
+void ACPlayer::StopGuard()
+{
+	CheckNull(Guard);
 }
 
 

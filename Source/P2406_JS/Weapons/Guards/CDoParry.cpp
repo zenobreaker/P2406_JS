@@ -1,0 +1,39 @@
+#include "CDoParry.h"
+#include "Global.h"
+
+UCDoParry::UCDoParry()
+{
+
+}
+
+void UCDoParry::BeginPlay(ACharacter* InOwnerCharacter, const FParryData& InParryData)
+{
+	OwnerCharacter = InOwnerCharacter; 
+
+	ParryData = InParryData;
+}
+
+void UCDoParry::DoAction_Parry()
+{
+
+	bParring = true;
+
+	ParryData.DoAction_Parry(OwnerCharacter);
+}
+
+void UCDoParry::End_DoAction_Parry()
+{
+	bParring = false; 
+}
+
+void UCDoParry::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+{
+	CheckNull(InAttacker);
+
+	ParryData.HitData.SendDamage(InAttacker, InAttackCauser, InOther);
+}
+
+void UCDoParry::EndTrace()
+{
+	Hits.Empty();
+}

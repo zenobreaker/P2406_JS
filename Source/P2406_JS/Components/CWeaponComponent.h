@@ -7,6 +7,9 @@
 #include "CWeaponComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBeginDoAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndedDoAction);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGuardValueChanged, float, InValue,
@@ -59,11 +62,15 @@ public:
 public:
 	void InitEquip();
 
-	void BeginEquip();
-	void EndEquip();
-
 public:
 	void DoAction();
+
+	UFUNCTION()
+	void Begin_DoAction(); 
+
+	UFUNCTION()
+	void End_DoAction(); 
+
 
 	void ExecuteSkill(const int32 InIndex); 
 
@@ -85,6 +92,8 @@ public:
 public:
 	FWeaponTypeChanged OnWeaponTypeChanged;
 	FGuardValueChanged OnGuardValueChanged; 
+	FBeginDoAction OnBeginDoAction; 
+	FEndedDoAction OnEndedDoAction;
 
 private:
 	EWeaponType Type = EWeaponType::Max;

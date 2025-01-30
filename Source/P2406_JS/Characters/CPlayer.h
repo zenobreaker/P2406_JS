@@ -4,6 +4,7 @@
 #include "Characters/CBaseCharacter.h"
 #include "Characters/IStatable.h"
 #include "Characters/IDamagable.h"
+#include "Characters/IGuardable.h"
 #include "Characters/Condition_Interfaces/IAirborne.h"
 #include "Characters/Condition_Interfaces/IDownable.h"
 #include "Components/CStateComponent.h"
@@ -20,6 +21,7 @@ class P2406_JS_API ACPlayer
 	, public IIDamagable
 	, public IIAirborne
 	, public IIDownable
+	, public IIGuardable
 {
 	GENERATED_BODY()
 
@@ -86,9 +88,15 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCAttackTraceComponent* ATrace;
 
+	UPROPERTY(VisibleAnywhere)
+	class UCGuardComponent* Guard; 
+
 public:
 	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue;  }
 	FORCEINLINE bool GetCanInput() { return bCanInput; }
+
+public:
+	FORCEINLINE FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
 
 public:
 	ACPlayer();
@@ -170,8 +178,13 @@ public:
 	virtual void OnDownConditionActivated() override;
 	virtual void OnDownConditionDeactivated() override;
 
-public:
-	FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
+	// IIGuardable을(를) 통해 상속됨
+	bool HasGuard() const override;
+	bool CanGuard() const override;
+	bool GetGuarding() const override;
+	void StartGuard() override;
+	void StopGuard() override;
+
 
 private:
 	class UCUserWidget_Player* UserInterface;
@@ -184,4 +197,6 @@ private:
 	
 public:
 	bool* bCountering; 
+
+
 };

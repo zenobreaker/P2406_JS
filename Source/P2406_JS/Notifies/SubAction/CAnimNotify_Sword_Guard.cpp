@@ -21,6 +21,4 @@ void UCAnimNotify_Sword_Guard::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	UCSubAction_Sword_Guard* guard = Cast<UCSubAction_Sword_Guard>(weapon->GetSubAction());
 
 	CheckNull(guard);
-
-	guard->OnGuard();
 }

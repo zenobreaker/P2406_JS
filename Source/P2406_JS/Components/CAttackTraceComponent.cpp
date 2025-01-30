@@ -42,7 +42,7 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	QueryParams.AddIgnoredActor(attachment);
 
 	// 메시 갖고옴 
-	USkeletalMeshComponent* mesh = FHelpers::GetComponent<USkeletalMeshComponent>(Weapon->GetAttachment());
+	UPrimitiveComponent* mesh = FHelpers::GetComponent<UPrimitiveComponent>(Weapon->GetAttachment());
 	CheckNull(mesh);
 
 	// 위치 갱신 

@@ -143,20 +143,6 @@ void ACEnemy::Damaged()
 		if (HealthPoint->IsDead() == false)
 		{
 			Launch(*hitData);
-
-			/*FVector start = GetActorLocation();
-			FVector target = DamageData.Attacker->GetActorLocation();
-			FVector direction = target - start;
-			direction.Normalize();*/
-
-
-			//FVector LaunchVelocity = -direction * hitData->Launch + FVector(0, 0, dirZ);
-			//LaunchCharacter(LaunchVelocity, false, true);
-
-			//// 방향 조절
-			//FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
-			//targetRotator.Pitch = 0;
-			//SetActorRotation(targetRotator);
 		}
 
 		//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
@@ -174,7 +160,7 @@ void ACEnemy::Damaged()
 	{
 		State->SetDeadMode();
 
-		DYNAMIC_EVENT_CALL(OnCharacterDead);
+		//DYNAMIC_EVENT_CALL(OnCharacterDead);
 
 		return;
 	}
@@ -210,7 +196,8 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	}
 	FVector launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
 	LaunchCharacter(launchVelocity, false, false);
-
+	
+	FLog::Print("attacker = >  " + DamageData.Attacker->GetName());
 	// 나 공격한 대상 바라보기 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 	targetRotator.Pitch = 0;
@@ -300,6 +287,7 @@ void ACEnemy::Dead()
 {
 	Super::Dead();
 
+	FLog::Log(" No Collsioion");
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	PlayAnimMontage(DeadMontage);

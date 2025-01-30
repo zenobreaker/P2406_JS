@@ -17,10 +17,10 @@ private:
 
 
 public:
-	FORCEINLINE bool IsDead() { return Health <= 0.0f; }
+	FORCEINLINE bool IsDead() const { return Health <= 0.0f; }
 
-	FORCEINLINE float GetHealth() { return Health; }
-	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
 public:	
 	UCHealthPointComponent();

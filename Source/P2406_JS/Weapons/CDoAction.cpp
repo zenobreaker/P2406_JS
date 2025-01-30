@@ -42,7 +42,5 @@ void UCDoAction::End_DoAction()
 	bInAction = false;
 	State->SetIdleMode();
 
-	DYNAMIC_EVENT_CALL(OnEndedDoAction);
-
 	Movement->Move();
 }

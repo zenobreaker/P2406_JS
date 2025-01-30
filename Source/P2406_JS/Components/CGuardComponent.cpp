@@ -2,11 +2,18 @@
 #include "Global.h"
 
 #include "Characters/IGuardable.h"
+#include "Characters/CPlayer.h"
 
 #include "Components/CStateComponent.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CAttackTraceComponent.h"
+#include "Components/CMovementComponent.h"
+#include "Components/CWeaponComponent.h"
 
+#include "Weapons/Guards/CGuardDataAsset.h"
+#include "Weapons/Guards/CGuardData.h"
+#include "Weapons/Guards/CDoGuard.h"
+#include "Weapons/Guards/CDoParry.h"
 
 UCGuardComponent::UCGuardComponent()
 {
@@ -22,19 +29,48 @@ void UCGuardComponent::BeginPlay()
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
 
-	State = FHelpers::GetComponent <UCStateComponent>(OwnerCharacter);
-	CheckNull(State);
+	CheckNull(GuardAsset);
+	GuardAsset->BeginPlay(OwnerCharacter, &GuardData);
 
-	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCGuardComponent::OnStateTypeChanged);
+	if (!!GuardData)
+	{
+		DoGuard = GuardData->GetGuard();
+		DoParry = GuardData->GetParry();
+	}
+
+	State = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+	if (!!State)
+	{
+		REGISTER_EVENT_WITH_REPLACE(
+			State
+			, OnStateTypeChanged
+			, this
+			, UCGuardComponent::OnStateTypeChanged);
+	}
 
 	ATrace = FHelpers::GetComponent<UCAttackTraceComponent>(OwnerCharacter);
+	if (!!ATrace)
+	{
+		REGISTER_EVENT_WITH_REPLACE(
+			ATrace
+			, OnHandledTrace
+			, this
+			, UCGuardComponent::OnHandledTrace);
 
-	CheckNull(ATrace);
+		REGISTER_EVENT_WITH_REPLACE(
+			ATrace
+			, OnEndTrace
+			, this
+			, UCGuardComponent::GuardComp_OnEndTrace);
+	}
 
-	REGISTER_EVENT_WITH_REPLACE(ATrace, OnHandledTrace, this, UCGuardComponent::OnHandledTrace);
+	Weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
+	if (!!Weapon)
+	{
+		REGISTER_EVENT_WITH_REPLACE(Weapon, OnEndedDoAction, this, UCGuardComponent::End_Parry);
+	}
 
-	REGISTER_EVENT_WITH_REPLACE(ATrace, OnEndTrace, this,
-		UCGuardComponent::GuardComp_OnEndTrace);
+	Move = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
 }
 
 
@@ -42,72 +78,106 @@ void UCGuardComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bCountering)
-		CounterTime -= DeltaTime;
-	else 
-		CounterRecoveryTime -= DeltaTime; 
-
+	if (!!DoGuard)
+		DoGuard->Tick(DeltaTime);
 
 	CalcGuardHP(DeltaTime);
+}
 
-	CalcGuardCooldown(DeltaTime);
+bool UCGuardComponent::GetCanGuard() const
+{
+	CheckNullResult(DoGuard, false);
+
+	return DoGuard->GetCanGuard();
+}
+
+bool UCGuardComponent::GetGuarding() const
+{
+	CheckNullResult(DoGuard, false);
+
+	return DoGuard->GetGuarding();
+}
+
+bool UCGuardComponent::GetCountering() const
+{
+	CheckNullResult(DoGuard, false);
+	
+	return DoGuard->GetCountering();
+}
+
+void UCGuardComponent::SetCanGuard(const bool InValue)
+{
+	CheckNull(DoGuard);
+
+	DoGuard->SetCanGuard(InValue);
 }
 
 void UCGuardComponent::OnJustGuard()
 {
-	bJustTime = !bJustTime;
+	CheckNull(DoGuard);
+
+	DoGuard->OnJustGuard();
 }
 
 void UCGuardComponent::StartGuard()
 {
-	CheckFalse(bCanGuard);
-	CheckTrue(bGuarding);
+	CheckNull(OwnerCharacter);
+	CheckNull(State);
+	CheckFalse(State->IsIdleMode());
+
+	CheckNull(DoGuard);
+	//bCanGuard
+	CheckFalse(DoGuard->GetCanGuard());
+
+	//bGuarding
+	CheckTrue(DoGuard->GetGuarding());
 
 	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter);
 	CheckNull(guardable);
+	guardable->StartGuard();
 
-	bGuarding = true;
-	bJustTime = false;
-
-	GuardHP = MaxGuardHP;
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, true);
 
-	guardable->StartGuard();
-	OwnerCharacter->PlayAnimMontage(GuardMontage);
+	if(!!DoGuard)
+		DoGuard->Begin_Guard();
 
-	CheckNull(State);
-	State->SetGuardMode();
+	if(!!State)
+		State->SetGuardMode();
+
+	if (Move != nullptr && DoGuard->GetCanMove() == false)
+		Move->Stop();
+
+	//prevRotationYaw = OwnerCharacter->bUseControllerRotationYaw ;  
+	//// 가드 중 회전 방지
+	//OwnerCharacter->bUseControllerRotationYaw = false;
 }
 
 void UCGuardComponent::StopGuard()
 {
-	bGuarding = false;
+	CheckNull(OwnerCharacter);
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, false);
 
 	IIGuardable* guardable = Cast<IIGuardable>(OwnerCharacter);
 	CheckNull(guardable);
-
 	guardable->StopGuard();
-	OwnerCharacter->StopAnimMontage(GuardMontage);
 
-	CheckNull(State);
-	State->SetIdleMode();
+	if (!!DoGuard)
+		DoGuard->End_Guard();
+
+	if(!!State)
+		State->SetIdleMode();
+
+	if(!!Move) 
+		Move->Move(); 
+
+	//OwnerCharacter->bUseControllerRotationYaw = prevRotationYaw;
 }
 
 bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 {
-	//CheckNullResult(OwnerCharacter, false);
-	if (OwnerCharacter == nullptr)
-		return false; 
-
-	if (GuardHP <= 0.0f)
-	{
-		CalcGuardHP();
-
-		return false;
-	}
+	CheckNullResult(DoGuard, false);
 
 	FVector attackerLocation = InDamageData.Attacker->GetActorLocation();
 
@@ -116,20 +186,11 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 
 	DebugLine(toAttack, forward);
 
-	float dotProduct = FVector::DotProduct(forward, toAttack);
-	if (dotProduct > FMath::Cos(FMath::DegreesToRadians(GuardAngle)))
+	if (DoGuard->CheckBlocking(forward, toAttack) == true)
 	{
-		UGameplayStatics::PlaySoundAtLocation
-		(
-			GetWorld(),
-			GuardSound,
-			OwnerCharacter->GetActorLocation()
-		);
-
-		GuardHP += (MaxGuardHP * 0.1f) * -1.0f;
-
 		Evaluate_JustTime();
 
+		DoGuard->Damage_Guard();
 
 		DYNAMIC_EVENT_CALL(OnGuardDamaged);
 
@@ -141,58 +202,70 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 
 void UCGuardComponent::CalcGuardHP(const float InDeltaTime)
 {
-	if (bGuarding == false)
-		return; 
-	
-	GuardHP -= InDeltaTime;
+	CheckNull(DoGuard);
+	CheckFalse(DoGuard->GetGuarding());
 
-	if (GuardHP <= 0.0f)
+	DYNAMIC_EVENT_CALL_TWO_PARAM(
+		OnUpdatedGuardGauge, 
+		DoGuard->GetGuardHP(),
+		DoGuard->GetMaxGuardHP());
+
+	if (DoGuard->GetGuardHP() <= 0.0f)
 	{
-		// 체력이 다 닳아서 깨진 가드면 바로 가드 못하게 
-		bCanGuard = false;
-		GuardCooldown = MaxGuardCooldown;
-
 		StopGuard();
 	}
 
-	DYNAMIC_EVENT_CALL_TWO_PARAM(OnUpdatedGuardGauge, GuardHP, MaxGuardHP);
-}
-
-void UCGuardComponent::CalcGuardCooldown(const float InDeltaTime)
-{
-	if (bCanGuard)
-		return; 
-
-	if (GuardCooldown > 0.0f)
-		GuardCooldown -= InDeltaTime;
-
-	if (GuardCooldown <= 0.0f)
-		bCanGuard = true;
 }
 
 //-----------------------------------------------------------------------------
 
 void UCGuardComponent::StartCounterGuard()
 {
-	CheckTrue(bCountering);
-	CheckTrue(CounterRecoveryTime > 0.0f);
-	CheckTrue(CounterTime > 0.0f);
-	
-	CounterTime = MaxCounterTime;
+	CheckNull(DoGuard);
 
-	bCountering = true; 
-	
-	OwnerCharacter->PlayAnimMontage(CounterWaitMontage);
+	DoGuard->StartCounterGuard();
 }
 
 void UCGuardComponent::StopCounterGuard()
 {
+	CheckNull(DoGuard);
 
-	CounterRecoveryTime = MaxCounterRecoveryTime;
+	DoGuard->StopCounterGuard();
+}
 
-	bCountering = false;
+void UCGuardComponent::Evaluate_JustTime()
+{
+	CheckNull(DoGuard)
+		if (DoGuard->GetJustTime() == false)
+			return;
 
-	OwnerCharacter->StopAnimMontage(CounterWaitMontage);
+	Begin_Parry();
+}
+
+void UCGuardComponent::Begin_Parry()
+{
+	CheckNull(DoParry);
+
+	DoParry->DoAction_Parry();
+
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	CheckNull(player); 
+
+	*player->bCountering = DoParry->GetParring(); 
+}
+
+void UCGuardComponent::End_Parry()
+{
+	CheckNull(DoParry);
+
+	FLog::Log("Guard End Do Parry");
+
+	DoParry->End_DoAction_Parry();
+
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	CheckNull(player);
+
+	*player->bCountering = DoParry->GetParring();
 }
 
 //-----------------------------------------------------------------------------
@@ -201,35 +274,31 @@ void UCGuardComponent::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCa
 {
 	// 반격 시 충돌 처리	
 	 // 캐릭터 여부 확인
-
 	CheckNull(InAttackCauser);
+	CheckNull(DoParry);
 
-	HitData.SendDamage(InAttacker, InAttackCauser, InOther);
-	//// 필요한 추가 처리
-	/*Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), InOther);*/
+	DoParry->OnHandledTrace(InAttacker, InAttackCauser, InOther);
 }
 
 void UCGuardComponent::GuardComp_OnEndTrace()
 {
-	Hits.Empty();
+	CheckNull(DoParry);
+
+	DoParry->EndTrace();
 }
 
 void UCGuardComponent::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
+	if (InNewType == EStateType::Dead)
+		StopGuard();
+
 	if (InPrevType == EStateType::Guard && InPrevType != InNewType)
 	{
 		StopGuard();
 	}
 }
 
-void UCGuardComponent::Evaluate_JustTime()
-{
-	if (bJustTime == false)
-		return;
 
-	//OwnerCharacter->PlayAnimMontage(ParryMontage);
-	ParryActionData.DoAction(OwnerCharacter);
-}
 
 
 //-----------------------------------------------------------------------------
@@ -237,6 +306,10 @@ void UCGuardComponent::Evaluate_JustTime()
 
 void UCGuardComponent::DebugLine(FVector InAttack, FVector InForward)
 {
+	CheckNull(DoGuard);
+	
+	float guardAngle =  DoGuard->GetGuardAngle();
+
 	DrawDebugLine(
 		OwnerCharacter->GetWorld(),
 		OwnerCharacter->GetActorLocation(),
@@ -256,8 +329,8 @@ void UCGuardComponent::DebugLine(FVector InAttack, FVector InForward)
 	FRotator rotator = FRotator(0, OwnerCharacter->GetControlRotation().Yaw, 0);
 	FVector n_forward = FQuat(rotator).GetForwardVector();
 
-	FVector leftDirection = n_forward.RotateAngleAxis(-GuardAngle, OwnerCharacter->GetActorUpVector()); // 왼쪽 방향
-	FVector rightDirection = n_forward.RotateAngleAxis(GuardAngle, OwnerCharacter->GetActorUpVector()); // 오른쪽 방향
+	FVector leftDirection = n_forward.RotateAngleAxis(-guardAngle, OwnerCharacter->GetActorUpVector()); // 왼쪽 방향
+	FVector rightDirection = n_forward.RotateAngleAxis(guardAngle, OwnerCharacter->GetActorUpVector()); // 오른쪽 방향
 
 	DrawDebugLine(
 		OwnerCharacter->GetWorld(),

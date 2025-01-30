@@ -47,8 +47,6 @@ ACEnemy_AI::ACEnemy_AI()
 	{
 		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
 	}
-
-
 }
 
 void ACEnemy_AI::BeginPlay()
@@ -94,9 +92,8 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	bool bBlocking = false;
 	bool bCountering = false; 
-	if (State->IsGuardMode())
+	if (Guard != nullptr && Guard->GetGuarding())
 	{
-		CheckNullResult(Guard, Damage);
 		bBlocking = Guard->CheckBlocking(DamageData);
 
 		bCountering = Guard->GetCountering();
@@ -133,7 +130,7 @@ void ACEnemy_AI::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	CheckNull(controller); 
 
 	// Focus 일시 해제
-	controller->ClearFocus(EAIFocusPriority::Gameplay);
+	//controller->ClearFocus(EAIFocusPriority::Gameplay);
 }
 
 void ACEnemy_AI::OnHealthPointChanged(float InHealth, float InMaxHealth)
@@ -194,7 +191,7 @@ void ACEnemy_AI::Tick_LabelRenderScale()
 void ACEnemy_AI::Damaged()
 {
 	Super::Damaged();
-	CheckTrue(State->IsDeadMode());
+	CheckTrue(HealthPoint->IsDead());
 	CheckNull(Behavior); 
 
 	auto* target = Behavior->GetTarget();

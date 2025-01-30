@@ -56,7 +56,10 @@ void ACAIController::OnPossess(APawn* InPawn)
 
 	CheckNull(Enemy->GetBehaviorTree());
 
-	REGISTER_EVENT_WITH_REPLACE(Enemy, OnCharacterDead, this,
+	REGISTER_EVENT_WITH_REPLACE(
+		Enemy, 
+		OnCharacterDead, 
+		this,
 		ACAIController::OnEnemyDead);
 
 	// 스마트 포인터의 주소에 대한 레퍼런스 값 반환

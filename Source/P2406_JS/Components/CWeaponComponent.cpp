@@ -72,7 +72,6 @@ UCEquipment* UCWeaponComponent::GetEquipment()
 
 UCDoAction* UCWeaponComponent::GetDoAction()
 {
-
 	CheckTrueResult(IsUnarmedMode(), nullptr);
 	CheckFalseResult(!!Datas[(int32)Type], nullptr);
 
@@ -143,14 +142,6 @@ void UCWeaponComponent::InitEquip()
 	SetMode(InitType);
 }
 
-//void UCWeaponComponent::BeginEquip()
-//{
-//
-//}
-//
-//void UCWeaponComponent::EndEquip()
-//{
-//}
 
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {
@@ -224,6 +215,26 @@ void UCWeaponComponent::DoAction()
 	{
 		GetDoAction()->DoAction();
 	}
+}
+
+void UCWeaponComponent::Begin_DoAction()
+{
+	if (!!GetDoAction())
+	{
+		GetDoAction()->Begin_DoAction();
+	}
+
+	DYNAMIC_EVENT_CALL(OnBeginDoAction);
+}
+
+void UCWeaponComponent::End_DoAction()
+{
+	if (!!GetDoAction())
+	{
+		GetDoAction()->End_DoAction();
+	}
+
+	DYNAMIC_EVENT_CALL(OnEndedDoAction);
 }
 
 void UCWeaponComponent::ExecuteSkill(const int32 InIndex)

@@ -1,7 +1,6 @@
 #include "Notifies/CAnimNotify_EndAction.h"
 #include "Global.h"
 #include "Components/CWeaponComponent.h"
-#include "Weapons/CDoAction.h"
 
 FString UCAnimNotify_EndAction::GetNotifyName_Implementation() const
 {
@@ -16,8 +15,7 @@ void UCAnimNotify_EndAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(MeshComp->GetOwner());
 	CheckNull(weapon);
-	CheckNull(weapon->GetDoAction());
 
-	weapon->GetDoAction()->End_DoAction();
+	weapon->End_DoAction();
 
 }

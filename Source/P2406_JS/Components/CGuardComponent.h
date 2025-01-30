@@ -1,10 +1,10 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Characters/CBaseCharacter.h"
 #include "Weapons/CWeaponStructures.h"
+#include "Weapons/Guards/CGuardStructures.h"
 #include "CGuardComponent.generated.h"
 
 
@@ -20,19 +20,19 @@ class P2406_JS_API UCGuardComponent : public UActorComponent
 public:
 	UCGuardComponent();
 
-public:
-	FORCEINLINE bool GetCanGuard() const { return bCanGuard; }
-	FORCEINLINE bool GetGuarding() const { return bGuarding; }
-	FORCEINLINE bool GetCountering() const { return bCountering; }
-
-	FORCEINLINE void SetCanGuard(const bool InValue) { bCanGuard = InValue; }
-
 
 protected:
 	virtual void BeginPlay() override;
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+public:
+	bool GetCanGuard() const;
+	bool GetGuarding() const;
+	bool GetCountering() const;
+
+	void SetCanGuard(const bool InValue);
 
 	void OnJustGuard();
 
@@ -45,12 +45,21 @@ public:
 
 	void CalcGuardHP(const float InDeltaTime = 0.0f);
 
-	void CalcGuardCooldown(const float InDeltaTime);
-
 	void StartCounterGuard();
 
 	void StopCounterGuard();
 
+private:
+	void Evaluate_JustTime();
+
+public:
+	UFUNCTION()
+	void Begin_Parry();
+
+	UFUNCTION()
+	void End_Parry();
+
+public:
 	void DebugLine(FVector InAttack, FVector InForward);
 
 private:
@@ -63,45 +72,7 @@ private:
 	UFUNCTION()
 	void OnStateTypeChanged(EStateType InPrevType, EStateType  InNewType);
 
-private:
-	void Evaluate_JustTime();
 
-private:
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	bool bCanGuard = true;
-
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	float GuardAngle = 60.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	float MaxGuardHP = 10.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	float MaxGuardCooldown = 10.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	class USoundWave* GuardSound = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "Guard")
-	class UAnimMontage* GuardMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Parry")
-	struct FDoActionData ParryActionData;
-
-	UPROPERTY(EditAnywhere, Category = "Parry")
-	struct FHitData HitData;
-
-	//class UAnimMontage* ParryMontage;
-private:
-	UPROPERTY(EditAnywhere, Category = "Counter")
-	float MaxCounterTime = 5.0f; 
-
-	UPROPERTY(EditAnywhere, Category = "Counter")
-	float MaxCounterRecoveryTime = 7.0f; 
-
-
-	UPROPERTY(EditAnywhere, Category = "Counter")
-	class UAnimMontage* CounterWaitMontage; 
 
 public:
 	FOnGuardDamaged OnGuardDamaged;
@@ -111,19 +82,21 @@ public:
 
 private:
 	class ACharacter* OwnerCharacter = nullptr;
+
+	class UCWeaponComponent* Weapon = nullptr;
 	class UCStateComponent* State = nullptr;
 	class UCAttackTraceComponent* ATrace = nullptr;
+	class UCMovementComponent* Move = nullptr;
+
 
 private:
-	bool bGuarding = false;
-	bool bCountering = false;
+	class UCGuardData* GuardData;
+	class UCDoGuard* DoGuard;
+	class UCDoParry* DoParry;
 
-	float GuardHP = 0.0f;
-	float GuardCooldown = 0.0f; 
-	float CounterTime = 0.0f; 
-	float CounterRecoveryTime = 0.0f;
+private:
+	UPROPERTY(EditAnywhere, Category = "Guard")
+	class UCGuardDataAsset* GuardAsset;
 
-	bool bJustTime = false;
-
-	TArray<class ACharacter*> Hits;
+	bool prevRotationYaw;
 };
