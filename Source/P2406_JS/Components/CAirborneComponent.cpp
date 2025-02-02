@@ -99,14 +99,14 @@ float UCAirborneComponent::Calc_AirborenValue(float LaunchPower, AActor* InCause
 		if (LaunchPower > 0.0f)
 		{
 			finalLaunchPower = FMath::Clamp(500.0f, LaunchPower * 0.1f, LaunchPower * 0.1f); // 10%로
-			FLog::Print("Upper Hit");
+			//FLog::Print("Upper Hit");
 		}
 		// 없다면 임의의 값으로 
 		//TODO: 임의의 값을 처리해야할 필요가 있다. 
 		else
 		{
 			finalLaunchPower = 500.0f;
-			FLog::Print("Upper Added Hit ");
+			//FLog::Print("Upper Added Hit ");
 		}
 
 	}
@@ -121,7 +121,7 @@ void UCAirborneComponent::Landed()
 		return; 
 
 	bIsAirborne = false;
-	FLog::Print("Airborne = Landed");
+	//FLog::Print("Airborne = Landed");
 	if (!!Causer)
 	{
 		Causer = nullptr;

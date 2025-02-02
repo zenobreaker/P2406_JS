@@ -8,7 +8,7 @@ void UCActiveSkill_Stance::BeginPlay(ACharacter* InOwner, const TArray<FSkillAct
 	DoActionDatas = InDoActionDatas;
 	HitDatas = InHitDatas;
 
-	FLog::Print("Skill Create!");
+	//FLog::Print("Skill Create!");
 
 	RegisterSkillPhase_Stance();
 }

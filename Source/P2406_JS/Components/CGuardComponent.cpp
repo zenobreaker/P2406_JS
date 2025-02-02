@@ -15,6 +15,8 @@
 #include "Weapons/Guards/CDoGuard.h"
 #include "Weapons/Guards/CDoParry.h"
 
+//#define LOG_UCGuardComponent
+
 UCGuardComponent::UCGuardComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -101,7 +103,7 @@ bool UCGuardComponent::GetGuarding() const
 bool UCGuardComponent::GetCountering() const
 {
 	CheckNullResult(DoGuard, false);
-	
+
 	return DoGuard->GetCountering();
 }
 
@@ -139,11 +141,11 @@ void UCGuardComponent::StartGuard()
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, true);
 
-	if (IsValid(DoGuard))
+	if (!!DoGuard)
 		DoGuard->Begin_Guard();
 
-	//if(!!State)
-	//	State->SetGuardMode();
+	if(!!State)
+		State->SetGuardMode();
 
 	if (Move != nullptr && DoGuard->GetCanMove() == false)
 		Move->Stop();
@@ -168,15 +170,18 @@ void UCGuardComponent::StopGuard()
 		UE_LOG(LogTemp, Warning, TEXT("DoGuard is nullptr!  2 "));
 	}
 
-	if (GuardData->GetGuard() != nullptr)
+	if (DoGuard != nullptr)
 	{
-		CheckFalse(GuardData->GetGuard()->GetGuarding());
+		CheckFalse(DoGuard->GetGuarding());
 
-		GuardData->GetGuard()->End_Guard();
+		DoGuard->End_Guard();
 	}
 
-	if(!!Move) 
-		Move->Move(); 
+	if (!!State)
+		State->SetIdleMode();
+
+	if (!!Move)
+		Move->Move();
 
 	//OwnerCharacter->bUseControllerRotationYaw = prevRotationYaw;
 }
@@ -186,12 +191,18 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 	CheckNullResult(DoGuard, false);
 	CheckFalseResult(DoGuard->GetGuarding(), false);
 
+	// 이미 저스트 타이밍에 걸렸다면 다음 판정은 하지 않음.
+	if (DoParry->GetParring() == true)
+		return true; 
+
 	FVector attackerLocation = InDamageData.Attacker->GetActorLocation();
 
 	FVector toAttack = (attackerLocation - OwnerCharacter->GetActorLocation()).GetSafeNormal();
 	FVector forward = OwnerCharacter->GetActorForwardVector();
-
+#ifdef LOG_UCGuardComponent
 	DebugLine(toAttack, forward);
+#endif
+
 
 	if (DoGuard->CheckBlocking(forward, toAttack) == true)
 	{
@@ -209,19 +220,21 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 
 void UCGuardComponent::CalcGuardHP(const float InDeltaTime)
 {
-	CheckNull(OwnerCharacter); 
-	CheckTrue(State->IsDeadMode());
+	CheckNull(OwnerCharacter);
 	CheckNull(GuardData);
 	CheckNull(DoGuard);
+	
+	CheckNull(State);
+	CheckTrue(State->IsDeadMode());
 	if (DoGuard == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DoGuard is nullptr!  1 "));
 	}
-	
+
 	CheckFalse(DoGuard->GetGuarding());
-	
+
 	DYNAMIC_EVENT_CALL_TWO_PARAM(
-		OnUpdatedGuardGauge, 
+		OnUpdatedGuardGauge,
 		DoGuard->GetGuardHP(),
 		DoGuard->GetMaxGuardHP());
 
@@ -250,9 +263,9 @@ void UCGuardComponent::StopCounterGuard()
 
 void UCGuardComponent::Evaluate_JustTime()
 {
-	CheckNull(DoGuard)
-		if (DoGuard->GetJustTime() == false)
-			return;
+	CheckNull(DoGuard);
+	if (DoGuard->GetJustTime() == false)
+		return;
 
 	Begin_Parry();
 }
@@ -264,9 +277,9 @@ void UCGuardComponent::Begin_Parry()
 	DoParry->DoAction_Parry();
 
 	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
-	CheckNull(player); 
+	CheckNull(player);
 
-	*player->bCountering = DoParry->GetParring(); 
+	*player->bCountering = DoParry->GetParring();
 }
 
 void UCGuardComponent::End_Parry()
@@ -319,8 +332,8 @@ void UCGuardComponent::OnStateTypeChanged(EStateType InPrevType, EStateType InNe
 void UCGuardComponent::DebugLine(FVector InAttack, FVector InForward)
 {
 	CheckNull(DoGuard);
-	
-	float guardAngle =  DoGuard->GetGuardAngle();
+
+	float guardAngle = DoGuard->GetGuardAngle();
 
 	DrawDebugLine(
 		OwnerCharacter->GetWorld(),

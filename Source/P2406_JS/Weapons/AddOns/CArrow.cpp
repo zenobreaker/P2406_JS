@@ -1,6 +1,7 @@
 #include "Weapons/AddOns/CArrow.h"
 #include "Global.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 
 ACArrow::ACArrow()
@@ -53,7 +54,7 @@ void ACArrow::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	for (AActor* actor : Ignores)
 		CheckTrue(actor == OtherActor);
 	
-	FLog::Print(OtherActor->GetName());
+	//FLog::Print(OtherActor->GetName());
 
 	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 

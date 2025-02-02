@@ -100,7 +100,7 @@ void UCDoGuard::CalcGuardHP(const float InDeltaTime)
 		return;
 
 	GuardHP -= InDeltaTime;
-	FLog::Print("Guard HP : " + FString::SanitizeFloat(GuardHP), 1223);
+	//FLog::Print("Guard HP : " + FString::SanitizeFloat(GuardHP), 1223);
 	
 	if (GuardHP <= 0.0f)
 	{

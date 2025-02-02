@@ -28,7 +28,7 @@ void ACSkillCollision_Area::ActivateCollision()
 	AreaCollisionComponent->MarkRenderStateDirty();
 	CollisionComponent = AreaCollisionComponent;
 
-	FLog::Print("Overlap Activate ", -1, 10.0f, FColor::Green);
+	//FLog::Print("Overlap Activate ", -1, 10.0f, FColor::Green);
 
 	// 충돌 활성화 로직 (예: 콜리전 켜기)
 	SetActorEnableCollision(true);

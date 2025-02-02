@@ -6,6 +6,8 @@
 
 #include "GenericTeamAgentInterface.h"
 
+//#define  LOG_UCAttackTraceComponent
+
 UCAttackTraceComponent::UCAttackTraceComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -46,7 +48,8 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	CheckNull(mesh);
 
 	// 위치 갱신 
-	FVector newVec = mesh->GetSocketLocation(attachment->GetTraceGoalName());
+	FName goalName = attachment->GetTraceGoalName();
+	FVector newVec = mesh->GetSocketLocation(goalName);
 	EndVec = newVec;
 	StartVec = OwnerCharacter->GetActorLocation();
 
@@ -63,7 +66,11 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	}
 	FColor LineColor = bCheck ? FColor::Red : FColor::Blue;
+
+#ifdef  LOG_UCAttackTraceComponent
 	DrawDebugLine(GetWorld(), StartVec, EndVec, LineColor, false, 1);
+#endif //  LOG_UCAttackTraceComponent
+
 }
 
 void UCAttackTraceComponent::SetTrace()

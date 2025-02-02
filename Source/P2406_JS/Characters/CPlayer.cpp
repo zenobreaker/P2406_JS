@@ -278,31 +278,32 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
 
 	//Guard Check
-	bool isGuardMode = State->IsGuardMode();
+	/*bool isGuardMode = State->IsGuardMode();
 	if (isGuardMode)
-	{
-		// 무기에게 가드 판정 갖고옴 
-		bool isGuard = false;
-		if (!!Guard)
-			isGuard = Guard->CheckBlocking(DamageData);
-
-		if (isGuard)
-		{
-			FLog::Print(" Guard Success!!", 2, 5.0f, FColor::Yellow);
-			Launch(*DamageData.Event->HitData, true);
-
-			return Damage;
-		}
-
-		FLog::Print(" Guard Faild...", 2, 5.0f, FColor::Magenta);
-	}
+	{*/
+	// 무기에게 가드 판정 갖고옴 
+	bool isGuard = false;
+	if (!!Guard)
+		isGuard = Guard->CheckBlocking(DamageData);
 
 	if (*bCountering == true)
 	{
-		FLog::Print(" Damage in Counter ");
+		//FLog::Print(" Damage in Counter ");
 
 		return Damage;
 	}
+
+	if (isGuard)
+	{
+		//FLog::Print(" Guard Success!!", 2, 5.0f, FColor::Yellow);
+		Launch(*DamageData.Event->HitData, true);
+
+		return Damage;
+	}
+
+	//FLog::Print(" Guard Faild...", 2, 5.0f, FColor::Magenta);
+	//}
+
 
 
 	State->SetDamagedMode();
@@ -342,13 +343,13 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 
 	if (!!UserInterface)
 	{
-		FLog::Print("UserInteface !");
+		//FLog::Print("UserInteface !");
 		UserInterface->UpdateCrossHairVisibility(bVisible);
 	}
-	else
+	/*else
 	{
 		FLog::Print("UserInteface NO");
-	}
+	}*/
 }
 
 void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
@@ -381,7 +382,7 @@ void ACPlayer::Damaged()
 	if (!!State)
 	{
 		FString v = State->IsDashMode() ? TEXT("True") : TEXT("False");
-		FLog::Print("My Dash State => " + v);
+		//FLog::Print("My Dash State => " + v);
 		if (State->IsDashMode() || State->IsEvadeMode())
 		{
 			// 회피 이펙트 
@@ -578,7 +579,7 @@ void ACPlayer::Jump()
 	Super::Jump();
 
 	//Movement->EnableControlRotation();
-	FLog::Print("Jump!");
+	//FLog::Print("Jump!");
 
 	PlayAnimMontage(JumpMontage);
 }
@@ -587,8 +588,7 @@ void ACPlayer::OnGrapple()
 {
 	CheckNull(Grapple);
 
-
-	FLog::Print("Grapple!!");
+	//FLog::Print("Grapple!!");
 	Grapple->OnGrapple();
 }
 

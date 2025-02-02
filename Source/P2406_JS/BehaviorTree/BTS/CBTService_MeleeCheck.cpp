@@ -132,7 +132,7 @@ void UCBTService_MeleeCheck::Calc_WaitAndAvoidWithWeight()
 
 	if (randWeight <= WeightValue.X)
 	{
-		FLog::Print(CachedAI->GetName() + " Wait call!!");
+		//FLog::Print(CachedAI->GetName() + " Wait call!!");
 		CachedBehavior->SetWaitMode();
 
 		return;

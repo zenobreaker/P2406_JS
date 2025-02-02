@@ -18,7 +18,7 @@ void UCSubAction_Hammer::Pressed()
 	CheckFalse(ActionDatas.Num() > 0);
 	CheckTrue(State->IsActionMode());
 
-	FLog::Print("Hammer SubAction Start");
+	//FLog::Print("Hammer SubAction Start");
 
 
 	ResetCharging();
@@ -62,7 +62,7 @@ void UCSubAction_Hammer::Tick(float DeltaTime)
 	if (CurrentChargeTime >= MaxChargeTime)
 	{
 		// 충전 완료 애님 재생
-		FLog::Print("Sub Action Charge Complete", 1, 2);
+		//FLog::Print("Sub Action Charge Complete", 1, 2);
 		bActionable = true;
 	}
 }

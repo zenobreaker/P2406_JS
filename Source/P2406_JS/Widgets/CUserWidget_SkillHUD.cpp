@@ -7,17 +7,17 @@ void UCUserWidget_SkillHUD::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
-	FLog::Print("SkillHUD - NativeConstruct called");
+	//FLog::Print("SkillHUD - NativeConstruct called");
 
     HotBar = Cast<UCUserWidget_Hotbar>(GetWidgetFromName(TEXT("WB_CSkillHotBar")));
-    if (!!HotBar)
+ /*   if (!!HotBar)
     {
         FLog::Print("SkillHUD - Success to initialize HotBar", -1, 10.0, FColor::Green);
     }
     else
     {
         FLog::Print("SkillHUD - Failed to initialize HotBar", -1, 10.0, FColor::Red);
-    }
+    }*/
 }
 
 
@@ -25,7 +25,7 @@ void UCUserWidget_SkillHUD::OnSetSkill(const TArray<UCActiveSkill*>& InActiveSki
 {
     CheckNull(HotBar);
 
-	FLog::Print("HUD - OnSet Skill Call");
+	//FLog::Print("HUD - OnSet Skill Call");
 	HotBar->OnSetSkillSlots(InActiveSkills);
 }
 

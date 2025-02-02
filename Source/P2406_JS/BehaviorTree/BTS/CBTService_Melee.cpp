@@ -202,7 +202,7 @@ void UCBTService_Melee::Notify_Battle_FindBattle(class ACharacter** OutTarget)
 
 	if (notifyCallCount >= maxNotifyCalls)
 	{
-		FLog::Print("Notify_Battle_FindBattle exceeded max calls.", 2700);
+		//FLog::Print("Notify_Battle_FindBattle exceeded max calls.", 2700);
 		return;
 	}
 	notifyCallCount++;
@@ -223,8 +223,8 @@ void UCBTService_Melee::Notify_Battle_FindBattle(class ACharacter** OutTarget)
 		{
 			ACharacter* target = battleManager->GetBattleAttackerOfTarget(CachedAI->GetGroupID(), CachedAI);
 			*OutTarget = target;
-			if (*OutTarget != nullptr)
-				FLog::Print("Battle!!! " + (*OutTarget)->GetName(), 2700);
+			/*if (*OutTarget != nullptr)
+				FLog::Print("Battle!!! " + (*OutTarget)->GetName(), 2700);*/
 
 			return;
 		}
@@ -320,7 +320,7 @@ void UCBTService_Melee::Calc_DelayTimer(float DeltaSeconds)
 	if (CurrentDelay > 0.0f)
 	{
 		CurrentDelay -= DeltaSeconds;
-		FLog::Print(CachedAI->GetName() + "Current Delay " + FString::SanitizeFloat(CurrentDelay), 1992 + CachedAI->GetAIID());
+		//FLog::Print(CachedAI->GetName() + "Current Delay " + FString::SanitizeFloat(CurrentDelay), 1992 + CachedAI->GetAIID());
 	}
 }
 

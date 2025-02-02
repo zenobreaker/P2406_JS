@@ -266,6 +266,17 @@ bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttac
 	// 이미 한 번에 공격할 수 있는 적의 인원수를 넘음 
 	if (TargetToAttackers[InTarget].Num() > MaxAttackersPerTarget)
 	{
+		// 근데 그 인원 수 중에 내가 이미 있다면 등록을 해제하고 다음 기회로 넘긴다.
+		for (ACEnemy_AI* attacker : TargetToAttackers[InTarget])
+		{
+			if (attacker == InAttacker)
+			{
+				UnregistAttacker(InTarget, InAttacker);
+				FLog::Log("IsAttackableToTarget - Previous Registed Attacker ");
+				return false; 
+			}
+		}
+
 		FLog::Log("IsAttackableToTarget - Over Attacker Count ");
 		return false;
 	}

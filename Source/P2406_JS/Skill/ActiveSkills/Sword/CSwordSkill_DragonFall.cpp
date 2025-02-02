@@ -19,7 +19,7 @@ void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkill
 {
 	Super::BeginPlay(InOwner, InDoActionDatas, InHitDatas);
 
-	FLog::Print("Dragon Fall Begin Play!!!!!" + OwnerCharacter->GetName()); 
+	//FLog::Print("Dragon Fall Begin Play!!!!!" + OwnerCharacter->GetName()); 
 
 
 
@@ -53,7 +53,7 @@ void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkill
 void UCSwordSkill_DragonFall::Tick(float InDeltaTime)
 {
 	Super::Tick(InDeltaTime);
-	FLog::Print("Skill Tick Call : " + OwnerCharacter->GetName(), 2, 10.0f, FColor::Green);
+	//FLog::Print("Skill Tick Call : " + OwnerCharacter->GetName(), 2, 10.0f, FColor::Green);
 	
 	Timeline.TickTimeline(InDeltaTime);
 	CameraTimeline.TickTimeline(InDeltaTime);
@@ -155,7 +155,7 @@ void UCSwordSkill_DragonFall::Input_AnyKey()
 
 void UCSwordSkill_DragonFall::OffSkillCasting()
 {
-	FLog::Print("Off Skill Casting Call Complete");
+	//FLog::Print("Off Skill Casting Call Complete");
 
 	// 여기서 다음 페이즈로	
 	OnSoarCharacter();
@@ -215,7 +215,7 @@ void UCSwordSkill_DragonFall::OnCheckIfLand()
 		// 여기서도 중력 복구 시켜봄
 		RestoreGravity();
 		// 착지하면 다음 페이즈 
-		FLog::Print("Skill - Landed Complete");
+		//FLog::Print("Skill - Landed Complete");
 
 		// 착지하면 키를 눌렀는지에 따라 애니메이션 동작 다르게
 		// 그냥 누르지 않고 떨어졌다면 랜딩 몽타주 섹션 스타트 

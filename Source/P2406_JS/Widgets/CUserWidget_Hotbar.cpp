@@ -7,7 +7,7 @@ void UCUserWidget_Hotbar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FLog::Print("HotBar - NativeConstruct called");
+	//FLog::Print("HotBar - NativeConstruct called");
 	// Slots √ ±‚»≠
 }
 
@@ -16,7 +16,7 @@ void UCUserWidget_Hotbar::OnSetSkillSlots_Implementation(const TArray<UCActiveSk
 	CheckTrue(InActiveSkills.Num() <= 0);
 	check(SkillSlots.Num() > 0);
 
-	FLog::Print("Hot bar  : Call Set Skill Slot ", -1, 10.0f, FColor::Yellow);
+	//FLog::Print("Hot bar  : Call Set Skill Slot ", -1, 10.0f, FColor::Yellow);
 	int cnt = 0;
 	for (UCActiveSkill* activeSkill : InActiveSkills)
 	{
