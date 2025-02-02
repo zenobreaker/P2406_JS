@@ -13,13 +13,15 @@ private:
 	friend class UCGuardDataAsset; 
 
 public:
+	~UCGuardData();
+public:
 	FORCEINLINE class UCDoGuard* GetGuard() { return Guard; }
 	FORCEINLINE class UCDoParry* GetParry() { return Parry; }
 
 private: 
 	UPROPERTY() 
-	class UCDoGuard* Guard; 
+	class UCDoGuard* Guard = nullptr; 
 
 	UPROPERTY() 
-	class UCDoParry* Parry;
+	class UCDoParry* Parry = nullptr;
 };

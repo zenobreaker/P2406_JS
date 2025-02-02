@@ -41,16 +41,30 @@ void UCDoGuard::Begin_Guard()
 	bGuarding = true; 
 	GuardHP = GuardData.MaxGuardHP;
 
-	GuardData.DoGuard(OwnerCharacter);
+	GuardData.Begin_Guard(OwnerCharacter);
 }
 
 void UCDoGuard::End_Guard()
 {
 	CheckNull(OwnerCharacter);
 
+	if (!OwnerCharacter)  // 안전 체크 추가
+	{
+		UE_LOG(LogTemp, Error, TEXT("End_Guard: OwnerCharacter is NULL!"));
+		return;
+	}
+
+	if (this == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DoGuard is nullptr!  3"));
+	}
+
+
+	CheckFalse(bGuarding);
+
 	bGuarding = false;
 
-	GuardData.StopGuard(OwnerCharacter);
+	GuardData.End_Guard(OwnerCharacter);
 }
 
 bool UCDoGuard::CheckBlocking(FVector InForward, FVector InAttacker)

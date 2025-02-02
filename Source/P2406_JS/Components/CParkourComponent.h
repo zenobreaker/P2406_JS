@@ -77,6 +77,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	TEnumAsByte<EDrawDebugTrace::Type> DebugType;
 
+public:
+	FORCEINLINE bool IsDoing() const {return Type != EParkourType::Max;}
 
 public:
 

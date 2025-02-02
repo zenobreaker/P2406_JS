@@ -16,7 +16,7 @@ public:
 
 	//bool bCanGuard;
 	UPROPERTY(EditAnywhere)
-	UAnimMontage* GuardMontage;
+	class UAnimMontage* GuardMontage = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float PlayRate = 1.0f;
@@ -50,10 +50,10 @@ public:
 
 
 public:
-	void DoGuard(class ACharacter* InOwnerCharacter) const;
-	void StopGuard(class ACharacter* InOwnerCharacter) const;
+	void Begin_Guard(class ACharacter* InOwnerCharacter = nullptr) const;
+	void End_Guard(class ACharacter* InOwnerCharacter = nullptr) const;
 
-	void PlaySoundWave(class ACharacter* InOwnerCharacter);
+	void PlaySoundWave(class ACharacter* InOwnerCharacter = nullptr);
 	void PlayEffect(UWorld* InWorld, const FVector& InLocation);
 	void PlayEffect(UWorld* InWorld, const FVector& InLocation, const FRotator& InRotator);
 };
@@ -66,13 +66,13 @@ struct FGuardHitData
 
 public:
 	UPROPERTY(EditAnywhere)
-	UAnimMontage* GuardHitMontage;
+	class UAnimMontage* GuardHitMontage = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float PlayRate = 1.0f;
 
 	UPROPERTY(EditAnywhere)
-	USoundWave* Sound;
+	class USoundWave* Sound;
 
 	UPROPERTY(EditAnywhere)
 	class UFXSystemAsset* Effect;
@@ -102,7 +102,7 @@ struct FCounterData
 
 public:
 	UPROPERTY(EditAnywhere)
-	UAnimMontage* CounterWaitMontage;
+	class UAnimMontage* CounterWaitMontage = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float PlayRate = 1.0f;
@@ -114,7 +114,7 @@ public:
 	float MaxCounterRecoveryTime = 7.0f;
 
 	UPROPERTY(EditAnywhere)
-	USoundWave* Sound;
+	class USoundWave* Sound;
 
 	UPROPERTY(EditAnywhere)
 	class UFXSystemAsset* Effect;

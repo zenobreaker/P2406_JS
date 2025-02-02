@@ -64,10 +64,13 @@ public:
 	void StopCounterGuard();
 
 private:
-	class ACharacter* OwnerCharacter;
+	class ACharacter* OwnerCharacter = nullptr;
 
+	UPROPERTY()
 	FGuardData GuardData;
+	UPROPERTY()
 	FGuardHitData GuardHitData;
+	UPROPERTY()
 	FCounterData CounterData;
 
 private:
@@ -79,7 +82,7 @@ private:
 
 	float CounterTime = 0.0f;
 	float CounterRecoveryTime = 0.0f;
-	bool bCountering;
+	bool bCountering = false;
 
 	bool bJustTime = false; 
 

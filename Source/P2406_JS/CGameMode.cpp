@@ -4,6 +4,8 @@
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CSkillManager.h"
 #include "Widgets/CUserWidget_SkillHUD.h"
+
+#include "Characters/CEnemy_AI.h"
 #include "Components/CConditionComponent.h"
 
 ACGameMode::ACGameMode()
@@ -55,6 +57,25 @@ void ACGameMode::OrderToAllActorDown()
 			{
 				condition->AddDownCondition();
 			}
+		}
+	}
+}
+
+void ACGameMode::ToggleEnemyUI()
+{
+	bEnemyUiHide = !bEnemyUiHide; 
+	FString hideResultText = bEnemyUiHide == true ? "True" : "False";
+
+	FLog::Log("Enemy UI Toggle" + hideResultText);
+
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		AActor* actor = *It;
+		if (actor)
+		{
+			ACEnemy_AI* ai = Cast<ACEnemy_AI>(actor); 
+			if (!!ai)
+				ai->OnToggleEnemyUI(bEnemyUiHide);
 		}
 	}
 }

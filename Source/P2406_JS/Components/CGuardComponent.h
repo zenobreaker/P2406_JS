@@ -90,9 +90,14 @@ private:
 
 
 private:
-	class UCGuardData* GuardData;
-	class UCDoGuard* DoGuard;
-	class UCDoParry* DoParry;
+	UPROPERTY()
+	class UCGuardData* GuardData = nullptr;
+	
+	UPROPERTY()
+	class UCDoGuard* DoGuard = nullptr;
+	
+	UPROPERTY() 
+	class UCDoParry* DoParry = nullptr;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Guard")

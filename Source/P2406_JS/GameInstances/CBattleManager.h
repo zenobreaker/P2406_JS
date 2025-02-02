@@ -32,6 +32,8 @@ public:
 	UFUNCTION()
 	void UnregistAttacker(class ACharacter* InAttacker);
 
+	void UnregistAttacker(class AActor* InaTarget, class ACEnemy_AI* InAttacker);
+
 	UFUNCTION()
 	void UnregistTarget(class ACharacter* InTarget);
 
@@ -54,7 +56,7 @@ public:
 private:
 	TMap<class AActor*, TArray<class ACEnemy_AI*>> TargetToAttackers; // 타겟별 공격자 리스트
 	FCriticalSection Mutex; // 멀티스레드 보호
-
+	// 특정한 그룹 모음
 	TMap<int32, TArray<class ACEnemy_AI*>> GroupAITable;
 
 public:

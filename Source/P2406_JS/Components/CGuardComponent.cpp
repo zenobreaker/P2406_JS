@@ -78,7 +78,7 @@ void UCGuardComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!!DoGuard)
+	if (DoGuard != nullptr)
 		DoGuard->Tick(DeltaTime);
 
 	CalcGuardHP(DeltaTime);
@@ -139,11 +139,11 @@ void UCGuardComponent::StartGuard()
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedGuardVisiable, true);
 
-	if(!!DoGuard)
+	if (IsValid(DoGuard))
 		DoGuard->Begin_Guard();
 
-	if(!!State)
-		State->SetGuardMode();
+	//if(!!State)
+	//	State->SetGuardMode();
 
 	if (Move != nullptr && DoGuard->GetCanMove() == false)
 		Move->Stop();
@@ -163,11 +163,17 @@ void UCGuardComponent::StopGuard()
 	CheckNull(guardable);
 	guardable->StopGuard();
 
-	if (!!DoGuard)
-		DoGuard->End_Guard();
+	if (DoGuard == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DoGuard is nullptr!  2 "));
+	}
 
-	if(!!State)
-		State->SetIdleMode();
+	if (GuardData->GetGuard() != nullptr)
+	{
+		CheckFalse(GuardData->GetGuard()->GetGuarding());
+
+		GuardData->GetGuard()->End_Guard();
+	}
 
 	if(!!Move) 
 		Move->Move(); 
@@ -178,6 +184,7 @@ void UCGuardComponent::StopGuard()
 bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 {
 	CheckNullResult(DoGuard, false);
+	CheckFalseResult(DoGuard->GetGuarding(), false);
 
 	FVector attackerLocation = InDamageData.Attacker->GetActorLocation();
 
@@ -202,9 +209,17 @@ bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
 
 void UCGuardComponent::CalcGuardHP(const float InDeltaTime)
 {
+	CheckNull(OwnerCharacter); 
+	CheckTrue(State->IsDeadMode());
+	CheckNull(GuardData);
 	CheckNull(DoGuard);
+	if (DoGuard == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DoGuard is nullptr!  1 "));
+	}
+	
 	CheckFalse(DoGuard->GetGuarding());
-
+	
 	DYNAMIC_EVENT_CALL_TWO_PARAM(
 		OnUpdatedGuardGauge, 
 		DoGuard->GetGuardHP(),
@@ -289,9 +304,6 @@ void UCGuardComponent::GuardComp_OnEndTrace()
 
 void UCGuardComponent::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
-	if (InNewType == EStateType::Dead)
-		StopGuard();
-
 	if (InPrevType == EStateType::Guard && InPrevType != InNewType)
 	{
 		StopGuard();

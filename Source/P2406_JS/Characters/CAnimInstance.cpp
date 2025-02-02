@@ -9,6 +9,7 @@
 #include "Components/CConditionComponent.h"
 #include "Components/CGrapplingComponent.h"
 #include "Components/CGuardComponent.h"
+#include "Components/CParkourComponent.h"
 #include "Weapons/CSubAction.h"
 
 void UCAnimInstance::NativeBeginPlay()
@@ -23,6 +24,8 @@ void UCAnimInstance::NativeBeginPlay()
 	Skill = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter); 
 	Grapple = FHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
 	Condition = FHelpers::GetComponent<UCConditionComponent>(OwnerCharacter);
+	Feet = FHelpers::GetComponent<UCFeetComponent>(OwnerCharacter); 
+	Parkour = FHelpers::GetComponent<UCParkourComponent>(OwnerCharacter);
 
 	if (!!Weapon)
 		Weapon->OnWeaponTypeChanged.AddDynamic(this, &UCAnimInstance::OnWeaponTypeChanged);
@@ -37,6 +40,11 @@ void UCAnimInstance::NativeBeginPlay()
 
 		baseCharacter->OnCharacterRaised.AddDynamic(this, &UCAnimInstance::OnCharacterRaised);
 	}
+
+	if (Cast<ACPlayer>(OwnerCharacter) != nullptr)
+		bPlayer = true;
+	else
+		bPlayer = false; 
 }
 
 void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -54,6 +62,8 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Pitch = UKismetMathLibrary::FInterpTo(Pitch, OwnerCharacter->GetBaseAimRotation().Pitch, DeltaSeconds, 25);
 
+	if (OwnerCharacter->bUseControllerRotationYaw == false)
+		Direction = 0;
 
 
 	// 애님인스턴스에서 처리함 .
@@ -79,6 +89,9 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	// Gaurd 
 	ChangeGuardState();
+
+	//IK
+	ChangeFeet(); 
 }
 
 //-----------------------------------------------------------------------------
@@ -116,6 +129,21 @@ void UCAnimInstance::ChangeGuardState()
 	CheckNull(guard);
 
 	bGuarding = guard->GetGuarding();
+}
+
+void UCAnimInstance::ChangeFeet()
+{
+	bUseFootIK = false;
+	if (!!Feet)
+	{
+		bUseFootIK = true;
+
+		if (!!Parkour)
+			bUseFootIK = Parkour->IsDoing() == false;
+
+		if(bUseFootIK)
+			FeetData = Feet->GetData(); 
+	}
 }
 
 void UCAnimInstance::ChangeFalling()

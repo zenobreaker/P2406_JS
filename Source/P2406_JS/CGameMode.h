@@ -21,8 +21,12 @@ public:
 
 public:
 	void OrderToAllActorDown();
+	void ToggleEnemyUI();
 
 private:
 	UPROPERTY()
 	class UCGameInstance* GameInstance;
+
+private:
+	bool bEnemyUiHide = true;
 };

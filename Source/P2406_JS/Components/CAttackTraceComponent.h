@@ -28,9 +28,9 @@ public:
 	UCAttackTraceComponent();
 
 protected:
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
 
-    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
     
     void SetTrace(); 

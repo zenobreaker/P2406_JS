@@ -75,6 +75,10 @@ private:
 
 	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
 
+public:
+	UFUNCTION()
+	void OnToggleEnemyUI(bool InToggle);
+
 private:
 	void Tick_LabelRenderScale();
 

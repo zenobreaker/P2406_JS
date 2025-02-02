@@ -27,7 +27,7 @@ EBTNodeResult::Type UCBTTaskNode_Combo::ExecuteTask(UBehaviorTreeComponent& Owne
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 	CheckNullResult(weapon, EBTNodeResult::Failed);
 	CheckTrueResult(weapon->IsUnarmedMode(), EBTNodeResult::Failed);
-
+	CheckNullResult(weapon->GetDoAction(), EBTNodeResult::Failed);
 
 	// 일단 모두 리셋시켜 
 	weapon->GetDoAction()->End_DoAction();
@@ -108,11 +108,13 @@ void UCBTTaskNode_Combo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 EBTNodeResult::Type UCBTTaskNode_Combo::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::AbortTask(OwnerComp, NodeMemory);
-
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
+	CheckNullResult(ai, EBTNodeResult::Failed);
 
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
+	CheckNullResult(weapon, EBTNodeResult::Failed);
+	CheckNullResult(weapon->GetDoAction(), EBTNodeResult::Failed);
 
 	bool bBgeinAction = weapon->GetDoAction()->GetBeginAction();
 

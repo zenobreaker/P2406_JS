@@ -4,18 +4,42 @@
 #include "Animation/AnimMontage.h"
 
 
-void FGuardData::DoGuard(ACharacter* InOwnerCharacter) const
+void FGuardData::Begin_Guard(ACharacter* InOwnerCharacter) const
 {
 	CheckNull(InOwnerCharacter);
+	CheckNull(GuardMontage);
 
 	InOwnerCharacter->PlayAnimMontage(GuardMontage, PlayRate);
 }
 
-void FGuardData::StopGuard(ACharacter* InOwnerCharacter) const
+void FGuardData::End_Guard(ACharacter* InOwnerCharacter) const
 {
 	CheckNull(InOwnerCharacter);
 
-	InOwnerCharacter->StopAnimMontage(GuardMontage);
+	if (!GuardMontage) // 추가 안전 체크
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StopGuard: GuardMontage is NULL!"));
+		return;
+	}
+
+	if (!InOwnerCharacter) // 추가 안전 체크
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StopGuard: InOwnerCharacter is NULL!"));
+		return;
+	}
+
+	TWeakObjectPtr<ACharacter> WeakCharacterPtr(InOwnerCharacter);
+	if (WeakCharacterPtr.IsValid())
+	{
+		ACharacter* ValidCharacter = WeakCharacterPtr.Get();
+		ValidCharacter->StopAnimMontage(GuardMontage);
+		//WeakCharacterPtr->StopAnimMontage(GuardMontage);
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InOwnerCharacter is no longer valid"));
+	}
+	//InOwnerCharacter->StopAnimMontage(GuardMontage);
 }
 
 void FGuardData::PlaySoundWave(ACharacter* InOwnerCharacter)

@@ -132,7 +132,6 @@ void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 	{
 		// 대상이 공격자인 경우 - 공격자가 죽으면 해제하도록 
 		REGISTER_EVENT_WITH_REPLACE(InAttacker, OnCharacterDead_One, this, UCBattleManager::UnregistAttacker);
-
 		// 그룹에 추가 될 때 
 		SetTokenAttacker(InAttacker);
 
@@ -143,14 +142,8 @@ void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 void UCBattleManager::UnregistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 {
 	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
-	if (TargetToAttackers.Contains(InTarget))
-	{
-		TArray<ACEnemy_AI*>& attackers = TargetToAttackers[InTarget];
-		attackers.Remove(InAttacker);
 
-		if (attackers.Num() == 0)
-			TargetToAttackers.Remove(InTarget);
-	}
+	UnregistAttacker(InTarget, InAttacker);
 }
 
 // 공격자 등록 제거 
@@ -161,13 +154,31 @@ void UCBattleManager::UnregistAttacker(ACharacter* InAttacker)
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(InAttacker);
 	CheckNull(ai);
 
-	for (auto& Pair : GroupAITable)
-	{
-		TArray<ACEnemy_AI*>& AIList = Pair.Value;
-		AIList.Remove(ai);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+	CheckNull(behavior);
 
+	AActor* target = behavior->GetTarget();
+	CheckNull(target);
+
+	UnregistAttacker(target, ai);
+}
+
+void UCBattleManager::UnregistAttacker(AActor* InaTarget, ACEnemy_AI* InAttacker)
+{
+	CheckNull(InAttacker);
+	CheckNull(InaTarget);
+
+	if (TargetToAttackers.Contains(InaTarget) == false)
 		return;
-	}
+
+	TargetToAttackers[InaTarget].Remove(InAttacker);
+
+	if (TargetToAttackers[InaTarget].Num() <= 0)
+		TargetToAttackers.Remove(InaTarget);
+
+	UnregistGroup(InAttacker->GetGroupID(), InAttacker);
+
+	FLog::Log(InAttacker->GetName() + " Unregist Attacker ");
 }
 
 // 타겟 등록 제거 

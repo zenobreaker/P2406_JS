@@ -53,6 +53,8 @@ void ACEnemy_AI::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CheckNull(GetController());
+
 	HealthPoint->OnHealthPointChanged.AddDynamic(this, &ACEnemy_AI::OnHealthPointChanged);
 
 	LabelWidget->InitWidget();
@@ -146,6 +148,11 @@ void ACEnemy_AI::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	enemyLabel->UpdateStateName(StaticEnum<EStateType>()->GetNameStringByValue((int64)InNewType));
 
+}
+
+void ACEnemy_AI::OnToggleEnemyUI(bool InToggle)
+{
+	LabelWidget->SetVisibility(InToggle); 
 }
 
 void ACEnemy_AI::Tick_LabelRenderScale()

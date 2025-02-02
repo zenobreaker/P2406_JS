@@ -21,6 +21,7 @@
 #include "Components/CAirborneComponent.h"
 #include "Components/CAttackTraceComponent.h"
 #include "Components/CGuardComponent.h"
+#include "Components/CZoomComponent.h"
 
 #include "Weapons/CWeaponStructures.h"
 
@@ -32,18 +33,7 @@ ACPlayer::ACPlayer()
 	FHelpers::CreateComponent(this, &SpringArm, "SpringArm", GetMesh());
 	FHelpers::CreateComponent(this, &Camera, "Camera", SpringArm);
 
-	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
-	FHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
-	FHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
-	FHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
-	FHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
-	FHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
-	FHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
-	FHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
-	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
-	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
-	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "A_Trace");
-
+	CreateActorComponent();
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -64,6 +54,47 @@ ACPlayer::ACPlayer()
 	SpringArm->bEnableCameraLag = true;
 
 	GetCharacterMovement()->RotationRate = FRotator(0, 720, 0);
+
+	CreateArrowGroup();
+
+	FHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
+
+	FHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
+
+	FHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
+
+	FHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/MyCUserWidget_SkillHUD.MyCUserWidget_SkillHUD_C'");
+}
+
+void ACPlayer::CreateActorComponent()
+{
+	FHelpers::CreateActorComponent<UCWeaponComponent>(this, &Weapon, "Weapon");
+	FHelpers::CreateActorComponent<UCMovementComponent>(this, &Movement, "Movement");
+	FHelpers::CreateActorComponent<UCDashComponent>(this, &Dash, "Dash");
+	FHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
+	FHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
+	FHelpers::CreateActorComponent<UCParkourComponent>(this, &Parkour, "Parkour");
+	FHelpers::CreateActorComponent<UCGrapplingComponent>(this, &Grapple, "Grapple");
+	FHelpers::CreateActorComponent<UCHealthPointComponent>(this, &HealthPoint, "Health");
+	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
+	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
+	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "A_Trace");
+	FHelpers::CreateActorComponent<UCZoomComponent>(this, &Zoom, "Zoom");
+
+	if (!!Grapple)
+	{
+		Grapple->PrimaryComponentTick.bCanEverTick = true;
+	}
+
+	// Guard 인터페이스를 구현했다면 컴포넌트가 자동으로 부착된다.
+	if (IIGuardable::Execute_HasGuard(this))
+	{
+		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
+	}
+}
+
+void ACPlayer::CreateArrowGroup()
+{
 
 	// 애로우 컴포넌트 가져오기 
 	FHelpers::CreateComponent<USceneComponent>(this, &ArrowGroup, "Arrows", GetCapsuleComponent());
@@ -106,25 +137,6 @@ ACPlayer::ACPlayer()
 		}
 	}
 
-
-	FHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
-
-	FHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
-
-	FHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
-
-	FHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/MyCUserWidget_SkillHUD.MyCUserWidget_SkillHUD_C'");
-
-	if (!!Grapple)
-	{
-		Grapple->PrimaryComponentTick.bCanEverTick = true;
-	}
-
-	// Guard 인터페이스를 구현했다면 컴포넌트가 자동으로 부착된다.
-	if (IIGuardable::Execute_HasGuard(this))
-	{
-		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
-	}
 }
 
 void ACPlayer::BeginPlay()
@@ -162,6 +174,7 @@ void ACPlayer::BeginPlay()
 			UserInterface->UpdateCrossHairVisibility(false);
 			UserInterface->UpdateGuardGaugeVisibility(false);
 
+			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardVisiable, UserInterface, UCUserWidget_Player::UpdateGuardGaugeVisibility);
 			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
 		}
 	}
@@ -224,6 +237,10 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Target_Left", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveLeft);
 	PlayerInputComponent->BindAction("Target_Right", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveRight);
 
+
+	if (!!Zoom)
+		PlayerInputComponent->BindAxis("Zoom", Zoom, &UCZoomComponent::SetValue);
+
 	//TODO: 일단무식한 방법으로 처리함 나중에 개념 충족하면 여기 수정하기 
 	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Pressed, this,
 		&ACPlayer::OnSkill1);
@@ -245,6 +262,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>();
 	PlayerInputComponent->BindAction("State_Down", IE_Pressed, gameMode,
 		&ACGameMode::OrderToAllActorDown);
+
+	PlayerInputComponent->BindAction("Toggle_EnemyUI", IE_Pressed, gameMode,
+		&ACGameMode::ToggleEnemyUI);
 
 }
 
@@ -639,6 +659,15 @@ void ACPlayer::Landed(const FHitResult& Hit)
 
 	FRotator ResetRotation = FRotator(0.0f, GetActorRotation().Yaw, 0.0f);
 	SetActorRotation(ResetRotation);
+}
+
+void ACPlayer::FindComponent()
+{
+	if (Parkour == nullptr)
+		Parkour = FHelpers::GetComponent<UCParkourComponent>(this);
+
+	if (Zoom == nullptr)
+		Zoom = FHelpers::GetComponent<UCZoomComponent>(this);
 }
 
 

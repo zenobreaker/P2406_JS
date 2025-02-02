@@ -5,6 +5,7 @@
 #include "Components/CWeaponComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CSkillComponent.h"
+#include "Components/CFeetComponent.h"
 #include "CAnimInstance.generated.h"
 
 
@@ -42,6 +43,13 @@ protected:
 	float DownBlendValue;
 
 protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	bool bUseFootIK;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	FFeetData FeetData;
+
+protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	bool bBow_Aiming;
 
@@ -55,6 +63,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	EStateType StateType = EStateType::Max;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Owner")
+	bool bPlayer = true;
 
 public:
 	void NativeBeginPlay() override;
@@ -78,18 +89,19 @@ private:
 	void OnCharacterRaised();
 
 private:
-	void ChangeFalling(); 
+	void ChangeFalling();
 
 	void ChangeBowAiming();
-	
+
 	void ChangeGrappling();
 
-	void ChangeAirborne(); 
+	void ChangeAirborne();
 
 	void ChangeDown();
 
 	void ChangeGuardState();
-	
+
+	void ChangeFeet(); 
 
 
 private:
@@ -97,9 +109,11 @@ private:
 	class UCWeaponComponent* Weapon;
 	class UCStateComponent* State;
 	class UCSkillComponent* Skill;
-	class UCGrapplingComponent* Grapple; 
+	class UCGrapplingComponent* Grapple;
 	class UCConditionComponent* Condition;
+	class UCFeetComponent* Feet; 
+	class UCParkourComponent* Parkour;
+
 private:
 	FRotator PrevRotation;
-
 };

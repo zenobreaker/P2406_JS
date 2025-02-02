@@ -83,16 +83,19 @@ private:
 	class UCParkourComponent* Parkour;
 
 	UPROPERTY(VisibleAnywhere)
+	class UCZoomComponent* Zoom;
+
+	UPROPERTY(VisibleAnywhere)
 	class UCGrapplingComponent* Grapple;
 
 	UPROPERTY(VisibleAnywhere)
 	class UCAttackTraceComponent* ATrace;
 
 	UPROPERTY(VisibleAnywhere)
-	class UCGuardComponent* Guard; 
+	class UCGuardComponent* Guard;
 
 public:
-	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue;  }
+	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue; }
 	FORCEINLINE bool GetCanInput() { return bCanInput; }
 
 public:
@@ -100,6 +103,10 @@ public:
 
 public:
 	ACPlayer();
+
+private:
+	void CreateActorComponent();
+	void CreateArrowGroup();
 
 protected:
 	virtual void BeginPlay() override;
@@ -118,7 +125,7 @@ private:
 
 protected:
 	void Damaged();
-	virtual void Launch(const FHitData& InHitData,const bool bIsGuarding = false);
+	virtual void Launch(const FHitData& InHitData, const bool bIsGuarding = false);
 	virtual void Play_DamageMontage(const struct FHitData& hitData) override;
 
 public:
@@ -154,14 +161,12 @@ private:
 	void OnSkill1();
 	void OnSkill2();
 
-private:
-	bool bEquipped;
-	bool bEquipping;
-
 
 public:
 	void Landed(const FHitResult& Hit) override;
 
+private:
+	void FindComponent(); 
 
 private:
 	void OnIncreaseTimeScale();
@@ -173,7 +178,7 @@ public:
 	// IIAirborne을(를) 통해 상속됨
 	void OnAirborneConditionActivated() override;
 	void OnAirborneConditionDeactivated() override;
-	
+
 	void StartDownTimer();
 	virtual void OnDownConditionActivated() override;
 	virtual void OnDownConditionDeactivated() override;
@@ -193,10 +198,15 @@ private:
 	FTimerHandle ChangeConditionHandle;
 
 private:
-	bool bCanInput = true; 
-	
+	bool bEquipped;
+	bool bEquipping;
+
+
+private:
+	bool bCanInput = true;
+
 public:
-	bool* bCountering; 
+	bool* bCountering;
 
 
 };
