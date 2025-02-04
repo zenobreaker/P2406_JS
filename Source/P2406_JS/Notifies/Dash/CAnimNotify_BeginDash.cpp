@@ -16,5 +16,5 @@ void UCAnimNotify_BeginDash::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	UCDashComponent* dash = FHelpers::GetComponent<UCDashComponent>(MeshComp->GetOwner());
 	CheckNull(dash);
 
-	dash->CreateEvadeOverlap(MeshComp->GetOwner()->GetActorLocation());
+	//dash->CreateEvadeOverlap(MeshComp->GetOwner()->GetActorLocation());
 }

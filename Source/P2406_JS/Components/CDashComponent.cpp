@@ -2,9 +2,10 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Weapons/CEquipment.h"
-#include "Weapons/CDoAction.h"
+
+#include "Characters/CGhostTrail.h"
 #include "Camera/CameraComponent.h"
+
 #include "Components/CMovementComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CTargetComponent.h"
@@ -12,13 +13,18 @@
 #include <Components/SphereComponent.h>
 #include "Components/CapsuleComponent.h"
 
-#include "Characters/CGhostTrail.h"
+#include "Weapons/CEquipment.h"
+#include "Weapons/CDoAction.h"
+#include "Weapons/AddOns/AttackInterface.h"
+
+//#define  LOG_UCDashComponent
 
 
 UCDashComponent::UCDashComponent()
 {
-	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	PrimaryComponentTick.bCanEverTick = true;
 
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
 }
 
 
@@ -34,9 +40,23 @@ void UCDashComponent::BeginPlay()
 		State = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
 		Camera = FHelpers::GetComponent<UCameraComponent>(OwnerCharacter);
 	}
+
+
+	if (!!State)
+	{
+		REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCDashComponent::OnStateTypeChanged);
+	}
 }
 
+void UCDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (bIsDashing == true)
+	{
+		CheckEvadeHit();
+	}
+}
 
 void UCDashComponent::OnDash()
 {
@@ -52,10 +72,14 @@ void UCDashComponent::DashAction()
 	CheckTrue(State->IsDashMode());
 	//CheckNull(target);
 
+	CheckFalse(Movement->CanMove());
+
+	CheckTrue(bIsDashing);
+
 	FVector* input = Movement->GetInputDirection();
 	if (input == nullptr)
 		return;
-	inputVec = *input;
+	InputVec = *input;
 
 	// 자유 카메라 모드 일 때 
 	if (Weapon->GetEquipment() == nullptr
@@ -88,25 +112,175 @@ void UCDashComponent::DashAction()
 
 void UCDashComponent::Begin_DashSpeed()
 {
-	FVector dashDir = OwnerCharacter->GetActorForwardVector();
+	CheckNull(OwnerCharacter);
 
-	if (Weapon->GetEquipment() != nullptr
-		&& Weapon->GetEquipment()->GetControlRotation() == true)
+	HandleBeginDash();
+
+	FVector dashDir = FVector::ZeroVector;
+
+	double xAxis = 1.0f;
+	if (InputVec.IsNearlyZero())
 	{
-		double xAxis = inputVec.X;
-		if (inputVec.X == 0 && inputVec.Y == 0)
-			xAxis = -1;
 
-		dashDir = xAxis * OwnerCharacter->GetActorForwardVector() +
-			inputVec.Y * OwnerCharacter->GetActorRightVector();
+		FRotator rotator = FRotator(0, OwnerCharacter->GetActorRotation().Yaw, 0);
+		FVector dir_Start = OwnerCharacter->GetActorLocation();
+		FVector dir_End = dir_Start + FQuat(rotator).GetForwardVector() * 200.0f;
+
+		FVector dir = dir_End - dir_Start;
+		dir = dir.GetSafeNormal() * -1.0f;
+		dashDir = dir;
 	}
+	else
+		dashDir = OwnerCharacter->GetLastMovementInputVector();
+
+	/*dashDir = xAxis * OwnerCharacter->GetActorForwardVector() +
+		InputVec.Y * OwnerCharacter->GetActorRightVector();*/
+
+		// Dash 
+	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
+
+	PrevLocation = OwnerCharacter->GetActorLocation();
+}
+
+void UCDashComponent::End_DashSpeed()
+{
+	//Movement->SetSpeed(ESpeedType::Run);
+	HandleEndDash();
+}
+
+void UCDashComponent::PlaySoundWave()
+{
+	CheckNull(Sound);
+	CheckNull(OwnerCharacter);
+
+	UWorld* world = OwnerCharacter->GetWorld();
+	FVector location = OwnerCharacter->GetActorLocation();
 
 
+	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
+}
+
+void UCDashComponent::CheckEvadeHit()
+{
+	CheckNull(OwnerCharacter);
+
+
+	FVector startLocation = PrevLocation;
+	FVector endLocation = OwnerCharacter->GetActorLocation();
+	float sphereRadius = OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius() * 2.0f;
+
+	// 충돌 저장할 배열 
+	TArray<FHitResult> hitResults;
+
+	// 트레이스 설정 
+	FCollisionQueryParams tracePramams;
+	tracePramams.AddIgnoredActor(OwnerCharacter);
+
+	FCollisionObjectQueryParams objectQueryParams;
+	objectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+	objectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+	bool bHit = GetWorld()->SweepMultiByObjectType(
+		hitResults,
+		startLocation,
+		endLocation,
+		FQuat::Identity,
+		objectQueryParams,
+		FCollisionShape::MakeSphere(sphereRadius),
+		tracePramams
+	);
+
+#ifdef  LOG_UCDashComponent
+
+	// 트레이스 디버깅 (시각적으로 확인)
+	DrawDebugSphere(GetWorld(), startLocation, sphereRadius, 12, FColor::Red, false, 1.0f);
+	DrawDebugSphere(GetWorld(), endLocation, sphereRadius, 12, FColor::Blue, false, 1.0f);
+	DrawDebugLine(GetWorld(), startLocation, endLocation, FColor::Green, false, 1.0f, 0, 2.0f);
+
+#endif //  LOG_UCDashComponent
+
+	if (bHit)
+	{
+		for (FHitResult& hit : hitResults)
+		{
+			AActor* HitActor = hit.GetActor();
+			if (HitActor != nullptr /*&& HitActor->Implements<UAttackInterface>()*/) // 공격 관련 인터페이스 있는지 확인
+			{
+				IAttackInterface* ia = Cast<IAttackInterface>(HitActor);
+				if (ia == nullptr)
+					continue;
+				if (ia->IsEnable() == false)
+					continue;
+				// 내가 주인이면 그건 패스
+				if (ia->GetDamageSource() == OwnerCharacter)
+					continue;
+
+				// 회피 성공 처리
+				HandleEvade();
+
+				return;
+			}
+		}
+
+		// 현재 위치를 다음 프레임의 PreviousLocation으로 설정
+		PrevLocation = endLocation;
+	}
+}
+
+void UCDashComponent::Destroy_SingleGhostTrail()
+{
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindLambda([&]()
+		{
+			for (int32 i = GhostTrails.Num() - 1; i >= 0; i--)
+			{
+				ACGhostTrail* ghost = GhostTrails[i];
+
+				if (!!ghost)
+				{
+					ghost->Destroy();
+
+					return;
+				}
+			}
+		});
+
+
+	// 타이머 설정 (예: 0.5초 후 제거)
+	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(DestroyTimer, TimerDelegate, 0.5f, false);
+}
+
+void UCDashComponent::Clear_GhostTrail()
+{
+	CheckTrue(GhostTrails.Num() <= 0);
+
+	for (ACGhostTrail* trail : GhostTrails)
+	{
+		if (trail == nullptr)
+			continue;
+
+		trail->Destroy();
+	}
+}
+
+// Handle
+//-----------------------------------------------------------------------------
+void UCDashComponent::HandleBeginDash()
+{
+	bIsDashing = true;
+
+	CheckNull(State);
+	CheckNull(Camera);
+	CheckNull(Weapon);
+	CheckNull(Weapon->GetEquipment());
+
+	// PostProcess
 	if (!!Camera)
 	{
 		Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
 		Camera->PostProcessSettings.MotionBlurAmount = BlurAmount;
 	}
+
 	//Sound
 	PlaySoundWave();
 
@@ -126,30 +300,26 @@ void UCDashComponent::Begin_DashSpeed()
 	}
 	//CreateEvadeOverlap(OwnerCharacter->GetActorLocation());
 
-	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
-
-
-	CheckNull(Weapon);
-	CheckNull(Weapon->GetEquipment());
-
 	if (Weapon->GetEquipment()->GetBeginEquip() == true)
 		Weapon->GetEquipment()->End_Equip();
 }
 
-void UCDashComponent::End_DashSpeed()
+void UCDashComponent::HandleEndDash()
 {
-	//Movement->SetSpeed(ESpeedType::Run);
-	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
-
-	CheckNull(Weapon);
-
-	if (!!Camera)
-	{
-		Camera->PostProcessSettings.bOverride_MotionBlurAmount = false;
-		Camera->PostProcessSettings.MotionBlurAmount = 0.0f;
-	}
+	bIsDashing = false;
 
 	CheckNull(State);
+	CheckNull(Camera);
+	CheckNull(Weapon);
+	CheckNull(Weapon->GetEquipment());
+	CheckNull(OwnerCharacter);
+
+
+	// PostProcess 
+	Camera->PostProcessSettings.bOverride_MotionBlurAmount = false;
+	Camera->PostProcessSettings.MotionBlurAmount = 0.0f;
+
+
 	if (State->IsEquipMode() == true)
 	{
 		if (Weapon->GetEquipment()->GetBeginEquip() == false)
@@ -164,18 +334,46 @@ void UCDashComponent::End_DashSpeed()
 	{
 		State->SetIdleMode();
 	}
+
+	// Timer End 
+	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
 }
 
-void UCDashComponent::PlaySoundWave()
+void UCDashComponent::HandleEvade()
 {
-	CheckNull(Sound);
-	CheckNull(OwnerCharacter);
+	CheckNull(GhostTrailClass);
 
-	UWorld* world = OwnerCharacter->GetWorld();
+	FLog::Log("Success Evade");
+
 	FVector location = OwnerCharacter->GetActorLocation();
 
+	for (int32 i = 0; i < 16; i++)
+	{
+		float spawnLerp = (float)i / 16.0f;
+		FVector spawnLocation = FMath::Lerp(location, PrevLocation, spawnLerp);
 
-	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
+		FActorSpawnParameters param;
+		param.Owner = OwnerCharacter;
+		param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		FTransform transform;
+		//location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		spawnLocation.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		transform.SetTranslation(spawnLocation);
+
+		ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
+		GhostTrails.Add(GhostTrail);
+	}
+	Destroy_SingleGhostTrail();
+
+	// 고스트 트레일 스폰 
+	FTimerDelegate SpawnDelegate;
+	SpawnDelegate.BindLambda([&]()
+		{
+			
+		});
+
+	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
 }
 
 void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
@@ -240,49 +438,17 @@ void UCDashComponent::DestroyEvadeOverlap()
 
 void UCDashComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CheckNull(GhostTrailClass);
-
 	// 자신이 충돌되면 제외 
 	CheckTrue(OtherActor == OwnerCharacter);
 
 	FLog::Print(" Is Evade!" + OtherActor->GetName());
+}
 
-	// 고스트 트레일 스폰 
-	FTimerDelegate SpawnDelegate;
-	SpawnDelegate.BindLambda([this]()
-	{
-		FVector location = OwnerCharacter->GetActorLocation();
-		location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-
-		FActorSpawnParameters param;
-		param.Owner = OwnerCharacter;
-		param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-		FTransform transform;
-		transform.SetTranslation(location);
-
-
-		ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
-
-		GhostTrails.Add(GhostTrail);
-
-
-		FTimerDelegate TimerDelegate;
-		TimerDelegate.BindLambda([this]()
-		{
-			for (ACGhostTrail* ghost : GhostTrails)
-			{
-				if (ghost)
-					ghost->Destroy();
-			}
-		});
-
-		// 타이머 설정 (예: 0.5초 후 제거)
-		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GhostTimer, TimerDelegate, 0.5f, false);
-	});
-
-	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
-
+void UCDashComponent::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
+{
+	// 대쉬 끝나고 대쉬 엔드 노티파이가 제대로 호출이 안되는 경우 (보통 끝나고 나서 피격) 
+	// 그니까 대쉬 상태에서 다른 상태로 되면 그냥 HandleEnd 콜하면될듯?
+	if (InPrevType == EStateType::Dash && InPrevType != InNewType)
+		HandleEndDash();
 }
 

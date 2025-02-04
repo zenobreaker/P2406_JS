@@ -73,6 +73,8 @@ void ACAttachment::OnCollisions()
 
 	for (UShapeComponent* shape : Collisions)
 		shape->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	bEnable = true; 
 }
 
 void ACAttachment::OffCollisions()
@@ -82,6 +84,8 @@ void ACAttachment::OffCollisions()
 
 	for (UShapeComponent* shape : Collisions)
 		shape->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	bEnable = false;
 }
 
 void ACAttachment::HandleAttachmentOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
@@ -114,5 +118,20 @@ void ACAttachment::OnDestroy()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Destroy();
+}
+
+bool ACAttachment::CanAttack() const
+{
+	return bAttackable;
+}
+
+bool ACAttachment::IsEnable() const
+{
+	return bEnable;
+}
+
+AActor* ACAttachment::GetDamageSource() const
+{
+	return OwnerCharacter;
 }
 

@@ -14,10 +14,14 @@ ACAttachment_Bow::ACAttachment_Bow()
 	FHelpers::CreateComponent<UPoseableMeshComponent>(this, &PoseableMesh, "PoseableMesh", Root);
 
 
-	USkeletalMesh* mesh;
+	USkeletalMesh* mesh = nullptr;
 	FHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Characters/Weapons/ElvenBow/SK_ElvenBow.SK_ElvenBow'");
-	SkeletalMesh->SetSkeletalMesh(mesh);
-	SkeletalMesh->SetCollisionProfileName("NoCollision");
+	//TODO: 필요없는 소스 지웠는데 여기서 에러나서 일단 방어코드 처리
+	if (!!mesh)
+	{
+		SkeletalMesh->SetSkeletalMesh(mesh);
+		SkeletalMesh->SetCollisionProfileName("NoCollision");
+	}
 
 
 	TSubclassOf<UCAnimInstance_Bow> animInstance;

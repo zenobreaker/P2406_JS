@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AddOns/AttackInterface.h"
 #include "CAttachment.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAttachmentBeginCollision);
@@ -12,7 +13,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAttachmentBeginOverlap, class  A
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAttachmentEndOverlap, class ACharacter*, InAttacker, class ACharacter*, InOther);
 
 UCLASS()
-class P2406_JS_API ACAttachment : public AActor
+class P2406_JS_API ACAttachment
+	: public AActor
+	, public IAttackInterface
 {
 	GENERATED_BODY()
 	
@@ -20,6 +23,10 @@ class P2406_JS_API ACAttachment : public AActor
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Soket")
 	FName TraceGoalName = "";
+
+	// 이 Attachment 자체적으로 공격할 수 있는지??
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attackable")
+	bool bAttackable = false; 
 
 public:
 	FORCEINLINE FName GetTraceGoalName() { return TraceGoalName; }
@@ -75,6 +82,14 @@ public:
 	FAttachmentEndOverlap OnAttachmentEndOverlap;
 
 
+public:
+/// <summary>
+/// IAttackInterface Func 
+/// </summary>
+	virtual bool CanAttack() const override;
+	virtual bool IsEnable() const override;
+	virtual AActor* GetDamageSource() const override;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Game")
 	class ACharacter* OwnerCharacter;
@@ -82,4 +97,5 @@ protected:
 protected:
 	TArray<class UShapeComponent*> Collisions;
 
+	bool bEnable = false; 
 };

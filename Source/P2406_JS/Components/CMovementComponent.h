@@ -38,14 +38,14 @@ public:
 	FORCEINLINE float GetRunSpeed() { return Speed[(int32)ESpeedType::Run]; }
 	FORCEINLINE float GetSprintSpeed() { return Speed[(int32)ESpeedType::Sprint]; }
 
-	FORCEINLINE FVector* GetInputDirection()  { return &inputDirection; }
+	FORCEINLINE FVector* GetInputDirection()  { return &InputDirection; }
 
 public:
 	UCMovementComponent();
 
 protected:
 	virtual void BeginPlay() override;
-
+	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	void OnSprint();
@@ -73,7 +73,7 @@ public:
 
 private:
 	class ACharacter* OwnerCharacter;
-	FVector inputDirection;
+	FVector InputDirection;
 
 private:
 	bool bCanMove = true;
