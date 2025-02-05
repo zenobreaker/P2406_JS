@@ -17,20 +17,17 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACAttachment> AttachmentClass;
 
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UCEquipment> EquipmentClass;
 
 	UPROPERTY(EditAnywhere)
 	FEquipmentData EquipmentData;
 
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UCDoAction> DoActionClass;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UCSubAction> SubActionClass;
-
 
 	UPROPERTY(EditAnywhere)
 	TArray<FDoActionData> DoActionDatas;

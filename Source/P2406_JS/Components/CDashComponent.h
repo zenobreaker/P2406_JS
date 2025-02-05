@@ -21,19 +21,25 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float DashSpeed = 1000;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	float BlurAmount = 1.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	class USoundWave* Sound;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Trail")
 	TSubclassOf<class ACGhostTrail> GhostTrailClass;
+
+	UPROPERTY(EditAnywhere, Category = "Trail")
+	int32 TrailCount = 50;
+
+
+public:
+	FORCEINLINE bool IsEvade() const {return bIsEvadeSuccessed;}
 
 public:
 	UCDashComponent();
-
 
 protected:
 	void BeginPlay() override;
@@ -57,7 +63,6 @@ private:
 
 private:
 	void Destroy_SingleGhostTrail();
-	void Clear_GhostTrail();
 
 private:
 	void HandleBeginDash();
@@ -83,15 +88,16 @@ private:
 	class USphereComponent* DashAvoidanceCollision;
 
 private:
-	float SpwanInterval = 0.2f;
 	TArray<class ACGhostTrail*> GhostTrails;
 
 
 private:
 	bool bTargeting = false;
 	bool bIsDashing = false;
-	FVector InputVec;
+	bool bIsEvadeSuccessed = false;
 
+	FVector InputVec;
+	int32 CurrentTrailCount = 0;
 	float StartDashTime = 0.0f;
 	FVector PrevLocation;
 
@@ -99,7 +105,6 @@ private:
 	DashDirection DashDir;
 
 private:
-	FTimerHandle DashOverlapTimer;
 	FTimerHandle DestroyTimer;
 	FTimerHandle SpawnTimer;
 };

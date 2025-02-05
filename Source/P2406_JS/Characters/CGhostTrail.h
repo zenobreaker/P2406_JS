@@ -42,6 +42,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+public:
+	void DestroyTrail(); 
+
 private:
 	void SetSubMeshes(USkeletalMeshComponent* InParentMesh);
 	void CopySubMeshes(USkeletalMeshComponent* InParentMesh);
@@ -51,5 +54,4 @@ private:
 	class UMaterialInstanceDynamic* Material;
 
 	FTimerHandle TimerHandle;
-
 };

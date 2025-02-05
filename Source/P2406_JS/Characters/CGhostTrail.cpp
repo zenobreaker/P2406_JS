@@ -36,14 +36,21 @@ void ACGhostTrail::BeginPlay()
 
 	SetSubMeshes(OwnerCharacter->GetMesh());
 
+	// 초기 위치 고정 
+	FVector initialLocaton = GetActorLocation();
+	FRotator initialRotator = GetActorRotation();
+
 	FTimerDelegate timerDelegate;
-	timerDelegate.BindLambda([this]()
+	timerDelegate.BindLambda([this, initialLocaton, initialRotator]()
 	{
 		if (Mesh->IsVisible() == false)
 			Mesh->ToggleVisibility();
 
-		SetActorLocation(OwnerCharacter->GetActorLocation() + FVector(0, 0, -90));
-		SetActorRotation(OwnerCharacter->GetActorRotation() + FRotator(0, -90, 0));
+		/*SetActorLocation(OwnerCharacter->GetActorLocation() + FVector(0, 0, -90));
+		SetActorRotation(OwnerCharacter->GetActorRotation() + FRotator(0, -90, 0));*/
+
+		SetActorLocation(initialLocaton);
+		SetActorRotation(initialRotator);
 
 		Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh());
 		CopySubMeshes(OwnerCharacter->GetMesh());
@@ -57,6 +64,25 @@ void ACGhostTrail::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+}
+
+//TODO: 오브젝트 풀링을 한다면 이 함수는 따로 처리해야함
+void ACGhostTrail::DestroyTrail()
+{
+	// 서브 메쉬들 있으면 삭제
+	if (SubMeshes.Num() > 0)
+	{
+		for (int i = SubMeshes.Num() - 1; i >= 0; i--)
+		{
+			SubMeshes[i]->DestroyComponent();
+		}
+	}
+
+	// 메인 메쉬 삭제 
+	Mesh->DestroyComponent(); 
+
+	// 이 클래스 삭제 
+	//this->Destroy(); 
 }
 
 void ACGhostTrail::SetSubMeshes(USkeletalMeshComponent* InParentMesh)

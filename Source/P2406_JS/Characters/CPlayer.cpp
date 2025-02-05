@@ -278,33 +278,37 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
 
 	//Guard Check
-	/*bool isGuardMode = State->IsGuardMode();
-	if (isGuardMode)
-	{*/
-	// 무기에게 가드 판정 갖고옴 
-	bool isGuard = false;
-	if (!!Guard)
-		isGuard = Guard->CheckBlocking(DamageData);
-
-	if (*bCountering == true)
 	{
-		//FLog::Print(" Damage in Counter ");
+		// 무기에게 가드 판정 갖고옴 
+		bool isGuard = false;
+		if (!!Guard)
+			isGuard = Guard->CheckBlocking(DamageData);
 
-		return Damage;
+		if (*bCountering == true)
+		{
+			//FLog::Print(" Damage in Counter ");
+
+			return Damage;
+		}
+
+		if (isGuard)
+		{
+			//FLog::Print(" Guard Success!!", 2, 5.0f, FColor::Yellow);
+			Launch(*DamageData.Event->HitData, true);
+
+			return Damage;
+		}
 	}
 
-	if (isGuard)
+	// Evade Check 
 	{
-		//FLog::Print(" Guard Success!!", 2, 5.0f, FColor::Yellow);
-		Launch(*DamageData.Event->HitData, true);
-
-		return Damage;
+		bool isEvade = false; 
+		if (!!Dash)
+			isEvade = Dash->IsEvade();
+		
+		if (isEvade)
+			return Damage;
 	}
-
-	//FLog::Print(" Guard Faild...", 2, 5.0f, FColor::Magenta);
-	//}
-
-
 
 	State->SetDamagedMode();
 

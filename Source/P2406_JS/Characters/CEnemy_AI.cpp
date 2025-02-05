@@ -212,6 +212,10 @@ void ACEnemy_AI::Dead()
 {
 	Super::Dead(); 
 
+	// 이게 있으면 충돌됨 
+	if (!!LabelWidget)
+		LabelWidget->DestroyComponent();
+
 	//State->SetDeadMode();
 	Behavior->SetDeadMode();
 

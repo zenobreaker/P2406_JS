@@ -54,6 +54,8 @@ void UCDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	if (bIsDashing == true)
 	{
+		//PrevLocation = FMath::VInterpTo(PrevLocation, OwnerCharacter->GetActorLocation(), DeltaTime, 5.0f);
+
 		CheckEvadeHit();
 	}
 }
@@ -75,6 +77,10 @@ void UCDashComponent::DashAction()
 	CheckFalse(Movement->CanMove());
 
 	CheckTrue(bIsDashing);
+
+	// 콜한 시점의 위치 저장 
+	PrevLocation = OwnerCharacter->GetActorLocation();
+	FLog::Print("Begin Dash : PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4042);
 
 	FVector* input = Movement->GetInputDirection();
 	if (input == nullptr)
@@ -139,7 +145,6 @@ void UCDashComponent::Begin_DashSpeed()
 		// Dash 
 	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
-	PrevLocation = OwnerCharacter->GetActorLocation();
 }
 
 void UCDashComponent::End_DashSpeed()
@@ -163,7 +168,7 @@ void UCDashComponent::PlaySoundWave()
 void UCDashComponent::CheckEvadeHit()
 {
 	CheckNull(OwnerCharacter);
-
+	CheckTrue(bIsEvadeSuccessed);
 
 	FVector startLocation = PrevLocation;
 	FVector endLocation = OwnerCharacter->GetActorLocation();
@@ -223,7 +228,7 @@ void UCDashComponent::CheckEvadeHit()
 		}
 
 		// 현재 위치를 다음 프레임의 PreviousLocation으로 설정
-		PrevLocation = endLocation;
+		//PrevLocation = endLocation;
 	}
 }
 
@@ -232,13 +237,23 @@ void UCDashComponent::Destroy_SingleGhostTrail()
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindLambda([&]()
 		{
-			for (int32 i = GhostTrails.Num() - 1; i >= 0; i--)
+			// 다 지워서 없다면 타이머 제거  
+			if (GhostTrails.Num() <= 0)
+			{
+				FLog::Log("Clear Traisl!!");
+				OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(DestroyTimer);
+
+				return;
+			}
+
+			for (int32 i = 0; i < GhostTrails.Num(); i++)
 			{
 				ACGhostTrail* ghost = GhostTrails[i];
 
 				if (!!ghost)
 				{
 					ghost->Destroy();
+					GhostTrails.RemoveAt(i);
 
 					return;
 				}
@@ -247,21 +262,9 @@ void UCDashComponent::Destroy_SingleGhostTrail()
 
 
 	// 타이머 설정 (예: 0.5초 후 제거)
-	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(DestroyTimer, TimerDelegate, 0.5f, false);
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimer, TimerDelegate, 0.075f, true);
 }
 
-void UCDashComponent::Clear_GhostTrail()
-{
-	CheckTrue(GhostTrails.Num() <= 0);
-
-	for (ACGhostTrail* trail : GhostTrails)
-	{
-		if (trail == nullptr)
-			continue;
-
-		trail->Destroy();
-	}
-}
 
 // Handle
 //-----------------------------------------------------------------------------
@@ -311,7 +314,6 @@ void UCDashComponent::HandleEndDash()
 	CheckNull(State);
 	CheckNull(Camera);
 	CheckNull(Weapon);
-	CheckNull(Weapon->GetEquipment());
 	CheckNull(OwnerCharacter);
 
 
@@ -335,45 +337,59 @@ void UCDashComponent::HandleEndDash()
 		State->SetIdleMode();
 	}
 
-	// Timer End 
-	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+	bIsEvadeSuccessed = false;
 }
 
 void UCDashComponent::HandleEvade()
 {
 	CheckNull(GhostTrailClass);
 
+	// 이미 성공했다면 추가 처리 안함.
+	CheckTrue(bIsEvadeSuccessed);
+
 	FLog::Log("Success Evade");
+	bIsEvadeSuccessed = true;
 
-	FVector location = OwnerCharacter->GetActorLocation();
-
-	for (int32 i = 0; i < 16; i++)
-	{
-		float spawnLerp = (float)i / 16.0f;
-		FVector spawnLocation = FMath::Lerp(location, PrevLocation, spawnLerp);
-
-		FActorSpawnParameters param;
-		param.Owner = OwnerCharacter;
-		param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		FTransform transform;
-		//location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-		spawnLocation.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-		transform.SetTranslation(spawnLocation);
-
-		ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
-		GhostTrails.Add(GhostTrail);
-	}
-	Destroy_SingleGhostTrail();
-
-	// 고스트 트레일 스폰 
-	FTimerDelegate SpawnDelegate;
-	SpawnDelegate.BindLambda([&]()
+	FTimerDelegate spawnDelegate;
+	spawnDelegate.BindLambda([&]()
 		{
-			
+			if (CurrentTrailCount >= TrailCount)
+			{
+				CurrentTrailCount = 0;
+				Destroy_SingleGhostTrail();
+
+				GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+
+				return;
+			}
+
+			CurrentTrailCount++;
+
+			FVector location = OwnerCharacter->GetActorLocation();
+
+			FVector dashProgress = OwnerCharacter->GetActorLocation() - PrevLocation;
+			float spawnRatio = (float)CurrentTrailCount / TrailCount;
+			/*FVector spawnLocation = FMath::Lerp(PrevLocation, location, spawnLerp);*/
+			FVector spawnLocation = PrevLocation + (dashProgress * spawnRatio);
+			FLog::Print("PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4043);
+
+			FActorSpawnParameters param;
+			param.Owner = OwnerCharacter;
+			param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			FTransform transform;
+			//location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			spawnLocation.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			transform.SetTranslation(spawnLocation);
+
+			ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
+			GhostTrails.Add(GhostTrail);
 		});
 
-	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(SpawnTimer, SpawnDelegate, SpwanInterval, true, 0.f);
+	/*float dashDistance = FVector::Dist(OwnerCharacter->GetActorLocation(), PrevLocation);
+	float spawnInterval = dashDistance / TrailCount;*/
+
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimer, spawnDelegate, 0.025f, true);
 }
 
 void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
@@ -421,7 +437,7 @@ void UCDashComponent::CreateEvadeOverlap(const FVector& InPrevLocation)
 	//});
 
 	//// 타이머 설정 (예: 0.5초 후 제거)
-	//OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, TimerDelegate, 0.5f, false);
+	//GetWorld()->GetTimerManager().SetTimer(DashOverlapTimer, TimerDelegate, 0.5f, false);
 }
 
 void UCDashComponent::DestroyEvadeOverlap()
