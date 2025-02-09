@@ -21,6 +21,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Grappling")
 	UAnimMontage* GrapplingMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Grappling")
+	float PlayRate = 1.0f; 
+
 public:
 	FORCEINLINE bool GetGrappling() { return bIsGrappling; }
 
@@ -34,11 +37,16 @@ public:
 
 public:
 	virtual void OnGrapple();
+	
 	virtual void PullTowardsTarget();
+
+public:
 	void OnGrappling_Pressed();
 	void OnGrappling_Released();
+
 	void ResetGrapple();
 	void InterruptGrapple();
+
 	void SetTarget();
 public:
 	void Begin_DoGrappling();

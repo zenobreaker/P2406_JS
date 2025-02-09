@@ -3,10 +3,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include  "Skill/CSkillStructures.h"
+#include "Weapons/AddOns/AttackInterface.h"
 #include "CSkillCollision.generated.h"
 
 UCLASS(Abstract)
-class P2406_JS_API ACSkillCollision : public AActor
+class P2406_JS_API ACSkillCollision 
+	: public AActor
+	, public IAttackInterface
 {
 	GENERATED_BODY()
 	
@@ -75,5 +78,8 @@ protected:
 	TArray<AActor*> Ignores;
 
 protected:
-	FTimerHandle CollisionTimerHandle; // 충돌 간격 타이머
+	FTimerHandle CollisionTimerHandle;
+	// IAttackInterface을(를) 통해 상속됨
+	virtual AActor* GetDamageSource() const override;
+	
 };

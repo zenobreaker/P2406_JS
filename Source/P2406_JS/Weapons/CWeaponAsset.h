@@ -4,6 +4,7 @@
 #include "Engine/DataAsset.h"
 #include "Weapons/CWeaponStructures.h"
 #include "Skill/CSkillAsset.h"
+#include "ActionDataAssets/CJumpActionDataAsset.h"
 #include "CWeaponAsset.generated.h"
 
 
@@ -41,8 +42,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	TArray<UCSkillAsset*> ActiveSkillAssets;
 
+	UPROPERTY(EditAnywhere)
+	UCActionDataAsset* JumpAcitonAsset; 
+
+
 public:
 	UCWeaponAsset();
 
-	void BeginPlay(class ACharacter* InOwner, class UCWeaponData** OutWeaponData);
+	void WA_BeginPlay(class ACharacter* InOwner, class UCWeaponData** OutWeaponData);
 };

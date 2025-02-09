@@ -12,13 +12,15 @@ class P2406_JS_API UCJumpActionDataAsset : public UCActionDataAsset
 
 private:
 	UPROPERTY(EditAnywhere, Category ="DownAction")
-	TArray<FDoActionData> DownAttackActionDatas;
+	TArray<FDoActionData> FallAttackActionDatas;
 
 	UPROPERTY(EditAnywhere, Category = "DownAction")
-	TArray<FHitData> DownAttackHitDatas;
+	TArray<FHitData> FallAttackHitDatas;
 
 public:
 	UCJumpActionDataAsset(); 
 
-	void BeginPlay(class ACharacter* InOwner);
+	virtual void BeginPlay(class ACharacter* InOwner,
+		class UCWeaponData* InParentData,
+		class UCDoAction** OutJumpDoAction) override;
 };

@@ -97,3 +97,8 @@ bool ACSkillCollision::CheckMyTeam(AActor* InOtherActor)
 	return true;
 }
 
+AActor* ACSkillCollision::GetDamageSource() const
+{
+	return nullptr;
+}
+

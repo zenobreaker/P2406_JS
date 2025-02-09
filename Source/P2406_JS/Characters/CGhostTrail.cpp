@@ -29,6 +29,7 @@ void ACGhostTrail::BeginPlay()
 
 	Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh()); // 캡쳐는 무조건 한번은 해야한다.
 	Mesh->SetRelativeScale3D(Scale);
+	Mesh->SetComponentTickEnabled(false); // 생성 후 업데이트 막기 
 
 
 	for (int32 i = 0; i < OwnerCharacter->GetMesh()->GetSkeletalMeshAsset()->GetMaterials().Num(); i++)
@@ -50,8 +51,11 @@ void ACGhostTrail::BeginPlay()
 		SetActorRotation(OwnerCharacter->GetActorRotation() + FRotator(0, -90, 0));*/
 
 		SetActorLocation(initialLocaton);
-		SetActorRotation(initialRotator);
-
+		// 액터는 회전을 따라가고, Mesh는 초기 회전 유지
+		SetActorRotation(OwnerCharacter->GetActorRotation());
+		Mesh->SetWorldRotation(initialRotator);
+		
+		// 포즈 유지 (위치는 변동 없음)
 		Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh());
 		CopySubMeshes(OwnerCharacter->GetMesh());
 	});
@@ -141,6 +145,7 @@ void ACGhostTrail::CopySubMeshes(USkeletalMeshComponent* InParentMesh)
 		{
 			// 자식의 포즈는 부모에서 처리
 			SubMeshes[i]->CopyPoseFromSkeletalComponent(InParentMesh);
+			SubMeshes[i]->SetComponentTickEnabled(false);
 		}
 	}
 }

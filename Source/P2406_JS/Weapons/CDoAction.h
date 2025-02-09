@@ -13,7 +13,8 @@ class P2406_JS_API UCDoAction : public UObject
 public:
 	FORCEINLINE bool GetBeginAction() { return bBeginAction; }
 	FORCEINLINE bool GetInAction() { return bInAction; }
-
+	FORCEINLINE bool GetInExtraAction() const { return bInExtraAction; }
+	
 public:
 	UCDoAction();
 
@@ -32,7 +33,20 @@ public:
 	virtual void DoAction();
 	virtual void Begin_DoAction();
 	virtual void End_DoAction();
+
+public:
+	virtual void SetHeavyActionFlag(bool InValue) {};
 	
+protected:
+	ACharacter* FindBestTarget(); 
+
+	bool IsMyTeam(class ACharacter* InAttacker, class ACharacter* InOther);
+
+	bool IsOtherIsMe(class ACharacter* InOther);
+
+public: 
+	virtual void PlayFallAttackMontage() {};
+
 public:
 	UFUNCTION()
 	virtual void OnBeginEquip() {}
@@ -57,6 +71,7 @@ public:
 protected:
 	bool bBeginAction;
 	bool bInAction; 
+	bool bInExtraAction;
 
 	class ACharacter* OwnerCharacter;
 	class UWorld* World;
@@ -66,4 +81,8 @@ protected:
 
 	TArray<FDoActionData> DoActionDatas;
 	TArray<FHitData> HitDatas;
+
+protected:
+	TArray<class ACharacter*> Hitted;
 };
+

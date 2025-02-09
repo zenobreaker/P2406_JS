@@ -25,6 +25,9 @@ protected:
 	bool bFalling;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+	bool bFallingAttack;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	bool bSkillSoaring;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
@@ -101,9 +104,9 @@ private:
 
 	void ChangeGuardState();
 
-	void ChangeFeet(); 
+	void ChangeFeet();
 
-
+	void ChangeFallingAttack();
 private:
 	class ACharacter* OwnerCharacter;
 	class UCWeaponComponent* Weapon;
@@ -111,7 +114,7 @@ private:
 	class UCSkillComponent* Skill;
 	class UCGrapplingComponent* Grapple;
 	class UCConditionComponent* Condition;
-	class UCFeetComponent* Feet; 
+	class UCFeetComponent* Feet;
 	class UCParkourComponent* Parkour;
 
 private:

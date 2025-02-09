@@ -38,6 +38,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Jump")
 	class UAnimMontage* JumpMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Jump")
+	float JumpValue = -1.0f;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")

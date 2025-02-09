@@ -197,7 +197,7 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FVector launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
 	LaunchCharacter(launchVelocity, false, false);
 	
-	FLog::Print("attacker = >  " + DamageData.Attacker->GetName());
+	/*FLog::Print("attacker = >  " + DamageData.Attacker->GetName());*/
 	// 나 공격한 대상 바라보기 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 	targetRotator.Pitch = 0;

@@ -54,7 +54,6 @@ public:
 public:
 	virtual void DoAction(class ACharacter* InOwner);
 	virtual void Destroy_GhostTrail();
-
 };
 
 USTRUCT()

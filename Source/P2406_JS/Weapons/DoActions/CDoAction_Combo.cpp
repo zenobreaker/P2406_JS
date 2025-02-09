@@ -4,7 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/CStateComponent.h"
 
-#include "GenericTeamAgentInterface.h"
+
 
 void UCDoAction_Combo::DoAction()
 {
@@ -47,24 +47,8 @@ void UCDoAction_Combo::OnAttachmentEndCollision()
 {
 	Super::OnAttachmentEndCollision();
 
-	float angle = -2.0f;
 	ACharacter* candidate = nullptr;
-
-	for (ACharacter* hitted : Hitted)
-	{
-		FVector direction = hitted->GetActorLocation() - OwnerCharacter->GetActorLocation();
-		direction = direction.GetSafeNormal2D();
-
-		FVector forward = OwnerCharacter->GetActorForwardVector();
-
-		float dot = FVector::DotProduct(direction, forward);
-		if (dot < 0.75f || dot < angle)
-			continue;
-
-		angle = dot;
-		candidate = hitted;
-		hitted->Tags.Remove(FName("HitByWeapon"));
-	}
+	candidate = FindBestTarget();
 
 	if (!!candidate)
 	{
@@ -88,18 +72,9 @@ void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 	CheckNull(InOther);
 
-	// Team id 가져와서 자기랑 같으면 넘김 
-	IGenericTeamAgentInterface* agent = Cast<IGenericTeamAgentInterface>(InAttacker);
-	CheckNull(agent);
+	CheckTrue(IsMyTeam(InAttacker, InOther)); 
 
-	ETeamAttitude::Type type = agent->GetTeamAttitudeTowards(*InOther);
-
-	if (type == ETeamAttitude::Friendly)
-		return;
-
-
-	for (ACharacter* hitted : Hitted)
-		CheckTrue(hitted == InOther);
+	CheckTrue(IsOtherIsMe(InOther));
 
 	Hitted.AddUnique(InOther);
 
@@ -113,4 +88,5 @@ void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 
 void UCDoAction_Combo::OnAttachmentEndOverlap(ACharacter* InAttacker, ACharacter* InOther)
 {
+
 }

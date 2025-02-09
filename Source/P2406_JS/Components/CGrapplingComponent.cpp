@@ -38,10 +38,7 @@ void UCGrapplingComponent::OnGrapple()
 	OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
 	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 
-	if (!!GrapplingMontage)
-	{
-		OwnerCharacter->PlayAnimMontage(GrapplingMontage, 1.0f, FName("Default"));
-	}
+	OwnerCharacter->PlayAnimMontage(GrapplingMontage, PlayRate);
 }
 
 void UCGrapplingComponent::PullTowardsTarget()
@@ -160,6 +157,8 @@ void UCGrapplingComponent::Grapple_1(float InDetaTime)
 
 void UCGrapplingComponent::Grapple_2(float InDetaTime)
 {
+	CheckFalse(bIsGrappling);
+
 	//TODO: 천천히 가다가 도중에 중단하거나 버튼 떼면 거기서 멈추게하면될듯 
 	if (bGrappleEnd == false)
 	{

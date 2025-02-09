@@ -65,8 +65,10 @@ EBTNodeResult::Type UCBTTaskNode_Action::AbortTask(UBehaviorTreeComponent& Owner
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
-
+	CheckNullResult(ai, EBTNodeResult::Failed);
+	
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
+	CheckNullResult(weapon, EBTNodeResult::Failed);
 
 	bool bBgeinAction = weapon->GetDoAction()->GetBeginAction();
 

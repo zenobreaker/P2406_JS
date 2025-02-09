@@ -286,7 +286,7 @@ void UCGuardComponent::End_Parry()
 {
 	CheckNull(DoParry);
 
-	FLog::Log("Guard End Do Parry");
+	//FLog::Log("Guard End Do Parry");
 
 	DoParry->End_DoAction_Parry();
 

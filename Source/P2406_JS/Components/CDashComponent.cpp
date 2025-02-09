@@ -41,11 +41,7 @@ void UCDashComponent::BeginPlay()
 		Camera = FHelpers::GetComponent<UCameraComponent>(OwnerCharacter);
 	}
 
-
-	if (!!State)
-	{
-		REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCDashComponent::OnStateTypeChanged);
-	}
+	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCDashComponent::OnStateTypeChanged);
 }
 
 void UCDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -80,12 +76,12 @@ void UCDashComponent::DashAction()
 
 	// 콜한 시점의 위치 저장 
 	PrevLocation = OwnerCharacter->GetActorLocation();
-	FLog::Print("Begin Dash : PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4042);
+	
 
-	FVector* input = Movement->GetInputDirection();
-	if (input == nullptr)
-		return;
-	InputVec = *input;
+	FVector right = OwnerCharacter->GetActorRightVector();
+	FVector move = OwnerCharacter->GetVelocity().GetSafeNormal();
+
+	float dot = FVector::DotProduct(right, move);
 
 	// 자유 카메라 모드 일 때 
 	if (Weapon->GetEquipment() == nullptr
@@ -101,14 +97,18 @@ void UCDashComponent::DashAction()
 	{
 		// 전방
 		DashDirection dir = DashDirection::Forward;
-		// 후방 
-		if (input->X <= 0)
-			dir = DashDirection::Back;
 
-		if (input->Y > 0)
+		const float Magrin = 0.3f;
+		if (dot > Magrin)
 			dir = DashDirection::Right;
-		else if (input->Y < 0)
+		else if (dot < -Magrin)
 			dir = DashDirection::Left;
+		else
+		{
+			if (move.X <= 0)
+				dir = DashDirection::Back;
+		}
+
 
 		CheckTrue(DashMontages.Num() == 0);
 
@@ -125,7 +125,7 @@ void UCDashComponent::Begin_DashSpeed()
 	FVector dashDir = FVector::ZeroVector;
 
 	double xAxis = 1.0f;
-	if (InputVec.IsNearlyZero())
+	if (OwnerCharacter->GetLastMovementInputVector().IsNearlyZero())
 	{
 
 		FRotator rotator = FRotator(0, OwnerCharacter->GetActorRotation().Yaw, 0);
@@ -139,10 +139,7 @@ void UCDashComponent::Begin_DashSpeed()
 	else
 		dashDir = OwnerCharacter->GetLastMovementInputVector();
 
-	/*dashDir = xAxis * OwnerCharacter->GetActorForwardVector() +
-		InputVec.Y * OwnerCharacter->GetActorRightVector();*/
-
-		// Dash 
+	// Dash 
 	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
 
 }
@@ -240,7 +237,7 @@ void UCDashComponent::Destroy_SingleGhostTrail()
 			// 다 지워서 없다면 타이머 제거  
 			if (GhostTrails.Num() <= 0)
 			{
-				FLog::Log("Clear Traisl!!");
+				//FLog::Log("Clear Traisl!!");
 				OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(DestroyTimer);
 
 				return;
@@ -347,7 +344,7 @@ void UCDashComponent::HandleEvade()
 	// 이미 성공했다면 추가 처리 안함.
 	CheckTrue(bIsEvadeSuccessed);
 
-	FLog::Log("Success Evade");
+	//FLog::Log("Success Evade");
 	bIsEvadeSuccessed = true;
 
 	FTimerDelegate spawnDelegate;
@@ -371,7 +368,7 @@ void UCDashComponent::HandleEvade()
 			float spawnRatio = (float)CurrentTrailCount / TrailCount;
 			/*FVector spawnLocation = FMath::Lerp(PrevLocation, location, spawnLerp);*/
 			FVector spawnLocation = PrevLocation + (dashProgress * spawnRatio);
-			FLog::Print("PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4043);
+			//FLog::Print("PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4043);
 
 			FActorSpawnParameters param;
 			param.Owner = OwnerCharacter;

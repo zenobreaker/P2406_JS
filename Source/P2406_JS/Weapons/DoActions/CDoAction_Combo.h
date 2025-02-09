@@ -2,17 +2,20 @@
 
 #include "CoreMinimal.h"
 #include "Weapons/CDoAction.h"
+#include "../IComboable.h"
 #include "CDoAction_Combo.generated.h"
 
 
 UCLASS()
-class P2406_JS_API UCDoAction_Combo : public UCDoAction
+class P2406_JS_API UCDoAction_Combo 
+	: public UCDoAction
+	, public IIComboable
 {
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE void EnableCombo() { bEnable = true; }
-	FORCEINLINE void DisableCombo() { bEnable = false; }
+	FORCEINLINE void EnableCombo() override { bEnable = true; }
+	FORCEINLINE void DisableCombo() override { bEnable = false; }
 
 	FORCEINLINE bool GetEnableCombo() const { return  bEnable; }
 	FORCEINLINE void SetExist(bool InValue) { bExist = InValue; }
@@ -35,6 +38,5 @@ private:
 	bool bEnable;
 	bool bExist;
 
-private:
-	TArray<class ACharacter*> Hitted;
+
 };

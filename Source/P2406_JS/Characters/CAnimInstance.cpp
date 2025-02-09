@@ -72,6 +72,9 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bSkillSoaring = Skill->GetSkillSoaring(); 
 	}
 
+	// Falling Attack
+	ChangeFallingAttack();
+
 	// Falling 
 	ChangeFalling(); 
 	
@@ -146,11 +149,23 @@ void UCAnimInstance::ChangeFeet()
 	}
 }
 
+void UCAnimInstance::ChangeFallingAttack()
+{
+	CheckNull(Weapon);
+
+	/*Weapon->PlayFallingAttackMontage();*/
+
+	/*if(bPlayer)
+	FLog::Print("Falling Attack " + FString::FromInt(Weapon->IsFallingAttack()), 2424);*/
+
+	bFallingAttack = Weapon->IsFallingAttack();
+}
+
 void UCAnimInstance::ChangeFalling()
 {
 	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling(); 
-	/*&& bSkillSoaring == false;*/
 
+	bFalling &= bFallingAttack == false;
 }
 
 void UCAnimInstance::ChangeBowAiming()

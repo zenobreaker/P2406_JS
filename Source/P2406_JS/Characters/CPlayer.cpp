@@ -154,6 +154,11 @@ void ACPlayer::BeginPlay()
 	Movement->OnRun();
 	Movement->DisableControlRotation();
 
+	if (JumpValue > 0)
+	{
+		GetCharacterMovement()->JumpZVelocity = JumpValue;
+	}
+
 
 	ensure(Weapon != nullptr);  // Weapon이 nullptr이라면 경고 출력
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
@@ -224,6 +229,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Warp", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetWarpMode);
 
 	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction);
+	PlayerInputComponent->BindAction("Action_B", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction_Heavy);
 
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);

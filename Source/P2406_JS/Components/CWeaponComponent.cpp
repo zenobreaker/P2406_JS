@@ -3,13 +3,15 @@
 #include "CStateComponent.h"
 #include "CSkillComponent.h"
 #include "GameFramework/Character.h"
+//#include "GameFramework/CharacterMovementComponent.h"
+
+#include <Characters/CPlayer.h>
 #include "Weapons/CWeaponAsset.h"
 #include "Weapons/CWeaponData.h"
 #include "Weapons/CEquipment.h"
 #include "Weapons/CDoAction.h"
 #include "Weapons/CSubAction.h"
 #include "Skill/CActiveSkill.h"
-#include <Characters/CPlayer.h>
 
 
 UCWeaponComponent::UCWeaponComponent()
@@ -26,7 +28,7 @@ void UCWeaponComponent::BeginPlay()
 	{
 		if (!!DataAssets[i])
 		{
-			DataAssets[i]->BeginPlay(OwnerCharacter, &Datas[i]);
+			DataAssets[i]->WA_BeginPlay(OwnerCharacter, &Datas[i]);
 		}
 	}
 	// 주인한테 있는 컴포넌트 가져옴
@@ -53,7 +55,6 @@ bool UCWeaponComponent::IsIdleMode()
 	return FHelpers::GetComponent<UCStateComponent>(OwnerCharacter)->IsIdleMode();
 }
 
-
 ACAttachment* UCWeaponComponent::GetAttachment()
 {
 	CheckTrueResult(IsUnarmedMode(), nullptr);
@@ -76,6 +77,14 @@ UCDoAction* UCWeaponComponent::GetDoAction()
 	CheckFalseResult(!!Datas[(int32)Type], nullptr);
 
 	return Datas[(int32)Type]->GetDoAction();
+}
+
+UCDoAction* UCWeaponComponent::GetJumpDoAction()
+{
+	CheckTrueResult(IsUnarmedMode(), nullptr);
+	CheckFalseResult(!!Datas[(int32)Type], nullptr);
+
+	return Datas[(int32)Type]->GetJumpAction();
 }
 
 UCSubAction* UCWeaponComponent::GetSubAction()
@@ -146,7 +155,7 @@ void UCWeaponComponent::InitEquip()
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
-	
+
 	if (state != nullptr)
 	{
 		if (state->IsActionMode())
@@ -163,7 +172,7 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 	{
 		GetEquipment()->Unequip();
 	}
-	
+
 
 	// 해당 무기의 스킬 세팅
 	if (!!Datas[(int32)InType])
@@ -171,10 +180,10 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 		Datas[(int32)InType]->GetEquipment()->Equip();
 
 		UCSubAction* subaction = Datas[(int32)InType]->GetSubAction();
-		
+
 		REGISTER_EVENT_WITH_REPLACE(subaction, OnGuardValueChanged, this, UCWeaponComponent::ChangeGuardValue);
 	}
-	
+
 	ChangeType(InType);
 }
 
@@ -195,6 +204,13 @@ void UCWeaponComponent::ChangeType(EWeaponType InType)
 		OnWeaponTypeChanged.Broadcast(prevType, InType);
 }
 
+void UCWeaponComponent::PlayFallingAttackMontage()
+{
+	CheckNull(GetJumpDoAction());
+
+	GetJumpDoAction()->PlayFallAttackMontage();
+}
+
 void UCWeaponComponent::ChangeGuardValue(float InValue, float InMaxValue)
 {
 	if (OnGuardValueChanged.IsBound())
@@ -204,39 +220,129 @@ void UCWeaponComponent::ChangeGuardValue(float InValue, float InMaxValue)
 
 void UCWeaponComponent::DoAction()
 {
-	bool canInput = true; 
+	bool canInput = true;
 	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
-	if (!!player)
+	if (player != nullptr)
 		canInput = player->GetCanInput();
 
 	CheckFalse(canInput);
 
-	if (!!GetDoAction())
-	{
-		GetDoAction()->DoAction();
-	}
+	Handle_DoAction();
+}
+
+void UCWeaponComponent::DoAction_Heavy()
+{
+	bool canInput = true;
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (player != nullptr)
+		canInput = player->GetCanInput();
+
+	CheckFalse(canInput);
+
+	Handle_DoAction(true);
 }
 
 void UCWeaponComponent::Begin_DoAction()
 {
-	if (!!GetDoAction())
-	{
-		GetDoAction()->Begin_DoAction();
-	}
+	//if (!!GetDoAction())
+	//{
+	//	GetDoAction()->Begin_DoAction();
+	//}
+	Handle_BeginDoAction();
 
 	DYNAMIC_EVENT_CALL(OnBeginDoAction);
 }
 
 void UCWeaponComponent::End_DoAction()
 {
-	if (!!GetDoAction())
+	/*if (!!GetDoAction())
 	{
 		GetDoAction()->End_DoAction();
-	}
+	}*/
+	Handle_EndDoAction();
 
 	DYNAMIC_EVENT_CALL(OnEndedDoAction);
 }
 
+/// <summary>
+/// Handle Func
+/// </summary>
+//--------------------------------------------------------------------------------
+void UCWeaponComponent::Handle_DoAction(bool InHeavyValue)
+{
+	CheckNull(GetDoAction());
+
+	// Jump
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (player != nullptr && player->IsJumping() == true)
+	{
+		CheckNull(GetJumpDoAction());
+		// 여기가 먼저 호출 되고 애님인스턴스에서 다시 
+		// 폴링 몽타주 재생해서 겹쳐가지고 이상하게 출력되네
+		// docation에서 각 스테이트 별로 정확히 처리하게 해야해
+
+		GetJumpDoAction()->SetHeavyActionFlag(InHeavyValue);
+
+		GetJumpDoAction()->DoAction();
+
+		return;
+	}
+
+	// Plane 
+	GetDoAction()->DoAction();
+
+	return;
+}
+
+void UCWeaponComponent::Handle_BeginDoAction()
+{
+	CheckNull(GetDoAction());
+
+	// Jump
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (player != nullptr)
+	{
+		if (player->IsJumping() == true || bIsFallingAttack == true)
+		{
+			CheckNull(GetJumpDoAction());
+
+			GetJumpDoAction()->Begin_DoAction();
+
+			return;
+		}
+	}
+
+	// Plane 
+	GetDoAction()->Begin_DoAction();
+
+	return;
+}
+
+void UCWeaponComponent::Handle_EndDoAction()
+{
+	CheckNull(GetDoAction());
+	// Jump
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (player != nullptr)
+	{
+		if (player->IsJumping() == true || bIsFallingAttack == true)
+		{
+			CheckNull(GetJumpDoAction());
+			
+			GetJumpDoAction()->End_DoAction();
+
+			return;
+		}
+	}
+
+	// Plane 
+	GetDoAction()->End_DoAction();
+}
+
+/// <summary>
+/// 
+/// </summary>
+//----------------------------------------------------------------------------------------
 void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 {
 	FLog::Log("Call Exectue Skill");

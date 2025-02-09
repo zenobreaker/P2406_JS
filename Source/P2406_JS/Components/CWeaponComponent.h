@@ -30,11 +30,14 @@ private:
 public:
 	FORCEINLINE EWeaponType GetType() { return Type; }
 	FORCEINLINE bool IsUnarmedMode() { return Type == EWeaponType::Max; }
+	FORCEINLINE bool IsFallingAttack() const { return bIsFallingAttack; }
+	FORCEINLINE void  SetFallingAttack(bool InValue) { bIsFallingAttack = InValue; }
 
 public:
 	class ACAttachment* GetAttachment();
 	class UCEquipment* GetEquipment();
 	class UCDoAction* GetDoAction();
+	class UCDoAction* GetJumpDoAction(); 
 	class UCSubAction* GetSubAction();
 	class UCWeaponData* GetCurrentWeaponData();
 
@@ -64,6 +67,7 @@ public:
 
 public:
 	void DoAction();
+	void DoAction_Heavy();
 
 	UFUNCTION()
 	void Begin_DoAction(); 
@@ -71,6 +75,10 @@ public:
 	UFUNCTION()
 	void End_DoAction(); 
 
+public:
+	void Handle_DoAction(bool InHeavyValue = false); 
+	void Handle_BeginDoAction();
+	void Handle_EndDoAction();
 
 	void ExecuteSkill(const int32 InIndex); 
 
@@ -86,6 +94,9 @@ private:
 	void ChangeType(EWeaponType InType);
 
 public:
+	void PlayFallingAttackMontage();
+
+public:
 	UFUNCTION()
 	void ChangeGuardValue(float InValue, float InMaxValue);
 
@@ -97,6 +108,8 @@ public:
 
 private:
 	EWeaponType Type = EWeaponType::Max;
+
+	bool bIsFallingAttack = false; 
 
 private:
 	class ACharacter* OwnerCharacter;

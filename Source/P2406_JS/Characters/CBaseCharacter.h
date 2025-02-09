@@ -86,6 +86,9 @@ protected:
 
 	virtual void Play_DamageMontage(const struct FHitData& hitData) {};
 
+public:
+	virtual bool IsJumping();
+
 protected:
 	virtual void Dead();
 

@@ -11,13 +11,15 @@
 
 
 
+
+
 UCWeaponAsset::UCWeaponAsset()
 {
 	AttachmentClass = ACAttachment::StaticClass();
 	EquipmentClass = UCEquipment::StaticClass();
 }
 
-void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
+void UCWeaponAsset::WA_BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 {
 
 	ACAttachment* attachment = nullptr;
@@ -94,5 +96,12 @@ void UCWeaponAsset::BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponData)
 			if (!!activeSkill)
 				(*OutWeaponData)->Skills.Add(activeSkill);
 		}
+	}
+	
+	UCDoAction* jumpDoAction = nullptr;
+	if (!!JumpAcitonAsset)
+	{
+		JumpAcitonAsset->BeginPlay(InOwner, *OutWeaponData, &jumpDoAction);
+		(*OutWeaponData)->JumpAction = jumpDoAction;
 	}
 }
