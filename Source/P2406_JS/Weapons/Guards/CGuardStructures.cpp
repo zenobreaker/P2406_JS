@@ -55,52 +55,80 @@ void FGuardData::PlaySoundWave(ACharacter* InOwnerCharacter)
 	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
 }
 
-void FGuardData::PlayEffect(UWorld* InWorld, const FVector& InLocation)
+void FGuardData::PlayCameraShake(ACharacter* InCharacter)
 {
-	UParticleSystem* particle = Cast< UParticleSystem>(Effect);
-	UNiagaraSystem* niagara = Cast<UNiagaraSystem>(Effect); 
+	CheckNull(InCharacter);
+	CheckNull(CameraShake);
 
-	if (!!particle)
-	{
-		FTransform transform;
-		transform.SetLocation(EffectLocation);
-		transform.SetScale3D(EffectScale);
-		transform.AddToTranslation(InLocation);
+	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(InCharacter->GetWorld(), 0);
+	CheckNull(cameraManager);
 
-		UGameplayStatics::SpawnEmitterAtLocation(InWorld, particle, transform);
-	}
-
-	if (!!niagara)
-	{
-		FVector ownerLocation = InLocation;
-
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, niagara, ownerLocation);
-	}
+	cameraManager->StartCameraShake(CameraShake);
 }
 
-void FGuardData::PlayEffect(
-	UWorld* InWorld, 
-	const FVector& InLocation, 
-	const FRotator& InRotator)
+void FGuardData::PlayEffet(ACharacter* InCharacter)
 {
-	UParticleSystem* particle = Cast< UParticleSystem>(Effect);
-	UNiagaraSystem* niagara = Cast<UNiagaraSystem>(Effect);
+	CheckNull(InCharacter);
+	CheckNull(Effect);
 
-	if (!!particle)
-	{
-		FTransform transform;
-		transform.SetLocation(EffectLocation + InRotator.RotateVector(EffectLocation));
-		transform.SetScale3D(EffectScale);
-		UGameplayStatics::SpawnEmitterAtLocation(InWorld, particle, transform);
-	}
+	FVector location = InCharacter->GetActorLocation();
+	FRotator rotator = InCharacter->GetActorRotation();
 
-	if (!!niagara)
-	{
-		FVector ownerLocation = InLocation;
+	location += rotator.RotateVector(EffectLocation);
 
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, niagara, ownerLocation, InRotator);
-	}
+	FTransform transform;
+	transform.SetLocation(location);
+	transform.SetScale3D(EffectScale);
+
+	FHelpers::PlayEffect(InCharacter->GetWorld(), Effect, transform);
 }
+//
+//void FGuardData::PlayEffect(UWorld* InWorld, const FVector& InLocation)
+//{
+//	UParticleSystem* particle = Cast< UParticleSystem>(Effect);
+//	UNiagaraSystem* niagara = Cast<UNiagaraSystem>(Effect); 
+//
+//	if (!!particle)
+//	{
+//		FTransform transform;
+//		transform.SetLocation(EffectLocation);
+//		transform.SetScale3D(EffectScale);
+//		transform.AddToTranslation(InLocation);
+//
+//		UGameplayStatics::SpawnEmitterAtLocation(InWorld, particle, transform);
+//	}
+//
+//	if (!!niagara)
+//	{
+//		FVector ownerLocation = InLocation;
+//
+//		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, niagara, ownerLocation);
+//	}
+//}
+//
+//void FGuardData::PlayEffect(
+//	UWorld* InWorld, 
+//	const FVector& InLocation, 
+//	const FRotator& InRotator)
+//{
+//	UParticleSystem* particle = Cast< UParticleSystem>(Effect);
+//	UNiagaraSystem* niagara = Cast<UNiagaraSystem>(Effect);
+//
+//	if (!!particle)
+//	{
+//		FTransform transform;
+//		transform.SetLocation(EffectLocation + InRotator.RotateVector(EffectLocation));
+//		transform.SetScale3D(EffectScale);
+//		UGameplayStatics::SpawnEmitterAtLocation(InWorld, particle, transform);
+//	}
+//
+//	if (!!niagara)
+//	{
+//		FVector ownerLocation = InLocation;
+//
+//		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, niagara, ownerLocation, InRotator);
+//	}
+//}
 
 //-----------------------------------------------------------------------------
 

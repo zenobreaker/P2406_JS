@@ -87,10 +87,7 @@ public:
 	class USoundWave* Sound;
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* Effect;
-
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* Niagara;
+	class UFXSystemAsset* Effect; 
 
 	UPROPERTY(EditAnywhere)
 	FVector EffectLocation = FVector::ZeroVector;
@@ -98,28 +95,16 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector EffectScale = FVector::OneVector;
 
-
-	//
-	//UPROPERTY(EditAnywhere)
-	//class UFXSystemAsset* Effect; 
-
-	//UPROPERTY(EditAnywhere)
-	//FVector EffectLocation = FVector::ZeroVector;
-
-	//UPROPERTY(EditAnywhere)
-	//FVector EffectScale = FVector::OneVector;
-
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<class UCameraShakeBase> CameraShake; 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCameraShakeBase> CameraShake; 
 
 
 public:
-	void SendDamage(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
-	void PlayHitStop(UWorld* InWorld);
+	void SendDamage(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther, bool bFirstHit = false);
+	void PlayHitStop(class ACharacter* InCharacter);
 	void PlaySoundWave(class ACharacter* InOwner);
-
-	void PlayEffect(UWorld* InWorld, const FVector& InLocation);
-	void PlayEffect(UWorld* InWorld, const FVector& InLocation, const FRotator& InRotator);
+	void PlayEffect(class ACharacter* InCharacter);
+	void PlayCameraShake(class ACharacter* InCharacter);
 };
 
 USTRUCT()
@@ -128,6 +113,8 @@ struct FActionDamageEvent : public FDamageEvent
 	GENERATED_BODY()
 
 public:
+	bool bFirstHit;
+
 	FHitData* HitData;
 };
 

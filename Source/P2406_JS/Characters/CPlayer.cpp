@@ -416,9 +416,12 @@ void ACPlayer::Damaged()
 
 		Play_DamageMontage(*hitData);
 
-		hitData->PlayHitStop(GetWorld());
 		hitData->PlaySoundWave(this);
-		hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
+		hitData->PlayEffect(this);
+		
+		//hitData->PlayHitStop(this);
+		//hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
+
 
 		if (HealthPoint->IsDead() == false)
 		{

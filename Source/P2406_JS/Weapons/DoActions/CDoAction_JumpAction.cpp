@@ -153,7 +153,7 @@ void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AAc
 
 
 	CheckTrue(HitDatas.Num() - 1 < Index);
-	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther);
+	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther, Hitted.Num() <= 1);
 
 	// 처리된 캐릭터에 대한 플래그 설정
 	InOther->Tags.Add(FName("HitByWeapon"));
@@ -338,7 +338,7 @@ void UCDoAction_JumpAction::ChecFallAttackHit()
 
 			Hitted.AddUnique(character);
 
-			FallHitDatas[0].SendDamage(OwnerCharacter, Weapon->GetAttachment(), character);
+			FallHitDatas[0].SendDamage(OwnerCharacter, Weapon->GetAttachment(), character, Hitted.Num() <= 1);
 		}
 	}
 }

@@ -46,45 +46,53 @@ void FDoActionData::Destroy_GhostTrail()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther, bool bFirstHit)
 {
 	FActionDamageEvent e;
+	e.bFirstHit = bFirstHit;
 	e.HitData = this;
-	
+
 	InOther->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
 }
 
-void FHitData::PlayHitStop(UWorld* InWorld)
+void FHitData::PlayHitStop(ACharacter* InCharacter)
 {
+	CheckNull(InCharacter);
 	CheckTrue(FMath::IsNearlyZero(StopTime));
 
 
-	TArray<ACharacter*> characters;
-	for (AActor* actor : InWorld->GetCurrentLevel()->Actors)
+	TArray<AActor*> actors;
+	TArray<TObjectPtr<AActor>>& arr = InCharacter->GetWorld()->GetCurrentLevel()->Actors;
+	for (AActor* actor : arr)
 	{
-		ACharacter* character = Cast<ACharacter>(actor);
+		if (actor == nullptr)
+			continue;
 
-		if (!!character)
-		{
-			character->CustomTimeDilation = 1e-3f;
+		UMeshComponent* mesh = actor->GetComponentByClass<UMeshComponent>();
+		if (mesh == nullptr)
+			continue;
 
-			characters.Add(character);
-		}
+		if (mesh->Mobility != EComponentMobility::Movable)
+			continue;
+
+		actor->CustomTimeDilation = 1e-3f;
+		actors.Add(actor);
 	}
 
 
 	FTimerDelegate timerDelegate;
-	timerDelegate.BindLambda([=]() {
-		for (ACharacter* character : characters)
+	timerDelegate.BindLambda([=]() 
+	{
+		for (AActor* actor: actors)
 		{
-			if (!!character)
-				character->CustomTimeDilation = 1.0f;
+			if (actor != nullptr)
+				actor->CustomTimeDilation = 1.0f;
 		}
 	});
 
 
 	FTimerHandle timerHandle;
-	InWorld->GetTimerManager().SetTimer(timerHandle, timerDelegate, StopTime, false);
+	InCharacter->GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, StopTime, false);
 }
 
 void FHitData::PlaySoundWave(ACharacter* InOwner)
@@ -97,43 +105,32 @@ void FHitData::PlaySoundWave(ACharacter* InOwner)
 	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
 }
 
-void FHitData::PlayEffect(UWorld* InWorld, const FVector& InLocation)
+void FHitData::PlayCameraShake(ACharacter* InCharacter)
 {
-	if (!!Effect)
-	{
-		FTransform transform;
-		transform.SetLocation(EffectLocation);
-		transform.SetScale3D(EffectScale);
-		transform.AddToTranslation(InLocation);
+	CheckNull(InCharacter);
+	CheckNull(CameraShake);
 
-		UGameplayStatics::SpawnEmitterAtLocation(InWorld, Effect, transform);
-	}
+	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(InCharacter->GetWorld(), 0);
+	CheckNull(cameraManager);
 
-	if (!!Niagara)
-	{
-		FVector ownerLocation = InLocation;
-
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, Niagara, ownerLocation);
-	}
+	cameraManager->StartCameraShake(CameraShake);
 }
 
-void FHitData::PlayEffect(UWorld* InWorld, const FVector& InLocation, const FRotator& InRotator)
+void FHitData::PlayEffect(ACharacter* InCharacter)
 {
-	if (!!Effect)
-	{
+	CheckNull(InCharacter);
+	CheckNull(Effect);
 
-		FTransform transform;
-		transform.SetLocation(InLocation + InRotator.RotateVector(EffectLocation));
-		transform.SetScale3D(EffectScale);
-		UGameplayStatics::SpawnEmitterAtLocation(InWorld, Effect, transform);
-	}
+	FVector location = InCharacter->GetActorLocation();
+	FRotator rotator = InCharacter->GetActorRotation();
 
-	if (!!Niagara)
-	{
-		FVector ownerLocation = InLocation;
+	location += rotator.RotateVector(EffectLocation);
 
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(InWorld, Niagara, ownerLocation, InRotator);
-	}
+	FTransform transform;
+	transform.SetLocation(location);
+	transform.SetScale3D(EffectScale);
+
+	FHelpers::PlayEffect(InCharacter->GetWorld(), Effect, transform);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

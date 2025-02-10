@@ -45,8 +45,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector EffectScale = FVector::OneVector;
 
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<class UCameraShakeBase> CameraShake; 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCameraShakeBase> CameraShake; 
 
 
 public:
@@ -54,8 +54,11 @@ public:
 	void End_Guard(class ACharacter* InOwnerCharacter = nullptr) const;
 
 	void PlaySoundWave(class ACharacter* InOwnerCharacter = nullptr);
-	void PlayEffect(UWorld* InWorld, const FVector& InLocation);
-	void PlayEffect(UWorld* InWorld, const FVector& InLocation, const FRotator& InRotator);
+	void PlayCameraShake(class ACharacter* InCharacter);
+	void PlayEffet(class ACharacter* InCharacter);
+
+	/*void PlayEffect(UWorld* InWorld, const FVector& InLocation);
+	void PlayEffect(UWorld* InWorld, const FVector& InLocation, const FRotator& InRotator);*/
 };
 
 

@@ -167,7 +167,7 @@ void UCSubAction_Hammer::TraceAttackArea()
 
 			DamagedList.Add(enemy);
 
-			HitDatas[0].SendDamage(Owner, Attachment, enemy);
+			HitDatas[0].SendDamage(Owner, Attachment, enemy, HitResults.Num() <= 1);
 
 		}
 	}

@@ -1,8 +1,5 @@
 #include "Weapons/SubActions/CSubAction_Sword.h"
 #include "Global.h"
-#include "Characters/CEnemy.h"
-#include "Weapons/CDoAction.h"
-#include "Weapons/CAttachment.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CStateComponent.h"
@@ -10,11 +7,14 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
+#include "Characters/CEnemy.h"
+#include "Weapons/CDoAction.h"
+#include "Weapons/CAttachment.h"
 
 
 UCSubAction_Sword::UCSubAction_Sword()
 {
-	
+
 }
 
 void UCSubAction_Sword::Pressed()
@@ -29,7 +29,7 @@ void UCSubAction_Sword::Pressed()
 	if (ActionDatas.Num() > 0)
 	{
 		ActionDatas[Index].DoAction(Owner);
-		
+
 		State->SetActionMode();
 	}
 }
@@ -37,15 +37,14 @@ void UCSubAction_Sword::Pressed()
 
 void UCSubAction_Sword::OnPressSpecialAction()
 {
-	CheckFalse(ActionDatas.Num() > 1 );
+	CheckFalse(ActionDatas.Num() > 1);
 
-	Index += 1; 
+	Index += 1;
 	CheckTrue(ActionDatas.Num() <= Index);
 
 	// 공격 키 누를 때마다 공중 액션 실행함.
 	if (ActionDatas.Num() > 1)
 	{
-
 		StopMovement();
 
 		ActionDatas[Index].DoAction(Owner);
@@ -53,9 +52,7 @@ void UCSubAction_Sword::OnPressSpecialAction()
 		State->SetActionMode();
 	}
 }
-
-
-
+\
 void UCSubAction_Sword::SetInputSubAction()
 {
 
@@ -66,7 +63,7 @@ void UCSubAction_Sword::SetInputSubAction()
 	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
 
 	// 서브 액션 중일 때 이벤트로 변경하기
-	input->BindAction("Action", EInputEvent::IE_Pressed, this, 
+	input->BindAction("Action", EInputEvent::IE_Pressed, this,
 		&UCSubAction_Sword::OnPressSpecialAction);
 }
 
@@ -138,7 +135,7 @@ void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor*
 
 	// 적을 띄운다.
 	//CLog::Print("Upper Attack Hit!", -1, 1.0f, FColor::Yellow);
-	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther);
+	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther, Hitted.Num() <= 1);
 
 	// 적을 공격을 했으면 공중 콤보 타이머 시작
 	// 0.1초마다 적 위치 추적 
@@ -191,7 +188,7 @@ void UCSubAction_Sword::TeleportToEnemy(ACharacter* InTargetEnemy)
 {
 	CheckNull(InTargetEnemy);
 	Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
-	
+
 	bSubAction = true;
 
 	FVector TargetLocation = InTargetEnemy->GetActorLocation();
@@ -200,7 +197,7 @@ void UCSubAction_Sword::TeleportToEnemy(ACharacter* InTargetEnemy)
 	// 캐릭터를 적의 공중 위치 정도로 순간 이동
 	FVector NewLocation = TargetLocation + (ForwardVector * OffsetDistance);
 	Owner->SetActorLocation(NewLocation);
-	
+
 	StopMovement();
 
 	// 그 위치에 멈추기 
@@ -248,7 +245,7 @@ void UCSubAction_Sword::ChangeEnemyState(ACharacter* InTargetEnemy)
 
 void UCSubAction_Sword::StopMovement()
 {
-	UCharacterMovementComponent* MovementComponent  = Owner->GetCharacterMovement();
+	UCharacterMovementComponent* MovementComponent = Owner->GetCharacterMovement();
 	CheckNull(MovementComponent);
 
 	// 속도를 0으로 설정하여 멈추게 함
@@ -264,14 +261,14 @@ void UCSubAction_Sword::ChangeState()
 {
 	UCharacterMovementComponent* MovementComponent = Owner->GetCharacterMovement();
 	CheckNull(MovementComponent);
-	
+
 	// 이미 착지한 상태면 넘긴다.
 	if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 		return;
 
 	// 착지 상태로 돌리고 모든 상태를 원위치
 	MovementComponent->SetMovementMode(EMovementMode::MOVE_Falling);
-	
+
 	EndInputSubAction();
 	Index = 0;
 	bSubAction = false;
@@ -307,9 +304,9 @@ void UCSubAction_Sword::TraceAttackArea()
 				continue;
 
 			Hitted.Add(enemy);
-			
+
 			//CLog::Print("Damged Target " + enemy->GetName());
-			HitDatas[Index].SendDamage(Owner, Attachment, enemy);
+			HitDatas[Index].SendDamage(Owner, Attachment, enemy, Hitted.Num() <= 1);
 
 		}
 	}
@@ -336,10 +333,10 @@ void FSlashData::CreateSlashEffect(class ACharacter* InOwner)
 	spawnRotator.Roll = angle;
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-		InOwner->GetWorld(), 
-		AttackEffect, 
-		spwanLocation, 
-		spawnRotator, 
+		InOwner->GetWorld(),
+		AttackEffect,
+		spwanLocation,
+		spawnRotator,
 		Scale
 	);
 }

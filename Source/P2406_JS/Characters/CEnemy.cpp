@@ -134,9 +134,14 @@ void ACEnemy::Damaged()
 
 		// 히트 및 효과 처리 
 		{
-			hitData->PlayHitStop(GetWorld());
 			hitData->PlaySoundWave(this);
-			hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
+			hitData->PlayEffect(this);
+		}
+
+		if(DamageData.Event->bFirstHit)
+		{
+			hitData->PlayHitStop(this);
+			hitData->PlayCameraShake(this);
 		}
 
 
@@ -159,8 +164,6 @@ void ACEnemy::Damaged()
 	if (HealthPoint->IsDead())
 	{
 		State->SetDeadMode();
-
-		//DYNAMIC_EVENT_CALL(OnCharacterDead);
 
 		return;
 	}
