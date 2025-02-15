@@ -161,8 +161,13 @@ private:
 
 private:
 	void OnSkill1();
+	void ReleaseSkill1();
 	void OnSkill2();
-
+	void ReleaseSkill2();
+	void OnSkill3();
+	void ReleaseSkill3();
+	void OnSkill4();
+	void ReleaseSkill4();
 
 public:
 	void Landed(const FHitResult& Hit) override;

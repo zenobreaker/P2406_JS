@@ -80,3 +80,38 @@ enum class EParryType : uint8
 	Special,
 	MAX,
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+UENUM(BlueprintType)
+enum class ESkillPhase : uint8
+{
+	Start = 0,
+	Begin_Casting,
+	End_Casting,
+	Begin_Skill,
+	End_Skill,
+	Create_Effect,
+	Create_Collision,
+	Finished,
+
+	ExtraPhase		= 10,
+	Begin_Charging,			// 추가: 충전 중
+	End_Charging,
+	WaitingForInput ,	// 추가: 입력 대기 중
+
+	Max = Finished + 1,
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+UENUM(BlueprintType)
+enum class ESkillCollisionType : uint8
+{
+	NONE = 0,
+	Area,
+	Melee,
+	Projectile,
+	Capsule,
+	Max,
+};

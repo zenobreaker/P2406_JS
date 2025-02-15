@@ -39,6 +39,7 @@ void UCDoAction_Combo::End_DoAction()
 {
 	Super::End_DoAction();
 
+	DoActionDatas[Index].End_DoAction(OwnerCharacter);
 	DoActionDatas[Index].Destroy_GhostTrail();
 	Index = 0;
 }

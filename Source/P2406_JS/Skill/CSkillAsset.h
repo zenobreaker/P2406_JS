@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
@@ -8,10 +8,9 @@
 
 
 /// <summary>
-/// ½ºÅ³¸¦ »ç¿ëÇÏ´Â ÇüÅÂÀÇ Á¤ÀÇ¸¦ °®°í ÀÖ´Â Á¤º¸¸¦ ¾îµğ´Ù µÎ°í 
-/// ¾×Æ¼ºê ½ºÅ³Àº ±×°É ¾î¶»°Ô ¹Ş¾Æ¼­ Ã³¸®ÇÒ°Å³Ä??? 
+/// ìŠ¤í‚¬ë¥¼ ì‚¬ìš©í•˜ëŠ” í˜•íƒœì˜ ì •ì˜ë¥¼ ê°–ê³  ìˆëŠ” ì •ë³´ë¥¼ ì–´ë””ë‹¤ ë‘ê³  
+/// ì•¡í‹°ë¸Œ ìŠ¤í‚¬ì€ ê·¸ê±¸ ì–´ë–»ê²Œ ë°›ì•„ì„œ ì²˜ë¦¬í• ê±°ëƒ??? 
 /// </summary>
-
 UCLASS()
 class P2406_JS_API UCSkillAsset : public UDataAsset
 {
@@ -21,18 +20,25 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	FSkillInfo SkillInfo;
 
-	// ·±Å¸ÀÓ¿¡ »ı¼ºÇÒ ActiveSkillÀÇ Å¬·¡½º ÂüÁ¶
+	// ëŸ°íƒ€ì„ì— ìƒì„±í•  ActiveSkillì˜ í´ë˜ìŠ¤ ì°¸ì¡°
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	TSubclassOf<UCActiveSkill> SkillClass;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
-	TArray<FSkillActionData> DoActionDatas;
+	FSkillFlowData FlowData;
 
-	UPROPERTY(EditAnywhere, Category = "Skill")
-	TArray<FSkillHitData> HitDatas;
 	
 public:
 	UCSkillAsset(); 
 
-	void BeginPlay(class ACharacter* InOwner, class UCActiveSkill** OutActiveSkill);
+	/*template <typename T>
+	T* CreateSkillInstance(
+		TSubclassOf<T> SkillClass,
+		ACharacter* InCharacter,
+		const FSkillInfo& InSkillInfo,
+		const TArray<FSkillActionData>& InSkillActionDatas,
+		const TArray<FSkillHitData>& InSkillHitDatas);*/
+
+	void SkillAsset_BeginPlay(class ACharacter* InOwner, class UCActiveSkill** OutActiveSkill);
 };
+

@@ -47,13 +47,13 @@ public:
 	FDFAimData AimData;
 
 public:
-	virtual void BeginPlay(
-		ACharacter* InOwner,
-		const TArray<FSkillActionData>& InDoActionDatas,
-		const TArray<FSkillHitData>& InHitDatas) override;
+	void BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData) override;
 
-	virtual void Tick(float InDeltaTime) override;
+	void Tick(float InDeltaTime) override;
 
+
+protected:
+	virtual void DefineSkillPhases() override;
 
 public:
 	void OnSoarCharacter();
@@ -77,17 +77,6 @@ public:
 
 	void RestoreGravity();
 
-private:
-	float SoarSpeed = 1000.0f; 
-	
-	float DescentSpeed = 10000.0f; 
-
-	float lmitCameraPitch = 80.0f; 
-
-	float originCameraPtich = 0.0f; 
-
-private:
-	float CameraSpeed = 1250.0f; 
 
 private: 
 	UFUNCTION()
@@ -105,6 +94,20 @@ private:
 private:
 	UFUNCTION()
 	void OnCameraZoomInOut(FVector Output);
+
+
+private:
+	float SoarSpeed = 1000.0f;
+
+	float DescentSpeed = 10000.0f;
+
+	float lmitCameraPitch = 80.0f;
+
+	float originCameraPtich = 0.0f;
+
+private:
+	float CameraSpeed = 1250.0f;
+
 
 private:
 	FTimeline Timeline;

@@ -7,11 +7,14 @@ UCSkillAsset::UCSkillAsset()
 
 }
 
-void UCSkillAsset::BeginPlay(ACharacter* InOwner, UCActiveSkill** OutActiveSkill)
+void UCSkillAsset::SkillAsset_BeginPlay(ACharacter* InOwner, UCActiveSkill** OutActiveSkill)
 {
 	CheckNull(SkillClass);
 
 	*OutActiveSkill = NewObject<UCActiveSkill>(GetTransientPackage(), SkillClass);
-	(*OutActiveSkill)->SkillInfo = SkillInfo;
-	(*OutActiveSkill)->BeginPlay(InOwner, DoActionDatas, HitDatas);
+	if (*OutActiveSkill != nullptr)
+	{
+		(*OutActiveSkill)->SkillInfo = SkillInfo;
+		(*OutActiveSkill)->BeginPlay_ActiveSkill(InOwner, FlowData);
+	}
 }

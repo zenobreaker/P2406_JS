@@ -122,6 +122,8 @@ void UCDoAction_JumpAction::End_DoAction()
 	Super::End_DoAction();
 
 	End_DoAction_FallAttack();
+	
+	DoActionDatas[Index].End_DoAction(OwnerCharacter);
 
 	Index = 0;
 	SetFallMode();

@@ -353,6 +353,13 @@ void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 	SkillComp->ExecuteSkill(InIndex);
 }
 
+void UCWeaponComponent::ReleaseSkill(const int32 InIndex)
+{
+	CheckNull(SkillComp);
+
+	SkillComp->ReleaseSkill(InIndex);
+}
+
 void UCWeaponComponent::SubAction_Pressed()
 {
 	if (!!GetSubAction())

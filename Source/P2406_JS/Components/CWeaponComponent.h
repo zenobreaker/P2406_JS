@@ -81,6 +81,7 @@ public:
 	void Handle_EndDoAction();
 
 	void ExecuteSkill(const int32 InIndex); 
+	void ReleaseSkill(const int32 InIndex);
 
 public:
 	void SubAction_Pressed();

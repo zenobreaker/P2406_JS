@@ -8,7 +8,7 @@ void UCUserWidget_SkillSlot::NativeConstruct()
     Super::NativeConstruct();
 
     // C++ 초기화 코드
-    UE_LOG(LogTemp, Warning, TEXT("NativeConstruct called!"));
+    //UE_LOG(LogTemp, Warning, TEXT("NativeConstruct called!"));
 
 }
 

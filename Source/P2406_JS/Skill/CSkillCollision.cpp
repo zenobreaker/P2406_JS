@@ -9,6 +9,8 @@ ACSkillCollision::ACSkillCollision()
 {
 	// 기본 충돌 컴포넌트는 nullptr로 설정, 파생 클래스에서 초기화
 	CollisionComponent = nullptr;
+
+	PrimaryActorTick.bCanEverTick = false; 
 }
 
 void ACSkillCollision::BeginPlay()
@@ -20,8 +22,10 @@ void ACSkillCollision::BeginPlay()
 	ActivateCollision();
 }
 
+
+
 void ACSkillCollision::SetSkillOwnerData(ACharacter* InOwner,
-	const TArray<FSkillHitData>& InHitDatas)
+	const TArray<FHitData>& InHitDatas)
 {
 	OwnerCharacter = InOwner;
 	HitDatas = InHitDatas;
@@ -29,11 +33,6 @@ void ACSkillCollision::SetSkillOwnerData(ACharacter* InOwner,
 //	FLog::Print("Set Skill Data", -1, 10.0f, FColor::Green);
 }
 
-
-void ACSkillCollision::ApplyCollisionEffect()
-{
-
-}
 
 void ACSkillCollision::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

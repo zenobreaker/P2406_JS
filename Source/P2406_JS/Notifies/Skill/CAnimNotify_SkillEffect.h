@@ -13,5 +13,4 @@ class P2406_JS_API UCAnimNotify_SkillEffect : public UAnimNotify
 private:
 	FString GetNotifyName_Implementation() const override;
 	void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
-
 };

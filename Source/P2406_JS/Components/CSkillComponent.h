@@ -42,6 +42,7 @@ public:
 
 public:
 	void ExecuteSkill(int32 InSlot);
+	void ReleaseSkill(int32 InSlot);
 	void CreateSkillCollision(); 
 	void CreateSkillEffect();
 
@@ -85,4 +86,5 @@ private:
 
 private:
 	class UCSkillManager* SkillManager; 
+	class UCMovementComponent* Movement;
 };

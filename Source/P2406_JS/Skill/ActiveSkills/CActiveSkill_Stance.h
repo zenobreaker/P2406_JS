@@ -12,13 +12,6 @@ class P2406_JS_API UCActiveSkill_Stance : public UCActiveSkill
 {
 	GENERATED_BODY()
 
-public:
-	virtual void BeginPlay(
-		ACharacter* InOwner,
-		const TArray<FSkillActionData>& InDoActionDatas,
-		const TArray<FSkillHitData>& InHitDatas) override;
-
-	virtual void Tick(float InDeltaTime) override;
 
 protected:
 	// 입력 받을 키 세팅 
@@ -30,8 +23,8 @@ protected:
 
 	virtual void Begin_WaitInput() override;
 
-private:
-	void RegisterSkillPhase_Stance();
+protected:
+	virtual void DefineSkillPhases() override;
 
 private:
 	// 이 스킬이 세팅된 키보드 키코드 

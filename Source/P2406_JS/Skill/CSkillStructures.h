@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
@@ -16,10 +16,10 @@ struct FSkillInfo
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	EWeaponType WeaponType = EWeaponType::Max;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	int32 SkillID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
@@ -38,66 +38,128 @@ public:
 	float Cost = 0.0f;
 };
 
-USTRUCT()
-struct FSkillActionData : public FDoActionData
+
+/// <summary>
+/// 스킬 충돌체  데미지 등 관련
+/// </summary>
+USTRUCT(BlueprintType)
+struct FSkillCollisionData 
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
-	float HitDelay =0.0f;
+	UPROPERTY(EditAnywhere, Category= "Interval")
+	bool bRepeat = false; 
 
-	UPROPERTY(EditAnywhere)
-	class USoundWave* Sound;
+	UPROPERTY(EditAnywhere, Category = "Interval")
+	float CollisionInterval = 0.0f;
 
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* SkillEffect;
-
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* BeginCastingAnimMontage;
-
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* CastingAnimMontage;
-
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* EndCastingAnimMontage;
-
-	//��ų ���� 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class ACSkillCollision> SkillCollisionClass;
-
-
-public:
-	void DoAction(class ACharacter* InOwner) override;
-	virtual void Create_SkillCollision(class ACharacter* InOwner, const TArray<FSkillHitData>& InHitDatas);
-	virtual void Create_SkillEffect(class ACharacter* InOwner);
-
-	// �̰� �� Ư���� ����ε� ������ ����� �����ϰ� ���� ������ ���ϴ� �͵� ���ɵ�
-	virtual void PlaySection_SkillCastingMontage(class ACharacter* InOwner ,float InPlayRate = 1.0f, FName StartSectionName = EName::None);
-	virtual void PlaySecion_SkillActionMontage(class ACharacter* InOwner, float InPlayRate = 1.0f, FName StartSectionName = EName::None);
-
-	virtual void Begin_Casting(class ACharacter* InOwner, bool InLoop = false);
-	virtual void DoCasting(class ACharacter* InOwner, bool InLoop = false);
-	virtual void End_Casting( class ACharacter* InOwner, bool InLoop = false);
-
-
-	void PlaySoundWave(class ACharacter* InOwner);
-
-	void Destroy_GhostTrail() override;
-
-private:
-	void SkillPlayMontage(class ACharacter* InOwner, class UAnimMontage* InMontage, bool InLoop);
+	UPROPERTY(EditAnywhere, Category = "Hit Data")
+	TArray<FHitData> HitDatas;
 };
 
+/// <summary>
+/// 스킬 충돌체 관리자(Skill Entity) 생성 정보 구조체
+/// </summary>
+USTRUCT(BlueprintType)
+struct FSkillEntityData
+{
+    GENERATED_BODY()
 
-USTRUCT()
-struct FSkillHitData : public FHitData
+public:
+	// 생성할 클래스
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACSkillEntity> SkillEntity;
+
+	UPROPERTY(EditAnywhere)
+	ESkillCollisionType Type = ESkillCollisionType::NONE;
+
+    /** 스폰할 위치 (기본값: 캐릭터 위치) */
+    UPROPERTY(EditAnywhere)
+    FVector SpawnLocation = FVector::ZeroVector;
+
+    /** 방향 (Projectile이나 Melee용) */
+    UPROPERTY(EditAnywhere)
+    FRotator SpawnRotation = FRotator::ZeroRotator;
+
+    /** 스케일 (Collision의 크기 조정) */
+    UPROPERTY(EditAnywhere)
+    FVector SpawnScale = FVector(1.0f, 1.0f, 1.0f);
+
+    /** 오프셋 (캐릭터 위치 기준 상대 위치) */
+    UPROPERTY(EditAnywhere)
+    FVector Offset = FVector::ZeroVector;
+
+	// 이 콜리전의 판정 정보
+	UPROPERTY(EditAnywhere)
+	FSkillCollisionData  SkillCollisionData;
+
+public:
+	FSkillEntityData() = default;
+
+	void SpawnSkillEntity(class ACharacter* InCharacter);
+};
+
+/// <summary>
+/// 각 스킬 페이즈별 실행할 정보 구조체  
+/// </summary>
+USTRUCT(BlueprintType)
+struct FSkillPhaseData 
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	ESkillPhase PhaseType;
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	FDoActionData ActionData;
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	class UFXSystemAsset* Effect = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	FVector EffectLocation = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	FVector EffectScale = FVector(1.0f, 1.0f, 1.0f);
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	class USoundWave* Sound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
+	TSubclassOf<class UCameraShakeBase> CameraShake; 
+
+	// 충돌판정 스킬 딜레이 값 이 값이 지나야 충돌판정이 생성되게함
+	UPROPERTY(EditAnywhere, Category = "Skill Collsion")
+	float CollisionCreateDelay = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Skill Entity")
+	FSkillEntityData SkillEntityData;
+
+
+public:
+	void ExecutePhase(class ACharacter* InCharacter);
+
+private:
+	void Phase_DoAction(class ACharacter* InCharacter);
+	void Phase_PlaySoundWave(class ACharacter* InCharacter);
+	void Phase_PlayEffect(class ACharacter* InCharacter);
+	void Phase_PlayCameraShake(class ACharacter* InCharacter);
+	void Phase_SpawnSkillEntity(class ACharacter* InCharacter);	
+};
+
+/// <summary>
+/// 각 스킬 페이즈별 실행할 정보 구조체 
+/// </summary>
+USTRUCT(BlueprintType)
+struct FSkillFlowData 
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditAnywhere)
-	float CollisionInterval = 0.0f;
+	TArray<FSkillPhaseData> PhaseDatas;
 };
 
 

@@ -37,6 +37,14 @@ void FDoActionData::DoAction(ACharacter* InOwner)
 	//}
 }
 
+void FDoActionData::End_DoAction(ACharacter* InOwner)
+{
+	UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
+	CheckNull(movement);
+
+	movement->Move();
+}
+
 void FDoActionData::Destroy_GhostTrail()
 {
 	//if (!!GhostTrail)

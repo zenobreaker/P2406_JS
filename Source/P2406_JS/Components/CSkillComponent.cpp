@@ -1,11 +1,13 @@
 #include "Components/CSkillComponent.h"
-#include "Components/CWeaponComponent.h"
-#include "Weapons/CWeaponData.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "Skill/CActiveSkill.h"
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CSkillManager.h"
+
+#include "Weapons/CWeaponData.h"
+#include "Components/CWeaponComponent.h"
+#include "Components/CMovementComponent.h"
 
 UCSkillComponent::UCSkillComponent()
 {
@@ -18,19 +20,19 @@ void UCSkillComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	CheckNull(OwnerCharacter);
 
-	if (!!OwnerCharacter)
+	APlayerController* controller = OwnerCharacter->GetWorld()->GetFirstPlayerController();
+	if (!!controller)
 	{
-		APlayerController* controller = OwnerCharacter->GetWorld()->GetFirstPlayerController();
-		if (!!controller)
-		{
-			UCGameInstance* instance = Cast<UCGameInstance>(controller->GetGameInstance());
-			if (instance == nullptr || instance->SkillManager == nullptr)
-				return;
+		UCGameInstance* instance = Cast<UCGameInstance>(controller->GetGameInstance());
+		if (instance == nullptr || instance->SkillManager == nullptr)
+			return;
 
-			SkillManager = instance->SkillManager;
-		}
+		SkillManager = instance->SkillManager;
 	}
+
+	Movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
 }
 
 
@@ -69,10 +71,10 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 
 	// 해당 스킬의 상태를 체크하여 쿨다운이나 실행 여부 확인
 	auto* skill = SkillSlotTable.FindRef((ESkillSlot)InSlot);
-	if(skill ==nullptr)
+	if (skill == nullptr)
 	{
 		//FLog::Log("Skill is Nullptr");
-		return; 
+		return;
 	}
 
 	// 스킬 실행 
@@ -115,9 +117,16 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 			CurrentSkill->OnSoaringEnd.AddDynamic(this, &UCSkillComponent::OffSkillSoaring);
 		}
 
+		// 실행된 스킬 목록에 넣어놓기
 		ActiveSkills.Add(skill);
-
 	}
+}
+
+void UCSkillComponent::ReleaseSkill(int32 InSlot)
+{
+	CheckFalse(SkillSlotTable.Contains((ESkillSlot)InSlot));
+
+	SkillSlotTable[(ESkillSlot)InSlot]->ReleaseSkill();
 }
 
 void UCSkillComponent::CreateSkillCollision()
@@ -125,14 +134,13 @@ void UCSkillComponent::CreateSkillCollision()
 	CheckNull(CurrentSkill);
 
 	CurrentSkill->Create_Collision();
-
 }
 
 void UCSkillComponent::CreateSkillEffect()
 {
 	CheckNull(CurrentSkill);
 
-	CurrentSkill->Create_Effect();
+	CurrentSkill->Create_SkillEffect();
 }
 
 
@@ -152,6 +160,9 @@ void UCSkillComponent::EndSkill()
 
 	bIsSkillAction = false;
 	CurrentSkill = nullptr;
+
+	if (Movement != nullptr && Movement->CanMove() == false)
+		Movement->Move();
 }
 void UCSkillComponent::OnSkillCasting()
 {
@@ -192,11 +203,11 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InActiveSkills
 {
 	//CheckFalse(InActiveSkills.Num() > 0);
 	// 스킬이 아예 없으면 비워주고 처리함
-	if(InActiveSkills.IsEmpty())
+	if (InActiveSkills.IsEmpty())
 	{
-		SetEmptySkillList(); 
-		
-		return; 
+		SetEmptySkillList();
+
+		return;
 	}
 
 	// 스킬 슬롯 한 번 정리 
@@ -239,7 +250,7 @@ void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 {
 	if (ActiveSkills.Num() > 0)
 	{
-		for (int i = 0; i < ActiveSkills.Num(); i++)
+		for (int i = ActiveSkills.Num() - 1; i >= 0; i--)
 		{
 			UCActiveSkill* active = ActiveSkills[i];
 			active->Tick(InDeltaTime);
@@ -247,7 +258,7 @@ void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 			if (active->GetIsFinished())
 			{
 				//FLog::Print("Remove Skill " + active->GetName(), -1, 10.0f, FColor::Red);
-				ActiveSkills.Remove(active);
+				ActiveSkills.RemoveAt(i);
 			}
 		}
 	}

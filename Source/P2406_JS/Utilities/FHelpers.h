@@ -125,6 +125,19 @@ public:
 		*OutComponent = InActor->CreateDefaultSubobject<TValueType>(InName);
 	}
 
+	template<typename TChild, typename TParent>
+	static void CreateParentActorComponent(AActor* InActor, TParent** OutComponent, FName InName)
+	{
+		// 부모-자식 관계 검증 (컴파일 타임에서 오류 발생 가능)
+		static_assert(std::is_base_of_v<TParent, TChild>, "TChild must be a subclass of TParent");
+
+		// ActorComponent 생성
+		TChild* NewComponent = InActor->CreateDefaultSubobject<TChild>(InName);
+
+		// 부모 클래스 포인터에 저장
+		*OutComponent = NewComponent;
+	}
+
 	template<typename TValueType>
 	static void GetAsset(TValueType** OutObject, FString InPath)
 	{

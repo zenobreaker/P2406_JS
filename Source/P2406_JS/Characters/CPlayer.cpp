@@ -250,10 +250,23 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	//TODO: 일단무식한 방법으로 처리함 나중에 개념 충족하면 여기 수정하기 
 	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Pressed, this,
 		&ACPlayer::OnSkill1);
+	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Released, this,
+		&ACPlayer::ReleaseSkill1);
 
 	PlayerInputComponent->BindAction("Skill2", EInputEvent::IE_Pressed, this,
 		&ACPlayer::OnSkill2);
+	PlayerInputComponent->BindAction("Skill2", EInputEvent::IE_Released, this,
+		&ACPlayer::ReleaseSkill2);
 
+	PlayerInputComponent->BindAction("Skill3", EInputEvent::IE_Pressed, this,
+		&ACPlayer::OnSkill3);
+	PlayerInputComponent->BindAction("Skill3", EInputEvent::IE_Released, this,
+		&ACPlayer::ReleaseSkill3);
+
+	PlayerInputComponent->BindAction("Skill4", EInputEvent::IE_Pressed, this,
+		&ACPlayer::OnSkill4);
+	PlayerInputComponent->BindAction("Skill4", EInputEvent::IE_Released, this,
+		&ACPlayer::ReleaseSkill4);
 
 	//////////////////////////////////////////////////////////////////////////////
 	// 타임 스케일 조정을 위한 바인딩
@@ -645,12 +658,51 @@ void ACPlayer::OnSkill1()
 
 }
 
+void ACPlayer::ReleaseSkill1()
+{
+	CheckNull(Weapon);
+	
+	Weapon->ReleaseSkill(0);
+}
+
 void ACPlayer::OnSkill2()
 {
 	CheckNull(Weapon);
 	CheckFalse(State->IsIdleMode());
 
 	Weapon->ExecuteSkill(1);
+}
+
+void ACPlayer::ReleaseSkill2()
+{
+	CheckNull(Weapon);
+
+	Weapon->ReleaseSkill(1);
+}
+
+void ACPlayer::OnSkill3()
+{
+	CheckNull(Weapon);
+	Weapon->ExecuteSkill(2);
+}
+
+void ACPlayer::ReleaseSkill3()
+{
+	CheckNull(Weapon);
+
+	Weapon->ReleaseSkill(2);
+}
+
+void ACPlayer::OnSkill4()
+{
+
+}
+
+void ACPlayer::ReleaseSkill4()
+{
+	CheckNull(Weapon);
+
+	Weapon->ReleaseSkill(3);
 }
 
 

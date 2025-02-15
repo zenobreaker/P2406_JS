@@ -2,135 +2,121 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "Weapons/CWeaponStructures.h" 
-#include "Skill/CSkillCollision.h"
+#include "Skill/CSkillEntity.h"
 #include "Gameframework/Character.h"
 
-void FSkillActionData::DoAction(ACharacter* InOwner)
-{
-	Super::DoAction(InOwner);
 
-	// 애니메이션이 있으면 실행
-	InOwner->PlayAnimMontage(Montage);
-	// 이펙트가 있다면 그것도 실행
+//-----------------------------------------------------------------------------
+
+void FSkillPhaseData::ExecutePhase(ACharacter* InCharacter)
+{
+	Phase_DoAction(InCharacter);
+	Phase_DoAction(InCharacter);
+	Phase_PlaySoundWave(InCharacter);
+	Phase_PlayEffect(InCharacter);
+	Phase_PlayCameraShake(InCharacter);
+	Phase_SpawnSkillEntity(InCharacter);
 }
 
-void FSkillActionData::Create_SkillCollision(ACharacter* InOwner, const TArray<FSkillHitData>& InHitDatas)
+void FSkillPhaseData::Phase_DoAction(ACharacter* InCharacter)
 {
-	CheckNull(SkillCollisionClass);
-	CheckNull(InOwner);
+	CheckNull(InCharacter);
 
-	// 스폰 형태 설정 
-	FActorSpawnParameters param;
-	param.Owner = InOwner;
-	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	// 스킬 생성 위치 설정 
-	FTransform transform;
-	transform.SetLocation(InOwner->GetActorLocation());
-
-	ACSkillCollision* skillCollision = InOwner->GetWorld()->SpawnActorDeferred<ACSkillCollision>(SkillCollisionClass,
-		transform,
-		nullptr,
-		nullptr,
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-
-	//FLog::Print("Success Create!");
-
-	// 콜리전에 데이터 설정
-	CheckNull(skillCollision);
-	skillCollision->SetSkillOwnerData(InOwner, InHitDatas);
-	skillCollision->AddIgnore(InOwner);
-
-	FAttachmentTransformRules rule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
-
-	// 이 코드는 맨 아래 코드와 같은 역할
-	//skillCollision->SetActorTransform(transform); // 위치와 변환을 설정
-	//skillCollision->FinishSpawning(transform);
-	UGameplayStatics::FinishSpawningActor(skillCollision, transform);
+	ActionData.DoAction(InCharacter);
 }
 
-void FSkillActionData::Create_SkillEffect(ACharacter* InOwner)
-{
-	CheckNull(InOwner);
-
-	FVector ownerLocation = InOwner->GetActorLocation();
-	FVector ownerForward = InOwner->GetActorForwardVector();
-	FVector spwanLocation = ownerLocation + ownerForward;
-
-	FRotator spawnRotator = InOwner->GetActorRotation();
-	//spawnRotator.Roll = angle;
-
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-		InOwner->GetWorld(),
-		SkillEffect,
-		spwanLocation,
-		spawnRotator,
-		FVector::OneVector
-	);
-}
-
-void FSkillActionData::PlaySection_SkillCastingMontage(ACharacter* InOwner, float InPlayRate,
-	FName StartSectionName)
-{
-	CheckNull(InOwner);
-
-	// 진짜 와.. 이 개짓거리를 해놔가지고 몇 십분을 날리냐 
-	//TODO: 다음엔 애니메이션 하나로 통합되게 해버리기??
-	InOwner->PlayAnimMontage(BeginCastingAnimMontage, InPlayRate, StartSectionName);
-}
-
-void FSkillActionData::PlaySecion_SkillActionMontage(ACharacter* InOwner, float InPlayRate, FName StartSectionName)
-{
-	CheckNull(InOwner);
-
-	//TODO: 다음엔 애니메이션 하나로 통합되게 해버리기??
-	InOwner->PlayAnimMontage(Montage, InPlayRate, StartSectionName);
-}
-
-void FSkillActionData::Begin_Casting(ACharacter* InOwner, bool InLoop)
-{
-	SkillPlayMontage(InOwner, BeginCastingAnimMontage, InLoop);
-}
-
-void FSkillActionData::DoCasting(ACharacter* InOwner, bool InLoop)
-{
-	SkillPlayMontage(InOwner, CastingAnimMontage, InLoop);
-}
-
-void FSkillActionData::End_Casting(ACharacter* InOwner, bool InLoop)
-{
-	SkillPlayMontage(InOwner, EndCastingAnimMontage, InLoop);
-}
-
-void FSkillActionData::PlaySoundWave(ACharacter* InOwner)
+void FSkillPhaseData::Phase_PlaySoundWave(ACharacter* InCharacter)
 {
 	CheckNull(Sound);
 
-	UWorld* world = InOwner->GetWorld();
-	FVector location = InOwner->GetActorLocation();
+	UWorld* world = InCharacter->GetWorld();
+	FVector location = InCharacter->GetActorLocation();
 
 	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
 }
 
-void FSkillActionData::Destroy_GhostTrail()
+void FSkillPhaseData::Phase_PlayEffect(ACharacter* InCharacter)
 {
-	Super::Destroy_GhostTrail();
+	CheckNull(InCharacter);
+	CheckNull(Effect);
+
+	FVector location = InCharacter->GetActorLocation();
+	FRotator rotator = InCharacter->GetActorRotation();
+
+	location += rotator.RotateVector(EffectLocation);
+
+	FTransform transform;
+	transform.SetLocation(location);
+	transform.SetScale3D(EffectScale);
+
+	FHelpers::PlayEffect(InCharacter->GetWorld(), Effect, transform);
 }
 
-void FSkillActionData::SkillPlayMontage(ACharacter* InOwner,
-	UAnimMontage* InMontage, bool InLoop)
+void FSkillPhaseData::Phase_PlayCameraShake(ACharacter* InCharacter)
 {
-	CheckNull(InOwner);
-	CheckNull(InMontage);
+	CheckNull(InCharacter);
+	CheckNull(CameraShake);
 
-	InOwner->PlayAnimMontage(InMontage);
+	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(InCharacter->GetWorld(), 0);
+	CheckNull(cameraManager);
 
-	if (InLoop)
+	cameraManager->StartCameraShake(CameraShake);
+}
+
+void FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
+{
+	CheckNull(InCharacter);
+
+	SkillEntityData.SpawnSkillEntity(InCharacter);
+}
+
+//-----------------------------------------------------------------------------
+
+void FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
+{
+	CheckNull(InCharacter);
+
+	// 스폰 형태 설정 
+	FActorSpawnParameters param;
+	param.Owner = InCharacter;
+	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+
+	// 스킬 생성 위치 설정 
+	FVector spawnLocation = InCharacter->GetActorLocation()
+		+ InCharacter->GetActorForwardVector() * Offset.X
+		+ InCharacter->GetActorRightVector() * Offset.Y
+		+ InCharacter->GetActorUpVector() * Offset.Z;
+
+
+	FTransform transform;
+	transform.SetLocation(spawnLocation);
+
+	ACSkillEntity* skillEntity = InCharacter->GetWorld()->SpawnActorDeferred<ACSkillEntity>
+		(
+			SkillEntity,
+			transform,
+			nullptr,
+			nullptr,
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+		);
+
+	FLog::Log("Entity Create");
+	if (skillEntity != nullptr)
 	{
-		UAnimInstance* animInstance = InOwner->GetMesh()->GetAnimInstance();
-		CheckNull(animInstance);
-		//animInstance->OnMontageEnded.AddDynamic(this, )
+		skillEntity->SetOwner(InCharacter);
+		skillEntity->SetSkillCollisionType(Type);
+		skillEntity->SetSkillEntityData(SkillCollisionData);
 	}
 
-}
+	FAttachmentTransformRules rule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
 
+
+	// 이 코드는 맨 아래 코드와 같은 역할
+	 // 위치와 변환을 설정
+	//skillCollision->SetActorTransform(transform); 
+	//skillCollision->FinishSpawning(transform);
+
+	UGameplayStatics::FinishSpawningActor(skillEntity, transform);
+}

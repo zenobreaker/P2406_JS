@@ -1,7 +1,152 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Skill/ActiveSkills/Sword/CActiveSkill_UpperSlash.h"
+#include "Global.h"
+
+#include "Curves/CurveFloat.h"
+
+UCActiveSkill_UpperSlash::UCActiveSkill_UpperSlash()
+{
+	FHelpers::GetAsset<UCurveFloat>(&Curve, "/Script/Engine.CurveFloat'/Game/Weapon_Skills/Swords/Sword_Rising_Curve.Sword_Rising_Curve'");
+}
+
+void UCActiveSkill_UpperSlash::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData)
+{
+	Super::BeginPlay_ActiveSkill(InOwner, InFlowData);
+
+	FOnTimelineFloat timeline;
+	timeline.BindUFunction(this, "OnRising");
+	Timeline.AddInterpFloat(Curve, timeline);
+	Timeline.SetPlayRate(PlayRate);
+	
+}
+
+void UCActiveSkill_UpperSlash::Tick(float InDeltaTime)
+{
+	Super::Tick(InDeltaTime);
+
+	
+	Timeline.TickTimeline(InDeltaTime);
+}
+
+void UCActiveSkill_UpperSlash::DefineSkillPhases()
+{
+	Super::DefineSkillPhases();
+
+	SkillPhaseTable.Empty();
+
+	// Begin_Charing 스테이트 추가 
+	AssignSkillPhase(ESkillPhase::Begin_Charging,
+		[this]() { Begin_Charging(); });
+
+	AssignSkillPhase(ESkillPhase::End_Charging,
+		[this]() { End_Charging(); });
+
+	AssignSkillPhase(ESkillPhase::Begin_Skill,
+		[this]() { Begin_Skill(); });
+
+	AssignSkillPhase(ESkillPhase::End_Skill,
+		[this]() { End_Skill(); });
+}
+
+void UCActiveSkill_UpperSlash::ReleaseSkill()
+{
+	Super::ReleaseSkill();
+
+	FLog::Log("Release Skill - UpperSlash");
+
+	// 뗐을 때 페이즈 전환
+	ExecutePhase(ESkillPhase::End_Charging);
+}
+
+
+void UCActiveSkill_UpperSlash::Begin_Charging()
+{
+	// 충전 실시 
+	StartCharing();
+
+
+	// 여기선 딱히 스테이트를 옮기지 않고 여기에 묶어둔다. 	
+	if (SkillPhaseTable.Contains(ESkillPhase::Begin_Charging) && SkillPhaseTable[ESkillPhase::Begin_Charging].PhaseDatas.Num() > 0)
+		SkillPhaseTable[ESkillPhase::Begin_Charging].PhaseDatas[0].ExecutePhase(OwnerCharacter);
+
+	//REGISTER_EVENT_WITH_REPLACE(this, OnSkillCastingCompleted, this, UCActiveSkill_UpperSlash::OnSkillCastingCompleted_JudgementBlade);
+}
+
+void UCActiveSkill_UpperSlash::End_Charging()
+{
+	// 공격이 갈리는 기술 결정하고 바로 다음 스테이트로
+
+	FLog::Log("End_Charging- UpperSlash");
+
+	// 1. 제한된 충전 시간 내로 입력 못한 경우 
+	if (ChargeTime < MaxChargeTime)
+	{
+		// 바로 빠른 어퍼슬래쉬
+		CurrentState = UpperSlashState::UpperSlash;
+
+	}
+	// 2. 충전 완료된 경우 
+	else
+	{
+		CurrentState = UpperSlashState::GaleShash;
+	}
+
+	ExecutePhase(ESkillPhase::Begin_Skill);
+}
+
+void UCActiveSkill_UpperSlash::Begin_Skill()
+{
+
+	// ㅇㅓ퍼 슬래시라면 수행 
+	if (CurrentState == UpperSlashState::UpperSlash)
+	{
+		FLog::Log("Begin Skill - UpperSlash");
+		if (SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 0)
+			SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
+	}
+	else
+	{
+		FLog::Log("Begin Skill - Gale Slash");
+		if (SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 1)
+		{
+			if (Timeline.IsPlaying())
+			{
+				Timeline.Stop();
+			}
+
+			if (Timeline.IsPlaying() == false)
+				Timeline.PlayFromStart();
+
+			SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].ExecutePhase(OwnerCharacter);
+		}
+	}
+
+	
+}
+
+void UCActiveSkill_UpperSlash::End_Skill()
+{
+	Timeline.Stop();
+
+	ExecutePhase(ESkillPhase::Finished);
+}
+
+void UCActiveSkill_UpperSlash::OffSkillDoAction()
+{
+	ExecutePhase(ESkillPhase::End_Skill);
+}
+
+void UCActiveSkill_UpperSlash::OnRising(float Output)
+{
+	CheckNull(OwnerCharacter);
+
+	// Z 값을 올린다. 
+	FVector location = OwnerCharacter->GetActorLocation();
+	location.Z = Output;
+	FLog::Print("Upepr : " + FString::SanitizeFloat(Output), 5015);
+
+	OwnerCharacter->SetActorLocation(location);
+}
+
 
 /*
 void UCSubAction_Sword::Pressed()
@@ -12,7 +157,7 @@ void UCSubAction_Sword::Pressed()
 
 	Super::Pressed();
 
-	//올려 베기 
+	//올려 베기
 	if (ActionDatas.Num() > 0)
 	{
 		ActionDatas[Index].DoAction(Owner);
@@ -49,7 +194,7 @@ void UCSubAction_Sword::SetInputSubAction()
 	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(Owner);
 	CheckNull(input);
 
-	// 기존 Action 이벤트 제거 
+	// 기존 Action 이벤트 제거
 	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
 
 	// 서브 액션 중일 때 이벤트로 변경하기
@@ -62,10 +207,10 @@ void UCSubAction_Sword::EndInputSubAction()
 	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(Owner);
 	CheckNull(input);
 
-	// 기존 Action 이벤트 제거 
+	// 기존 Action 이벤트 제거
 	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
 
-	// 
+	//
 	input->BindAction("Action", EInputEvent::IE_Pressed, Weapon,
 		&UCWeaponComponent::DoAction);
 }
@@ -128,7 +273,7 @@ void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor*
 	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther);
 
 	// 적을 공격을 했으면 공중 콤보 타이머 시작
-	// 0.1초마다 적 위치 추적 
+	// 0.1초마다 적 위치 추적
 	Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
 	Owner->GetWorld()->GetTimerManager().SetTimer(TrackEnemyTimeHandle, this, &UCSubAction_Sword::TrackEnemyHeight, 0.05f, true);
 
@@ -139,7 +284,7 @@ void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor*
 void UCSubAction_Sword::TrackEnemyHeight()
 {
 
-	// 스피어 트레이스로 주변 적들 감지 
+	// 스피어 트레이스로 주변 적들 감지
 	TArray<FHitResult> HitResults;
 	FVector StartLocation = Owner->GetActorLocation();
 	StartLocation.Z += TrackHeightValue;
@@ -190,7 +335,7 @@ void UCSubAction_Sword::TeleportToEnemy(ACharacter* InTargetEnemy)
 
 	StopMovement();
 
-	// 그 위치에 멈추기 
+	// 그 위치에 멈추기
 	StopEnemyMovement(InTargetEnemy);
 }
 
@@ -269,7 +414,7 @@ void UCSubAction_Sword::ChangeState()
 void UCSubAction_Sword::TraceAttackArea()
 {
 
-	// 스피어 트레이스로 주변 적들 감지 
+	// 스피어 트레이스로 주변 적들 감지
 	TArray<FHitResult> HitResults;
 	FVector StartLocation = Owner->GetActorLocation();
 	FVector forward = Owner->GetActorForwardVector() * 100.0f;
@@ -331,3 +476,4 @@ void FSlashData::CreateSlashEffect(class ACharacter* InOwner)
 	);
 }
 */
+

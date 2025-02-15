@@ -16,5 +16,4 @@ void UCAnimNotify_SkillEffect::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 
 	CheckNull(skill);
 	skill->CreateSkillEffect();
-
 }

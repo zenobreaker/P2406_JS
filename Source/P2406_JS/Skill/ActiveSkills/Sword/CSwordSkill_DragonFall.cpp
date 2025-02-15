@@ -15,13 +15,9 @@ UCSwordSkill_DragonFall::UCSwordSkill_DragonFall()
 		"/Script/Engine.CurveVector'/Game/Weapons/Sword/Sword_Soar_Curve.Sword_Soar_Curve'");
 }
 
-void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkillActionData>& InDoActionDatas, const TArray<FSkillHitData>& InHitDatas)
+void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData)
 {
-	Super::BeginPlay(InOwner, InDoActionDatas, InHitDatas);
-
-	//FLog::Print("Dragon Fall Begin Play!!!!!" + OwnerCharacter->GetName()); 
-
-
+	Super::BeginPlay_ActiveSkill(InOwner, InFlowData);
 
 	// 컴포넌트
 	{
@@ -50,6 +46,7 @@ void UCSwordSkill_DragonFall::BeginPlay(ACharacter* InOwner, const TArray<FSkill
 	}
 }
 
+
 void UCSwordSkill_DragonFall::Tick(float InDeltaTime)
 {
 	Super::Tick(InDeltaTime);
@@ -57,6 +54,15 @@ void UCSwordSkill_DragonFall::Tick(float InDeltaTime)
 	
 	Timeline.TickTimeline(InDeltaTime);
 	CameraTimeline.TickTimeline(InDeltaTime);
+}
+
+void UCSwordSkill_DragonFall::DefineSkillPhases()
+{
+	Super::DefineSkillPhases();
+
+	//AssignSkillPhase(TDelegate<void()>::CreateUObject(this, &UCSwordSkill_DragonFall::Begin_Casting));
+
+	//AssignSkillPhase(TDelegate<void()>::CreateUObject(this, &UCSwordSkill_DragonFall::End_Casting));
 }
 
 void UCSwordSkill_DragonFall::OnSoarCharacter()
@@ -98,6 +104,8 @@ void UCSwordSkill_DragonFall::OnDescent()
 
 void UCSwordSkill_DragonFall::Begin_Casting()
 {
+	Super::Begin_Casting();
+
 	bClickedKey = false;
 
 	CameraLocation = FVector::ZeroVector;
@@ -116,14 +124,15 @@ void UCSwordSkill_DragonFall::Begin_Casting()
 	// 카메라 일정거리로 앞당기기 
 	SetCameraData();
 
-	DoActionDatas[Index].Begin_Casting(OwnerCharacter);
 }
 
 
 
 void UCSwordSkill_DragonFall::End_Casting()
 {
-	DoActionDatas[Index].End_Casting(OwnerCharacter, true);
+	Super::End_Casting();
+
+//	DoActionDatas[Index].End_Casting(OwnerCharacter, true);
 
 	// 착지했는지 검사 
 	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(LandCheckTimerHandle,
@@ -131,7 +140,6 @@ void UCSwordSkill_DragonFall::End_Casting()
 	if (OnSoaringEnd.IsBound())
 		OnSoaringEnd.Broadcast();
 
-	StartNextPhase();
 }
 
 
@@ -202,7 +210,7 @@ void UCSwordSkill_DragonFall::OnSoaring(FVector Output)
 
 void UCSwordSkill_DragonFall::OnTimelimeFinished()
 {
-	StartNextPhase();
+	//StartNextPhase();
 }
 
 void UCSwordSkill_DragonFall::OnCheckIfLand()
@@ -212,6 +220,8 @@ void UCSwordSkill_DragonFall::OnCheckIfLand()
 	bool bCheck = OwnerCharacter->GetCharacterMovement()->IsFalling() == false;
 	if (bCheck)
 	{
+		//CheckTrue(Index >= DoActionDatas.Num());
+
 		// 여기서도 중력 복구 시켜봄
 		RestoreGravity();
 		// 착지하면 다음 페이즈 
@@ -222,23 +232,23 @@ void UCSwordSkill_DragonFall::OnCheckIfLand()
 		if (bClickedKey == false)
 		{
 			//TODO: 섹션 네임을 데이터에 저장하고 그걸 불러오자 
-			DoActionDatas[Index].PlaySection_SkillCastingMontage(OwnerCharacter, 1.0f, "EndCasting");
+			//DoActionDatas[Index].PlaySection_SkillCastingMontage(OwnerCharacter, 1.0f, "EndCasting");
 
 			// 그냥 착지했으면 스킬  끝내는 페이즈로 보낸다. 
-			StartNextPhase(); 
+			//StartNextPhase(); 
 		}
 		// 공격키가 눌러진 상태로 땅에 착지하면 그 애니메이션
 		else
 		{
 			//TODO: 스킬 기능 정리가 끝나면 이 내용도 별도의 함수나 그런걸로..?
 			// 소리 출력 
-			DoActionDatas[Index].PlaySoundWave(OwnerCharacter);
+			//DoActionDatas[Index].PlaySoundWave(OwnerCharacter);
 			
 			// 충격파 생성
 			Create_Collision(); 
 
 			// 여기선 착지 모션이 나오고 그 모션이 끝나야 스킬 엔드처리해야한다. 
-			DoActionDatas[Index].PlaySecion_SkillActionMontage(OwnerCharacter, 1.0f, "EndSkill");
+			//DoActionDatas[Index].PlaySecion_SkillActionMontage(OwnerCharacter, 1.0f, "EndSkill");
 		}
 
 		// 카메라 리셋 

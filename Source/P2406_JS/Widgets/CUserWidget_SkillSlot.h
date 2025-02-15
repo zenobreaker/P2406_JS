@@ -15,7 +15,7 @@ public:
 	virtual void NativeConstruct() override; 
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "UserInterface")
 	void OnSkillSlot(class UCActiveSkill* InActiveSkill);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
