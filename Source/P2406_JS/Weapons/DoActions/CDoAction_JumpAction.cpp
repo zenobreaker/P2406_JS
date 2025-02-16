@@ -306,15 +306,15 @@ void UCDoAction_JumpAction::ChecFallAttackHit()
 
 
 	TArray<FHitResult> hitResults;
-	FVector location = OwnerCharacter->GetActorLocation();
-	location.Z = -OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	FVector startlocation = OwnerCharacter->GetActorLocation();
+	FVector  endlocation = startlocation - OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	// 트레이스 설정 
 	FCollisionQueryParams tracePramams;
 	tracePramams.AddIgnoredActor(OwnerCharacter);
 
 	FCollisionObjectQueryParams objectQueryParams;
-	objectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
-	objectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	objectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);  // 추가
+	objectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic); // 추가
 	objectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
 
 	float radius = 300.0f;
@@ -322,15 +322,15 @@ void UCDoAction_JumpAction::ChecFallAttackHit()
 	// 트레이스 실행
 	bool bHit = OwnerCharacter->GetWorld()->SweepMultiByObjectType(
 		hitResults,
-		location,
-		location,
+		startlocation,
+		endlocation,
 		FQuat::Identity,
 		objectQueryParams,  // 혹은 ECC_GameTraceChannel1 등 원하는 채널 사용
 		FCollisionShape::MakeSphere(radius),
 		tracePramams
 	);
 
-	DrawDebugSphere(OwnerCharacter->GetWorld(), location, radius, 12, FColor::Red, false, 1.0f);
+	DrawDebugSphere(OwnerCharacter->GetWorld(), endlocation, radius, 12, FColor::Red, false, 1.0f);
 
 	// 충돌 발생 시 처리
 	if (bHit)
