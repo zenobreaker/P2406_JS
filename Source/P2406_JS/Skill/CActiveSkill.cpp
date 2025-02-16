@@ -110,7 +110,9 @@ void UCActiveSkill::AssignSkillPhase(
 void UCActiveSkill::ExecuteSkill()
 {
 	CheckNull(OwnerCharacter);
-
+	CheckTrue(bIsAction);
+	
+	bIsAction = true; 
 	currentCooldown = SkillInfo.CoolDown;
 
 	ExecutePhase(ESkillPhase::Start);
@@ -119,10 +121,10 @@ void UCActiveSkill::ExecuteSkill()
 void UCActiveSkill::EndSkill()
 {
 	// 스킬 종료 
+	bIsAction = false;
 
 	// 종료 관련한 이벤트 있으면 처리 
 	DYNAMIC_EVENT_CALL(OnSkillEnded);
-
 	End_Skill();
 }
 

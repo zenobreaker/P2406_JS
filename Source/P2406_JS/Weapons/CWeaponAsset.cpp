@@ -103,5 +103,13 @@ void UCWeaponAsset::WA_BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponDa
 	{
 		JumpAcitonAsset->BeginPlay(InOwner, *OutWeaponData, &jumpDoAction);
 		(*OutWeaponData)->JumpAction = jumpDoAction;
+		if (!!attachment)
+		{
+			attachment->OnAttachmentBeginCollision.AddDynamic(jumpDoAction, &UCDoAction::OnAttachmentBeginCollision);
+			attachment->OnAttachmentEndCollision.AddDynamic(jumpDoAction, &UCDoAction::OnAttachmentEndCollision);
+
+			attachment->OnAttachmentBeginOverlap.AddDynamic(jumpDoAction, &UCDoAction::OnAttachmentBeginOverlap);
+			attachment->OnAttachmentEndOverlap.AddDynamic(jumpDoAction, &UCDoAction::OnAttachmentEndOverlap);
+		}
 	}
 }

@@ -70,6 +70,8 @@ public:
 public:
 	ACBaseCharacter();
 
+protected:
+	virtual void BeginPlay() override; 
 
 public:
 	FOnCharacterLanded OnCharacterLanded;
@@ -92,6 +94,10 @@ public:
 protected:
 	virtual void Dead();
 
+	virtual void ResetIgoreCollision();
+
+
+
 protected:
 	protected:
 	UPROPERTY(VisibleAnywhere, Category ="Components")
@@ -111,6 +117,7 @@ public:
 	} DamageData;
 
 protected:
+	ECollisionEnabled::Type CollsionEnabledType;
 	bool bShouldCountDownOnLand = false;
 	bool bCanAct = true; 
 };

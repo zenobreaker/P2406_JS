@@ -85,6 +85,9 @@ private:
 	UFUNCTION()
 	void Lanaded_FallAttack();
 
+	UFUNCTION()
+	void OnLanded();
+
 private:
 	int32 Index;
 

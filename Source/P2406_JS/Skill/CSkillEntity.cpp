@@ -10,7 +10,7 @@
 
 void ACSkillEntity::SetSkillEntityData(FSkillCollisionData InData)
 {
-	FLog::Log("Entity Creator");
+	//FLog::Log("Entity Creator");
 	CreateCollisionByType(InData);
 }
 
@@ -34,16 +34,35 @@ void ACSkillEntity::BeginPlay()
 	ActivateCollision();
 }
 
+void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+
+}
+
+void ACSkillEntity::DestroySkill()
+{
+	SkillCollision->DestroyComponent(); 
+
+	FLog::Log("Skill Destroied");
+	//TODO: 나중에 오브젝트 콜링해도될듯
+	Destroy();
+}
+
 void ACSkillEntity::CreateCollisionByType(FSkillCollisionData InData)
 {
-	// 범위형 스킬콜리전 
-	switch (MyType)
+	//// 범위형 스킬콜리전 
+	//switch (MyType)
+	//{
+	//	case ESkillCollisionType::Area:
+	//	{
+	//		SkillCollision = NewObject<UCSkillCollision_Area>(this, "Area");
+	//	}
+	//	break;
+	//}
+
+	if (InData.Collision != nullptr)
 	{
-		case ESkillCollisionType::Area:
-		{
-			SkillCollision = NewObject<UCSkillCollision_Area>(this, "Area");
-		}
-		break;
+		SkillCollision = NewObject<UCSkillCollisionComponent>(this, InData.Collision);
 	}
 
 
@@ -67,6 +86,42 @@ void ACSkillEntity::DeactivateCollision()
 	CheckNull(SkillCollision);
 
 	SkillCollision->DeactivateCollision();
+}
+
+void ACSkillEntity::SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs)
+{
+	CheckNull(SkillCollision);
+
+	for (auto& Func : InFuncs)
+	{
+		FOnSkillDamaged NewDelegate;
+		NewDelegate.BindLambda(Func);
+		SkillCollision->OnSkillDamageds.Add(NewDelegate);
+	}
+}
+
+void ACSkillEntity::SetSkillDamageEventOneParam(TArray<TFunction<void(ACharacter*)>> InFuncs)
+{
+	CheckNull(SkillCollision);
+
+	for (auto& Func : InFuncs)
+	{
+		FOnSkillDamagedOneParam NewDelegate;
+		NewDelegate.BindLambda(Func);
+		SkillCollision->OnSkillDamagedOneParams.Add(NewDelegate);
+	}
+}
+
+void ACSkillEntity::SetSkillDamageEventThreeParams(TArray<TFunction<void(ACharacter*, AActor*, ACharacter*)>> InFuncs)
+{
+	CheckNull(SkillCollision);
+
+	for (auto& Func : InFuncs)
+	{
+		FOnSkillDamagedThreeParams NewDelegate;
+		NewDelegate.BindLambda(Func);
+		SkillCollision->OnSkillDamagedThreeParams.Add(NewDelegate);
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -1,6 +1,9 @@
 #include "Skill/ActiveSkills/Sword/CActiveSkill_UpperSlash.h"
 #include "Global.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
+#include "Skill/SkillExecuter.h"
+#include "Skill/CSkillEntity.h"
 #include "Curves/CurveFloat.h"
 
 UCActiveSkill_UpperSlash::UCActiveSkill_UpperSlash()
@@ -12,11 +15,18 @@ void UCActiveSkill_UpperSlash::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkill
 {
 	Super::BeginPlay_ActiveSkill(InOwner, InFlowData);
 
+	CurrentState = UpperSlashState::UpperSlash;
+	
 	FOnTimelineFloat timeline;
 	timeline.BindUFunction(this, "OnRising");
 	Timeline.AddInterpFloat(Curve, timeline);
 	Timeline.SetPlayRate(PlayRate);
 	
+	CheckNull(InOwner); 
+	
+	OriginGravityScale = OwnerCharacter->GetCharacterMovement()->GravityScale;
+	
+	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(GravityResetHandle);
 }
 
 void UCActiveSkill_UpperSlash::Tick(float InDeltaTime)
@@ -52,6 +62,8 @@ void UCActiveSkill_UpperSlash::ReleaseSkill()
 	Super::ReleaseSkill();
 
 	FLog::Log("Release Skill - UpperSlash");
+
+	Location = OwnerCharacter->GetActorLocation();
 
 	// 뗐을 때 페이즈 전환
 	ExecutePhase(ESkillPhase::End_Charging);
@@ -95,13 +107,17 @@ void UCActiveSkill_UpperSlash::End_Charging()
 
 void UCActiveSkill_UpperSlash::Begin_Skill()
 {
+	ACSkillEntity* entity = nullptr;
 
 	// ㅇㅓ퍼 슬래시라면 수행 
 	if (CurrentState == UpperSlashState::UpperSlash)
 	{
 		FLog::Log("Begin Skill - UpperSlash");
 		if (SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 0)
-			SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
+		{
+			//SkillExecuter::ExecuteSkillPhase(OwnerCharacter, SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash]);
+			entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
+		}
 	}
 	else
 	{
@@ -116,23 +132,57 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 			if (Timeline.IsPlaying() == false)
 				Timeline.PlayFromStart();
 
-			SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].ExecutePhase(OwnerCharacter);
+			OwnerCharacter->GetCharacterMovement()->GravityScale = 0.0f;
+
+
+			//SkillExecuter::ExecuteSkillPhase(OwnerCharacter, SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash]);
+			entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].ExecutePhase(OwnerCharacter);
 		}
 	}
 
-	
+	if (entity != nullptr)
+	{
+		REGISTER_EVENT_WITH_REPLACE(this, OnSkillEnded, entity, ACSkillEntity::DestroySkill);
+	}
 }
 
 void UCActiveSkill_UpperSlash::End_Skill()
 {
 	Timeline.Stop();
 
+	FTimerDelegate timerDelegate;
+	timerDelegate.BindLambda([this]()
+	{
+		OwnerCharacter->GetCharacterMovement()->GravityScale = OriginGravityScale;
+
+		OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(GravityResetHandle);
+	});
+	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GravityResetHandle, timerDelegate, 5.0f, false);
+
+
+
 	ExecutePhase(ESkillPhase::Finished);
+}
+
+void UCActiveSkill_UpperSlash::Create_SkillEffect()
+{
+
+}
+
+void UCActiveSkill_UpperSlash::Create_Collision()
+{
+
 }
 
 void UCActiveSkill_UpperSlash::OffSkillDoAction()
 {
+
 	ExecutePhase(ESkillPhase::End_Skill);
+}
+
+void UCActiveSkill_UpperSlash::OnHoveringTarget(ACharacter* InOther)
+{
+
 }
 
 void UCActiveSkill_UpperSlash::OnRising(float Output)
@@ -140,8 +190,8 @@ void UCActiveSkill_UpperSlash::OnRising(float Output)
 	CheckNull(OwnerCharacter);
 
 	// Z 값을 올린다. 
-	FVector location = OwnerCharacter->GetActorLocation();
-	location.Z = Output;
+	FVector location = Location;
+	location.Z += Output;
 	FLog::Print("Upepr : " + FString::SanitizeFloat(Output), 5015);
 
 	OwnerCharacter->SetActorLocation(location);

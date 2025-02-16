@@ -98,14 +98,14 @@ float UCAirborneComponent::Calc_AirborenValue(float LaunchPower, AActor* InCause
 		// 이미 띄우는 힘이 있다면 
 		if (LaunchPower > 0.0f)
 		{
-			finalLaunchPower = FMath::Clamp(500.0f, LaunchPower * 0.1f, LaunchPower * 0.1f); // 10%로
+			finalLaunchPower = FMath::Clamp(LaunchPower, LaunchPower * 0.1f, LaunchPower * 5.0f); // 10%로
 			//FLog::Print("Upper Hit");
 		}
 		// 없다면 임의의 값으로 
 		//TODO: 임의의 값을 처리해야할 필요가 있다. 
 		else
 		{
-			finalLaunchPower = 500.0f;
+			finalLaunchPower = 250.0f;
 			//FLog::Print("Upper Added Hit ");
 		}
 

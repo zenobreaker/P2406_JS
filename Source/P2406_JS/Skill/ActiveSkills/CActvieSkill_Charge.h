@@ -40,6 +40,7 @@ protected:
 
 protected:
 	bool bIsInput = false; 
+	bool bIsExecuteInput = false;
 	// 입력 받은 시간 
 	float ChargeTime = 0.0f;
 };

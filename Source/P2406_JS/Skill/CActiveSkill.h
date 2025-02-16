@@ -140,6 +140,8 @@ protected:
 protected:
 	class ACharacter* OwnerCharacter;
 
+protected:
+	bool bIsAction = false; 
 	float currentCooldown = 0.0f;
 	float currentCastingTime;
 	float currentDelay;

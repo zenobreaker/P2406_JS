@@ -55,7 +55,7 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	CheckNull(SkillManager);
 
 	//TODO: 사용하려는 스킬이 기존 다른 상태를 캔슬 할 수 있으면 이 로직은 수정
-
+	DYNAMIC_EVENT_CALL(OnSkillExecuted);
 
 	// 스킬이 없으면 사용 불가능 
 	if (SkillSlotTable.Contains((ESkillSlot)InSlot) == false)

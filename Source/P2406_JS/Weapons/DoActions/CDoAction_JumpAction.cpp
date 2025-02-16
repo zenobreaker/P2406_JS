@@ -13,6 +13,7 @@
 #include "Weapons/CAttachment.h"
 
 #include "GenericTeamAgentInterface.h"
+#include <Characters\CPlayer.h>
 
 void UCDoAction_JumpAction::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCEquipment* InEquipment, const TArray<FDoActionData>& InDoActionDatas, const TArray<FHitData>& InHitDatas)
 {
@@ -25,6 +26,7 @@ void UCDoAction_JumpAction::BeginPlay(ACharacter* InOwner, ACAttachment* InAttac
 
 	REGISTER_EVENT_WITH_REPLACE(base, OnCharacterLanded, this, UCDoAction_JumpAction::SetFallMode);
 	REGISTER_EVENT_WITH_REPLACE(base, OnCharacterLanded, this, UCDoAction_JumpAction::Lanaded_FallAttack);
+	REGISTER_EVENT_WITH_REPLACE(base, OnCharacterLanded, this, UCDoAction_JumpAction::OnLanded);
 
 	Weapon = FHelpers::GetComponent<UCWeaponComponent>(base);
 }
@@ -35,6 +37,7 @@ void UCDoAction_JumpAction::BeginPlay(ACharacter* InOwner, ACAttachment* InAttac
 
 	FallActionDatas = InFallActionDatas;
 	FallHitDatas = InHitDatas;
+
 }
 
 void UCDoAction_JumpAction::Tick(float InDelaTime)
@@ -145,18 +148,22 @@ void UCDoAction_JumpAction::OnAttachmentEndCollision()
 void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (player != nullptr)
+	{
+		if (player->IsJumping() == false)
+			return;
+	}
+	
 	CheckNull(InOther);
-
 	CheckTrue(IsMyTeam(InAttacker, InOther));
-
 	CheckTrue(IsOtherIsMe(InOther));
 
 	Hitted.AddUnique(InOther);
-
-
 	CheckTrue(HitDatas.Num() - 1 < Index);
+	
 	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther, Hitted.Num() <= 1);
-
+	
 	// 처리된 캐릭터에 대한 플래그 설정
 	InOther->Tags.Add(FName("HitByWeapon"));
 }
@@ -372,6 +379,12 @@ void UCDoAction_JumpAction::Lanaded_FallAttack()
 	CheckFalse(bInExtraAction);
 
 	DoAction_FallAttackFlow(FallAttackState::End);
+}
+
+void UCDoAction_JumpAction::OnLanded()
+{
+	Index = 0;
+	bExist = false; 
 }
 
 

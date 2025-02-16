@@ -39,6 +39,13 @@ void UCSkillCollision_Area::CheckCollision()
 {
 	CheckNull(OwnerCharacter);
 
+	if (Index >= HitDatas.Num())
+	{
+		DeactivateCollision();
+
+		return;
+	}
+
 	TArray<FOverlapResult> hitResults;  // 변수명 수정
 	FVector Start = StartLocation;
 
@@ -52,8 +59,8 @@ void UCSkillCollision_Area::CheckCollision()
 	bool bHit = OwnerCharacter->GetWorld()->OverlapMultiByObjectType
 	(
 		hitResults,
-		Start, 
-		FQuat::Identity, 
+		Start,
+		FQuat::Identity,
 		FCollisionObjectQueryParams(ECC_Pawn),
 		CollisionShape,
 		tracePramams
@@ -64,12 +71,27 @@ void UCSkillCollision_Area::CheckCollision()
 		for (auto& Hit : hitResults)
 		{
 			AActor* HitActor = Hit.GetActor();
-			if (HitActor)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-			}
+			if (HitActor == nullptr)
+				continue;
+			if (CheckMyTeam(HitActor) == true)
+				continue;
+
+			ACBaseCharacter* character = Cast<ACBaseCharacter>(HitActor);
+			if (character == nullptr)
+				continue;
+
+			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
+			HitDatas[Index].SendDamage(OwnerCharacter, nullptr, character);
+			if (OnSkillDamageds.Num() > 0)
+				OnSkillDamageds[Index].ExecuteIfBound();
+			if (OnSkillDamagedOneParams.Num() > 0)
+				OnSkillDamagedOneParams[Index].ExecuteIfBound(character);
+			if (OnSkillDamagedThreeParams.Num() > 0)
+				OnSkillDamagedThreeParams[Index].ExecuteIfBound(OwnerCharacter, nullptr, character);
 		}
 	}
+
+	Index++;
 
 }
 

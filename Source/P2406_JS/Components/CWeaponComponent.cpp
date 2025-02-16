@@ -34,6 +34,9 @@ void UCWeaponComponent::BeginPlay()
 	// 주인한테 있는 컴포넌트 가져옴
 	SkillComp = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
 
+	if (SkillComp != nullptr)
+		REGISTER_EVENT_WITH_REPLACE(SkillComp, OnSkillExecuted, this, UCWeaponComponent::End_DoAction);
+
 	// begin 처리가 다 되면 호출
 	InitEquip();
 }
@@ -347,7 +350,7 @@ void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 {
 	FLog::Log("Call Exectue Skill");
 	//TODO: 스킬이 일부 모션 캔슬 가능이라면 이 로직은 수정해야할지도. 
-	CheckFalse(IsIdleMode());
+	//CheckFalse(IsIdleMode());
 	CheckNull(SkillComp);
 
 	SkillComp->ExecuteSkill(InIndex);

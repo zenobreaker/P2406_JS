@@ -8,14 +8,13 @@
 
 //-----------------------------------------------------------------------------
 
-void FSkillPhaseData::ExecutePhase(ACharacter* InCharacter)
+ACSkillEntity* FSkillPhaseData::ExecutePhase(ACharacter* InCharacter)
 {
-	Phase_DoAction(InCharacter);
 	Phase_DoAction(InCharacter);
 	Phase_PlaySoundWave(InCharacter);
 	Phase_PlayEffect(InCharacter);
 	Phase_PlayCameraShake(InCharacter);
-	Phase_SpawnSkillEntity(InCharacter);
+	return Phase_SpawnSkillEntity(InCharacter);
 }
 
 void FSkillPhaseData::Phase_DoAction(ACharacter* InCharacter)
@@ -63,18 +62,18 @@ void FSkillPhaseData::Phase_PlayCameraShake(ACharacter* InCharacter)
 	cameraManager->StartCameraShake(CameraShake);
 }
 
-void FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
+ACSkillEntity* FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
 {
-	CheckNull(InCharacter);
+	CheckNullResult(InCharacter, nullptr);
 
-	SkillEntityData.SpawnSkillEntity(InCharacter);
+	return SkillEntityData.SpawnSkillEntity(InCharacter);
 }
 
 //-----------------------------------------------------------------------------
 
-void FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
+ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 {
-	CheckNull(InCharacter);
+	CheckNullResult(InCharacter, nullptr);
 
 	// 스폰 형태 설정 
 	FActorSpawnParameters param;
@@ -105,8 +104,8 @@ void FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 	FLog::Log("Entity Create");
 	if (skillEntity != nullptr)
 	{
-		skillEntity->SetOwner(InCharacter);
-		skillEntity->SetSkillCollisionType(Type);
+		skillEntity->SetOwnerCharacter(InCharacter);
+		//skillEntity->SetSkillCollisionType(Type);
 		skillEntity->SetSkillEntityData(SkillCollisionData);
 	}
 
@@ -119,4 +118,5 @@ void FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 	//skillCollision->FinishSpawning(transform);
 
 	UGameplayStatics::FinishSpawningActor(skillEntity, transform);
+	return skillEntity;
 }

@@ -14,7 +14,7 @@ enum class ESkillSlot : uint8
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetSkills, const TArray<class UCActiveSkill*>&, InActiveSkills);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillUsed, UCSkillAsset*, InSkillAsset);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillSlotsCleared);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillExecuted);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCSkillComponent : public UActorComponent
@@ -39,6 +39,7 @@ public:
 	FOnSetSkills OnSetSkills;
 	FOnSkillUsed OnSkillUsed;
 	FOnSkillSlotsCleared OnSkillSlotsCleared;
+	FOnSkillExecuted OnSkillExecuted;
 
 public:
 	void ExecuteSkill(int32 InSlot);

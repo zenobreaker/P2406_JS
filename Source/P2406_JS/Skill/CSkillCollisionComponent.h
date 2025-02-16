@@ -6,7 +6,11 @@
 #include "Weapons/AddOns/AttackInterface.h"
 #include "CSkillCollisionComponent.generated.h"
 
-UCLASS()
+DECLARE_DELEGATE(FOnSkillDamaged);
+DECLARE_DELEGATE_OneParam(FOnSkillDamagedOneParam, ACharacter*);
+DECLARE_DELEGATE_ThreeParams(FOnSkillDamagedThreeParams, ACharacter*, AActor*, ACharacter*);
+
+UCLASS(BlueprintType, Blueprintable)
 class P2406_JS_API UCSkillCollisionComponent 
 	: public UActorComponent
 	, public IAttackInterface
@@ -31,7 +35,12 @@ public:
 	virtual void CheckCollision() {}
 
 
-private:
+public: 
+	TArray<FOnSkillDamaged> OnSkillDamageds;
+	TArray<FOnSkillDamagedOneParam> OnSkillDamagedOneParams;
+	TArray<FOnSkillDamagedThreeParams> OnSkillDamagedThreeParams;
+
+protected:
 	bool CheckMyTeam(AActor* InOtherActor);
 
 protected:

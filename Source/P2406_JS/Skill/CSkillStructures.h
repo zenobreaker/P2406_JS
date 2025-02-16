@@ -48,7 +48,10 @@ struct FSkillCollisionData
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category= "Interval")
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	TSubclassOf<class UCSkillCollisionComponent> Collision;
+
+	UPROPERTY(EditAnywhere, Category = "Interval")
 	bool bRepeat = false; 
 
 	UPROPERTY(EditAnywhere, Category = "Interval")
@@ -97,7 +100,7 @@ public:
 public:
 	FSkillEntityData() = default;
 
-	void SpawnSkillEntity(class ACharacter* InCharacter);
+	ACSkillEntity* SpawnSkillEntity(class ACharacter* InCharacter);
 };
 
 /// <summary>
@@ -139,14 +142,14 @@ public:
 
 
 public:
-	void ExecutePhase(class ACharacter* InCharacter);
+	ACSkillEntity* ExecutePhase(class ACharacter* InCharacter);
 
 private:
 	void Phase_DoAction(class ACharacter* InCharacter);
 	void Phase_PlaySoundWave(class ACharacter* InCharacter);
 	void Phase_PlayEffect(class ACharacter* InCharacter);
 	void Phase_PlayCameraShake(class ACharacter* InCharacter);
-	void Phase_SpawnSkillEntity(class ACharacter* InCharacter);	
+	ACSkillEntity* Phase_SpawnSkillEntity(class ACharacter* InCharacter);
 };
 
 /// <summary>

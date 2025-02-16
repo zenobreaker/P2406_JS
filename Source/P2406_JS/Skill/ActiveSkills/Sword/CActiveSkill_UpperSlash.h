@@ -50,7 +50,13 @@ protected:
 	void End_Skill() override;
 
 public:
+	void Create_SkillEffect() override;
+	void Create_Collision() override;
 	void OffSkillDoAction() override;
+
+public:
+	UFUNCTION()
+	void OnHoveringTarget(class ACharacter* InOther);
 
 private:
 	UFUNCTION()
@@ -58,7 +64,10 @@ private:
 
 private:
 	UpperSlashState CurrentState;
+	FVector Location;
 
 private:
 	FTimeline Timeline;
+	FTimerHandle GravityResetHandle; 
+	float OriginGravityScale = 0.0f; 
 };

@@ -7,6 +7,8 @@
 #include "Weapons/AddOns/AttackInterface.h"
 #include "CSkillEntity.generated.h"
 
+
+
 /// <summary>
 /// 맵의 배치되는 스킬 오브젝트 
 /// 스킬의 속성, 충돌관리하는 CollisionComponent를 관리
@@ -20,8 +22,8 @@ class P2406_JS_API ACSkillEntity
 
 
 public:
-	FORCEINLINE void SetOwner(class ACharacter* InCharacter) { OwnerCharacter = InCharacter; }
-	FORCEINLINE void SetSkillCollisionType(ESkillCollisionType InType) { MyType = InType; }
+	FORCEINLINE void SetOwnerCharacter(class ACharacter* InCharacter) { OwnerCharacter = InCharacter; }
+	//FORCEINLINE void SetSkillCollisionType(ESkillCollisionType InType) { MyType = InType; }
 	void SetSkillEntityData(FSkillCollisionData InData);
 
 public:	
@@ -31,6 +33,12 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
 	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+	UFUNCTION()
+	void DestroySkill(); 
+
 protected:
 	void CreateCollisionByType(FSkillCollisionData InData);
 
@@ -42,15 +50,14 @@ public:
 	// 충돌 종료
 	virtual void DeactivateCollision();
 
-
+	void SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs);
+	void SetSkillDamageEventOneParam(TArray<TFunction<void(ACharacter*)>> InFuncs);
+	void SetSkillDamageEventThreeParams(TArray<TFunction<void(ACharacter*, AActor*, ACharacter*)>> InFuncs);
 
 
 public:
 	// IAttackInterface을(를) 통해 상속됨
 	AActor* GetDamageSource() const override;
-
-private:
-	ESkillCollisionType MyType;
 
 private:
 	TArray<AActor*> Hitted;

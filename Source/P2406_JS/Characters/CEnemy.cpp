@@ -98,8 +98,8 @@ void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
 	{
-	case EStateType::Damaged: Damaged(); break;
-	case EStateType::Dead: Dead(); break;
+		case EStateType::Damaged: Damaged(); break;
+		case EStateType::Dead: Dead(); break;
 	}
 }
 
@@ -138,7 +138,7 @@ void ACEnemy::Damaged()
 			hitData->PlayEffect(this);
 		}
 
-		if(DamageData.Event->bFirstHit)
+		if (DamageData.Event->bFirstHit)
 		{
 			hitData->PlayHitStop(this);
 			hitData->PlayCameraShake(this);
@@ -186,7 +186,18 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	float dirZ = 0.0f;
 	if (!!Airborne)
 	{
+		//dirZ = InHitData.Airial;
+		// 공중에 뜨면 공격자 충돌 무시
+		if (InHitData.Airial > 0)
+		{
+			//GetCapsuleComponent()->IgnoreActorWhenMoving(DamageData.Attacker, true);
+			CollsionEnabledType = GetCapsuleComponent()->GetCollisionEnabled();
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
 		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
+	/*	GetCharacterMovement()->GravityScale = 0.5f;
+		GetCharacterMovement()->AirControl = 1.0f;*/
 	}
 
 
@@ -197,9 +208,10 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	{
 		launchStrength *= 0.5f;
 	}
+	//FLog::Print(" z ch : " + FString::SanitizeFloat(dirZ));
 	FVector launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
-	LaunchCharacter(launchVelocity, false, false);
-	
+	LaunchCharacter(launchVelocity, false, true);
+
 	/*FLog::Print("attacker = >  " + DamageData.Attacker->GetName());*/
 	// 나 공격한 대상 바라보기 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
@@ -304,7 +316,7 @@ void ACEnemy::End_Dead()
 void ACEnemy::End_Downed()
 {
 	State->SetIdleMode();
-	bCanAct = true; 
+	bCanAct = true;
 	if (OnCharacterRaised.IsBound())
 		OnCharacterRaised.Broadcast();
 }
@@ -351,10 +363,10 @@ void ACEnemy::StartDownTimer()
 
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
-		{
-			if (!!Condition)
-				Condition->RemoveDownCondition();
-		});
+	{
+		if (!!Condition)
+			Condition->RemoveDownCondition();
+	});
 
 	GetWorld()->GetTimerManager().SetTimer(ChangeConditionHandle, timerDelegate, 5.0f, false);
 }
@@ -374,7 +386,7 @@ void ACEnemy::OnDownConditionActivated()
 	}
 
 	StartDownTimer();
-	bCanAct = true; 
+	bCanAct = true;
 
 	if (OnCharacterDowned.IsBound())
 		OnCharacterDowned.Broadcast();
@@ -408,7 +420,7 @@ void ACEnemy::OnDownConditionDeactivated()
 		PlayAnimMontage(RaiseMontage);
 
 		return;
-	} 
+	}
 
 	End_Downed();
 
