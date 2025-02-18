@@ -1,9 +1,8 @@
 #include "Skill/CSkillStructures.h"
 #include "Global.h"
-#include "GameFramework/Character.h"
+#include "Gameframework/Character.h"
 #include "Weapons/CWeaponStructures.h" 
 #include "Skill/CSkillEntity.h"
-#include "Gameframework/Character.h"
 
 
 //-----------------------------------------------------------------------------
@@ -21,7 +20,7 @@ void FSkillPhaseData::Phase_DoAction(ACharacter* InCharacter)
 {
 	CheckNull(InCharacter);
 
-	ActionData.DoAction(InCharacter);
+	ActionData.DoAction(InCharacter, true);
 }
 
 void FSkillPhaseData::Phase_PlaySoundWave(ACharacter* InCharacter)

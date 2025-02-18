@@ -23,7 +23,9 @@ class P2406_JS_API ACSkillEntity
 
 public:
 	FORCEINLINE void SetOwnerCharacter(class ACharacter* InCharacter) { OwnerCharacter = InCharacter; }
+
 	//FORCEINLINE void SetSkillCollisionType(ESkillCollisionType InType) { MyType = InType; }
+	int32 GetDamagedCount();
 	void SetSkillEntityData(FSkillCollisionData InData);
 
 public:	

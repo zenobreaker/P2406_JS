@@ -8,7 +8,11 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBeginDoAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBeginJumpDoAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndedDoAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndJumpDoAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponBeginAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponEndedAction);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
 
@@ -80,6 +84,10 @@ public:
 	void Handle_BeginDoAction();
 	void Handle_EndDoAction();
 
+
+
+public:
+	//TODO 이거 그냥 스킬한테 줘버릴까 
 	void ExecuteSkill(const int32 InIndex); 
 	void ReleaseSkill(const int32 InIndex);
 
@@ -99,17 +107,44 @@ public:
 
 public:
 	UFUNCTION()
+	void EnableAttack();
+	UFUNCTION()
+	void UnableAttack();
+
+	UFUNCTION()
 	void ChangeGuardValue(float InValue, float InMaxValue);
+	
+	UFUNCTION()
+	void OnHandledTrace
+	(
+		class ACharacter* InAttacker,
+		class AActor* InAttackCauser,
+		class ACharacter* InOther
+	);
+
+	UFUNCTION()
+	void OnHandledJumpTrace
+	(
+		class ACharacter* InAttacker,
+		class AActor* InAttackCauser,
+		class ACharacter* InOther
+	);
 
 public:
 	FWeaponTypeChanged OnWeaponTypeChanged;
 	FGuardValueChanged OnGuardValueChanged; 
 	FBeginDoAction OnBeginDoAction; 
 	FEndedDoAction OnEndedDoAction;
+	FBeginJumpDoAction OnBeginJumpDoAction;
+	FEndJumpDoAction OnEndJumpDoAction;
+	FWeaponBeginAction OnWeaponBeginAction;
+	FWeaponEndedAction OnWeaponEndedAction;
+
 
 private:
 	EWeaponType Type = EWeaponType::Max;
 
+	bool bCanMotionCancle = true; 
 	bool bIsFallingAttack = false; 
 
 private:

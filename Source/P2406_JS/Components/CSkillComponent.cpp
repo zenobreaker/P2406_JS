@@ -8,6 +8,7 @@
 #include "Weapons/CWeaponData.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CMovementComponent.h"
+#include "Skill/ActiveSkills/CActvieSkill_Charge.h"
 
 UCSkillComponent::UCSkillComponent()
 {
@@ -33,6 +34,8 @@ void UCSkillComponent::BeginPlay()
 	}
 
 	Movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
+	
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedChargeVisiable, false);
 }
 
 
@@ -41,6 +44,8 @@ void UCSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	Update_CheckSkillComplete(DeltaTime);
+	
+	HandleChargingSkill();
 
 	// SkillManager가 쿨다운 관리하므로 주석 
 	//Update_SkillCooldown(DeltaTime);
@@ -150,7 +155,6 @@ void UCSkillComponent::BeginSkill()
 	bIsSkillAction = true;
 }
 
-
 void UCSkillComponent::EndSkill()
 {
 	if (!!CurrentSkill)
@@ -160,7 +164,7 @@ void UCSkillComponent::EndSkill()
 
 	bIsSkillAction = false;
 	CurrentSkill = nullptr;
-
+	DYNAMIC_EVENT_CALL(OnCurrentSkillEnded);
 	if (Movement != nullptr && Movement->CanMove() == false)
 		Movement->Move();
 }
@@ -188,6 +192,50 @@ void UCSkillComponent::OffSkillDoAction()
 {
 	CheckNull(CurrentSkill);
 	CurrentSkill->OffSkillDoAction();
+}
+
+
+
+//TODO : Input System 을 개편하면 이 내용을 수정 
+void UCSkillComponent::HandleChargingSkill(/*UCActiveSkill* InActiveSkill*/)
+{
+	//CheckNull(InActiveSkill);
+	CheckNull(CurrentSkill);
+
+	// 이 스킬이 충전 스킬인지 검사 
+	UCActvieSkill_Charge* charge = Cast<UCActvieSkill_Charge>(CurrentSkill);
+	CheckNull(charge); 
+
+	HandleChargingSkill_Visible(charge);
+
+	HandleChargingSkill_Updated(charge);
+}
+
+void UCSkillComponent::HandleChargingSkill_Visible(UCActvieSkill_Charge* InChargeSkill)
+{
+	//CheckNull(InActiveSkill);
+	CheckNull(InChargeSkill);
+
+	// 현재 스킬이 충전 중인지 확인한다. 
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedChargeVisiable, InChargeSkill->GetIsChargeTime());
+
+}
+
+void UCSkillComponent::HandleChargingSkill_Updated(UCActvieSkill_Charge* InChargeSkill)
+{
+	//CheckNull(InActiveSkill);
+	CheckNull(InChargeSkill);
+
+	// 충전 정보
+	DYNAMIC_EVENT_CALL_TWO_PARAMS(OnUpdatedChargeGauge,
+		InChargeSkill->GetCurrentChargeTime(),
+		InChargeSkill->GetMaxChargeTime());
+}
+
+//-----------------------------------------------------------------------------
+void UCSkillComponent::EndedSkill()
+{
+	EndSkill();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

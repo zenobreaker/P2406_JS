@@ -22,4 +22,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateGuardGauge(float InValue, float InMaxValue);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateChargeGaugeVisibility(bool bInVisible);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateChargeGauge(float InValue, float InMaxValue);
 };

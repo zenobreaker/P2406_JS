@@ -15,6 +15,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSetSkills, const TArray<class UCA
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillUsed, UCSkillAsset*, InSkillAsset);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillSlotsCleared);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillExecuted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrentSkillEnded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedChargeVisiable, bool, bInVisible);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdatedChargeGauge, float, InValue, float, InMaxValue);
+
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCSkillComponent : public UActorComponent
@@ -40,6 +45,9 @@ public:
 	FOnSkillUsed OnSkillUsed;
 	FOnSkillSlotsCleared OnSkillSlotsCleared;
 	FOnSkillExecuted OnSkillExecuted;
+	FOnCurrentSkillEnded OnCurrentSkillEnded;
+	FOnUpdatedChargeVisiable OnUpdatedChargeVisiable;
+	FOnUpdatedChargeGauge OnUpdatedChargeGauge;
 
 public:
 	void ExecuteSkill(int32 InSlot);
@@ -67,6 +75,14 @@ public:
 	void OnSkillDoAction(); 
 	void OffSkillDoAction();
 
+private:
+	void HandleChargingSkill(/*class UCActiveSkill* InActiveSkill*/); 
+	void HandleChargingSkill_Visible(class UCActvieSkill_Charge* InChargeSkill);
+	void HandleChargingSkill_Updated(class UCActvieSkill_Charge* InChargeSkill);
+
+public:
+	UFUNCTION()
+	void EndedSkill();
 
 private:
 	class ACharacter* OwnerCharacter; 

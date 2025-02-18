@@ -64,7 +64,7 @@ public:
 
 private:
 	UFUNCTION()
-	void OnHandledTrace(class ACharacter* InAttacker, class AActor* InAttackCauser, class ACharacter* InOther);
+	void OnHandledParryTrace(class ACharacter* InAttacker, class AActor* InAttackCauser, class ACharacter* InOther);
 
 	UFUNCTION()
 	void GuardComp_OnEndTrace();

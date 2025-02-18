@@ -16,7 +16,7 @@ void UCAnimNotifyState_AttackTrace::NotifyBegin(USkeletalMeshComponent* MeshComp
 	UCAttackTraceComponent* ATrace = FHelpers::GetComponent<UCAttackTraceComponent>(MeshComp->GetOwner());
 	CheckNull(ATrace);
 
-	ATrace->SetTrace();
+	ATrace->SetBeginTrace();
 }
 
 void UCAnimNotifyState_AttackTrace::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)

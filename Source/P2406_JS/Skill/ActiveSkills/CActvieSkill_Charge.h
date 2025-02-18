@@ -16,9 +16,17 @@ class P2406_JS_API UCActvieSkill_Charge
 	GENERATED_BODY()
 
 
+public:
+	FORCEINLINE bool GetIsChargeTime() const { return ChargeTime > MinChargeTime; }
+	FORCEINLINE float GetCurrentChargeTime() { return ChargeTime; }
+	FORCEINLINE float GetMaxChargeTime() { return MaxChargeTime; }
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge Info")
 	float MaxChargeTime = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge Info")
+	float MinChargeTime = 0.15f; // 최소 충전 인정 시간 
 
 public:
 	virtual void Tick(float InDeltaTime) override;

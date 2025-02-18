@@ -7,6 +7,48 @@
 #include "NiagaraFunctionLibrary.h"
 #include "CWeaponStructures.generated.h"
 
+USTRUCT()
+struct FAttachmentTrailData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	FName StartSocket = NAME_None;
+
+	UPROPERTY(EditAnywhere)
+	FName EndSocket = NAME_None;
+
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<enum ETrailWidthMode> WidthScaleMode;
+
+	UPROPERTY(EditAnywhere)
+	float Width = 1.0f;
+
+public:
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* TrailEffet;
+
+public:
+	UPROPERTY(EditAnywhere)
+	FName DustSocket = NAME_None;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* DustEffect;
+};
+
+USTRUCT()
+struct FAttachmentSocketData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	FName StartSocket = NAME_None;
+
+	UPROPERTY(EditAnywhere)
+	FName EndSocket = NAME_None;
+};
 
 USTRUCT()
 struct FEquipmentData
@@ -52,7 +94,7 @@ public:
 //	class ACGhostTrail* GhostTrail;
 
 public:
-	virtual void DoAction(class ACharacter* InOwner);
+	virtual void DoAction(class ACharacter* InOwner, bool IsImmedate = false);
 	virtual void End_DoAction(class ACharacter* InOwner);
 	virtual void Destroy_GhostTrail();
 };

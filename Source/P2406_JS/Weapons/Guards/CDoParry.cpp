@@ -30,6 +30,8 @@ void UCDoParry::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, A
 {
 	CheckNull(InAttacker);
 
+	CheckFalse(bParring);
+
 	ParryData.HitData.SendDamage(InAttacker, InAttackCauser, InOther, Hits.Num() <= 1);
 }
 

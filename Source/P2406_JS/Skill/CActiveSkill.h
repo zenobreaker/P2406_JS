@@ -153,4 +153,6 @@ protected:
 protected:
 	TMap<ESkillPhase, TArray<FSkillPhaseData>> PhaseDataTable;
 
+protected:
+	class ACSkillEntity* SkillEntity; 
 };

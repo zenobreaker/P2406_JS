@@ -64,6 +64,13 @@ void UCActiveSkill_UpperSlash::ReleaseSkill()
 	FLog::Log("Release Skill - UpperSlash");
 
 	Location = OwnerCharacter->GetActorLocation();
+	
+	// 이전 페이즈가 반드시 Begin
+	if (CurrentPhase != ESkillPhase::Begin_Charging)
+	{
+		FLog::Log("Failed Charing");
+		return;
+	}
 
 	// 뗐을 때 페이즈 전환
 	ExecutePhase(ESkillPhase::End_Charging);
@@ -86,7 +93,6 @@ void UCActiveSkill_UpperSlash::Begin_Charging()
 void UCActiveSkill_UpperSlash::End_Charging()
 {
 	// 공격이 갈리는 기술 결정하고 바로 다음 스테이트로
-
 	FLog::Log("End_Charging- UpperSlash");
 
 	// 1. 제한된 충전 시간 내로 입력 못한 경우 
@@ -101,6 +107,8 @@ void UCActiveSkill_UpperSlash::End_Charging()
 	{
 		CurrentState = UpperSlashState::GaleShash;
 	}
+
+	ChargeTime = 0.0f;
 
 	ExecutePhase(ESkillPhase::Begin_Skill);
 }
@@ -142,6 +150,7 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 
 	if (entity != nullptr)
 	{
+		SkillEntity = entity;
 		REGISTER_EVENT_WITH_REPLACE(this, OnSkillEnded, entity, ACSkillEntity::DestroySkill);
 	}
 }
@@ -150,6 +159,19 @@ void UCActiveSkill_UpperSlash::End_Skill()
 {
 	Timeline.Stop();
 
+	int32 damagedCount = 0; 
+	if (SkillEntity != nullptr )
+	{
+		damagedCount = SkillEntity->GetDamagedCount();
+	}
+
+	float airialTime = 2.5f; 
+
+	if (damagedCount > 0)
+	{
+		airialTime = 4.0f;
+	}
+
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
 	{
@@ -157,9 +179,7 @@ void UCActiveSkill_UpperSlash::End_Skill()
 
 		OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(GravityResetHandle);
 	});
-	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GravityResetHandle, timerDelegate, 5.0f, false);
-
-
+	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GravityResetHandle, timerDelegate, airialTime, false);
 
 	ExecutePhase(ESkillPhase::Finished);
 }

@@ -90,7 +90,7 @@ void ACAttachment::OffCollisions()
 
 void ACAttachment::HandleAttachmentOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
 {
-	DYNAMIC_EVENT_CALL_THREE_PARAM(OnAttachmentBeginOverlap, InAttacker, InAttackCauser, InOther);
+	DYNAMIC_EVENT_CALL_THREE_PARAMS(OnAttachmentBeginOverlap, InAttacker, InAttackCauser, InOther);
 	/*if (OnAttachmentBeginOverlap.IsBound())
 		OnAttachmentBeginOverlap.Broadcast(OwnerCharacter, this, InOther);*/
 }

@@ -8,7 +8,7 @@
 //#include "Characters/CGhostTrail.h"
 
 
-void FDoActionData::DoAction(ACharacter* InOwner)
+void FDoActionData::DoAction(ACharacter* InOwner, bool IsImmedate)
 {
 	UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
 
@@ -18,8 +18,11 @@ void FDoActionData::DoAction(ACharacter* InOwner)
 			movement->Stop();
 	}
 
-	if (!!Montage)
+	
+	if (!!Montage && IsImmedate == false )
 		InOwner->PlayAnimMontage(Montage, PlayRate);
+	else if(IsImmedate == true)
+		InOwner->GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate, EMontagePlayReturnType::MontageLength, 0.0f);
 
 	//if (!!GhostTrailClass)
 	//{

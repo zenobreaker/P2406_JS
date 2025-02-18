@@ -123,7 +123,7 @@ void UCWeaponComponent::SetFistMode()
 void UCWeaponComponent::SetSwordMode()
 {
 	CheckFalse(IsIdleMode());
-
+	 
 	SetMode(EWeaponType::Sword);
 }
 
@@ -214,10 +214,34 @@ void UCWeaponComponent::PlayFallingAttackMontage()
 	GetJumpDoAction()->PlayFallAttackMontage();
 }
 
+void UCWeaponComponent::EnableAttack()
+{
+	bCanMotionCancle = true; 
+}
+
+void UCWeaponComponent::UnableAttack()
+{
+	bCanMotionCancle = false;
+}
+
 void UCWeaponComponent::ChangeGuardValue(float InValue, float InMaxValue)
 {
 	if (OnGuardValueChanged.IsBound())
 		OnGuardValueChanged.Broadcast(InValue, InMaxValue);
+}
+
+void UCWeaponComponent::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+{
+	CheckNull(GetDoAction()); 
+	
+	GetDoAction()->OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
+}
+
+void UCWeaponComponent::OnHandledJumpTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+{
+	CheckNull(GetJumpDoAction());
+
+	GetJumpDoAction()->OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 }
 
 
@@ -243,6 +267,7 @@ void UCWeaponComponent::DoAction_Heavy()
 	CheckFalse(canInput);
 
 	Handle_DoAction(true);
+	DYNAMIC_EVENT_CALL(OnWeaponBeginAction);
 }
 
 void UCWeaponComponent::Begin_DoAction()
@@ -252,8 +277,6 @@ void UCWeaponComponent::Begin_DoAction()
 	//	GetDoAction()->Begin_DoAction();
 	//}
 	Handle_BeginDoAction();
-
-	DYNAMIC_EVENT_CALL(OnBeginDoAction);
 }
 
 void UCWeaponComponent::End_DoAction()
@@ -263,8 +286,7 @@ void UCWeaponComponent::End_DoAction()
 		GetDoAction()->End_DoAction();
 	}*/
 	Handle_EndDoAction();
-
-	DYNAMIC_EVENT_CALL(OnEndedDoAction);
+	DYNAMIC_EVENT_CALL(OnWeaponEndedAction);
 }
 
 /// <summary>
@@ -274,6 +296,11 @@ void UCWeaponComponent::End_DoAction()
 void UCWeaponComponent::Handle_DoAction(bool InHeavyValue)
 {
 	CheckNull(GetDoAction());
+	// 이 사이에 입력 처리는 가능 
+	//{
+	//}
+	// 행동 불능이라면 공격입력시 동작은 안하게 해야한다. 
+	CheckFalse(bCanMotionCancle);
 
 	// Jump
 	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
@@ -287,12 +314,14 @@ void UCWeaponComponent::Handle_DoAction(bool InHeavyValue)
 		GetJumpDoAction()->SetHeavyActionFlag(InHeavyValue);
 
 		GetJumpDoAction()->DoAction();
+		DYNAMIC_EVENT_CALL(OnBeginJumpDoAction);
 
 		return;
 	}
 
 	// Plane 
 	GetDoAction()->DoAction();
+	DYNAMIC_EVENT_CALL(OnBeginDoAction);
 
 	return;
 }
@@ -300,7 +329,7 @@ void UCWeaponComponent::Handle_DoAction(bool InHeavyValue)
 void UCWeaponComponent::Handle_BeginDoAction()
 {
 	CheckNull(GetDoAction());
-
+	
 	// Jump
 	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
 	if (player != nullptr)
@@ -310,6 +339,7 @@ void UCWeaponComponent::Handle_BeginDoAction()
 			CheckNull(GetJumpDoAction());
 
 			GetJumpDoAction()->Begin_DoAction();
+			//DYNAMIC_EVENT_CALL(OnBeginJumpDoAction);
 
 			return;
 		}
@@ -317,6 +347,7 @@ void UCWeaponComponent::Handle_BeginDoAction()
 
 	// Plane 
 	GetDoAction()->Begin_DoAction();
+	//DYNAMIC_EVENT_CALL(OnBeginDoAction);
 
 	return;
 }
@@ -333,13 +364,14 @@ void UCWeaponComponent::Handle_EndDoAction()
 			CheckNull(GetJumpDoAction());
 			
 			GetJumpDoAction()->End_DoAction();
-
+			DYNAMIC_EVENT_CALL(OnEndJumpDoAction);
 			return;
 		}
 	}
 
 	// Plane 
 	GetDoAction()->End_DoAction();
+	DYNAMIC_EVENT_CALL(OnEndedDoAction);
 }
 
 /// <summary>

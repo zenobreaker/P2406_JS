@@ -77,7 +77,7 @@
 		EventName.Broadcast(InParam);\
 }
 
-#define DYNAMIC_EVENT_CALL_TWO_PARAM(EventName, InParam1, InParam2)\
+#define DYNAMIC_EVENT_CALL_TWO_PARAMS(EventName, InParam1, InParam2)\
 {\
 	if(EventName.IsBound())\
 	{\
@@ -85,7 +85,7 @@
 	}\
 }
 
-#define DYNAMIC_EVENT_CALL_THREE_PARAM(EventName, InParam1, InParam2, InParam3)\
+#define DYNAMIC_EVENT_CALL_THREE_PARAMS(EventName, InParam1, InParam2, InParam3)\
 {\
 	if(EventName.IsBound())\
 	{\

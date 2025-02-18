@@ -19,6 +19,7 @@ class P2406_JS_API UCSkillCollisionComponent
 
 public:
 	FORCEINLINE void AddIgnore(AActor* InActor) { Ignores.Add(InActor); }
+	FORCEINLINE int32 GetDamagedCount() const { return Hitted.Num(); }
 
 protected:
 	virtual void BeginPlay() override;

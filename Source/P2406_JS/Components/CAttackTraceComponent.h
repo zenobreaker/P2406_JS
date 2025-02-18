@@ -4,9 +4,21 @@
 #include "Components/ActorComponent.h"
 #include "CAttackTraceComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledTrace, class ACharacter*, InAttacker,class AActor*, InAttackCauser, class ACharacter*, InOther);
+// 공격 타입을 정의
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+    NormalAttack UMETA(DisplayName = "Normal Attack"),
+    ParryAttack UMETA(DisplayName = "Parry Attack"),
+    JumpAttack UMETA(DisplayName = "Jump Attack")
+};
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledTrace, class ACharacter*, InAttacker,class AActor*, InAttackCauser, class ACharacter*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledJumpTrace, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class ACharacter*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledParryTrace, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class ACharacter*, InOther);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndTrace);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCAttackTraceComponent : public UActorComponent
@@ -33,10 +45,11 @@ protected:
     void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
     
-    void SetTrace(); 
+    void SetBeginTrace(); 
+    
+    UFUNCTION()
     void SetEndTrace();
-    // 트레이스 실행 함수
-    //void PerformTrace(AActor* OwningWeapon, TArray<FHitResult>& OutHits);
+  
 
     void HandleTrace(AActor* InHitActor);
 
@@ -44,17 +57,32 @@ public:
 	UFUNCTION()
     void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
 
+    UFUNCTION()
+    void OnNormalAttack();
+
+    UFUNCTION()
+    void OnParryAttack();
+
+    UFUNCTION()
+    void OnJumpAttack();
+
 private:
     bool GetMyTeam(class AActor* InHitTarget);
 
 public:
     FOnHandledTrace OnHandledTrace;
+    FOnHandledParryTrace OnHandledParryTrace; 
+    FOnHandledJumpTrace OnHandledJumpTrace;
     FOnEndTrace OnEndTrace; 
 
 private:
     bool bIsAttacking = false; 
-    FVector StartVec; 
-    FVector EndVec; 
+
+    // 캡슐 크기 설정 (공격 범위 조절 가능)
+    float CapsuleRadius = 50.0f;  // 가로 범위
+    float CapsuleHalfHeight = 100.0f; // 상하 범위 확장
+    
+    EAttackType CurrentType; 
 
 private:
     TArray<class ACharacter*> Hits; 

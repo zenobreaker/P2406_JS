@@ -162,10 +162,23 @@ void ACPlayer::BeginPlay()
 
 	ensure(Weapon != nullptr);  // Weapon이 nullptr이라면 경고 출력
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
+	ensure(ATrace != nullptr);
 
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
-
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, ACPlayer::OnWeaponTypeChanged);
+
+	REGISTER_EVENT_WITH_REPLACE(Skill, OnCurrentSkillEnded, Weapon, UCWeaponComponent::EnableAttack);
+	REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillExecuted, Weapon, UCWeaponComponent::UnableAttack);
+	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponBeginAction, Skill, UCSkillComponent::EndedSkill);
+	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponEndedAction, Skill, UCSkillComponent::EndedSkill);
+	
+	//ATrace 
+	REGISTER_EVENT_WITH_REPLACE(ATrace, OnHandledTrace, Weapon, UCWeaponComponent::OnHandledTrace);
+	REGISTER_EVENT_WITH_REPLACE(ATrace, OnHandledJumpTrace, Weapon, UCWeaponComponent::OnHandledJumpTrace);
+
+	REGISTER_EVENT_WITH_REPLACE(Weapon, OnBeginDoAction, ATrace, UCAttackTraceComponent::OnNormalAttack);
+	REGISTER_EVENT_WITH_REPLACE(Weapon, OnBeginJumpDoAction, ATrace, UCAttackTraceComponent::OnJumpAttack);
+	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponEndedAction, ATrace, UCAttackTraceComponent::SetEndTrace);
 
 
 	// 일반 캐릭터 UI
@@ -181,6 +194,9 @@ void ACPlayer::BeginPlay()
 
 			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardVisiable, UserInterface, UCUserWidget_Player::UpdateGuardGaugeVisibility);
 			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
+
+			REGISTER_EVENT_WITH_REPLACE(Skill, OnUpdatedChargeVisiable, UserInterface, UCUserWidget_Player::UpdateChargeGaugeVisibility);
+			REGISTER_EVENT_WITH_REPLACE(Skill, OnUpdatedChargeGauge, UserInterface, UCUserWidget_Player::UpdateChargeGauge);
 		}
 	}
 

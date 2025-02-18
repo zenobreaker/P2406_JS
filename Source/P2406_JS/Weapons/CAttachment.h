@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "CWeaponStructures.h"
 #include "AddOns/AttackInterface.h"
 #include "CAttachment.generated.h"
 
@@ -20,16 +21,22 @@ class P2406_JS_API ACAttachment
 	GENERATED_BODY()
 	
 
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Soket")
-	FName TraceGoalName = "";
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Trail")
+	FAttachmentTrailData TrailData;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Soket")
+	FAttachmentSocketData SocketData;
 
 	// 이 Attachment 자체적으로 공격할 수 있는지??
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Attackable")
+	UPROPERTY(EditAnywhere, Category = "Attackable")
 	bool bAttackable = false; 
 
 public:
-	FORCEINLINE FName GetTraceGoalName() { return TraceGoalName; }
+	FORCEINLINE const FAttachmentTrailData& GetTrailData() { return TrailData; }
+	FORCEINLINE const FAttachmentSocketData& GetSocketData() { return SocketData; }
+	FORCEINLINE FName GetSocketStartName() const { return SocketData.StartSocket; }
+	FORCEINLINE FName GetSocketGoalName() const { return SocketData.EndSocket; }
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)

@@ -8,6 +8,13 @@
 #include "Skill/CSkillCollisionComponent.h"
 #include "Skill/Collisions/CSkillCollision_Area.h"
 
+int32 ACSkillEntity::GetDamagedCount()
+{
+	CheckNullResult(SkillCollision, 0);
+
+	return SkillCollision->GetDamagedCount();
+}
+
 void ACSkillEntity::SetSkillEntityData(FSkillCollisionData InData)
 {
 	//FLog::Log("Entity Creator");

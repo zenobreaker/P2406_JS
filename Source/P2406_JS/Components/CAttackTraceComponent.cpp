@@ -38,6 +38,7 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	CheckNull(attachment);
 
 	FHitResult TraceHitResult;
+	//TArray<FHitResult> traceHitResults;
 	FCollisionQueryParams QueryParams;
 
 	QueryParams.AddIgnoredActor(OwnerCharacter);
@@ -48,12 +49,35 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	CheckNull(mesh);
 
 	// 위치 갱신 
-	FName goalName = attachment->GetTraceGoalName();
-	FVector newVec = mesh->GetSocketLocation(goalName);
-	EndVec = newVec;
-	StartVec = OwnerCharacter->GetActorLocation();
+	FName goalName = attachment->GetSocketGoalName();
+	FName startName = attachment->GetSocketStartName();
 
-	bool bCheck = GetWorld()->LineTraceSingleByChannel(TraceHitResult, StartVec, EndVec, ECC_Pawn, QueryParams);
+	FVector startLocation = mesh->GetSocketLocation(startName);
+	FVector endLocation  = mesh->GetSocketLocation(goalName);
+	
+	FVector direction = (endLocation - startLocation).GetSafeNormal();
+	FQuat quat = FRotationMatrix::MakeFromX(direction).ToQuat();
+	// X축으로 긴 캡슐 
+	quat = quat * FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(90.0f));
+
+	// 캡슐 트레이스 실행
+	bool bCheck = GetWorld()->SweepSingleByChannel(
+		TraceHitResult,
+		startLocation,
+		endLocation,
+		quat,
+		ECC_Pawn,  // 충돌 채널
+		FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight),
+		QueryParams
+	);
+
+	//bool bCheck = GetWorld()->LineTraceSingleByChannel(
+	// TraceHitResult, 
+	// StartVec, 
+	// EndVec, 
+	// ECC_Pawn, 
+	// QueryParams
+	// );
 
 	if (bCheck)
 	{
@@ -62,18 +86,22 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 		Hits.AddUnique(Cast<ACharacter>(TraceHitResult.GetActor()));
 		HandleTrace(TraceHitResult.GetActor());
-
-
 	}
-	FColor LineColor = bCheck ? FColor::Red : FColor::Blue;
 
 #ifdef  LOG_UCAttackTraceComponent
-	DrawDebugLine(GetWorld(), StartVec, EndVec, LineColor, false, 1);
+	FColor color = bCheck ? FColor::Red : FColor::Blue;
+	
+	
+	DrawDebugLine(GetWorld(), startLocation, endLocation, color, false, 1);
+	DrawDebugCapsule(GetWorld(), 
+		(endLocation + startLocation) * 0.5f,
+		CapsuleHalfHeight,
+		CapsuleRadius, quat, color, false, 1);
 #endif //  LOG_UCAttackTraceComponent
 
 }
 
-void UCAttackTraceComponent::SetTrace()
+void UCAttackTraceComponent::SetBeginTrace()
 {
 	//StartVec = InStart;
 	//EndVec = InEnd; 
@@ -113,18 +141,54 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	UE_LOG(LogTemp, Log, TEXT("Trace Hit Actor: %s"), *InHitActor->GetName());
 
 	CheckNull(Weapon->GetAttachment());
-	if (OnHandledTrace.IsBound())
+
+
+	switch (CurrentType)
 	{
-		OnHandledTrace.Broadcast(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+		case EAttackType::NormalAttack:
+			DYNAMIC_EVENT_CALL_THREE_PARAMS(
+				OnHandledTrace, OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+			break;
+		case EAttackType::ParryAttack:
+			DYNAMIC_EVENT_CALL_THREE_PARAMS(
+				OnHandledParryTrace, OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+			break;
+		case EAttackType::JumpAttack:
+			DYNAMIC_EVENT_CALL_THREE_PARAMS(
+				OnHandledJumpTrace, OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+			break;
+		default:
+			break;
 	}
 
+	
+	//if (OnHandledTrace.IsBound())
+	//{
+	//	OnHandledTrace.Broadcast(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+	//}
+
 	// 필요한 추가 처리
-	Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
+	//Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
 }
 
 void UCAttackTraceComponent::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
 {
 	SetEndTrace();
+}
+
+void UCAttackTraceComponent::OnNormalAttack()
+{
+	CurrentType = EAttackType::NormalAttack;
+}
+
+void UCAttackTraceComponent::OnParryAttack()
+{
+	CurrentType = EAttackType::ParryAttack;
+}
+
+void UCAttackTraceComponent::OnJumpAttack()
+{
+	CurrentType = EAttackType::JumpAttack;
 }
 
 bool UCAttackTraceComponent::GetMyTeam(AActor* InHitTarget)

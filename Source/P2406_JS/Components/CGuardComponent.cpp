@@ -55,9 +55,9 @@ void UCGuardComponent::BeginPlay()
 	{
 		REGISTER_EVENT_WITH_REPLACE(
 			ATrace
-			, OnHandledTrace
+			, OnHandledParryTrace
 			, this
-			, UCGuardComponent::OnHandledTrace);
+			, UCGuardComponent::OnHandledParryTrace);
 
 		REGISTER_EVENT_WITH_REPLACE(
 			ATrace
@@ -233,7 +233,7 @@ void UCGuardComponent::CalcGuardHP(const float InDeltaTime)
 
 	CheckFalse(DoGuard->GetGuarding());
 
-	DYNAMIC_EVENT_CALL_TWO_PARAM(
+	DYNAMIC_EVENT_CALL_TWO_PARAMS(
 		OnUpdatedGuardGauge,
 		DoGuard->GetGuardHP(),
 		DoGuard->GetMaxGuardHP());
@@ -298,7 +298,7 @@ void UCGuardComponent::End_Parry()
 
 //-----------------------------------------------------------------------------
 
-void UCGuardComponent::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCGuardComponent::OnHandledParryTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
 {
 	// 반격 시 충돌 처리	
 	 // 캐릭터 여부 확인

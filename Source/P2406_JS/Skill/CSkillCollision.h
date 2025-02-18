@@ -7,6 +7,9 @@
 #include "Weapons/AddOns/AttackInterface.h"
 #include "CSkillCollision.generated.h"
 
+/// <summary>
+/// TODO: 삭제 예정 
+/// </summary>
 UCLASS(Abstract)
 class P2406_JS_API ACSkillCollision
 	: public AActor
@@ -19,6 +22,7 @@ public:
 
 public:
 	FORCEINLINE void AddIgnore(AActor* InActor) { Ignores.Add(InActor); }
+	
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
