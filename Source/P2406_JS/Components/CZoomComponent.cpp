@@ -31,6 +31,8 @@ void UCZoomComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	
 	CheckNull(SpringArm);
 
+	CheckFalse(bZoomable);
+	
 	CheckTrue(FMath::IsNearlyEqual(SpringArm->TargetArmLength, TargetArmLength, 1e-6f));
 	SpringArm->TargetArmLength = UKismetMathLibrary::FInterpTo(SpringArm->TargetArmLength, TargetArmLength, DeltaTime, InterpSpeed);
 }

@@ -2,10 +2,22 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 
+#include "Characters/CPlayer.h"
 
-void UCActiveSkill_Stance::SetSkillKey(EKeys InTargetKey)
+
+void UCActiveSkill_Stance::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData)
 {
-	SkillKey = InTargetKey; 
+	Super::BeginPlay_ActiveSkill(InOwner, InFlowData);
+
+	CheckNull(InOwner);
+
+	PlayerController = Cast<APlayerController>(InOwner->GetController());
+}
+
+
+void UCActiveSkill_Stance::SetInputKey(FKey InTargetKey)
+{
+	InputKeyTable.Emplace(InTargetKey, false);
 }
 
 
@@ -18,50 +30,96 @@ void UCActiveSkill_Stance::Input_AnyKey()
 	// 이 스킬이  슬롯으로 부터 호출됨을 의미하는 것 
 	// 그러므로 다음 상태로 전이된다. 
 
-	CheckNull(OwnerCharacter);
-
-	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(OwnerCharacter);
-	CheckNull(input);
-
-
-	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
-	CheckNull(weapon)
-
-	// 기존 Action 이벤트 제거 
-	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
-
-	input->BindAction("Action", EInputEvent::IE_Pressed, weapon,
-		&UCWeaponComponent::DoAction);
-
-	//StartNextPhase(); 
+	PressKey();
 }
 
-void UCActiveSkill_Stance::Begin_WaitInput()
-{
-	Super::Begin_WaitInput();
-	// 입력을 대기한다. 특정 키 입력이 오면 다음 동작으로 간다.
-
-	// 입력을 받을 동안 특정 모션을 실행한다. 
-
-	// 여기서 이 함수 위에 함수를 호출하는게 좋을듯?
-
-	// 스킬의 선행 동작이 끝날 때까지 공격 입력을 받아야 하니까 .. 
-	CheckNull(OwnerCharacter); 
-
-	UInputComponent* input = FHelpers::GetComponent<UInputComponent>(OwnerCharacter);
-	CheckNull(input);
-
-	// 기존 Action 이벤트 제거 
-	input->RemoveActionBinding("Action", EInputEvent::IE_Pressed);
-
-	// 서브 액션 중일 때 이벤트로 변경하기
-	input->BindAction("Action", EInputEvent::IE_Pressed, this,
-		&UCActiveSkill_Stance::Input_AnyKey);
-
-	//StartNextPhase();
-}
 
 void UCActiveSkill_Stance::DefineSkillPhases()
 {
 	SetupDefaultSkillPhase();
+}
+
+bool UCActiveSkill_Stance::CheckPressedSetKey(FKey InKey)
+{
+	CheckNullResult(PlayerController, false);
+	
+	if (PlayerController->IsInputKeyDown(InKey) == true)
+		return true;
+
+	return false; 
+}
+
+bool UCActiveSkill_Stance::CheckPressedSetKey()
+{
+	CheckNullResult(OwnerCharacter, false);
+
+	
+	for (auto& keyPair : InputKeyTable)
+	{
+		if (CheckPressedSetKey(keyPair.Key) == true)
+			return true; 
+	}
+
+	return false;
+}
+
+bool UCActiveSkill_Stance::CheckReleasedSetKey(FKey InKey)
+{
+	CheckNullResult(PlayerController, false);
+
+	if(PlayerController->WasInputKeyJustReleased(InKey) == true)
+		return true;
+
+	return false; 
+}
+
+bool UCActiveSkill_Stance::CheckReleasedSetKey()
+{
+	CheckNullResult(OwnerCharacter, false);
+
+	for (auto& keyPair : InputKeyTable)
+	{
+		if (CheckReleasedSetKey(keyPair.Key) == true)
+			return true; 
+	}
+
+	return false;
+}
+
+void UCActiveSkill_Stance::PressKey()
+{
+	CheckNull(OwnerCharacter);
+
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	CheckNull(player);
+
+	// 플레이어면 플레이어의 입력 동작 기능을 막고 해당 키가 눌렀는지 검사 
+	player->SetCanInput(false);
+
+	if (CheckPressedSetKey())
+	{
+		FLog::Log("Input_Anykey - Do Input ");
+		bCanInput = true;
+		
+		OnPressedKey();
+	}
+}
+
+void UCActiveSkill_Stance::ReleaseKey()
+{
+	CheckNull(OwnerCharacter);
+
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	CheckNull(player);
+
+	// 플레이어면 플레이어의 입력 동작 기능을 막고 해당 키가 눌렀는지 검사 
+	player->SetCanInput(true);
+
+	if (CheckReleasedSetKey())
+	{
+		FLog::Log("Input_Anykey - Release Input ");
+		bCanInput = false;
+
+		OnReleasedKey();
+	}
 }

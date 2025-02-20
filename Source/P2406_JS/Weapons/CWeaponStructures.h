@@ -94,9 +94,10 @@ public:
 //	class ACGhostTrail* GhostTrail;
 
 public:
-	virtual void DoAction(class ACharacter* InOwner, bool IsImmedate = false);
+	virtual void DoAction(class ACharacter* InOwner, /*bool IsImmedate = false, */FName InSectionName = NAME_None);
 	virtual void End_DoAction(class ACharacter* InOwner);
 	virtual void Destroy_GhostTrail();
+	virtual void AnimationPlayback(class ACharacter* InOwner, float InValue);
 };
 
 USTRUCT()

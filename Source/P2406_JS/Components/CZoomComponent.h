@@ -20,6 +20,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	float InterpSpeed = 5.0f; 
 
+public:
+	FORCEINLINE void SetZoomOn() { bZoomable = true; }
+	FORCEINLINE void SetZoomOff() { bZoomable = false; }
+
 public:	
 	UCZoomComponent();
 
@@ -38,4 +42,7 @@ private:
 
 private:
 	float TargetArmLength;
+
+private: 
+	bool bZoomable = true; 
 };

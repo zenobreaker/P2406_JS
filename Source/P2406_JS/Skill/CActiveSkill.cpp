@@ -38,6 +38,7 @@ TFunction<void()> UCActiveSkill::GetPhaseFunction(ESkillPhase InPhase)
 	switch (InPhase)
 	{
 	case ESkillPhase::Start:
+		func = [this]() { Start_Skill(); };
 		break;
 	case ESkillPhase::Begin_Casting:
 		func = [this]() { Begin_Casting(); };
@@ -72,10 +73,12 @@ void UCActiveSkill::SetupDefaultSkillPhase()
 {
 	SkillPhaseTable.Empty();
 
+	SkillPhaseTable.Add({ ESkillPhase::Start, FSkillPhase() });
 	SkillPhaseTable.Add({ ESkillPhase::Begin_Casting, FSkillPhase() });
 	SkillPhaseTable.Add({ ESkillPhase::End_Casting, FSkillPhase() });
 	SkillPhaseTable.Add({ ESkillPhase::Begin_Skill, FSkillPhase() });
 	SkillPhaseTable.Add({ ESkillPhase::End_Skill, FSkillPhase() });
+	SkillPhaseTable.Add({ ESkillPhase::Finished, FSkillPhase() });
 
 	//FlowData 에 있는 것들을 기준으로 설정 
 	for (FSkillPhaseData& phase : SkillFlowData.PhaseDatas)
@@ -93,9 +96,8 @@ void UCActiveSkill::AssignSkillPhase(
 	// 없으면 만들 순 있어도 데이터가 없을 것 
 	if (PhaseDataTable.Contains(InPhase) == false)
 	{
-		//phase.PhaseDatas = ;
 		phase.PhaseFunction = InFunc;
-		SkillPhaseTable.Emplace(InPhase, phase); // 새로 생성된 데이터를 추가
+		SkillPhaseTable.Emplace(InPhase, phase); 
 
 		return;
 	}
@@ -103,7 +105,7 @@ void UCActiveSkill::AssignSkillPhase(
 	// 기존 데이터 업데이트 
 	phase.PhaseDatas = PhaseDataTable[InPhase];
 	phase.PhaseFunction = InFunc;
-	SkillPhaseTable.Emplace(InPhase, phase); // 새로 생성된 데이터를 추가
+	SkillPhaseTable.Emplace(InPhase, phase); 
 }
 
 
@@ -117,7 +119,6 @@ void UCActiveSkill::ExecuteSkill()
 
 	ExecutePhase(ESkillPhase::Start);
 }
-
 void UCActiveSkill::EndSkill()
 {
 	// 스킬 종료 
@@ -125,7 +126,10 @@ void UCActiveSkill::EndSkill()
 
 	// 종료 관련한 이벤트 있으면 처리 
 	DYNAMIC_EVENT_CALL(OnSkillEnded);
-	End_Skill();
+	//End_Skill();
+	//Finish_Skill();
+	// 스킬의 종료 루틴을 위해 End_Skill을 콜하고 End_Skill에서 Finish로 보내라 
+	ExecutePhase(ESkillPhase::End_Skill);
 }
 
 void UCActiveSkill::Update_Cooldown(float InDeltaTime)
@@ -163,6 +167,7 @@ void UCActiveSkill::CastingSkill(float InTime)
 // 값을 받으면 정해진 페이즈 값을 반환 
 ESkillPhase UCActiveSkill::GetNextFlowPhase(ESkillPhase InPhase)
 {
+	//TODO: 다음엔 스킬 플로우 데이터를 토대로 자동완성 시키는 기능을 구현해야 겠다 
 
 	switch (InPhase)
 	{
@@ -181,14 +186,19 @@ ESkillPhase UCActiveSkill::GetNextFlowPhase(ESkillPhase InPhase)
 	return ESkillPhase::Max;
 }
 
+
+
 void UCActiveSkill::ExecutePhase(ESkillPhase InPhase)
 {
+	CheckTrue(ESkillPhase::Max == InPhase);
 	CheckFalse(SkillPhaseTable.Num() > 0);
 
 	CurrentPhase = InPhase;
 	
 	if(InPhase == ESkillPhase::Finished)
 	{
+		Finish_Skill();
+
 		return;
 	}
 
@@ -204,13 +214,27 @@ void UCActiveSkill::ExecutePhase(ESkillPhase InPhase)
 	}
 }
 
-void UCActiveSkill::ExecutePhaseData(ESkillPhase InPhase)
+
+/// <summary>
+/// 아래처럼 데이터를 전달한다. 캐릭터 데이터가 없으면 자동으로 스킬 생성시에 만든 주체자로 
+/// SkillPhaseTable[ESkillPhase::Begin_Casting].PhaseDatas[0].ExecutePhase(OwnerCharacter); 
+/// </summary>
+void UCActiveSkill::RunSkillPhaseData(ESkillPhase InPhase, int32 InIndex, ACharacter* InCharacter)
 {
+	// 캐릭터 데이터가 없으면 자동으로 주체자를 할당 
+	if (InCharacter == nullptr)
+		InCharacter = OwnerCharacter;
+
 	// 기본적으로 0번 인덱스가 데이터가 있다는 가정하의 진행해야함
 	if (SkillPhaseTable[InPhase].PhaseDatas.Num() > 0)
-		SkillPhaseTable[InPhase].PhaseDatas[0].ExecutePhase(OwnerCharacter);
+		SkillPhaseTable[InPhase].PhaseDatas[InIndex].ExecutePhase(InCharacter);
 }
 
+
+void UCActiveSkill::OnChangeNextSkillPhase()
+{
+	OnChangeNextSkillPhase(CurrentPhase);
+}
 
 void UCActiveSkill::OnChangeNextSkillPhase(ESkillPhase InPhase)
 {

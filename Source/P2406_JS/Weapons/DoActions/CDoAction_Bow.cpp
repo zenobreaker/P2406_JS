@@ -10,6 +10,7 @@
 
 UCDoAction_Bow::UCDoAction_Bow()
 {
+
 }
 
 void UCDoAction_Bow::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCEquipment* InEquipment, const TArray<FDoActionData>& InDoActionDatas, const TArray<FHitData>& InHitDatas)

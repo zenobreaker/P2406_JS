@@ -4,12 +4,15 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+
 #include "Components/CStateComponent.h"
 #include "Weapons/Attachments/CAttachment_Bow.h"
 
+#include "Curves/CurveVector.h"
+
 UCSubAction_Bow::UCSubAction_Bow()
 {
-	//FHelpers::GetAsset<UCurveVector>(&Curve, "/Script/Engine.CurveVector'/Game/Weapons/Bow/Curve_Aiming.Curve_Aiming'");
+	FHelpers::GetAsset<UCurveVector>(&Curve, "/Script/Engine.CurveVector'/Game/Weapons/Bow/Curve_Aiming.Curve_Aiming'");
 }
 
 void UCSubAction_Bow::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCDoAction* InDoAction)

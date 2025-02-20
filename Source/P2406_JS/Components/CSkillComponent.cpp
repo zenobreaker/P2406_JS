@@ -115,11 +115,11 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 			CurrentSkill->OnActionBegin.Clear();
 			CurrentSkill->OnActionEnd.Clear();
 
-			CurrentSkill->OnSoaringBegin.Clear();
+			/*CurrentSkill->OnSoaringBegin.Clear();
 			CurrentSkill->OnSoaringEnd.Clear();
 
 			CurrentSkill->OnSoaringBegin.AddDynamic(this, &UCSkillComponent::OnSkillSoaring);
-			CurrentSkill->OnSoaringEnd.AddDynamic(this, &UCSkillComponent::OffSkillSoaring);
+			CurrentSkill->OnSoaringEnd.AddDynamic(this, &UCSkillComponent::OffSkillSoaring);*/
 		}
 
 		// 실행된 스킬 목록에 넣어놓기

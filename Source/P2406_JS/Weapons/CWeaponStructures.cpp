@@ -8,7 +8,7 @@
 //#include "Characters/CGhostTrail.h"
 
 
-void FDoActionData::DoAction(ACharacter* InOwner, bool IsImmedate)
+void FDoActionData::DoAction(ACharacter* InOwner, /*bool IsImmedate,*/ FName InSectionName)
 {
 	UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(InOwner);
 
@@ -19,10 +19,9 @@ void FDoActionData::DoAction(ACharacter* InOwner, bool IsImmedate)
 	}
 
 	
-	if (!!Montage && IsImmedate == false )
-		InOwner->PlayAnimMontage(Montage, PlayRate);
-	else if(IsImmedate == true)
-		InOwner->GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate, EMontagePlayReturnType::MontageLength, 0.0f);
+	if (!!Montage)
+		InOwner->PlayAnimMontage(Montage, PlayRate, InSectionName);
+
 
 	//if (!!GhostTrailClass)
 	//{
@@ -52,6 +51,13 @@ void FDoActionData::Destroy_GhostTrail()
 {
 	//if (!!GhostTrail)
 	//	GhostTrail->Destroy();
+}
+
+void FDoActionData::AnimationPlayback(ACharacter* InOwner, float InValue)
+{
+	CheckNull(InOwner); 
+
+	InOwner->GetMesh()->GetAnimInstance()->Montage_SetPlayRate(Montage, InValue);
 }
 
 

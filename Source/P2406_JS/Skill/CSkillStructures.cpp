@@ -7,20 +7,25 @@
 
 //-----------------------------------------------------------------------------
 
-ACSkillEntity* FSkillPhaseData::ExecutePhase(ACharacter* InCharacter)
+ACSkillEntity* FSkillPhaseData::ExecutePhase(ACharacter* InCharacter, FName InSectionName)
 {
-	Phase_DoAction(InCharacter);
+	Phase_DoAction(InCharacter, InSectionName);
 	Phase_PlaySoundWave(InCharacter);
 	Phase_PlayEffect(InCharacter);
 	Phase_PlayCameraShake(InCharacter);
 	return Phase_SpawnSkillEntity(InCharacter);
 }
 
-void FSkillPhaseData::Phase_DoAction(ACharacter* InCharacter)
+void FSkillPhaseData::Phase_AnimationPlayback(ACharacter* InCharacter, float InValue)
+{
+	ActionData.AnimationPlayback(InCharacter, InValue);
+}
+
+void FSkillPhaseData::Phase_DoAction(ACharacter* InCharacter, FName InSectionName)
 {
 	CheckNull(InCharacter);
 
-	ActionData.DoAction(InCharacter, true);
+	ActionData.DoAction(InCharacter, InSectionName);
 }
 
 void FSkillPhaseData::Phase_PlaySoundWave(ACharacter* InCharacter)

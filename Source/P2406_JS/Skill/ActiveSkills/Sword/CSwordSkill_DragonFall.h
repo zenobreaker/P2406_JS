@@ -15,7 +15,7 @@ public:
 	float TargetArmLength = 100;
 
 	UPROPERTY(EditAnywhere)
-	FVector SocketOffset = FVector(0, 30, 10);
+	FVector SocketOffset = FVector(30, 30, 10);
 
 	UPROPERTY(EditAnywhere)
 	bool bEnableCameraLag = false;
@@ -24,24 +24,36 @@ public:
 	FVector CameraLocation = FVector::OneVector;
 };
 
+UENUM()
+enum class DrangonFallFlow
+{
+	None = -1,
+	BC_CamaraZoomIn = 0,//Begin_Casting
+	BC_Rising,	// Begin_Casting
+	IW_Hover,  // InputForWait 
+	Landing,	// End_Skill
+	End,		// Finish
+};
 
 
 UCLASS()
-class P2406_JS_API UCSwordSkill_DragonFall : public UCActiveSkill_Stance
+class P2406_JS_API UCSwordSkill_DragonFall
+	: public UCActiveSkill_Stance
 {
 	GENERATED_BODY()
 
 public:
 	UCSwordSkill_DragonFall();
-	 
-
 
 public:
 	UPROPERTY(EditAnywhere)
 	class UCurveVector* Curve;
 
 	UPROPERTY(EditAnywhere)
-	float HoldDuration = 5.0f; 
+	float PlayRate = 1.0f;
+
+	UPROPERTY(EditAnywhere)
+	float HoldDuration = 5.0f;
 
 	UPROPERTY(EditAnywhere)
 	FDFAimData AimData;
@@ -53,43 +65,43 @@ public:
 
 
 protected:
-	virtual void DefineSkillPhases() override;
+	ESkillPhase GetNextFlowPhase(ESkillPhase InPhase) override;
+	void DefineSkillPhases() override;
+
+	void OnPressedKey() override;
+	void OnReleasedKey() override;
+
 
 public:
-	void OnSoarCharacter();
-	void OnDescent();
-
-public:
-	void Begin_Casting() override; 
-	void End_Casting() override; 
-
-	//void Create_Collision() override; 
-public:
+	void Start_Skill() override;
+	void Begin_Casting() override;
+	void End_Casting() override;
 	// 특정 키 입력 
-	virtual void Input_AnyKey() override;
-
+	void Input_AnyKey() override;
+	void Begin_Skill() override; 
+	void End_Skill() override; 
+	void Finish_Skill() override;
 
 public:
-	virtual void OffSkillCasting() override;
-
-	virtual void OnSkillDoAction() override; 
-	virtual void OffSkillDoAction() override; 
+	void OnSkillDoAction() override;
 
 	void RestoreGravity();
+	
+	void OnDescent();
 
-
-private: 
+private:
 	UFUNCTION()
 	void OnSoaring(FVector Output);
 	UFUNCTION()
 	void OnTimelimeFinished();
 	UFUNCTION()
-	void OnCheckIfLand(); 
+	void OnLanded();
 
-
+	void CameraFinished();
 private:
+	void SetOriginCameraData();
 	void SetCameraData();
-	void ResetCameraData(); 
+	void ResetCameraData();
 
 private:
 	UFUNCTION()
@@ -98,11 +110,8 @@ private:
 
 private:
 	float SoarSpeed = 1000.0f;
-
 	float DescentSpeed = 10000.0f;
-
 	float lmitCameraPitch = 80.0f;
-
 	float originCameraPtich = 0.0f;
 
 private:
@@ -110,25 +119,33 @@ private:
 
 
 private:
-	FTimeline Timeline;
-	FTimeline CameraTimeline;
+	struct InteralTimelineData
+	{
+		FTimeline Timeline;
+		FTimerHandle  Handle;
+		bool bTimelineFinished;
 
-	FTimerHandle HoldTimerHandle; 
-	FTimerHandle LandCheckTimerHandle; 
-
-private: 
-	class USpringArmComponent* SpringArm;
-	class UCameraComponent* Camera;
-
-private: 
-	bool bClickedKey = false; 
+		float MaxValue = 0.0f;
+	};
+	InteralTimelineData SoarTimelineData;
+	InteralTimelineData CameraTimelineData;
 
 private:
+	class USpringArmComponent* SpringArm;
+	class UCameraComponent* Camera;
+	class UCZoomComponent* Zoom;
+
+private:
+	bool bClickedKey = false;
+	bool bEndSkillCall = false; //TODO : 하드 코딩의 표본 임시로 막는 거니 방법을 생각 해야한다.
+
+private:
+	DrangonFallFlow CurrDFFlow;
 	FDFAimData OriginData;
 
 	FVector ForwardVector;
 	FVector OriginVector;
 	FVector CameraLocation;// 입력되었을 때 방향 
 	FRotator CameraRotator;
- 
+
 };
