@@ -22,12 +22,19 @@ void UCSkillCollision_Area::ActivateCollision()
 
 	StartLocation = OwnerCharacter->GetActorLocation();
 
-	GetWorld()->GetTimerManager().SetTimer(
-		TimerHandle,
-		this,
-		&UCSkillCollisionComponent::CheckCollision,
-		CollisionData.CollisionInterval,
-		true);
+	if (CollisionData.bRepeat)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			TimerHandle,
+			this,
+			&UCSkillCollisionComponent::CheckCollision,
+			CollisionData.CollisionInterval,
+			true);
+	}
+	else
+	{
+		CheckCollision();
+	}
 }
 
 void UCSkillCollision_Area::DeactivateCollision()

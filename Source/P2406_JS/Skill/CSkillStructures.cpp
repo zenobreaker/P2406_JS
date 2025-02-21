@@ -78,6 +78,7 @@ ACSkillEntity* FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
 ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 {
 	CheckNullResult(InCharacter, nullptr);
+	CheckNullResult(SkillEntity, nullptr);
 
 	// 스폰 형태 설정 
 	FActorSpawnParameters param;
@@ -105,9 +106,9 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 		);
 
-	FLog::Log("Entity Create");
 	if (skillEntity != nullptr)
 	{
+		FLog::Log("Entity Create");
 		skillEntity->SetOwnerCharacter(InCharacter);
 		//skillEntity->SetSkillCollisionType(Type);
 		skillEntity->SetSkillEntityData(SkillCollisionData);

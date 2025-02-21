@@ -26,28 +26,25 @@ class P2406_JS_API UCSkillComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY()
+	class UCActiveSkill* CurrentSkill;
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnSetSkills OnSetSkills;
+
 public:	
 	UCSkillComponent();
 
 public:
 	FORCEINLINE bool GetIsSkillAction() { return bIsSkillAction; }
-	FORCEINLINE bool GetSkillSoaring() { return bIsSkillSoaring; }
 
 protected:
 	virtual void BeginPlay() override;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-public:
-	UPROPERTY(BlueprintAssignable, Category = "Events")
-	FOnSetSkills OnSetSkills;
-	FOnSkillUsed OnSkillUsed;
-	FOnSkillSlotsCleared OnSkillSlotsCleared;
-	FOnSkillExecuted OnSkillExecuted;
-	FOnCurrentSkillEnded OnCurrentSkillEnded;
-	FOnUpdatedChargeVisiable OnUpdatedChargeVisiable;
-	FOnUpdatedChargeGauge OnUpdatedChargeGauge;
 
 public:
 	void ExecuteSkill(int32 InSlot);
@@ -57,11 +54,6 @@ public:
 
 	void SetEmptySkillList();
 	void SetSkillList(const TArray<class UCActiveSkill*>& InActiveSkills);
-private:
-	UFUNCTION()
-	void OnSkillSoaring();
-	UFUNCTION()
-	void OffSkillSoaring();
 
 private:
 	void Update_CheckSkillComplete(float InDeltaTime);
@@ -70,10 +62,7 @@ private:
 public:
 	void BeginSkill(); 
 	void EndSkill();
-	void OnSkillCasting();
-	void OffSkillCasting();
-	void OnSkillDoAction(); 
-	void OffSkillDoAction();
+
 
 private:
 	void HandleChargingSkill(/*class UCActiveSkill* InActiveSkill*/); 
@@ -81,27 +70,32 @@ private:
 	void HandleChargingSkill_Updated(class UCActvieSkill_Charge* InChargeSkill);
 
 public:
+	void OnSkillCasting();
+	void OffSkillCasting();
+	void OnSkillDoAction(); 
+	void OffSkillDoAction();
+
+public:
 	UFUNCTION()
 	void EndedSkill();
 
+public:
+	FOnSkillUsed OnSkillUsed;
+	FOnSkillSlotsCleared OnSkillSlotsCleared;
+	FOnSkillExecuted OnSkillExecuted;
+	FOnCurrentSkillEnded OnCurrentSkillEnded;
+	FOnUpdatedChargeVisiable OnUpdatedChargeVisiable;
+	FOnUpdatedChargeGauge OnUpdatedChargeGauge;
+
 private:
-	class ACharacter* OwnerCharacter; 
+	bool bIsSkillAction;
+
+private:
 	TMap<ESkillSlot, class UCActiveSkill*> SkillSlotTable;
-
-	bool bIsSkillAction = false; 
-	bool bIsSkillSoaring = false; 
-
-private:
-	//UPROPERTY()
-	//class UCActiveSkill* Skills[(int32)ESkillSlot::Max];
-
-	UPROPERTY()
-	class UCActiveSkill* CurrentSkill; 
-
 	TArray<UCActiveSkill*> ActiveSkills;
 
-
 private:
+	class ACharacter* OwnerCharacter; 
 	class UCSkillManager* SkillManager; 
 	class UCMovementComponent* Movement;
 };

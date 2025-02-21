@@ -65,13 +65,6 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (OwnerCharacter->bUseControllerRotationYaw == false)
 		Direction = 0;
 
-
-	// 애님인스턴스에서 처리함 .
-	if (Skill != nullptr)
-	{
-		bSkillSoaring = Skill->GetSkillSoaring(); 
-	}
-
 	// Falling Attack
 	ChangeFallingAttack();
 

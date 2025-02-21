@@ -1,20 +1,20 @@
 #include "Components/CSkillComponent.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
-#include "Skill/CActiveSkill.h"
-#include "GameInstances/CGameInstance.h"
-#include "GameInstances/CSkillManager.h"
 
-#include "Weapons/CWeaponData.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CMovementComponent.h"
+#include "GameInstances/CGameInstance.h"
+#include "GameInstances/CSkillManager.h"
+#include "Skill/CActiveSkill.h"
 #include "Skill/ActiveSkills/CActvieSkill_Charge.h"
+#include "Weapons/CWeaponData.h"
+
 
 UCSkillComponent::UCSkillComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
-
 
 void UCSkillComponent::BeginPlay()
 {
@@ -53,78 +53,47 @@ void UCSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCSkillComponent::ExecuteSkill(int32 InSlot)
 {
+	CheckNull(SkillManager);
 	CheckTrue((ESkillSlot)InSlot >= ESkillSlot::Max);
 	CheckTrue(SkillSlotTable.IsEmpty());
 	CheckTrue(SkillSlotTable[(ESkillSlot)InSlot] == nullptr);
-
-	CheckNull(SkillManager);
-
-	//TODO: 사용하려는 스킬이 기존 다른 상태를 캔슬 할 수 있으면 이 로직은 수정
-	DYNAMIC_EVENT_CALL(OnSkillExecuted);
-
-	// 스킬이 없으면 사용 불가능 
-	if (SkillSlotTable.Contains((ESkillSlot)InSlot) == false)
-		return;
-
-	//FLog::Print(FString::FromInt(InSlot) + " Call Skill");
-
-	if (bIsSkillAction == true)
-	{
-		//FLog::Print("Not Use a Skill Because Player is doing Skill");
-		return;
-	}
+	CheckTrue(bIsSkillAction);
+	CheckFalse(SkillSlotTable.Contains((ESkillSlot)InSlot));
 
 	// 해당 스킬의 상태를 체크하여 쿨다운이나 실행 여부 확인
 	auto* skill = SkillSlotTable.FindRef((ESkillSlot)InSlot);
-	if (skill == nullptr)
-	{
-		//FLog::Log("Skill is Nullptr");
-		return;
-	}
+	CheckNull(skill);
+	CheckTrue(skill->GetIsExecute());
 
 	// 스킬 실행 
 	bool check = false;
-	//check |= skill->IsCooldown() == true;
 	{
 		int32 skillID = skill->GetSkillID();
 		check |= SkillManager->IsCompleteCooldown(skillID);
 	}
+	// 무슨 버그인지는 몰라도 아래 check가 false여서 최종적으로 false인데도 불구하고 실행되는 버그
+	CheckFalse(check);
 
-	if (check == false)
+	//TODO: 사용하려는 스킬이 기존 다른 상태를 캔슬 할 수 있으면 이 로직은 수정
+	DYNAMIC_EVENT_CALL(OnSkillExecuted);
+
+	// 스킬 매니저에게 쿨다운 값 전달 
 	{
-		//FLog::Print("Not Use a Skill Because Skill is Cooldown");
-
-		return; // 무슨 버그인지는 몰라도 아래 check가 false여서 최종적으로 false인데도 불구하고 실행되는 버그
+		int32 skillID = skill->GetSkillID();
+		float cooldown = skill->GetCooldown();
+		SkillManager->ExecuteSkill(skillID, cooldown);
 	}
 
-	check |= skill->GetIsExecute() == false;
+	//skill->OnActionBegin.Clear();
+	//skill->OnActionEnd.Clear();
 
-	if (check == true)
-	{
-		// 스킬 매니저에게 쿨다운 값 전달 
-		{
-			int32 skillID = skill->GetSkillID();
-			float cooldown = skill->GetCooldown();
-			SkillManager->ExecuteSkill(skillID, cooldown);
-		}
+	// 스킬 실행 
+	skill->ExecuteSkill();
 
-		skill->ExecuteSkill();
-		CurrentSkill = SkillSlotTable[(ESkillSlot)InSlot];
-		if (CurrentSkill != nullptr)
-		{
-			CurrentSkill->OnActionBegin.Clear();
-			CurrentSkill->OnActionEnd.Clear();
+	// 실행된 스킬 목록에 넣어놓기
+	ActiveSkills.Add(skill);
 
-			/*CurrentSkill->OnSoaringBegin.Clear();
-			CurrentSkill->OnSoaringEnd.Clear();
-
-			CurrentSkill->OnSoaringBegin.AddDynamic(this, &UCSkillComponent::OnSkillSoaring);
-			CurrentSkill->OnSoaringEnd.AddDynamic(this, &UCSkillComponent::OffSkillSoaring);*/
-		}
-
-		// 실행된 스킬 목록에 넣어놓기
-		ActiveSkills.Add(skill);
-	}
+	CurrentSkill = skill;
 }
 
 void UCSkillComponent::ReleaseSkill(int32 InSlot)
@@ -168,32 +137,6 @@ void UCSkillComponent::EndSkill()
 	if (Movement != nullptr && Movement->CanMove() == false)
 		Movement->Move();
 }
-void UCSkillComponent::OnSkillCasting()
-{
-	CheckNull(CurrentSkill);
-	//FLog::Print("Skill Comp => On Skill Cast");
-	CurrentSkill->OnSkillCasting();
-
-}
-void UCSkillComponent::OffSkillCasting()
-{
-	CheckNull(CurrentSkill);
-	//FLog::Print("Skill Comp => Off Skill Cast");
-	CurrentSkill->OffSkillCasting();
-}
-
-void UCSkillComponent::OnSkillDoAction()
-{
-	CheckNull(CurrentSkill);
-	CurrentSkill->OnSkillDoAction();
-}
-
-void UCSkillComponent::OffSkillDoAction()
-{
-	CheckNull(CurrentSkill);
-	CurrentSkill->OffSkillDoAction();
-}
-
 
 
 //TODO : Input System 을 개편하면 이 내용을 수정 
@@ -282,17 +225,6 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InActiveSkills
 		OnSetSkills.Broadcast(InActiveSkills);
 }
 
-void UCSkillComponent::OnSkillSoaring()
-{
-	//FLog::Log("Skill Soar Begin ");
-	bIsSkillSoaring = true;
-}
-
-void UCSkillComponent::OffSkillSoaring()
-{
-	//FLog::Log("Skill Soar End ");
-	bIsSkillSoaring = false;
-}
 
 void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 {
@@ -323,4 +255,39 @@ void UCSkillComponent::Update_SkillCooldown(float InDeltaTime)
 	}
 }
 
+//----------------------------------------------------------------------------------------
+void UCSkillComponent::OnSkillCasting()
+{
+	CheckNull(CurrentSkill);
+	CurrentSkill->OnSkillCasting();
 
+}
+void UCSkillComponent::OffSkillCasting()
+{
+	CheckNull(CurrentSkill);
+	CurrentSkill->OffSkillCasting();
+}
+
+void UCSkillComponent::OnSkillDoAction()
+{
+	CheckNull(CurrentSkill);
+	CurrentSkill->OnSkillDoAction();
+}
+
+void UCSkillComponent::OffSkillDoAction()
+{
+	CheckNull(CurrentSkill);
+	CurrentSkill->OffSkillDoAction();
+}
+
+//void UCSkillComponent::OnSkillSoaring()
+//{
+//	//FLog::Log("Skill Soar Begin ");
+//	bIsSkillSoaring = true;
+//}
+//
+//void UCSkillComponent::OffSkillSoaring()
+//{
+//	//FLog::Log("Skill Soar End ");
+//	bIsSkillSoaring = false;
+//}

@@ -26,9 +26,7 @@ void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillF
 
 	// 착지 이벤트 연결
 	{
-		ACBaseCharacter* bc = Cast<ACBaseCharacter>(InOwner);
-
-		REGISTER_EVENT_WITH_REPLACE(bc, OnCharacterLanded, this, UCSwordSkill_DragonFall::OnLanded);
+		Base = Cast<ACBaseCharacter>(InOwner);
 	}
 
 	// 입력 키 설정
@@ -168,17 +166,23 @@ void UCSwordSkill_DragonFall::Start_Skill()
 	// 타이머 핸들 초기화 
 	{
 		// 해당 타이머 핸들 기능 제거 
+		OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SoarTimelineData.Handle);
+		OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(CameraTimelineData.Handle);
+
 		SoarTimelineData.Handle.Invalidate();
 		CameraTimelineData.Handle.Invalidate();
+
+		SoarTimelineData.bTimelineFinished = false; 
+		CameraTimelineData.bTimelineFinished = false; 
 	}
+
+	// 자주 쓰이는 것이 아니니까 이벤트를 다시 생성 
+	REGISTER_EVENT_WITH_REPLACE(Base, OnCharacterLanded, this, UCSwordSkill_DragonFall::OnLanded);
 
 	bCanInput = false;
 	bEndSkillCall = false;
-	SoarTimelineData.bTimelineFinished = false; 
-	CameraTimelineData.bTimelineFinished = false; 
 
 	CameraLocation = FVector::ZeroVector;
-
 	OriginVector = OwnerCharacter->GetActorLocation();
 
 	ExecutePhase(ESkillPhase::Begin_Casting);
@@ -247,6 +251,13 @@ void UCSwordSkill_DragonFall::End_Skill()
 
 void UCSwordSkill_DragonFall::Finish_Skill()
 {
+	UNREGISTER_EVENT(Base, OnCharacterLanded, this, UCSwordSkill_DragonFall::OnLanded);
+	
+
+	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SoarTimelineData.Handle);
+	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(CameraTimelineData.Handle);
+
+	RestoreGravity();
 	ReleaseKey();
 }
 
@@ -338,7 +349,7 @@ void UCSwordSkill_DragonFall::OnLanded()
 		Create_Collision();	
 	
 	// 착지되면 강제로 스킬 종료 
-	// Notify에게 맡긴다... 
+	// Notify 에게 맡긴다... 
 	ExecutePhase(ESkillPhase::End_Skill);
 }
 

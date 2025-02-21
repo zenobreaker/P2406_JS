@@ -37,7 +37,6 @@ protected:
 public:
 	FORCEINLINE int32 GetSkillID() const { return SkillInfo.SkillID; }
 	FORCEINLINE float GetCooldown() const { return SkillInfo.CoolDown; }
-
 	FORCEINLINE bool IsCooldown() const { return currentCooldown <= 0.0f; }
 	FORCEINLINE bool GetIsExecute() const
 	{
@@ -47,23 +46,19 @@ public:
 	FORCEINLINE bool GetCompleteCasting() const { return currentCastingTime >= SkillInfo.CastingTime; }
 
 
-
-
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Skill")
 	FOnSkillCooldownUpdated OnSkillCooldownUpdated;
 
-	UPROPERTY(BlueprintAssignable, Category = "Skill")
-	FOnActionBegin OnActionBegin;
+	//UPROPERTY(BlueprintAssignable, Category = "Skill")
+	//FOnActionBegin OnActionBegin;
 
-	UPROPERTY(BlueprintAssignable, Category = "Skill")
-	FOnActionEnd OnActionEnd;
+	//UPROPERTY(BlueprintAssignable, Category = "Skill")
+	//FOnActionEnd OnActionEnd;
 
 public:
 	virtual void BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData);
-
 	virtual void Tick(float InDeltaTime);
-
 
 protected:
 	TFunction<void()> GetPhaseFunction(ESkillPhase InPhase);
@@ -73,8 +68,9 @@ protected:
 
 public:
 	virtual void ExecuteSkill();
-	// 해당 스킬을 뗐을 때 발동
 	virtual void ReleaseSkill() {}
+
+public:
 	// 강제로 스킬을 종료한다. 
 	void EndSkill();
 
@@ -102,14 +98,12 @@ public:
 	virtual void Begin_Skill() {}
 	virtual void End_Skill() {}
 	virtual void Finish_Skill() {}
-
-public:
 	virtual void Create_SkillEffect() {}
 	virtual void Create_Collision() {}
 
+public:
 	virtual void OnSkillCasting() {}
 	virtual void OffSkillCasting() {}
-
 	virtual void OnSkillDoAction() {}
 	virtual void OffSkillDoAction() {}
 
@@ -118,15 +112,14 @@ protected:
 	FOnSkillEnded OnSkillEnded;
 
 protected:
-	FSkillFlowData SkillFlowData;
-
-protected:
 	bool bIsAction = false;
 	float currentCooldown = 0.0f;
 	float currentCastingTime;
 	float currentDelay;
-
 	ESkillPhase CurrentPhase = ESkillPhase::Max;
+
+	FSkillFlowData SkillFlowData;
+
 protected:
 	struct FSkillPhase
 	{
@@ -143,8 +136,6 @@ protected:
 	};
 	// 해당 페이즈에서 처리될 내용 및 다음 페이즈로 보내든가의 조건 
 	TMap<ESkillPhase, FSkillPhase> SkillPhaseTable;
-
-protected:
 	TMap<ESkillPhase, TArray<FSkillPhaseData>> PhaseDataTable;
 
 protected:

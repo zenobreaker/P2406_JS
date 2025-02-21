@@ -58,6 +58,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	FDFAimData AimData;
 
+	UPROPERTY(EditAnywhere)
+	float SoarSpeed = 1000.0f;
+
 public:
 	void BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData) override;
 
@@ -109,7 +112,7 @@ private:
 
 
 private:
-	float SoarSpeed = 1000.0f;
+
 	float DescentSpeed = 10000.0f;
 	float lmitCameraPitch = 80.0f;
 	float originCameraPtich = 0.0f;
@@ -134,7 +137,7 @@ private:
 	class USpringArmComponent* SpringArm;
 	class UCameraComponent* Camera;
 	class UCZoomComponent* Zoom;
-
+	class ACBaseCharacter* Base;
 private:
 	bool bClickedKey = false;
 	bool bEndSkillCall = false; //TODO : 하드 코딩의 표본 임시로 막는 거니 방법을 생각 해야한다.
@@ -143,9 +146,6 @@ private:
 	DrangonFallFlow CurrDFFlow;
 	FDFAimData OriginData;
 
-	FVector ForwardVector;
 	FVector OriginVector;
 	FVector CameraLocation;// 입력되었을 때 방향 
-	FRotator CameraRotator;
-
 };

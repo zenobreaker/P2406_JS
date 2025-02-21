@@ -28,9 +28,6 @@ protected:
 	bool bFallingAttack;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
-	bool bSkillSoaring;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 	float Pitch;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
