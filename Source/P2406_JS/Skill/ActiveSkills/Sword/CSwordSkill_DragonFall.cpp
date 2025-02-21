@@ -242,7 +242,11 @@ void UCSwordSkill_DragonFall::End_Skill()
 #endif
 
 	if (bEndSkillCall == true)
-		return; 
+	{
+		CurrentPhase = ESkillPhase::Max;
+		return;
+	}
+
 	bEndSkillCall = true; 
 	// 완전 종료는 Skill End Notify에서 
 	RunSkillPhaseData(ESkillPhase::End_Skill);
