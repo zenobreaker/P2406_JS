@@ -41,28 +41,25 @@ public:
 
 protected:
 	void BeginPlay() override;
-
     void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 public:
-    
-    void SetBeginTrace(); 
-    
+    void SetBeginTrace();     
     UFUNCTION()
     void SetEndTrace();
   
-
     void HandleTrace(AActor* InHitActor);
+
+private: 
+    bool HandleAriborneTrace();
 
 public:
 	UFUNCTION()
     void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
-
     UFUNCTION()
     void OnNormalAttack();
-
     UFUNCTION()
     void OnParryAttack();
-
     UFUNCTION()
     void OnJumpAttack();
 

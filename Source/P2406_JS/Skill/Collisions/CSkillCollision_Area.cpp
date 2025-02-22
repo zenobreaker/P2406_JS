@@ -29,7 +29,8 @@ void UCSkillCollision_Area::ActivateCollision()
 			this,
 			&UCSkillCollisionComponent::CheckCollision,
 			CollisionData.CollisionInterval,
-			true);
+			true,
+			0.0f);
 	}
 	else
 	{

@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "CWeaponStructures.h"
 #include "AddOns/AttackInterface.h"
+#include "AddOns/IWeaponTrace.h"
 #include "CAttachment.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAttachmentBeginCollision);
@@ -19,7 +20,7 @@ class P2406_JS_API ACAttachment
 	, public IAttackInterface
 {
 	GENERATED_BODY()
-	
+
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Trail")
@@ -30,7 +31,7 @@ private:
 
 	// 이 Attachment 자체적으로 공격할 수 있는지??
 	UPROPERTY(EditAnywhere, Category = "Attackable")
-	bool bAttackable = false; 
+	bool bAttackable = false;
 
 public:
 	FORCEINLINE const FAttachmentTrailData& GetTrailData() { return TrailData; }
@@ -40,9 +41,9 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	class USceneComponent* Root; 
+	class USceneComponent* Root;
 
-public:	
+public:
 	ACAttachment();
 
 protected:
@@ -50,7 +51,7 @@ protected:
 
 public:
 	void OnCollisions();
-	void OffCollisions(); 
+	void OffCollisions();
 
 	void HandleAttachmentOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
 
@@ -62,7 +63,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnUnequip();
 	virtual void OnUnequip_Implementation() {}
-	
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Attach")
 	void AttachTo(FName InSocketName);
@@ -88,11 +89,7 @@ public:
 	FAttachmentBeginOverlap OnAttachmentBeginOverlap;
 	FAttachmentEndOverlap OnAttachmentEndOverlap;
 
-
 public:
-/// <summary>
-/// IAttackInterface Func 
-/// </summary>
 	virtual bool CanAttack() const override;
 	virtual bool IsEnable() const override;
 	virtual AActor* GetDamageSource() const override;
@@ -103,6 +100,7 @@ protected:
 
 protected:
 	TArray<class UShapeComponent*> Collisions;
+	class UPrimitiveComponent* Mesh;
 
-	bool bEnable = false; 
+	bool bEnable = false;
 };

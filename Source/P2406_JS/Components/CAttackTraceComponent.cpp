@@ -1,10 +1,12 @@
 #include "Components/CAttackTraceComponent.h"
 #include "Global.h"
-#include "Components/CWeaponComponent.h"
+#include "GenericTeamAgentInterface.h"
+#include "Components/CapsuleComponent.h"
 
+#include "Components/CWeaponComponent.h"
+#include "Components/CConditionComponent.h"
 #include "Weapons/CAttachment.h"
 
-#include "GenericTeamAgentInterface.h"
 
 //#define  LOG_UCAttackTraceComponent
 
@@ -25,7 +27,8 @@ void UCAttackTraceComponent::BeginPlay()
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, UCAttackTraceComponent::OnWeaponTypeChanged);
 }
 
-void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCAttackTraceComponent::TickComponent(float DeltaTime,
+	ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -45,7 +48,8 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	QueryParams.AddIgnoredActor(attachment);
 
 	// 메시 갖고옴 
-	UPrimitiveComponent* mesh = FHelpers::GetComponent<UPrimitiveComponent>(Weapon->GetAttachment());
+	UPrimitiveComponent* mesh =
+		FHelpers::GetComponent<UPrimitiveComponent>(Weapon->GetAttachment());
 	CheckNull(mesh);
 
 	// 위치 갱신 
@@ -53,11 +57,11 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FName startName = attachment->GetSocketStartName();
 
 	FVector startLocation = mesh->GetSocketLocation(startName);
-	FVector endLocation  = mesh->GetSocketLocation(goalName);
-	
+	FVector endLocation = mesh->GetSocketLocation(goalName);
+
 	FVector direction = (endLocation - startLocation).GetSafeNormal();
 	FQuat quat = FRotationMatrix::MakeFromX(direction).ToQuat();
-	// X축으로 긴 캡슐 
+	// X 축으로 긴 캡슐 
 	quat = quat * FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(90.0f));
 
 	// 캡슐 트레이스 실행
@@ -84,16 +88,18 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		for (ACharacter* hit : Hits)
 			CheckTrue(hit == TraceHitResult.GetActor());
 
-		Hits.AddUnique(Cast<ACharacter>(TraceHitResult.GetActor()));
 		HandleTrace(TraceHitResult.GetActor());
 	}
+	
+	HandleAriborneTrace();
+
 
 #ifdef  LOG_UCAttackTraceComponent
 	FColor color = bCheck ? FColor::Red : FColor::Blue;
-	
-	
+
+
 	DrawDebugLine(GetWorld(), startLocation, endLocation, color, false, 1);
-	DrawDebugCapsule(GetWorld(), 
+	DrawDebugCapsule(GetWorld(),
 		(endLocation + startLocation) * 0.5f,
 		CapsuleHalfHeight,
 		CapsuleRadius, quat, color, false, 1);
@@ -130,7 +136,7 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	// 아군 검사 
 	bool bFriend = GetMyTeam(InHitActor);
 	if (bFriend)
-		return; 
+		return;
 
 	// 이미 무기로 충돌 처리된 경우 무시
 	if (hitCharacter->Tags.Contains(FName("HitByWeapon")))
@@ -161,7 +167,7 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 			break;
 	}
 
-	
+
 	//if (OnHandledTrace.IsBound())
 	//{
 	//	OnHandledTrace.Broadcast(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
@@ -170,6 +176,67 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	// 필요한 추가 처리
 	//Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
 }
+
+bool UCAttackTraceComponent::HandleAriborneTrace()
+{
+	CheckNullResult(Weapon, false);
+	CheckNullResult(Weapon->GetAttachment(), false);
+
+	//FHitResult TraceHitResult;
+	TArray<FHitResult> traceHitResults;
+	FCollisionQueryParams QueryParams;
+	ACAttachment* attachment = Weapon->GetAttachment();
+	CheckNullResult(attachment, false);
+
+	QueryParams.AddIgnoredActor(OwnerCharacter);
+	QueryParams.AddIgnoredActor(attachment);
+
+	float radius = 200.0f;
+
+	// 위치 갱신 
+	FVector startLocation = OwnerCharacter->GetActorLocation();
+	FVector endLocation = startLocation - OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();;
+
+	// 트레이스 실행
+	bool bCheck = GetWorld()->SweepMultiByObjectType(
+		traceHitResults,
+		startLocation,
+		endLocation,
+		FQuat::Identity,
+		ECC_Pawn,  // 충돌 채널
+		FCollisionShape::MakeSphere(radius),
+		QueryParams
+	);
+
+
+	DrawDebugSphere(GetWorld(), startLocation, radius, 10, FColor::Orange, false, 3);
+
+#ifdef  LOG_UCAttackTraceComponent
+#endif //  LOG_UCAttackTraceComponent
+
+
+	if (bCheck)
+	{
+		for (FHitResult& hit : traceHitResults)
+		{
+			AActor* HitActor = hit.GetActor();
+			
+			UCConditionComponent* targetCondition = FHelpers::GetComponent<UCConditionComponent>(hit.GetActor());
+			if (targetCondition == nullptr)
+				continue; 
+
+			if (targetCondition->GetAirborneCondition() == false)
+				continue; 
+			
+			UE_LOG(LogTemp, Log, TEXT("Air Trace Hit Actor: %s"), *hit.GetActor()->GetName());
+			HandleTrace(hit.GetActor());
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 
 void UCAttackTraceComponent::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType)
 {

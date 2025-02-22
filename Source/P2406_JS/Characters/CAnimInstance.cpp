@@ -181,13 +181,16 @@ void UCAnimInstance::ChangeGrappling()
 
 void UCAnimInstance::ChangeAirborne()
 {
-	bIsAirborneHit = bFalling && StateType == EStateType::Damaged;
+	CheckNull(Condition); 
+
+	bool bAirborne = Condition->GetAirborneCondition();
+	bIsAirborneHit = bFalling && bAirborne;
 }
 
 void UCAnimInstance::ChangeDown()
 {
 	CheckNull(Condition);
 
-	bDown = Condition->GetDownCondition();
+	bDown = Condition->GetDownCondition() && Condition->GetAirborneCondition() == false;
 }
 

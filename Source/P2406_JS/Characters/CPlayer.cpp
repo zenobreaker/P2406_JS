@@ -783,6 +783,7 @@ void ACPlayer::AdjustTimeScale(float InTimeScaleData)
 void ACPlayer::OnAirborneConditionActivated()
 {
 	bShouldCountDownOnLand = true;
+	Condition->AddDownCondition();
 }
 
 void ACPlayer::OnAirborneConditionDeactivated()

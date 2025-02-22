@@ -154,8 +154,6 @@ void ACEnemy::Damaged()
 		//TODO: 상태 변화에 대한 정보를 받는 처리를 따로 호출할 수 있도록 해야하지않을까?
 		if (!!Condition)
 		{
-			if (GetCharacterMovement()->IsFalling())
-				Condition->AddAirborneCondition();
 			if (hitData->bDown)
 				Condition->AddDownCondition();
 		}
@@ -196,6 +194,8 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
 		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
+		if (Airborne->GetIsAirborne())
+			Condition->AddAirborneCondition();
 	/*	GetCharacterMovement()->GravityScale = 0.5f;
 		GetCharacterMovement()->AirControl = 1.0f;*/
 	}
@@ -245,7 +245,7 @@ void ACEnemy::Play_DamageMontage(const FHitData& hitData)
 
 		// 공중 상태일 경우 
 		bool isAirborne = true;
-		isAirborne &= Airborne != nullptr && Airborne->GetIsAirborne() == true;
+		isAirborne &= Condition != nullptr && Condition->GetAirborneCondition() == true;
 
 		// 지상에 다운된 상태인  경우  ( 공중 X 땅 O)
 		bool isDowned = true;
@@ -268,7 +268,6 @@ void ACEnemy::Play_DamageMontage(const FHitData& hitData)
 		{
 			// 공중 상태에서 맞는 애니메이션 처리
 			montage = AirborneDamagedMontage;
-			playRate = 1.5f;
 		}
 		else if (isDowned == true)
 		{
@@ -328,14 +327,14 @@ void ACEnemy::End_Downed()
 ////////////////////////////////////////////////////////////////////////////////////////
 
 /// <summary>
-/// Airborne Conition
+/// Airborne Condition
 /// </summary>
 void ACEnemy::OnAirborneConditionActivated()
 {
 	// 딱히 뭐 할 건 없지만 상태 변수를 조진다
 	bShouldCountDownOnLand = true;
 	bCanAct = false;
-
+	Condition->AddDownCondition();
 }
 
 void ACEnemy::OnAirborneConditionDeactivated()

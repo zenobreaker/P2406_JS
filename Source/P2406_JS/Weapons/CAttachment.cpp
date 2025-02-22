@@ -7,6 +7,7 @@
 ACAttachment::ACAttachment()
 {
 	FHelpers::CreateComponent<USceneComponent>(this, &Root, "Root");
+	Mesh = FHelpers::GetComponent<UPrimitiveComponent>(this);
 }
 
 void ACAttachment::BeginPlay()

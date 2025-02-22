@@ -8,7 +8,7 @@
 
 UCActiveSkill_UpperSlash::UCActiveSkill_UpperSlash()
 {
-	FHelpers::GetAsset<UCurveFloat>(&Curve, "/Script/Engine.CurveFloat'/Game/Weapon_Skills/Swords/Sword_Rising_Curve.Sword_Rising_Curve'");
+	FHelpers::GetAsset<UCurveFloat>(&Curve, "/Script/Engine.CurveFloat'/Game/Weapon_Skills/Swords/Skill3_UpperSlash/Sword_Rising_Curve.Sword_Rising_Curve'");
 }
 
 void UCActiveSkill_UpperSlash::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData)
