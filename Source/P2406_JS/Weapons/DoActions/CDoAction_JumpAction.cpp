@@ -245,6 +245,9 @@ void UCDoAction_JumpAction::Begin_DoAction_FallAttack()
 			if (Weapon != nullptr)
 				Weapon->SetFallingAttack(true);
 		
+			// 낙하 시작할 때 이전에 공중 공격을 수행한 전적이 있다면 강제 종료 
+			End_DoAction();
+
 			// 루프로 옮김
 			DoAction_FallAttackFlow(FallAttackState::Loop);
 

@@ -48,10 +48,10 @@ public:
     UFUNCTION()
     void SetEndTrace();
   
-    void HandleTrace(AActor* InHitActor);
 
 private: 
-    bool HandleAriborneTrace();
+    void HandleTrace(AActor* InHitActor);
+    bool HandleAirborneTrace();
 
 public:
 	UFUNCTION()

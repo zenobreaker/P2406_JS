@@ -196,20 +196,22 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
 		if (Airborne->GetIsAirborne())
 			Condition->AddAirborneCondition();
-	/*	GetCharacterMovement()->GravityScale = 0.5f;
-		GetCharacterMovement()->AirControl = 1.0f;*/
 	}
-
 
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;
-
 	if (bIsGuarding)
 	{
 		launchStrength *= 0.5f;
 	}
-	//FLog::Print(" z ch : " + FString::SanitizeFloat(dirZ));
-	FVector launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
+	
+	FVector launchVelocity = (-direction * launchStrength);
+	if (InHitData.Airial > 0)
+		launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
+	else
+		launchVelocity.Z = 0.0f; 
+
+	FLog::Print("Launch + "+ launchVelocity.ToString(), 6986);
 	LaunchCharacter(launchVelocity, false, true);
 
 	/*FLog::Print("attacker = >  " + DamageData.Attacker->GetName());*/

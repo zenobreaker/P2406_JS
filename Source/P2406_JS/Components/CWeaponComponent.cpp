@@ -309,7 +309,7 @@ void UCWeaponComponent::Handle_DoAction(bool InHeavyValue)
 		CheckNull(GetJumpDoAction());
 		// 여기가 먼저 호출 되고 애님인스턴스에서 다시 
 		// 폴링 몽타주 재생해서 겹쳐가지고 이상하게 출력되네
-		// docation에서 각 스테이트 별로 정확히 처리하게 해야해
+		// doaction에서 각 스테이트 별로 정확히 처리하게 해야해
 
 		GetJumpDoAction()->SetHeavyActionFlag(InHeavyValue);
 

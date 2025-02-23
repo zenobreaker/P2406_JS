@@ -31,10 +31,14 @@ public:
 	UFUNCTION()
 	void Landed();
 	
+	UFUNCTION()
+	void OnCharacterEndDamaged();
+	
 private:
 	bool bIsAirborne;
+	float OriginGravity;
 
+private: 
 	ACharacter* OwnerCharacter;
-	UCharacterMovementComponent* movement;
 	AActor* Causer;
 };

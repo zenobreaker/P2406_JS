@@ -89,9 +89,11 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime,
 			CheckTrue(hit == TraceHitResult.GetActor());
 
 		HandleTrace(TraceHitResult.GetActor());
+		
+		return; 
 	}
 	
-	HandleAriborneTrace();
+	HandleAirborneTrace();
 
 
 #ifdef  LOG_UCAttackTraceComponent
@@ -117,6 +119,7 @@ void UCAttackTraceComponent::SetBeginTrace()
 
 void UCAttackTraceComponent::SetEndTrace()
 {
+	CheckFalse(bIsAttacking);
 	bIsAttacking = false;
 
 	Hits.Empty();
@@ -177,7 +180,7 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	//Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
 }
 
-bool UCAttackTraceComponent::HandleAriborneTrace()
+bool UCAttackTraceComponent::HandleAirborneTrace()
 {
 	CheckNullResult(Weapon, false);
 	CheckNullResult(Weapon->GetAttachment(), false);
