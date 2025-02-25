@@ -42,6 +42,12 @@ void UCDashComponent::BeginPlay()
 	}
 
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, UCDashComponent::OnStateTypeChanged);
+
+	if (Movement != nullptr)
+	{
+		bCanMove = Movement->GetCanMovePtr();
+		bControlRotation = Movement->GetCanControlRotaionPtr();
+	}
 }
 
 void UCDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -65,30 +71,31 @@ void UCDashComponent::OnDash()
 
 void UCDashComponent::DashAction()
 {
-	CheckNull(Movement);
-	CheckNull(Weapon);
-	CheckTrue(State->IsDashMode());
-	//CheckNull(target);
-
-	CheckFalse(Movement->CanMove());
-
+	//CheckTrue(State->IsDashMode());
+	CheckNull(bCanMove);
+	CheckFalse(*bCanMove);
 	CheckTrue(bIsDashing);
+	CheckNull(OwnerCharacter);
 
 	// 콜한 시점의 위치 저장 
 	PrevLocation = OwnerCharacter->GetActorLocation();
-	
 
 	FVector right = OwnerCharacter->GetActorRightVector();
-	FVector move = OwnerCharacter->GetVelocity().GetSafeNormal();
+//	FVector move = OwnerCharacter->GetVelocity().GetSafeNormal();
+	FVector moveInput = OwnerCharacter->GetLastMovementInputVector().GetSafeNormal();
 
-	float dot = FVector::DotProduct(right, move);
+	//FLog::Print("Speed X : " + FString::SanitizeFloat(move.X), 3928);
+	//FLog::Print("Speed Y : " + FString::SanitizeFloat(move.Y), 3929);
+
+	//FLog::Print("MoveInput X : " + FString::SanitizeFloat(move.X), 3928);
+	//FLog::Print("MoveInput Y : " + FString::SanitizeFloat(move.Y), 3929);
+
+	float dot = FVector::DotProduct(right, moveInput);
 
 	// 자유 카메라 모드 일 때 
-	if (Weapon->GetEquipment() == nullptr
-		|| Weapon->GetEquipment()->GetControlRotation() == false)
+	if (bControlRotation == nullptr || *bControlRotation == false)
 	{
 		CheckTrue(DashMontages.Num() == 0);
-
 		// 전방
 		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)DashDirection::Forward]);
 	}
@@ -103,11 +110,8 @@ void UCDashComponent::DashAction()
 			dir = DashDirection::Right;
 		else if (dot < -Magrin)
 			dir = DashDirection::Left;
-		else
-		{
-			if (move.X <= 0)
-				dir = DashDirection::Back;
-		}
+		else if (moveInput.X <= 0)
+			dir = DashDirection::Back;
 
 
 		CheckTrue(DashMontages.Num() == 0);
@@ -123,11 +127,10 @@ void UCDashComponent::Begin_DashSpeed()
 	HandleBeginDash();
 
 	FVector dashDir = FVector::ZeroVector;
-
 	double xAxis = 1.0f;
+
 	if (OwnerCharacter->GetLastMovementInputVector().IsNearlyZero())
 	{
-
 		FRotator rotator = FRotator(0, OwnerCharacter->GetActorRotation().Yaw, 0);
 		FVector dir_Start = OwnerCharacter->GetActorLocation();
 		FVector dir_End = dir_Start + FQuat(rotator).GetForwardVector() * 200.0f;
@@ -233,29 +236,29 @@ void UCDashComponent::Destroy_SingleGhostTrail()
 {
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindLambda([&]()
+	{
+		// 다 지워서 없다면 타이머 제거  
+		if (GhostTrails.Num() <= 0)
 		{
-			// 다 지워서 없다면 타이머 제거  
-			if (GhostTrails.Num() <= 0)
+			//FLog::Log("Clear Traisl!!");
+			OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(DestroyTimer);
+
+			return;
+		}
+
+		for (int32 i = 0; i < GhostTrails.Num(); i++)
+		{
+			ACGhostTrail* ghost = GhostTrails[i];
+
+			if (!!ghost)
 			{
-				//FLog::Log("Clear Traisl!!");
-				OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(DestroyTimer);
+				ghost->Destroy();
+				GhostTrails.RemoveAt(i);
 
 				return;
 			}
-
-			for (int32 i = 0; i < GhostTrails.Num(); i++)
-			{
-				ACGhostTrail* ghost = GhostTrails[i];
-
-				if (!!ghost)
-				{
-					ghost->Destroy();
-					GhostTrails.RemoveAt(i);
-
-					return;
-				}
-			}
-		});
+		}
+	});
 
 
 	// 타이머 설정 (예: 0.5초 후 제거)
@@ -349,39 +352,39 @@ void UCDashComponent::HandleEvade()
 
 	FTimerDelegate spawnDelegate;
 	spawnDelegate.BindLambda([&]()
+	{
+		if (CurrentTrailCount >= TrailCount)
 		{
-			if (CurrentTrailCount >= TrailCount)
-			{
-				CurrentTrailCount = 0;
-				Destroy_SingleGhostTrail();
+			CurrentTrailCount = 0;
+			Destroy_SingleGhostTrail();
 
-				GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+			GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
 
-				return;
-			}
+			return;
+		}
 
-			CurrentTrailCount++;
+		CurrentTrailCount++;
 
-			FVector location = OwnerCharacter->GetActorLocation();
+		FVector location = OwnerCharacter->GetActorLocation();
 
-			FVector dashProgress = OwnerCharacter->GetActorLocation() - PrevLocation;
-			float spawnRatio = (float)CurrentTrailCount / TrailCount;
-			/*FVector spawnLocation = FMath::Lerp(PrevLocation, location, spawnLerp);*/
-			FVector spawnLocation = PrevLocation + (dashProgress * spawnRatio);
-			//FLog::Print("PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4043);
+		FVector dashProgress = OwnerCharacter->GetActorLocation() - PrevLocation;
+		float spawnRatio = (float)CurrentTrailCount / TrailCount;
+		/*FVector spawnLocation = FMath::Lerp(PrevLocation, location, spawnLerp);*/
+		FVector spawnLocation = PrevLocation + (dashProgress * spawnRatio);
+		//FLog::Print("PrevLocation " + PrevLocation.ToString() + " CurrentLocation " + OwnerCharacter->GetActorLocation().ToString(), 4043);
 
-			FActorSpawnParameters param;
-			param.Owner = OwnerCharacter;
-			param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FActorSpawnParameters param;
+		param.Owner = OwnerCharacter;
+		param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-			FTransform transform;
-			//location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-			spawnLocation.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-			transform.SetTranslation(spawnLocation);
+		FTransform transform;
+		//location.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		spawnLocation.Z -= OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		transform.SetTranslation(spawnLocation);
 
-			ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
-			GhostTrails.Add(GhostTrail);
-		});
+		ACGhostTrail* GhostTrail = OwnerCharacter->GetWorld()->SpawnActor<ACGhostTrail>(GhostTrailClass, transform, param);
+		GhostTrails.Add(GhostTrail);
+	});
 
 	/*float dashDistance = FVector::Dist(OwnerCharacter->GetActorLocation(), PrevLocation);
 	float spawnInterval = dashDistance / TrailCount;*/

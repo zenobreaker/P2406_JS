@@ -28,18 +28,18 @@ private:
 		float Speed[(int32)ESpeedType::Max] = { 200, 400, 600 };
 		
 public:
-	FORCEINLINE bool CanMove() { return bCanMove; }
+	FORCEINLINE bool CanMove() const { return bCanMove; }
+	FORCEINLINE const bool* GetCanMovePtr() { return &bCanMove; }
 
-	FORCEINLINE bool GetFixedCamera() { return bFixedCamera; }
+	FORCEINLINE bool GetFixedCamera() const { return bFixedCamera; }
 	FORCEINLINE void EnableFixedCamera() { bFixedCamera = true; }
 	FORCEINLINE void DisableFixedCamera() { bFixedCamera = false; }
 
-	FORCEINLINE float GetWalkSpeed() { return Speed[(int32)ESpeedType::Walk]; }
-	FORCEINLINE float GetRunSpeed() { return Speed[(int32)ESpeedType::Run]; }
-	FORCEINLINE float GetSprintSpeed() { return Speed[(int32)ESpeedType::Sprint]; }
+	FORCEINLINE float GetWalkSpeed() const { return Speed[(int32)ESpeedType::Walk]; }
+	FORCEINLINE float GetRunSpeed() const { return Speed[(int32)ESpeedType::Run]; }
+	FORCEINLINE float GetSprintSpeed() const { return Speed[(int32)ESpeedType::Sprint]; }
 
-	FORCEINLINE FVector* GetInputDirection()  { return &InputDirection; }
-
+	FORCEINLINE const bool* GetCanControlRotaionPtr() { return &bCanControlRotaion; }
 public:
 	UCMovementComponent();
 
@@ -77,6 +77,7 @@ private:
 
 private:
 	bool bCanMove = true;
+	bool bCanControlRotaion;
 	bool bFixedCamera;
 
 };

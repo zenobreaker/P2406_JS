@@ -45,6 +45,7 @@ public:
 	class UCSubAction* GetSubAction();
 	class UCWeaponData* GetCurrentWeaponData();
 
+
 private:
 	bool IsIdleMode();
 

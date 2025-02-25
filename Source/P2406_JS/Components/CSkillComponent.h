@@ -89,6 +89,7 @@ public:
 
 private:
 	bool bIsSkillAction;
+	const bool* bCanMove;
 
 private:
 	TMap<ESkillSlot, class UCActiveSkill*> SkillSlotTable;

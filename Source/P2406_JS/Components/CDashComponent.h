@@ -95,6 +95,8 @@ private:
 	bool bTargeting = false;
 	bool bIsDashing = false;
 	bool bIsEvadeSuccessed = false;
+	const bool* bControlRotation;
+	const bool* bCanMove; 
 
 	FVector InputVec;
 	int32 CurrentTrailCount = 0;

@@ -3,6 +3,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#define LOG_UCMovementComponent
+
 UCMovementComponent::UCMovementComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -30,37 +32,41 @@ void UCMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	FVector end = start + velocity.GetSafeNormal() * 200.0f;
 
-	//// 화살표 디버그 그리기
-	//DrawDebugDirectionalArrow(
-	//	GetWorld(),
-	//	start,
-	//	end,
-	//	100.0f, // 화살표 크기
-	//	FColor::Green, // 화살표 색상
-	//	false,
-	//	0.0f, // 지속 시간
-	//	0,
-	//	5.0f // 두께
-	//);
+#ifdef LOG_UCMovementComponent
+	// 화살표 디버그 그리기
+	DrawDebugDirectionalArrow(
+		GetWorld(),
+		start,
+		end,
+		100.0f, // 화살표 크기
+		FColor::Green, // 화살표 색상
+		false,
+		0.0f, // 지속 시간
+		0,
+		5.0f // 두께
+	);
 
-	//FLog::Print("X : " + FString::SanitizeFloat(InputDirection.X), 3924);
-	//FLog::Print("Y : " + FString::SanitizeFloat(InputDirection.Y), 3925);
+	FLog::Print("X : " + FString::SanitizeFloat(InputDirection.X), 3924);
+	FLog::Print("Y : " + FString::SanitizeFloat(InputDirection.Y), 3925);
+	FLog::Print("Speed X : " + FString::SanitizeFloat(velocity.X), 3926);
+	FLog::Print("Speed Y : " + FString::SanitizeFloat(velocity.Y), 3927);
 
 	FRotator rotator = FRotator(0, OwnerCharacter->GetActorRotation().Yaw, 0);
 	FVector dir_Start = start;
 	FVector dir_End = dir_Start + FQuat(rotator).GetForwardVector()* 200.0f;
 
-	//DrawDebugDirectionalArrow(
-	//	GetWorld(),
-	//	dir_Start,
-	//	dir_End,
-	//	100.0f, // 화살표 크기
-	//	FColor::Red, // 화살표 색상
-	//	false,
-	//	-1.0f, // 지속 시간
-	//	0,
-	//	5.0f // 두께
-	//);
+	DrawDebugDirectionalArrow(
+		GetWorld(),
+		dir_Start,
+		dir_End,
+		100.0f, // 화살표 크기
+		FColor::Red, // 화살표 색상
+		false,
+		-1.0f, // 지속 시간
+		0,
+		5.0f // 두께
+	);
+#endif
 }
 
 void UCMovementComponent::OnSprint()
@@ -125,12 +131,14 @@ void UCMovementComponent::EnableControlRotation()
 {
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	bCanControlRotaion = true; 
 }
 
 void UCMovementComponent::DisableControlRotation()
 {
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+	bCanControlRotaion = false; 
 }
 
 void UCMovementComponent::Move()

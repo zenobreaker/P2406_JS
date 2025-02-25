@@ -109,43 +109,33 @@ void UCWeaponComponent::SetUnarmedMode()
 	CheckNull(GetEquipment());
 
 	GetEquipment()->Unequip();
-
+	
 	ChangeType(EWeaponType::Max);
 }
 
 void UCWeaponComponent::SetFistMode()
 {
-	CheckFalse(IsIdleMode());
-
 	SetMode(EWeaponType::Fist);
 }
 
 void UCWeaponComponent::SetSwordMode()
 {
-	CheckFalse(IsIdleMode());
-	 
 	SetMode(EWeaponType::Sword);
 }
 
 void UCWeaponComponent::SetHammerMode()
 {
-	CheckFalse(IsIdleMode());
-
 	SetMode(EWeaponType::Hammer);
 }
 
 void UCWeaponComponent::SetWarpMode()
 {
-	CheckFalse(IsIdleMode());
-
 	SetMode(EWeaponType::Warp);
 }
 
 
 void UCWeaponComponent::SetBowMode()
 {
-	CheckFalse(IsIdleMode());
-
 	SetMode(EWeaponType::Bow);
 }
 
@@ -157,6 +147,8 @@ void UCWeaponComponent::InitEquip()
 
 void UCWeaponComponent::SetMode(EWeaponType InType)
 {
+	CheckFalse(IsIdleMode());
+
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter, "State");
 
 	if (state != nullptr)
@@ -178,12 +170,11 @@ void UCWeaponComponent::SetMode(EWeaponType InType)
 
 
 	// 해당 무기의 스킬 세팅
-	if (!!Datas[(int32)InType])
+	if (Datas[(int32)InType] != nullptr)
 	{
 		Datas[(int32)InType]->GetEquipment()->Equip();
 
 		UCSubAction* subaction = Datas[(int32)InType]->GetSubAction();
-
 		REGISTER_EVENT_WITH_REPLACE(subaction, OnGuardValueChanged, this, UCWeaponComponent::ChangeGuardValue);
 	}
 

@@ -33,9 +33,11 @@ void UCSkillComponent::BeginPlay()
 		SkillManager = instance->SkillManager;
 	}
 
-	Movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
-	
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedChargeVisiable, false);
+
+	Movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
+	if (Movement != nullptr)
+		bCanMove = Movement->GetCanMovePtr();
 }
 
 
@@ -126,15 +128,14 @@ void UCSkillComponent::BeginSkill()
 
 void UCSkillComponent::EndSkill()
 {
-	if (!!CurrentSkill)
-	{
-		CurrentSkill->EndSkill();
-	}
-
 	bIsSkillAction = false;
-	CurrentSkill = nullptr;
 	DYNAMIC_EVENT_CALL(OnCurrentSkillEnded);
-	if (Movement != nullptr && Movement->CanMove() == false)
+	
+	if (!!CurrentSkill)
+		CurrentSkill->EndSkill();
+	CurrentSkill = nullptr;
+	
+	if (bCanMove != nullptr && *bCanMove == false)
 		Movement->Move();
 }
 
