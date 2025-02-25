@@ -147,7 +147,7 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 
 	// 트레이스 처리
 	Hits.AddUnique(hitCharacter);
-	UE_LOG(LogTemp, Log, TEXT("Trace Hit Actor: %s"), *InHitActor->GetName());
+	//UE_LOG(LogTemp, Log, TEXT("Trace Hit Actor: %s"), *InHitActor->GetName());
 
 	CheckNull(Weapon->GetAttachment());
 
@@ -231,7 +231,7 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 			if (targetCondition->GetAirborneCondition() == false)
 				continue; 
 			
-			UE_LOG(LogTemp, Log, TEXT("Air Trace Hit Actor: %s"), *hit.GetActor()->GetName());
+			//UE_LOG(LogTemp, Log, TEXT("Air Trace Hit Actor: %s"), *hit.GetActor()->GetName());
 			HandleTrace(hit.GetActor());
 		}
 	}

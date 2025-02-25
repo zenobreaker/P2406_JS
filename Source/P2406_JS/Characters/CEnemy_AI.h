@@ -48,9 +48,7 @@ private:
 	class UWidgetComponent* LabelWidget;
 
 public:
-	FORCEINLINE uint8 GetTeamID() { return TeamID; }
-	FORCEINLINE int32 GetAIID() { return AIID; }
-
+	FORCEINLINE int32 GetAIID() const { return AIID; }
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
 	FORCEINLINE TSoftObjectPtr<class ACPatrolPath> GetPatrolPath() { return PatrolPath; }
 public:

@@ -202,7 +202,7 @@ void ACEnemy_AI::Damaged()
 	CheckNull(Behavior); 
 
 	auto* target = Behavior->GetTarget();
-	if (target == nullptr)
+	if (target != nullptr)
 		Behavior->SetTarget(target);
 	
 	Behavior->SetDamageMode();

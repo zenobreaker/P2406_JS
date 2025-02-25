@@ -94,9 +94,6 @@ void UCTargetComponent::End()
 {
 	Target = nullptr;
 
-	/*if (!!Particle)
-		Particle->DestroyComponent();*/
-
 	if (!!TargetUi)
 		TargetUi->DestroyComponent();
 }
@@ -110,10 +107,6 @@ void UCTargetComponent::Change(ACharacter* InCandidate)
 		return;
 	}
 
-	//if (!!Particle)
-	//	Particle->DestroyComponent();
-
-	//Particle = UGameplayStatics::SpawnEmitterAttached(ParticleAsset, InCandidate->GetMesh(), "Targeting", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
 
 	if (!!TargetUi)
 		TargetUi->DestroyComponent();

@@ -3,7 +3,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#define LOG_UCMovementComponent
+//#define LOG_UCMovementComponent
 
 UCMovementComponent::UCMovementComponent()
 {
@@ -11,7 +11,6 @@ UCMovementComponent::UCMovementComponent()
 }
 
 
-// Called when the game starts
 void UCMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -24,7 +23,7 @@ void UCMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-
+#ifdef LOG_UCMovementComponent
 	FVector start = OwnerCharacter->GetActorLocation();
 	FVector velocity = OwnerCharacter->GetVelocity();
 
@@ -32,7 +31,6 @@ void UCMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	FVector end = start + velocity.GetSafeNormal() * 200.0f;
 
-#ifdef LOG_UCMovementComponent
 	// 화살표 디버그 그리기
 	DrawDebugDirectionalArrow(
 		GetWorld(),

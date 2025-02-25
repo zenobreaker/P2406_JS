@@ -200,8 +200,7 @@ FString UCAIBehaviorComponent::EnumToString(EAIStateType InType)
 
 void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 {
-	if (Blackboard == nullptr)
-		return;
+	CheckNull(Blackboard);
 
 
 	FString curType = StaticEnum<EAIStateType>()->GetNameStringByValue((int64)InType);
@@ -286,6 +285,7 @@ void UCAIBehaviorComponent::OnStateChanged(EStateType InPrevType, EStateType InN
 void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 {
 	FLog::Log("OnAddCondiitionType Call");
+	CheckNull(Blackboard); 
 
 	switch (InType)
 	{
@@ -299,6 +299,7 @@ void UCAIBehaviorComponent::OnAddCondiitionType(EConditionState InType)
 void UCAIBehaviorComponent::OnRemoveConditionType(EConditionState InType)
 {
 	FLog::Log("OnRemoveConditionType Call");
+	CheckNull(Blackboard);
 
 	switch (InType)
 	{
@@ -322,14 +323,16 @@ ACharacter* UCAIBehaviorComponent::GetTarget()
 	CheckNullResult(CachedAI, nullptr);
 	CheckNullResult(Blackboard, nullptr);
 
-	uint8 myTeamID = -1;
+	int32 myTeamID = -1;
 	myTeamID = CachedAI->GetTeamID();
 
-	uint8 targetID = -2;
+	int32 targetID = -2;
 	ACEnemy_AI* targetAI = Cast<ACEnemy_AI>(Blackboard->GetValueAsObject(TargetKey));
-	CheckNullResult(targetAI, nullptr);
-	targetID = targetAI->GetTeamID();
-	CheckTrueResult(myTeamID == targetID, nullptr);
+	if(targetAI != nullptr )
+	{
+		targetID = targetAI->GetTeamID();
+		CheckTrueResult(myTeamID == targetID, nullptr);
+	}
 
 	return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));
 }

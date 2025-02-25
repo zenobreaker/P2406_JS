@@ -15,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDead);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDead_One, class ACharacter*, InInstigator);
 
 UCLASS()
-class P2406_JS_API ACBaseCharacter 
+class P2406_JS_API ACBaseCharacter
 	: public ACharacter
 	, public IGenericTeamAgentInterface
 
@@ -23,14 +23,14 @@ class P2406_JS_API ACBaseCharacter
 	GENERATED_BODY()
 
 
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Team")
 	uint8 TeamID = 2;
-	
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Group")
-	int32 GroupID = 0; 
+	int32 GroupID = 0;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Grade")
@@ -44,10 +44,10 @@ protected:
 	class UAnimMontage* AirborneDamagedMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DownBeginMontage; 
+	class UAnimMontage* DownBeginMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	class UAnimMontage* DownDamgeMontage; 
+	class UAnimMontage* DownDamgeMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	class UAnimMontage* RaiseMontage;
@@ -55,10 +55,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	class UAnimMontage* DeadMontage;
-	
+
 public:
-	FORCEINLINE EEntityGrade GetGrade() { return Grade; }
-	FORCEINLINE int32 GetGroupID()const { return GroupID; }
+	FORCEINLINE uint8 GetTeamID() const { return TeamID; }
+	FORCEINLINE EEntityGrade GetGrade() const { return Grade; }
+	FORCEINLINE int32 GetGroupID() const { return GroupID; }
 	FORCEINLINE void SetGroupID(int32 InGroupID) { GroupID = InGroupID; }
 
 public:
@@ -71,7 +72,7 @@ public:
 	ACBaseCharacter();
 
 protected:
-	virtual void BeginPlay() override; 
+	virtual void BeginPlay() override;
 
 public:
 	FOnCharacterLanded OnCharacterLanded;
@@ -83,7 +84,7 @@ public:
 
 protected:
 	virtual void Launch(const struct FHitData& InHitData, const bool bIsGuarding = false) {};
-	
+
 	virtual void Landed(const FHitResult& Hit) override;
 
 	virtual void Play_DamageMontage(const struct FHitData& hitData) {};
@@ -99,12 +100,12 @@ protected:
 
 
 protected:
-	protected:
-	UPROPERTY(VisibleAnywhere, Category ="Components")
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCAirborneComponent* Airborne;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UCConditionComponent* Condition; 
+	class UCConditionComponent* Condition;
 
 public:
 	struct FDamageData
@@ -119,5 +120,5 @@ public:
 protected:
 	ECollisionEnabled::Type CollsionEnabledType;
 	bool bShouldCountDownOnLand = false;
-	bool bCanAct = true; 
+	bool bCanAct = true;
 };
