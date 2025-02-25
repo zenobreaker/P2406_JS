@@ -319,17 +319,16 @@ void UCAIBehaviorComponent::OnCharacterDead()
 
 ACharacter* UCAIBehaviorComponent::GetTarget()
 {
+	CheckNullResult(CachedAI, nullptr);
+	CheckNullResult(Blackboard, nullptr);
+
 	uint8 myTeamID = -1;
-	if (!!CachedAI)
-		myTeamID = CachedAI->GetTeamID();
+	myTeamID = CachedAI->GetTeamID();
 
 	uint8 targetID = -2;
-	auto* targetAI = Cast<ACEnemy_AI>(Blackboard->GetValueAsObject(TargetKey));
-	if (targetAI != nullptr)
-	{
-		targetID = targetAI->GetTeamID();
-	}
-
+	ACEnemy_AI* targetAI = Cast<ACEnemy_AI>(Blackboard->GetValueAsObject(TargetKey));
+	CheckNullResult(targetAI, nullptr);
+	targetID = targetAI->GetTeamID();
 	CheckTrueResult(myTeamID == targetID, nullptr);
 
 	return Cast<ACharacter>(Blackboard->GetValueAsObject(TargetKey));

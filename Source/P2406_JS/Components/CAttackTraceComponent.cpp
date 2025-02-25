@@ -212,9 +212,9 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 	);
 
 
-	DrawDebugSphere(GetWorld(), startLocation, radius, 10, FColor::Orange, false, 3);
 
 #ifdef  LOG_UCAttackTraceComponent
+	DrawDebugSphere(GetWorld(), startLocation, radius, 10, FColor::Orange, false, 3);
 #endif //  LOG_UCAttackTraceComponent
 
 
