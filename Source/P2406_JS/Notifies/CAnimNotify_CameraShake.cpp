@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerController.h"
 #include "LegacyCameraShake.h"
 
+#include "Characters/CEnemy_AI.h"
+
 FString UCAnimNotify_CameraShake::GetNotifyName_Implementation() const
 {
 	return "CameraShake";
@@ -18,7 +20,14 @@ void UCAnimNotify_CameraShake::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	ACharacter* character = Cast<ACharacter>(MeshComp->GetOwner());
 	CheckNull(character);
 
-	APlayerController* controller = character->GetController<APlayerController>();
+	// 하필 캐스팅해보니 ai였다 
+	APlayerController* controller = nullptr;
+	ACEnemy_AI* ai = Cast<ACEnemy_AI>(MeshComp->GetOwner());
+	if (ai != nullptr)
+		controller = ai->GetWorld()->GetFirstPlayerController();
+	else 
+		controller = character->GetController<APlayerController>();
+	
 	CheckNull(controller);
 
 	controller->PlayerCameraManager->StartCameraShake(CameraShakeClass);

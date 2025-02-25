@@ -47,6 +47,7 @@ void UCBTTaskNode_Equip::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	UCWeaponComponent* weapon = FHelpers::GetComponent<UCWeaponComponent>(ai);
 	CheckNullResult(weapon, FinishLatentTask(OwnerComp, EBTNodeResult::Failed));
+	CheckNullResult(weapon->GetEquipment(), FinishLatentTask(OwnerComp, EBTNodeResult::Failed));
 	const bool* bEquipped = weapon->GetEquipment()->GetEquipped();
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
