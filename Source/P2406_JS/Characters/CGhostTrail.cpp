@@ -24,11 +24,12 @@ void ACGhostTrail::BeginPlay()
 	Material->SetVectorParameterValue("Color", Color);
 	Material->SetScalarParameterValue("Exponent", Exponent);
 
-	Mesh->SetVisibility(false);
-	Mesh->SetSkeletalMesh(OwnerCharacter->GetMesh()->GetSkeletalMeshAsset());
+	Mesh->SetSkinnedAssetAndUpdate(OwnerCharacter->GetMesh()->GetSkinnedAsset());
 
 	Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh()); // 캡쳐는 무조건 한번은 해야한다.
 	Mesh->SetRelativeScale3D(Scale);
+	Mesh->UpdateComponentToWorld();
+	Mesh->SetVisibility(false);
 	Mesh->SetComponentTickEnabled(true); // 생성 후 업데이트 막기 
 
 
@@ -40,6 +41,8 @@ void ACGhostTrail::BeginPlay()
 	// 초기 위치 고정 
 	FVector initialLocaton = GetActorLocation();
 	FRotator initialRotator = GetActorRotation();
+	FRotator characterRotation = OwnerCharacter->GetActorRotation();
+	initialRotator.Yaw = characterRotation.Yaw - 90;
 
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this, initialLocaton, initialRotator]()
@@ -50,7 +53,8 @@ void ACGhostTrail::BeginPlay()
 			SetActorLocation(initialLocaton);
 			// 액터는 회전을 따라가고, Mesh는 초기 회전 유지
 			SetActorRotation(OwnerCharacter->GetActorRotation());
-			Mesh->SetWorldRotation(OwnerCharacter->GetActorRotation());
+			
+			Mesh->SetWorldRotation(initialRotator);
 			Mesh->SetComponentTickEnabled(false); // 생성 후 업데이트 막기 
 
 			// 포즈 유지 (위치는 변동 없음)
@@ -60,6 +64,7 @@ void ACGhostTrail::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, timerDelegate, Interval, true, StartDelay);
 }
+
 
 void ACGhostTrail::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -109,14 +114,14 @@ void ACGhostTrail::SetSubMeshes(USkeletalMeshComponent* InParentMesh)
 				pose->RegisterComponent();
 
 				pose->SetVisibility(false);
-				pose->SetSkeletalMesh(childMesh->GetSkeletalMeshAsset());
+				pose->SetSkinnedAssetAndUpdate(childMesh->GetSkinnedAsset());
 				// 자식의 포즈는 부모에서 처리
 				pose->CopyPoseFromSkeletalComponent(InParentMesh);
 				pose->SetRelativeScale3D(Scale);
 
-				if (!!childMesh->GetSkeletalMeshAsset())
+				if (!!childMesh->GetSkinnedAsset())
 				{
-					for (int32 j = 0; j < childMesh->GetSkeletalMeshAsset()->GetMaterials().Num(); j++)
+					for (int32 j = 0; j < childMesh->GetSkinnedAsset()->GetMaterials().Num(); j++)
 						pose->SetMaterial(j, Material);
 				}
 
