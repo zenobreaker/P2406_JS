@@ -65,6 +65,9 @@ private:
 	void Destroy_SingleGhostTrail();
 
 private:
+	FVector GetGroundNormal();
+
+private:
 	void HandleBeginDash();
 	void HandleEndDash();
 	void HandleEvade();
@@ -102,6 +105,7 @@ private:
 	int32 CurrentTrailCount = 0;
 	float StartDashTime = 0.0f;
 	FVector PrevLocation;
+	FVector GroundNormal;
 
 private:
 	DashDirection DashDir;

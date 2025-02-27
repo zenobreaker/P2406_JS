@@ -29,7 +29,7 @@ void ACGhostTrail::BeginPlay()
 
 	Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh()); // 캡쳐는 무조건 한번은 해야한다.
 	Mesh->SetRelativeScale3D(Scale);
-	Mesh->SetComponentTickEnabled(false); // 생성 후 업데이트 막기 
+	Mesh->SetComponentTickEnabled(true); // 생성 후 업데이트 막기 
 
 
 	for (int32 i = 0; i < OwnerCharacter->GetMesh()->GetSkeletalMeshAsset()->GetMaterials().Num(); i++)
@@ -43,22 +43,20 @@ void ACGhostTrail::BeginPlay()
 
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this, initialLocaton, initialRotator]()
-	{
-		if (Mesh->IsVisible() == false)
-			Mesh->ToggleVisibility();
+		{
+			if (Mesh->IsVisible() == false)
+				Mesh->ToggleVisibility();
 
-		/*SetActorLocation(OwnerCharacter->GetActorLocation() + FVector(0, 0, -90));
-		SetActorRotation(OwnerCharacter->GetActorRotation() + FRotator(0, -90, 0));*/
+			SetActorLocation(initialLocaton);
+			// 액터는 회전을 따라가고, Mesh는 초기 회전 유지
+			SetActorRotation(OwnerCharacter->GetActorRotation());
+			Mesh->SetWorldRotation(OwnerCharacter->GetActorRotation());
+			Mesh->SetComponentTickEnabled(false); // 생성 후 업데이트 막기 
 
-		SetActorLocation(initialLocaton);
-		// 액터는 회전을 따라가고, Mesh는 초기 회전 유지
-		SetActorRotation(OwnerCharacter->GetActorRotation());
-		Mesh->SetWorldRotation(initialRotator);
-		
-		// 포즈 유지 (위치는 변동 없음)
-		Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh());
-		CopySubMeshes(OwnerCharacter->GetMesh());
-	});
+			// 포즈 유지 (위치는 변동 없음)
+			Mesh->CopyPoseFromSkeletalComponent(OwnerCharacter->GetMesh());
+			CopySubMeshes(OwnerCharacter->GetMesh());
+		});
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, timerDelegate, Interval, true, StartDelay);
 }
@@ -83,7 +81,7 @@ void ACGhostTrail::DestroyTrail()
 	}
 
 	// 메인 메쉬 삭제 
-	Mesh->DestroyComponent(); 
+	Mesh->DestroyComponent();
 
 	// 이 클래스 삭제 
 	//this->Destroy(); 
@@ -105,11 +103,11 @@ void ACGhostTrail::SetSubMeshes(USkeletalMeshComponent* InParentMesh)
 		if (USkeletalMeshComponent* childMesh = Cast<USkeletalMeshComponent>(child))
 		{
 			UPoseableMeshComponent* pose = NewObject<UPoseableMeshComponent>(this);
-			if (pose)
+			if (pose != nullptr)
 			{
 				pose->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 				pose->RegisterComponent();
-				
+
 				pose->SetVisibility(false);
 				pose->SetSkeletalMesh(childMesh->GetSkeletalMeshAsset());
 				// 자식의 포즈는 부모에서 처리

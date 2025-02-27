@@ -79,16 +79,12 @@ void UCDashComponent::DashAction()
 
 	// 콜한 시점의 위치 저장 
 	PrevLocation = OwnerCharacter->GetActorLocation();
-
 	FVector right = OwnerCharacter->GetActorRightVector();
 //	FVector move = OwnerCharacter->GetVelocity().GetSafeNormal();
 	FVector moveInput = OwnerCharacter->GetLastMovementInputVector().GetSafeNormal();
 
-	//FLog::Print("Speed X : " + FString::SanitizeFloat(move.X), 3928);
-	//FLog::Print("Speed Y : " + FString::SanitizeFloat(move.Y), 3929);
+	GroundNormal = GetGroundNormal();
 
-	//FLog::Print("MoveInput X : " + FString::SanitizeFloat(move.X), 3928);
-	//FLog::Print("MoveInput Y : " + FString::SanitizeFloat(move.Y), 3929);
 
 	float dot = FVector::DotProduct(right, moveInput);
 
@@ -142,14 +138,17 @@ void UCDashComponent::Begin_DashSpeed()
 	else
 		dashDir = OwnerCharacter->GetLastMovementInputVector();
 
-	// Dash 
-	OwnerCharacter->LaunchCharacter(dashDir * DashSpeed, true, true);
+	FVector adjustDashDir = dashDir - FVector::DotProduct(dashDir, GroundNormal) * GroundNormal;
 
+	// Dash 
+	OwnerCharacter->LaunchCharacter(adjustDashDir * DashSpeed, true, true);
 }
 
 void UCDashComponent::End_DashSpeed()
 {
 	//Movement->SetSpeed(ESpeedType::Run);
+	GroundNormal = FVector::ZeroVector;
+
 	HandleEndDash();
 }
 
@@ -265,17 +264,35 @@ void UCDashComponent::Destroy_SingleGhostTrail()
 	GetWorld()->GetTimerManager().SetTimer(DestroyTimer, TimerDelegate, 0.075f, true);
 }
 
+FVector UCDashComponent::GetGroundNormal()
+{
+	FHitResult hitResult;
+	FVector start = OwnerCharacter->GetActorLocation();
+	FVector end = start - FVector(0.0f, 0.0f, 1000.0f);
+	
+	FCollisionQueryParams params; 
+	params.AddIgnoredActor(OwnerCharacter); 
+
+	GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECC_Visibility, params);
+
+	if (hitResult.IsValidBlockingHit())
+	{
+		return hitResult.Normal;
+	}
+
+	return FVector::ZAxisVector;
+}
+
 
 // Handle
 //-----------------------------------------------------------------------------
 void UCDashComponent::HandleBeginDash()
 {
-	bIsDashing = true;
-
 	CheckNull(State);
 	CheckNull(Camera);
 	CheckNull(Weapon);
-	CheckNull(Weapon->GetEquipment());
+
+	bIsDashing = true;
 
 	// PostProcess
 	if (!!Camera)
@@ -301,9 +318,9 @@ void UCDashComponent::HandleBeginDash()
 
 		State->SetDashMode();
 	}
-	//CreateEvadeOverlap(OwnerCharacter->GetActorLocation());
+	
 
-	if (Weapon->GetEquipment()->GetBeginEquip() == true)
+	if (Weapon->GetEquipment() != nullptr && Weapon->GetEquipment()->GetBeginEquip() == true)
 		Weapon->GetEquipment()->End_Equip();
 }
 
