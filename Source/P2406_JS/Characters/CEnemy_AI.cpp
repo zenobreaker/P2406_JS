@@ -41,7 +41,7 @@ ACEnemy_AI::ACEnemy_AI()
 	LabelWidget->SetDrawSize(FVector2D(120, 0));
 	LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
-	FHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BehaviorTree'/Game/Enemies/Melee/BT_Melee.BT_Melee'");
+	FHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BlackboardData'/Game/Enemies/Melee/Melee_Base/BB_Melee_Small.BB_Melee_Small'");
 
 	if (IIGuardable::Execute_HasGuard(this))
 	{

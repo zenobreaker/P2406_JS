@@ -12,7 +12,7 @@ class P2406_JS_API ACAIController : public AAIController
 
 
 
-private:
+protected:
 	UPROPERTY(VisibleAnywhere)
 	class UAIPerceptionComponent* Perception;
 
@@ -31,14 +31,14 @@ public:
 	void HandleSightPerception(class AActor* InActor);
 	void HandleTeamPerception(class AActor* InActor);
 
-private:
+protected:
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
 	UFUNCTION()
 	void OnEnemyDead();
 
-private:
+protected:
 	class ACEnemy_AI* Enemy;
 	class UCAIBehaviorComponent* Behavior;
 

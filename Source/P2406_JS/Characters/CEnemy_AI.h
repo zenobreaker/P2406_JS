@@ -16,7 +16,7 @@ private:
 	static int32 GlobalID;
 	int32 AIID;
 
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Team")
 	class UBehaviorTree* BehaviorTree;
 

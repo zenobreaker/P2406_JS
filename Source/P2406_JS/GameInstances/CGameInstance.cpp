@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "GameInstances/CSkillManager.h"
 #include "GameInstances/CBattleManager.h"
+#include "GameInstances/CPatternConditionManager.h"
 
 UCGameInstance::UCGameInstance()
 {
@@ -17,5 +18,7 @@ void UCGameInstance::Init()
 
 		 // 여기서 뭘 할까? 
 	}
+	
+	UCPatternConditionManager::Get()->InitConditionData();
 }
 

@@ -22,7 +22,7 @@ public:
 
 	// 런타임에 생성할 ActiveSkill의 클래스 참조
 	UPROPERTY(EditAnywhere, Category = "Skill")
-	TSubclassOf<UCActiveSkill> SkillClass;
+	TSubclassOf<UCActiveSkill> SkillClass = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Skill")
 	FSkillFlowData FlowData;

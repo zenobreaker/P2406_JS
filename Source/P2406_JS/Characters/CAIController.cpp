@@ -16,7 +16,6 @@
 ACAIController::ACAIController()
 {
 	FHelpers::CreateActorComponent<UAIPerceptionComponent>(this, &Perception, "Perception");
-
 	FHelpers::CreateActorComponent<UBlackboardComponent>(this, &Blackboard, "Blackboard");
 
 	// 시야 구성 
