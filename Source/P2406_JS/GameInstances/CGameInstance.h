@@ -22,4 +22,7 @@ public:
 
 	UPROPERTY()
 	class UCBattleManager* BattleManager;
+
+	UPROPERTY()
+	class UCPatternConditionManager* PatternCondition;
 };

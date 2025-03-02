@@ -43,6 +43,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName EqsLocationKey = "EqsLocation";
 
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName PatternDecideKey = "PatternDecide";
+
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName PatternNumber = "PatternNumber";
+
 private:
 	EAIStateType GetType();
 
@@ -64,8 +70,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-
-
 public:
 	class ACharacter* GetTarget();
 	void SetTarget(class ACharacter* InTarget);
@@ -75,6 +79,12 @@ public:
 
 	FVector GetEqsLocation();
 	void SetEqsLocation(const FVector& InLocation);
+
+	bool GetPattrenDecide(); 
+	void SetPatternDecide(bool InPatternDecide);
+
+	int32 GetPatternNumber();
+	void SetPatternNumber(int32 InPatternNumber);
 
 public:
 	void SetWaitMode();
@@ -107,6 +117,9 @@ public:
 
 	UFUNCTION()
 	void OnCharacterDead();
+
+	UFUNCTION()
+	void OnDecidedPattern(bool InValue);
 
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;

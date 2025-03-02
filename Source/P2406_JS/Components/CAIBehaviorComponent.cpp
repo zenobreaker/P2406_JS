@@ -6,6 +6,7 @@
 
 #include "Components/CStateComponent.h"
 #include "Components/CConditionComponent.h"
+#include "Components/CPatternComponent.h"
 
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CBattleManager.h"
@@ -34,9 +35,11 @@ void UCAIBehaviorComponent::BeginPlay()
 	if (!!condition)
 	{
 		condition->OnAddCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnAddCondiitionType);
-
 		condition->OnRemoveCondiitionType.AddDynamic(this, &UCAIBehaviorComponent::OnRemoveConditionType);
 	}
+
+	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(CachedAI);
+	REGISTER_EVENT_WITH_REPLACE(pattern, OnDecidedPattern, this, UCAIBehaviorComponent::OnDecidedPattern);
 
 	if(!!Blackboard)
 		Blackboard->SetValueAsBool("bCanAct", true);
@@ -68,6 +71,26 @@ FVector UCAIBehaviorComponent::GetEqsLocation()
 void UCAIBehaviorComponent::SetEqsLocation(const FVector& InLocation)
 {
 	Blackboard->SetValueAsVector(EqsLocationKey, InLocation);
+}
+
+bool UCAIBehaviorComponent::GetPattrenDecide()
+{
+	return Blackboard->GetValueAsBool(PatternDecideKey);
+}
+
+void UCAIBehaviorComponent::SetPatternDecide(bool InPatternDecide)
+{
+	Blackboard->SetValueAsBool(PatternDecideKey, InPatternDecide);
+}
+
+int32 UCAIBehaviorComponent::GetPatternNumber()
+{
+	return Blackboard->GetValueAsInt(PatternNumber);
+}
+
+void UCAIBehaviorComponent::SetPatternNumber(int32 InPatternNumber)
+{
+	Blackboard->SetValueAsInt(PatternNumber, InPatternNumber);
 }
 
 
@@ -316,6 +339,11 @@ void UCAIBehaviorComponent::OnCharacterDead()
 	FLog::Log(CachedAI->GetName() + "Dead Call");
 	// 아아 죽었나이까?.. 
 	SetDeadMode();
+}
+
+void UCAIBehaviorComponent::OnDecidedPattern(bool InValue)
+{
+	Blackboard->SetValueAsBool(PatternDecideKey, InValue);
 }
 
 ACharacter* UCAIBehaviorComponent::GetTarget()

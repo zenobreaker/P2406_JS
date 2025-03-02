@@ -3,6 +3,7 @@
 #include "Engine/DataTable.h"
 
 #include "Gameframework/Character.h"
+#include "GameInstances/CGameInstance.h"
 #include "GameInstances/CPatternConditionManager.h"
 #include "Skill/CSkillAsset.h"
 
@@ -34,6 +35,13 @@ UCPatternComponent::UCPatternComponent()
 void UCPatternComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (instance != nullptr)
+	{
+		PatternCondition = instance->PatternCondition;
+	}
+
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
@@ -101,15 +109,14 @@ void UCPatternComponent::ExecutePattern()
 
 	DecidedPattern = nullptr;
 	bDecided = false;
-
-
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
 }
 
 void UCPatternComponent::DecidePattern()
 {
-	CheckTrue(bDecided); 
+	CheckTrue(bDecided);
 
-	TArray<FPatternInfo*> selectedInfos; 
+	TArray<FPatternInfo*> selectedInfos;
 
 	for (FPatternInfo& Pattern : PatternInfos)
 	{
@@ -117,7 +124,7 @@ void UCPatternComponent::DecidePattern()
 
 		for (int32 ConditionID : Pattern.ConditionIDs)
 		{
-			if (UCPatternConditionManager::Get()->CheckCondition(ConditionID, OwnerCharacter) == false)
+			if (!!PatternCondition && PatternCondition->CheckCondition(ConditionID, OwnerCharacter) == false)
 			{
 				bCanExecute = false;
 				break;
@@ -136,8 +143,9 @@ void UCPatternComponent::DecidePattern()
 	if (selectedInfos.Num() <= 0)
 		return;
 
-	bDecided = true; 
+	bDecided = true;
 	DecidedPattern = selectedInfos.HeapTop();
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
 	FLog::Print("Decide Pattern : " + FString::FromInt(DecidedPattern->PatternID));
 }
 

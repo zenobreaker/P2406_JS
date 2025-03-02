@@ -13,7 +13,7 @@
 #include "Weapons/CAttachment.h"
 
 #include "GenericTeamAgentInterface.h"
-#include <Characters\CPlayer.h>
+#include "Characters\CPlayer.h"
 
 void UCDoAction_JumpAction::BeginPlay(ACharacter* InOwner, ACAttachment* InAttachment, UCEquipment* InEquipment, const TArray<FDoActionData>& InDoActionDatas, const TArray<FHitData>& InHitDatas)
 {
@@ -292,6 +292,23 @@ void UCDoAction_JumpAction::End_DoAction_FallAttack()
 	}
 }
 
+void UCDoAction_JumpAction::Play_DownEffect()
+{
+	CheckNull(FallingEffect.DownEffect);
+	CheckNull(OwnerCharacter);
+
+	FVector location = OwnerCharacter->GetActorLocation();
+	FRotator rotator = OwnerCharacter->GetActorRotation();
+
+	location += rotator.RotateVector(FallingEffect.EffectLocation);
+
+	FTransform transform;
+	transform.SetLocation(location);
+	transform.SetScale3D(FallingEffect.EffectScale);
+
+	FHelpers::PlayEffect(OwnerCharacter->GetWorld(), FallingEffect.DownEffect, transform);
+}
+
 void UCDoAction_JumpAction::PlayFallAttackMontage()
 {
 	FallActionDatas[(int32)FallAttackState::Loop].DoAction(OwnerCharacter);
@@ -333,7 +350,7 @@ void UCDoAction_JumpAction::ChecFallAttackHit()
 		tracePramams
 	);
 
-	DrawDebugSphere(OwnerCharacter->GetWorld(), endlocation, radius, 12, FColor::Red, false, 1.0f);
+	//DrawDebugSphere(OwnerCharacter->GetWorld(), endlocation, radius, 12, FColor::Red, false, 1.0f);
 
 	// 面倒 惯积 矫 贸府
 	if (bHit)

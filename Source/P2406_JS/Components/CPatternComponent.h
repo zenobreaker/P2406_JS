@@ -5,6 +5,7 @@
 #include "Patterns/CPatternStructures.h"
 #include "CPatternComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDecidedPattern, bool, InValue);
 
 USTRUCT(BlueprintType)
 struct FPatternInfo
@@ -64,6 +65,10 @@ public:
 
 	void DecidePattern();
 
+public:
+	FDecidedPattern OnDecidedPattern;
+
+
 private:
 	class ACharacter* OwnerCharacter;
 
@@ -80,4 +85,6 @@ private:
 
 private:
 	UDataTable* PatternDataTable;
+	class UCGameInstance* GameInstance;
+	class UCPatternConditionManager* PatternCondition;
 };

@@ -58,7 +58,7 @@ void UCSkillCollision_Area::CheckCollision()
 	FVector Start = StartLocation;
 
 	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
-	DrawDebugSphere(OwnerCharacter->GetWorld(), Start, CollisionRadius, 12, FColor::Red, false, 1.0f);
+	//DrawDebugSphere(OwnerCharacter->GetWorld(), Start, CollisionRadius, 12, FColor::Red, false, 1.0f);
 
 	// 트레이스 설정 
 	FCollisionQueryParams tracePramams;

@@ -4,8 +4,6 @@
 
 #include "Components/CHealthPointComponent.h"
 
-UCPatternConditionManager* UCPatternConditionManager::SingletonInstance = nullptr;
-
 bool FPatternCondition::IsConditionMet(ACharacter* InCharacter)
 {
 	// 여기서 타입과 value로 비교 
@@ -42,18 +40,13 @@ UCPatternConditionManager::UCPatternConditionManager()
 
 }
 
-UCPatternConditionManager* UCPatternConditionManager::Get()
-{
-	if (SingletonInstance == nullptr)
-		SingletonInstance = NewObject<UCPatternConditionManager>();
-
-	return SingletonInstance;
-}
-
 void UCPatternConditionManager::InitConditionData()
 {
-	if (DataTable == nullptr)
+	if (!ensure(DataTable))  // DataTable이 유효한지 체크
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UCPatternConditionManager] DataTable is NULL! InitConditionData failed."));
 		return;
+	}
 
 
 	TArray<FPatternConditionInfo*> Rows;
@@ -94,6 +87,7 @@ void UCPatternConditionManager::AddCondition(int32 InConditionID,
 
 bool UCPatternConditionManager::CheckCondition(int32 InConditionID, ACharacter* InCharacter)
 {
+	CheckFalseResult(PatternConditionTable.Num() > 0, false);
 
 	if (PatternConditionTable.Contains(InConditionID))
 	{

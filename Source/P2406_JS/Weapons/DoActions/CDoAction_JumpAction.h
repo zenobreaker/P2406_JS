@@ -11,13 +11,33 @@ enum class FallAttackState
 	Begin, Loop, End, Max
 };
 
-UCLASS()
+USTRUCT()
+struct FallingAttackEffect 
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	class UFXSystemAsset* DownEffect;
+
+	UPROPERTY(EditAnywhere)
+	FVector EffectLocation = FVector::OneVector;
+
+	UPROPERTY(EditAnywhere)
+	FVector EffectScale = FVector::OneVector;
+};
+
+UCLASS(Blueprintable)
 class P2406_JS_API UCDoAction_JumpAction
 	: public UCDoAction
 	, public IIComboable
 {
 	GENERATED_BODY()
 	
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	struct FallingAttackEffect FallingEffect;
 
 public:
 	FORCEINLINE void EnableCombo() override { bEnable = true; }
@@ -69,6 +89,7 @@ public:
 	void DoAction_FallAttackFlow(FallAttackState InState);
 	void Begin_DoAction_FallAttack();
 	void End_DoAction_FallAttack();
+	void Play_DownEffect();
 
 public:
 	void PlayFallAttackMontage() override;

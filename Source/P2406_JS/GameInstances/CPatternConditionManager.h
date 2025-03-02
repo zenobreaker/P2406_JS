@@ -62,9 +62,6 @@ public:
 	UCPatternConditionManager();
 
 public:
-	static UCPatternConditionManager* Get();
-
-public:
 	void InitConditionData();
 
 
@@ -77,8 +74,5 @@ private:
 	TMap<int32, TUniquePtr<FPatternCondition>> PatternConditionTable;
 
 private:
-	UDataTable* DataTable;
-
-private:
-	static UCPatternConditionManager* SingletonInstance;
+	UDataTable* DataTable = nullptr;
 };
