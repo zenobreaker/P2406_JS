@@ -102,6 +102,8 @@ public:
 	virtual void Create_Collision() {}
 
 public:
+	virtual void OnActivated_Collision();
+	virtual void OnDeactivated_Collision();
 	virtual void OnSkillCasting() {}
 	virtual void OffSkillCasting() {}
 	virtual void OnSkillDoAction() {}

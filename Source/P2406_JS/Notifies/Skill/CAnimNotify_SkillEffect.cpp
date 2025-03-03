@@ -15,5 +15,5 @@ void UCAnimNotify_SkillEffect::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	UCSkillComponent* skill = FHelpers::GetComponent<UCSkillComponent>(MeshComp->GetOwner());
 
 	CheckNull(skill);
-	skill->CreateSkillEffect();
+	//skill->CreateSkillEffect();
 }

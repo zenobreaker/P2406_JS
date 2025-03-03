@@ -45,12 +45,12 @@ protected:
 	void CreateCollisionByType(FSkillCollisionData InData);
 
 public:
-	UFUNCTION()
 	// 충돌 시작
 	virtual void ActivateCollision();
-	UFUNCTION()
+	virtual void ActivateCollision(FName InName) {}
 	// 충돌 종료
 	virtual void DeactivateCollision();
+	virtual void DeactivateCollision(FName InName) {}
 
 	void SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs);
 	void SetSkillDamageEventOneParam(TArray<TFunction<void(ACharacter*)>> InFuncs);
@@ -67,6 +67,6 @@ private:
 protected:
 	class ACharacter* OwnerCharacter;
 
-private:
+protected:
 	class UCSkillCollisionComponent* SkillCollision;
 };

@@ -49,6 +49,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName PatternNumber = "PatternNumber";
 
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName ActionRangeKey = "ActionRange";
+
 private:
 	EAIStateType GetType();
 
@@ -86,6 +89,9 @@ public:
 	int32 GetPatternNumber();
 	void SetPatternNumber(int32 InPatternNumber);
 
+	float GetActionRange();
+	void SetActionRange(float InActionRange);
+
 public:
 	void SetWaitMode();
 	void SetApproachMode();
@@ -120,6 +126,10 @@ public:
 
 	UFUNCTION()
 	void OnDecidedPattern(bool InValue);
+
+	UFUNCTION()
+	void OnDecidedPattern_Range(float InValue);
+
 
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;

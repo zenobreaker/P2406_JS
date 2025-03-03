@@ -3,20 +3,43 @@
 
 #include "Components/SphereComponent.h"
 
-ACSkillCollision_Melee::ACSkillCollision_Melee()
+UCSkillCollision_Melee::UCSkillCollision_Melee()
 {
-	CollisionComponent = CreateDefaultSubobject<USphereComponent>("Collision");
-	CheckNull(CollisionComponent);
-
-	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ACSkillCollision_Melee::OnComponentBeginOverlap);
+	
+	
 }
 
-void ACSkillCollision_Melee::ActivateCollision()
+void UCSkillCollision_Melee::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+void UCSkillCollision_Melee::SetCollision(UPrimitiveComponent* InComponent)
 {
 
 }
 
-void ACSkillCollision_Melee::DeactivateCollision()
+void UCSkillCollision_Melee::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	CheckTrue(OwnerCharacter == OtherActor);
+
 
 }
+
+void UCSkillCollision_Melee::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	CheckTrue(OwnerCharacter == OtherActor);
+
+
+}
+
+//void UCSkillCollision_Melee::ActivateCollision()
+//{
+//
+//}
+//
+//void UCSkillCollision_Melee::DeactivateCollision()
+//{
+//
+//}

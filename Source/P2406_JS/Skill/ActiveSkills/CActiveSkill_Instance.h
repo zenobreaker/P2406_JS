@@ -16,4 +16,7 @@ class P2406_JS_API UCActiveSkill_Instance : public UCActiveSkill
 protected:
 	virtual void DefineSkillPhases() override; 
 
+public:
+	virtual void Begin_Casting() override;
+	virtual void Begin_Skill() override;
 };

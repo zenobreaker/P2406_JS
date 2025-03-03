@@ -45,7 +45,7 @@ void ACAttachment::AttachTo(FName InSocketName)
 {
 	if (OwnerCharacter->GetMesh()->DoesSocketExist(InSocketName) == false)
 	{
-		FString string = "Socek is Null " + InSocketName.ToString() + "Witth " + this->GetName();
+		FString string = "Socket is Null " + InSocketName.ToString() + "With " + this->GetName();
 		FLog::Log(string);
 	}
 

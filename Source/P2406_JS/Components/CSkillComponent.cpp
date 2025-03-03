@@ -105,20 +105,6 @@ void UCSkillComponent::ReleaseSkill(int32 InSlot)
 	SkillSlotTable[(ESkillSlot)InSlot]->ReleaseSkill();
 }
 
-void UCSkillComponent::CreateSkillCollision()
-{
-	CheckNull(CurrentSkill);
-
-	CurrentSkill->Create_Collision();
-}
-
-void UCSkillComponent::CreateSkillEffect()
-{
-	CheckNull(CurrentSkill);
-
-	CurrentSkill->Create_SkillEffect();
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 void UCSkillComponent::BeginSkill()
@@ -254,6 +240,20 @@ void UCSkillComponent::Update_SkillCooldown(float InDeltaTime)
 
 		skillSlot.Value->Update_Cooldown(InDeltaTime);
 	}
+}
+
+void UCSkillComponent::OnActivated_Collision()
+{
+	CheckNull(CurrentSkill);
+
+	CurrentSkill->OnActivated_Collision();
+}
+
+void UCSkillComponent::OnDeactivated_Collision()
+{
+	CheckNull(CurrentSkill);
+
+	CurrentSkill->OnDeactivated_Collision();
 }
 
 //----------------------------------------------------------------------------------------

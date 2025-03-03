@@ -21,12 +21,16 @@ public:
 	float Priority = 0.0f;
 
 	UPROPERTY(EditAnywhere)
+	float ActionRange = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	float Cooldown = 0.0f;
+
+	UPROPERTY(EditAnywhere)
 	TArray<int32> ConditionIDs;
 
 	UPROPERTY(EditAnywhere)
 	TArray<UCSkillAsset*> SkillAssets;
-
-
 };
 
 class P2406_JS_API UCPatternStructures : public UObject

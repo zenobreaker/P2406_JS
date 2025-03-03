@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
 
+#include "Skill/CSkillEntity.h"
+
 void UCActiveSkill::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData)
 {
 	OwnerCharacter = InOwner;
@@ -205,7 +207,6 @@ void UCActiveSkill::ExecutePhase(ESkillPhase InPhase)
 	if (SkillPhaseTable.Contains(InPhase) && SkillPhaseTable[InPhase].PhaseFunction)
 	{
 		SkillPhaseTable[InPhase].PhaseFunction();
-		
 	}
 	else
 	{
@@ -253,5 +254,19 @@ void UCActiveSkill::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 
 	FLog::Log("Montage End Test");
+}
+
+void UCActiveSkill::OnActivated_Collision()
+{
+	CheckNull(SkillEntity);
+
+	SkillEntity->ActivateCollision();
+}
+
+void UCActiveSkill::OnDeactivated_Collision()
+{
+	CheckNull(SkillEntity);
+
+	SkillEntity->DeactivateCollision();
 }
 

@@ -23,10 +23,12 @@ EBTNodeResult::Type UCBTTaskNode_DecidePattern::ExecuteTask(UBehaviorTreeCompone
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
 	CheckNullResult(pattern, EBTNodeResult::Failed);
 
-	if (pattern->GetDecidePattern() == false)
+	if (pattern->GetDecidePattern() == false && pattern->IsExecutePattern() == false)
+	{
 		pattern->DecidePattern();
-	
-	return EBTNodeResult::Succeeded;
+		return EBTNodeResult::Succeeded;
+	}
+	return EBTNodeResult::Failed;
 }
 
 EBTNodeResult::Type UCBTTaskNode_DecidePattern::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

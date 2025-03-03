@@ -36,6 +36,8 @@ void UCPatternComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentPhase = 1; 
+
 	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (instance != nullptr)
 	{
@@ -52,7 +54,10 @@ void UCPatternComponent::BeginPlay()
 		info.PatternID = data.PatternID;
 		info.Phase = data.Phase;
 		info.Priority = data.Priority;
+		info.ActionRange = data.ActionRange;
+		info.Cooldown = data.Cooldown;
 		info.ConditionIDs = data.ConditionIDs;
+
 		if (data.SkillAssets.Num() > 0)
 		{
 			for (int32 i = 0; i < data.SkillAssets.Num(); i++)
@@ -67,6 +72,7 @@ void UCPatternComponent::BeginPlay()
 			}
 		}
 
+		info.CurrentCooldown = info.Cooldown;
 		PatternInfos.Add(info);
 	}
 }
@@ -81,11 +87,7 @@ void UCPatternComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	
 	for (int32 i = 0; i < PatternInfos.Num(); i++)
 	{
-		for (auto& skill : PatternInfos[i].ActiveSkills)
-		{
-			if(skill->IsCooldown() == false)
-				skill->Update_Cooldown(DeltaTime); 
-		}
+		PatternInfos[i].CurrentCooldown -= DeltaTime;
 	}
 }
 
@@ -97,16 +99,21 @@ void UCPatternComponent::SetPattern(int32 InPaternID)
 void UCPatternComponent::ExecutePattern()
 {	
 	CheckNull(DecidedPattern);
-	CheckFalse(DecidedPattern->ActiveSkills.Num() <= 0);
+	CheckFalse(DecidedPattern->ActiveSkills.Num() > 0);
 	
 	FLog::Print("Execute Pattern : " + FString::FromInt(DecidedPattern->PatternID));
 
 	//TODO: 각 스킬들을 한꺼번에 실행하는 구조인데 어디다가 딜레이값을 넣어야할지도 모르겠다. 
 	for (int32 i = 0; i < DecidedPattern->ActiveSkills.Num(); i++)
 	{
+		if(DecidedPattern->ActiveSkills[i] == nullptr)
+			continue; 
+
 		DecidedPattern->ActiveSkills[i]->ExecuteSkill();
 	}
 
+	bExecutePattern = true;
+	DecidedPattern->CurrentCooldown = DecidedPattern->Cooldown;
 	DecidedPattern = nullptr;
 	bDecided = false;
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
@@ -115,18 +122,25 @@ void UCPatternComponent::ExecutePattern()
 void UCPatternComponent::DecidePattern()
 {
 	CheckTrue(bDecided);
+	CheckTrue(bExecutePattern);
 
 	TArray<FPatternInfo*> selectedInfos;
 
 	for (FPatternInfo& Pattern : PatternInfos)
 	{
+		if (Pattern.Phase > CurrentPhase)
+			continue; 
+
 		bool bCanExecute = true;
+
+		if (Pattern.CurrentCooldown > 0.0f)
+			bCanExecute &= false;
 
 		for (int32 ConditionID : Pattern.ConditionIDs)
 		{
 			if (!!PatternCondition && PatternCondition->CheckCondition(ConditionID, OwnerCharacter) == false)
 			{
-				bCanExecute = false;
+				bCanExecute &= false;
 				break;
 			}
 		}
@@ -146,6 +160,17 @@ void UCPatternComponent::DecidePattern()
 	bDecided = true;
 	DecidedPattern = selectedInfos.HeapTop();
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, DecidedPattern->ActionRange);
 	FLog::Print("Decide Pattern : " + FString::FromInt(DecidedPattern->PatternID));
+}
+
+void UCPatternComponent::Begin_Pattern()
+{
+	bExecutePattern = true; 
+}
+
+void UCPatternComponent::End_Pattern()
+{
+	bExecutePattern = false; 
 }
 

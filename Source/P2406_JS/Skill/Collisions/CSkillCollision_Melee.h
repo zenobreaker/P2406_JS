@@ -1,23 +1,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Skill/CSkillCollision.h"
+#include "Skill/CSkillCollisionComponent.h"
 #include "CSkillCollision_Melee.generated.h"
 
 
 UCLASS()
-class P2406_JS_API ACSkillCollision_Melee 
-	: public ACSkillCollision
+class P2406_JS_API UCSkillCollision_Melee 
+	: public UCSkillCollisionComponent
 {
 	GENERATED_BODY()
 	
 public:
-	ACSkillCollision_Melee();
+	UCSkillCollision_Melee();
 
 public:
-	// 충돌 시작
-	virtual void ActivateCollision() override;
+	virtual void BeginPlay() override; 
+	virtual void SetCollision(UPrimitiveComponent* InComponent); 
 
-	// 충돌 종료
-	virtual void DeactivateCollision() override;
+	
+public:
+	UFUNCTION()
+	virtual void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	virtual void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+//public:
+//	// 충돌 시작
+//	virtual void ActivateCollision() override;
+//
+//	// 충돌 종료
+//	virtual void DeactivateCollision() override;
 };

@@ -2,9 +2,17 @@
 #include "Global.h"
 #include "Components/CSkillComponent.h"
 
+UCAnimNotify_SkillCollision::UCAnimNotify_SkillCollision()
+{
+#if WITH_EDITORONLY_DATA
+	FLinearColor color = FLinearColor(0.3f, 1.0f, 0.5f);
+	NotifyColor = color.ToFColor(true);
+#endif 
+}
+
 FString UCAnimNotify_SkillCollision::GetNotifyName_Implementation() const
 {
-	return "Skill_Collision";
+	return  UCAnimNotify_Structures::GetNotifyName("Skill_Collision", Type);
 }
 
 void UCAnimNotify_SkillCollision::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -17,5 +25,13 @@ void UCAnimNotify_SkillCollision::Notify(USkeletalMeshComponent* MeshComp, UAnim
 
 	CheckNull(skill);
 
-	skill->CreateSkillCollision();
+	switch (Type)
+	{
+	case EAnimNotify_Flow::Begin:
+		skill->OnActivated_Collision();
+		break; 
+	case EAnimNotify_Flow::End:
+		skill->OnDeactivated_Collision();
+		break;
+	}
 }

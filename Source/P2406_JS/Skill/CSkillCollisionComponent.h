@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Skill/CSkillStructures.h"
 #include "Weapons/AddOns/AttackInterface.h"
 #include "CSkillCollisionComponent.generated.h"
@@ -12,7 +12,7 @@ DECLARE_DELEGATE_ThreeParams(FOnSkillDamagedThreeParams, ACharacter*, AActor*, A
 
 UCLASS(BlueprintType, Blueprintable)
 class P2406_JS_API UCSkillCollisionComponent 
-	: public UActorComponent
+	: public UPrimitiveComponent
 	, public IAttackInterface
 {
 	GENERATED_BODY()

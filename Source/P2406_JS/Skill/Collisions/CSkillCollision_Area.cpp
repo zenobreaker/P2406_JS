@@ -13,6 +13,8 @@ void UCSkillCollision_Area::BeginPlay()
 	Super::BeginPlay();
 
 	Index = 0;
+
+	ActivateCollision();
 }
 
 void UCSkillCollision_Area::ActivateCollision()

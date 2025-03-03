@@ -6,6 +6,7 @@
 #include "CPatternComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDecidedPattern, bool, InValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDecidedPattern_Range, float, InValue);
 
 USTRUCT(BlueprintType)
 struct FPatternInfo
@@ -22,15 +23,25 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Priority = 0.0f;
 
+	UPROPERTY(EditAnywhere)
+	float ActionRange = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	float Cooldown = 0.0f;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<int32> ConditionIDs; // 패턴을 수행할 수 있는 조건 ID 리스트
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<class UCActiveSkill*> ActiveSkills; // 이 패턴이 실행할 스킬들
 
+
+public:
+	float CurrentCooldown = 0.0f;
+
 public:
 	FPatternInfo()
-		: PatternID(-1), Phase(0), Priority(0.0f)
+		: PatternID(-1), Phase(0), Priority(0.0f), ActionRange(0.0f)
     {}
 };
 
@@ -49,6 +60,7 @@ private:
 
 public:
 	FORCEINLINE bool GetDecidePattern() const { return bDecided; }
+	FORCEINLINE bool IsExecutePattern() const {return bExecutePattern;}
 
 public:
 	UCPatternComponent();
@@ -64,10 +76,14 @@ public:
 	void ExecutePattern();
 
 	void DecidePattern();
+	
+public:
+	void Begin_Pattern();
+	void End_Pattern();
 
 public:
 	FDecidedPattern OnDecidedPattern;
-
+	FDecidedPattern_Range OnDecidedPattern_Range;
 
 private:
 	class ACharacter* OwnerCharacter;
@@ -81,6 +97,7 @@ private:
 private:
 	TArray<FPatternInfo> PatternInfos; 
 	bool bDecided = false;
+	bool bExecutePattern = false;
 	FPatternInfo* DecidedPattern;
 
 private:

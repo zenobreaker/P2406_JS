@@ -67,16 +67,19 @@ void UCBTService_Boss::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	CheckNull(target);
 
 	bool bPatternDecide = CachedBehavior->GetPattrenDecide();
+	bool bPatternExecute = CachedPattern->IsExecutePattern();
+	if (bPatternExecute)
+		return;
 
 	//TODO: 이 내용은 조금 복잡해지는 내용이므로 어드밴스드 서비스나 다른 서비스에서 하는 것도
 	UCConditionComponent* targetCondition = FHelpers::GetComponent<UCConditionComponent>(target);
 	if ((targetCondition && targetCondition->GetDownCondition()) || bPatternDecide == false)
 	{
 		CachedBehavior->SetWaitMode();
-
+		
 		return;
 	}
-
+	ActionRange = CachedBehavior->GetActionRange();
 	float distance = CachedAI->GetDistanceTo(target);
 	if (distance <= ActionRange)
 	{

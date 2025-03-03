@@ -49,8 +49,6 @@ public:
 public:
 	void ExecuteSkill(int32 InSlot);
 	void ReleaseSkill(int32 InSlot);
-	void CreateSkillCollision(); 
-	void CreateSkillEffect();
 
 	void SetEmptySkillList();
 	void SetSkillList(const TArray<class UCActiveSkill*>& InActiveSkills);
@@ -70,6 +68,8 @@ private:
 	void HandleChargingSkill_Updated(class UCActvieSkill_Charge* InChargeSkill);
 
 public:
+	void OnActivated_Collision();
+	void OnDeactivated_Collision();
 	void OnSkillCasting();
 	void OffSkillCasting();
 	void OnSkillDoAction(); 

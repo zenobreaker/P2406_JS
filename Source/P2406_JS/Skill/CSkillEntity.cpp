@@ -37,7 +37,6 @@ void ACSkillEntity::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	ActivateCollision();
 }
 
@@ -50,7 +49,7 @@ void ACSkillEntity::DestroySkill()
 {
 	SkillCollision->DestroyComponent(); 
 
-	FLog::Log("Skill Destroied");
+	FLog::Log("Skill Destroyed");
 	//TODO: 나중에 오브젝트 콜링해도될듯
 	Destroy();
 }
