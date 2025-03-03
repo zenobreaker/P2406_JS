@@ -83,7 +83,10 @@ private:
 
 private:
     TArray<class ACharacter*> Hits; 
+    class ACPlayer* Player;
     class ACharacter* OwnerCharacter; 
     class UCWeaponComponent* Weapon; 
     class ACAttachment* Attachment;
+
+    int32 Hitcount = 0;
 };

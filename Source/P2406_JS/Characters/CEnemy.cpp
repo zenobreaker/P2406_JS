@@ -166,6 +166,10 @@ void ACEnemy::Damaged()
 		return;
 	}
 
+
+	Tags.Remove(FName("HitByWeapon"));
+	Tags.Remove(FName("NormalTrace"));
+
 	DamageData.Attacker = nullptr;
 	DamageData.Causer = nullptr;
 	DamageData.Event = nullptr;
@@ -214,7 +218,6 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FLog::Print("Launch + "+ launchVelocity.ToString(), 6986);
 	LaunchCharacter(launchVelocity, false, true);
 
-	/*FLog::Print("attacker = >  " + DamageData.Attacker->GetName());*/
 	// 나 공격한 대상 바라보기 
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 	targetRotator.Pitch = 0;

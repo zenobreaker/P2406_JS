@@ -218,7 +218,7 @@ void UCSwordSkill_DragonFall::End_Casting()
 void UCSwordSkill_DragonFall::Input_AnyKey()
 {
 #ifdef  LOG_UCSwordSkill_DragonFall
-	FLog::Log("DF - Inpaut AnyKey Phase");
+	FLog::Log("DF - Input AnyKey Phase");
 #endif
 	// 부모 내용 호출 
 	Super::Input_AnyKey();
@@ -246,6 +246,9 @@ void UCSwordSkill_DragonFall::End_Skill()
 		CurrentPhase = ESkillPhase::Max;
 		return;
 	}
+
+	// 카메라 리셋 
+	ResetCameraData();
 
 	bEndSkillCall = true; 
 	// 완전 종료는 Skill End Notify에서 

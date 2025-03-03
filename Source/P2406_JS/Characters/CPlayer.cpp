@@ -473,6 +473,9 @@ void ACPlayer::Damaged()
 		return;
 	}
 
+	Tags.Remove(FName("HitByWeapon"));
+	Tags.Remove(FName("NormalTrace"));
+
 	DamageData.Attacker = nullptr;
 	DamageData.Causer = nullptr;
 	DamageData.Event = nullptr;
@@ -532,7 +535,7 @@ void ACPlayer::End_Damaged()
 {
 	State->SetIdleMode();
 
-	Tags.Remove(FName("HitByWeapon"));
+
 }
 
 void ACPlayer::End_Downed()

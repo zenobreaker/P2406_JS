@@ -46,14 +46,14 @@ void UCDoAction_JumpAction::Tick(float InDelaTime)
 
 	switch (FAState)
 	{
-		case FallAttackState::Begin: break;
-		case FallAttackState::Loop: break;
-		case FallAttackState::End:
-		{
-			// 캐릭터가 땅에 착지하는지 트레이스 쏴서 검사 
-		}
-		break;
-		case FallAttackState::Max: break;
+	case FallAttackState::Begin: break;
+	case FallAttackState::Loop: break;
+	case FallAttackState::End:
+	{
+		// 캐릭터가 땅에 착지하는지 트레이스 쏴서 검사 
+	}
+	break;
+	case FallAttackState::Max: break;
 	}
 }
 
@@ -91,6 +91,8 @@ void UCDoAction_JumpAction::DoAction()
 
 	CheckFalse(State->IsIdleMode());
 
+	//OwnerCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+
 	Super::DoAction();
 
 
@@ -125,7 +127,7 @@ void UCDoAction_JumpAction::End_DoAction()
 	Super::End_DoAction();
 
 	End_DoAction_FallAttack();
-	
+
 	DoActionDatas[Index].End_DoAction(OwnerCharacter);
 
 	Index = 0;
@@ -148,24 +150,45 @@ void UCDoAction_JumpAction::OnAttachmentEndCollision()
 void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
+
 	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
 	if (player != nullptr)
 	{
 		if (player->IsJumping() == false)
 			return;
 	}
-	
+
+	if (InOther->Tags.Contains(FName("HitByWeapon")))
+		return;
+
 	CheckNull(InOther);
 	CheckTrue(IsMyTeam(InAttacker, InOther));
 	CheckTrue(IsOtherIsMe(InOther));
 
 	Hitted.AddUnique(InOther);
 	CheckTrue(HitDatas.Num() - 1 < Index);
-	
-	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther, Hitted.Num() <= 1);
-	
+
+
 	// 처리된 캐릭터에 대한 플래그 설정
 	InOther->Tags.Add(FName("HitByWeapon"));
+	
+	HitDatas[Index].SendDamage(InAttacker, InAttackCauser, InOther, Hitted.Num() <= 1);
+
+//	TWeakObjectPtr<AActor> WeakInOther = InOther;
+
+	//FTimerHandle RemoveTagTimer;
+	//OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(
+	//	RemoveTagTimer,
+	//	FTimerDelegate::CreateLambda([WeakInOther]()
+	//		{
+	//			if (WeakInOther.IsValid())  // 유효한 객체일 때만
+	//			{
+	//				WeakInOther->Tags.Remove(FName("HitByWeapon"));
+	//			}
+	//		}),
+	//	0.1f,  // 0.1초 후 태그 제거
+	//	false
+	//);
 }
 
 void UCDoAction_JumpAction::OnAttachmentEndOverlap(ACharacter* InAttacker, ACharacter* InOther)
@@ -182,54 +205,54 @@ void UCDoAction_JumpAction::DoAction_FallAttackFlow(FallAttackState InState)
 	FAState = InState;
 	switch (InState)
 	{
-		case FallAttackState::Begin:
-		{
-			SetFlyMode();
+	case FallAttackState::Begin:
+	{
+		SetFlyMode();
 
-			PreviousCollisionResponse = OwnerCharacter->GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn);
-			OwnerCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-			// 공격 모션 시작 
-			FallActionDatas[(int32)FallAttackState::Begin].DoAction(OwnerCharacter);
+		PreviousCollisionResponse = OwnerCharacter->GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn);
+		OwnerCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		// 공격 모션 시작 
+		FallActionDatas[(int32)FallAttackState::Begin].DoAction(OwnerCharacter);
 
-			Gravity = OwnerCharacter->GetCharacterMovement()->GravityScale;
-			Velocity = OwnerCharacter->GetCharacterMovement()->Velocity.Z;
+		Gravity = OwnerCharacter->GetCharacterMovement()->GravityScale;
+		Velocity = OwnerCharacter->GetCharacterMovement()->Velocity.Z;
 
-		}
-		break;
-		case FallAttackState::Loop:
-		{
-			// 낙하 실행 
-			SetFallMode();
-			FallActionDatas[(int32)FallAttackState::Loop].DoAction(OwnerCharacter);
-			Begin_DoAction_FallAttack();
-		}
-		break;
-		case FallAttackState::End:
-		{
-			// 착지 후 모션 시작
-			// 땅에 찾기 했다면 충격파 발생
-			FallActionDatas[(int32)FallAttackState::End].DoAction(OwnerCharacter);
+	}
+	break;
+	case FallAttackState::Loop:
+	{
+		// 낙하 실행 
+		SetFallMode();
+		FallActionDatas[(int32)FallAttackState::Loop].DoAction(OwnerCharacter);
+		Begin_DoAction_FallAttack();
+	}
+	break;
+	case FallAttackState::End:
+	{
+		// 착지 후 모션 시작
+		// 땅에 찾기 했다면 충격파 발생
+		FallActionDatas[(int32)FallAttackState::End].DoAction(OwnerCharacter);
 
-			// 모든 정보를 초기화한다. 
-			FAState = FallAttackState::Max;
-			bIsFallAttack = false;
-			bInExtraAction = false;
-			bEnable = false;
-			bExist = false;
+		// 모든 정보를 초기화한다. 
+		FAState = FallAttackState::Max;
+		bIsFallAttack = false;
+		bInExtraAction = false;
+		bEnable = false;
+		bExist = false;
 
-			OwnerCharacter->GetCharacterMovement()->Velocity.Z = Velocity;
-			OwnerCharacter->GetCharacterMovement()->GravityScale = Gravity;
-			Index = 0;
+		OwnerCharacter->GetCharacterMovement()->Velocity.Z = Velocity;
+		OwnerCharacter->GetCharacterMovement()->GravityScale = Gravity;
+		Index = 0;
 
-			if (Weapon != nullptr)
-				Weapon->SetFallingAttack(false);
+		if (Weapon != nullptr)
+			Weapon->SetFallingAttack(false);
 
-			OwnerCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, PreviousCollisionResponse);
+		OwnerCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, PreviousCollisionResponse);
 
-			ChecFallAttackHit();
-		}
-		break;
-		case FallAttackState::Max:
+		ChecFallAttackHit();
+	}
+	break;
+	case FallAttackState::Max:
 		break;
 	}
 }
@@ -239,32 +262,32 @@ void UCDoAction_JumpAction::Begin_DoAction_FallAttack()
 {
 	switch (FAState)
 	{
-		case FallAttackState::Begin:
-		{
-			// 입력할 때 낙하 공격한다고 플래그 ON
-			if (Weapon != nullptr)
-				Weapon->SetFallingAttack(true);
-		
-			// 낙하 시작할 때 이전에 공중 공격을 수행한 전적이 있다면 강제 종료 
-			End_DoAction();
+	case FallAttackState::Begin:
+	{
+		// 입력할 때 낙하 공격한다고 플래그 ON
+		if (Weapon != nullptr)
+			Weapon->SetFallingAttack(true);
 
-			// 루프로 옮김
-			DoAction_FallAttackFlow(FallAttackState::Loop);
+		// 낙하 시작할 때 이전에 공중 공격을 수행한 전적이 있다면 강제 종료 
+		End_DoAction();
 
-		}
-		break;
-		case FallAttackState::Loop:
-		{
-			OwnerCharacter->GetCharacterMovement()->GravityScale = Gravity * 4.0f;
-			OwnerCharacter->GetCharacterMovement()->Velocity.Z = -3000;
-		}
-		break;
-		case FallAttackState::End:
-		{
-		
-		}
-		break;
-		case FallAttackState::Max:
+		// 루프로 옮김
+		DoAction_FallAttackFlow(FallAttackState::Loop);
+
+	}
+	break;
+	case FallAttackState::Loop:
+	{
+		OwnerCharacter->GetCharacterMovement()->GravityScale = Gravity * 4.0f;
+		OwnerCharacter->GetCharacterMovement()->Velocity.Z = -3000;
+	}
+	break;
+	case FallAttackState::End:
+	{
+
+	}
+	break;
+	case FallAttackState::Max:
 		break;
 	}
 }
@@ -273,21 +296,21 @@ void UCDoAction_JumpAction::End_DoAction_FallAttack()
 {
 	switch (FAState)
 	{
-		case FallAttackState::Begin:
-		{
-		}
-		break;
-		case FallAttackState::Loop:
-		{
+	case FallAttackState::Begin:
+	{
+	}
+	break;
+	case FallAttackState::Loop:
+	{
 
-		}
-		break;
-		case FallAttackState::End:
-		{
-			FAState = FallAttackState::Max;
-		}
-		break;
-		case FallAttackState::Max:
+	}
+	break;
+	case FallAttackState::End:
+	{
+		FAState = FallAttackState::Max;
+	}
+	break;
+	case FallAttackState::Max:
 		break;
 	}
 }
@@ -404,7 +427,7 @@ void UCDoAction_JumpAction::Lanaded_FallAttack()
 void UCDoAction_JumpAction::OnLanded()
 {
 	Index = 0;
-	bExist = false; 
+	bExist = false;
 }
 
 

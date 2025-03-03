@@ -28,12 +28,6 @@ void ACSkillEntity_Attachment::BeginPlay()
             // 컴포넌트 등록
             NewSkillCollision->RegisterComponent();
 
-            // 새로 생성한 콜리전의 위치 및 회전 설정
-            NewSkillCollision->SetWorldTransform(SocketTransform);
-
-            // 소켓에 부착
-            NewSkillCollision->AttachToComponent(skeletal, FAttachmentTransformRules::SnapToTargetNotIncludingScale, socketName);
-
             SkillCollisions.Add(NewSkillCollision);
         }
 	}

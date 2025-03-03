@@ -1,14 +1,16 @@
 #include "Components/CAttackTraceComponent.h"
 #include "Global.h"
 #include "GenericTeamAgentInterface.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Characters/CPlayer.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CConditionComponent.h"
 #include "Weapons/CAttachment.h"
 
 
-//#define  LOG_UCAttackTraceComponent
+#define  LOG_UCAttackTraceComponent
 
 UCAttackTraceComponent::UCAttackTraceComponent()
 {
@@ -21,6 +23,7 @@ void UCAttackTraceComponent::BeginPlay()
 
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	Player = Cast<ACPlayer>(GetOwner());
 	if (!!OwnerCharacter)
 		Weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
 
@@ -41,7 +44,6 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime,
 	CheckNull(attachment);
 
 	FHitResult TraceHitResult;
-	//TArray<FHitResult> traceHitResults;
 	FCollisionQueryParams QueryParams;
 
 	QueryParams.AddIgnoredActor(OwnerCharacter);
@@ -75,30 +77,9 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime,
 		QueryParams
 	);
 
-	//bool bCheck = GetWorld()->LineTraceSingleByChannel(
-	// TraceHitResult, 
-	// StartVec, 
-	// EndVec, 
-	// ECC_Pawn, 
-	// QueryParams
-	// );
-
-	if (bCheck)
-	{
-		for (ACharacter* hit : Hits)
-			CheckTrue(hit == TraceHitResult.GetActor());
-
-		HandleTrace(TraceHitResult.GetActor());
-		
-		return; 
-	}
-	
-	HandleAirborneTrace();
-
 
 #ifdef  LOG_UCAttackTraceComponent
 	FColor color = bCheck ? FColor::Red : FColor::Blue;
-
 
 	DrawDebugLine(GetWorld(), startLocation, endLocation, color, false, 1);
 	DrawDebugCapsule(GetWorld(),
@@ -107,6 +88,19 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime,
 		CapsuleRadius, quat, color, false, 1);
 #endif //  LOG_UCAttackTraceComponent
 
+
+	if (bCheck)
+	{
+		for (ACharacter* hit : Hits)
+			CheckTrue(hit == TraceHitResult.GetActor());
+
+		TraceHitResult.GetActor()->Tags.Add(FName("NormalTrace"));
+		HandleTrace(TraceHitResult.GetActor());
+		
+		return; 
+	}
+	
+	HandleAirborneTrace();
 }
 
 void UCAttackTraceComponent::SetBeginTrace()
@@ -151,7 +145,7 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 
 	CheckNull(Weapon->GetAttachment());
 
-
+	Hitcount++; 
 	switch (CurrentType)
 	{
 		case EAttackType::NormalAttack:
@@ -171,19 +165,13 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 	}
 
 
-	//if (OnHandledTrace.IsBound())
-	//{
-	//	OnHandledTrace.Broadcast(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
-	//}
-
-	// 필요한 추가 처리
-	//Weapon->GetAttachment()->HandleAttachmentOverlap(OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
 }
 
 bool UCAttackTraceComponent::HandleAirborneTrace()
 {
 	CheckNullResult(Weapon, false);
 	CheckNullResult(Weapon->GetAttachment(), false);
+
 
 	//FHitResult TraceHitResult;
 	TArray<FHitResult> traceHitResults;
@@ -195,6 +183,9 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 	QueryParams.AddIgnoredActor(attachment);
 
 	float radius = 200.0f;
+	
+	if (!!Player && Player->IsJumping())
+		radius = 250.0f;
 
 	// 위치 갱신 
 	FVector startLocation = OwnerCharacter->GetActorLocation();
@@ -214,7 +205,9 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 
 
 #ifdef  LOG_UCAttackTraceComponent
-	DrawDebugSphere(GetWorld(), startLocation, radius, 10, FColor::Orange, false, 3);
+	FColor color = bCheck ? FColor::Orange : FColor::Green;
+
+	DrawDebugSphere(GetWorld(), startLocation, radius, 10, color, false, 3);
 #endif //  LOG_UCAttackTraceComponent
 
 
@@ -230,8 +223,14 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 
 			if (targetCondition->GetAirborneCondition() == false)
 				continue; 
+
+
+			if (HitActor->Tags.Contains(FName("NormalTrace")))
+				return false;
 			
-			//UE_LOG(LogTemp, Log, TEXT("Air Trace Hit Actor: %s"), *hit.GetActor()->GetName());
+			if (Hits.Contains(HitActor))
+				continue;
+
 			HandleTrace(hit.GetActor());
 		}
 	}
@@ -275,38 +274,4 @@ bool UCAttackTraceComponent::GetMyTeam(AActor* InHitTarget)
 
 	return false;
 }
-
-
-
-//
-//void UCAttackTraceComponent::PerformTrace(AActor* OwningWeapon, TArray<FHitResult>& OutHits)
-//{
-//	CheckNull(OwningWeapon); 
-//
-//	USkeletalMeshComponent* skeletal = FHelpers::GetComponent<USkeletalMeshComponent>(OwningWeapon);
-//	CheckNull(skeletal);
-//
-//	FVector Start = skeletal->GetSocketLocation(StartSocketName);
-//	FVector End = skeletal->GetSocketLocation(EndSocketName);
-//
-//
-//	FCollisionQueryParams Params;
-//	Params.AddIgnoredActor(OwningWeapon);
-//	Params.AddIgnoredActor(GetOwner());
-//
-//	// SphereTrace 실행
-//	GetWorld()->SweepMultiByChannel(
-//		OutHits,
-//		Start,
-//		End,
-//		FQuat::Identity,
-//		ECC_Pawn,
-//		FCollisionShape::MakeSphere(TraceRadius),
-//		Params
-//	);
-//
-//	// 디버그 확인
-//	DrawDebugSphere(GetWorld(), Start, TraceRadius, 12, FColor::Green, false, 1.0f);
-//	DrawDebugSphere(GetWorld(), End, TraceRadius, 12, FColor::Red, false, 1.0f);
-//}
 

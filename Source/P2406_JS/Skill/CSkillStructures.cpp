@@ -1,8 +1,10 @@
 #include "Skill/CSkillStructures.h"
 #include "Global.h"
 #include "Gameframework/Character.h"
+
 #include "Weapons/CWeaponStructures.h" 
 #include "Skill/CSkillEntity.h"
+#include "Skill/CSkillCollisionComponent.h"
 
 
 //-----------------------------------------------------------------------------
@@ -106,22 +108,23 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 		);
 
-	if (skillEntity != nullptr)
-	{
-		FLog::Log("Entity Create");
-		skillEntity->SetOwnerCharacter(InCharacter);
-		//skillEntity->SetSkillCollisionType(Type);
-		skillEntity->SetSkillEntityData(SkillCollisionData);
-	}
-
-	FAttachmentTransformRules rule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
+	CheckNullResult(skillEntity, nullptr);
 
 
-	// 이 코드는 맨 아래 코드와 같은 역할
-	 // 위치와 변환을 설정
-	//skillCollision->SetActorTransform(transform); 
-	//skillCollision->FinishSpawning(transform);
-
+	FLog::Log("Entity Create");
+	skillEntity->SetOwnerCharacter(InCharacter);
+	skillEntity->SetSkillEntityData(SkillCollisionData);
 	UGameplayStatics::FinishSpawningActor(skillEntity, transform);
+
 	return skillEntity;
+}
+
+FSkillEntityData::FSkillEntityData()
+{
+	SkillEntity = ACSkillEntity::StaticClass();
+}
+
+FSkillCollisionData::FSkillCollisionData()
+{
+	SkillCollisionClass = UCSkillCollisionComponent::StaticClass();
 }

@@ -1,8 +1,10 @@
 #include "Weapons/DoActions/CDoAction_Combo.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/CStateComponent.h"
+
 
 
 
@@ -76,6 +78,10 @@ void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 	CheckTrue(IsMyTeam(InAttacker, InOther)); 
 
 	CheckTrue(IsOtherIsMe(InOther));
+
+	if (OwnerCharacter->GetCharacterMovement()->IsFalling())
+		return;
+
 
 	Hitted.AddUnique(InOther);
 

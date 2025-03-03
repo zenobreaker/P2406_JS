@@ -108,10 +108,11 @@ enum class ESkillPhase : uint8
 UENUM(BlueprintType)
 enum class ESkillCollisionType : uint8
 {
-	NONE = 0,
-	Area,
-	Melee,
-	Projectile,
+	Sphere,
+	Box,
 	Capsule,
 	Max,
 };
+
+///////////////////////////////////////////////////////////////////////////////
+

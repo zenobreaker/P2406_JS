@@ -114,17 +114,16 @@ void UCActiveSkill_UpperSlash::End_Charging()
 
 void UCActiveSkill_UpperSlash::Begin_Skill()
 {
+	CheckFalse(SkillPhaseTable.Contains(ESkillPhase::Begin_Skill));
+	CheckFalse(SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 0);
+
 	ACSkillEntity* entity = nullptr;
 
 	// ㅇㅓ퍼 슬래시라면 수행 
 	if (CurrentState == UpperSlashState::UpperSlash)
 	{
 		FLog::Log("Begin Skill - UpperSlash");
-		if (SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 0)
-		{
-			//SkillExecuter::ExecuteSkillPhase(OwnerCharacter, SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash]);
-			entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
-		}
+		entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
 	}
 	else
 	{
@@ -132,9 +131,7 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 		if (SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 1)
 		{
 			if (Timeline.IsPlaying())
-			{
 				Timeline.Stop();
-			}
 
 			if (Timeline.IsPlaying() == false)
 				Timeline.PlayFromStart();
@@ -142,7 +139,6 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 			OwnerCharacter->GetCharacterMovement()->GravityScale = 0.0f;
 
 
-			//SkillExecuter::ExecuteSkillPhase(OwnerCharacter, SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash]);
 			entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].ExecutePhase(OwnerCharacter);
 		}
 	}
@@ -211,7 +207,7 @@ void UCActiveSkill_UpperSlash::OnRising(float Output)
 	// Z 값을 올린다. 
 	FVector location = Location;
 	location.Z += Output;
-	FLog::Print("Upepr : " + FString::SanitizeFloat(Output), 5015);
+	FLog::Print("Upper : " + FString::SanitizeFloat(Output), 5015);
 
 	OwnerCharacter->SetActorLocation(location);
 }

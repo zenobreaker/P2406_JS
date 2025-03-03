@@ -47,18 +47,33 @@ struct FSkillCollisionData
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(EditAnywhere, Category = "Collision")
-	TSubclassOf<class UCSkillCollisionComponent> Collision;
-
+public:	
 	UPROPERTY(EditAnywhere, Category = "Interval")
 	bool bRepeat = false; 
 
 	UPROPERTY(EditAnywhere, Category = "Interval")
 	float CollisionInterval = 0.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	TSubclassOf<class UCSkillCollisionComponent> SkillCollisionClass;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	ESkillCollisionType CollisionType =  ESkillCollisionType::Sphere;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	FVector BoxExtent  = FVector::OneVector;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	float CapsuleRadius = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	float CapsuleHalfHeight = 1.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Hit Data")
 	TArray<FHitData> HitDatas;
+
+public:
+	FSkillCollisionData();
 };
 
 /// <summary>
@@ -74,18 +89,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACSkillEntity> SkillEntity;
 
-	UPROPERTY(EditAnywhere)
-	ESkillCollisionType Type = ESkillCollisionType::NONE;
-
     /** 스폰할 위치 (기본값: 캐릭터 위치) */
     UPROPERTY(EditAnywhere)
     FVector SpawnLocation = FVector::ZeroVector;
 
-    /** 방향 (Projectile이나 Melee용) */
+    /** 방향 (Projectile 이나 Melee 용) */
     UPROPERTY(EditAnywhere)
     FRotator SpawnRotation = FRotator::ZeroRotator;
 
-    /** 스케일 (Collision의 크기 조정) */
+    /** 스케일 (Collision 의 크기 조정) */
     UPROPERTY(EditAnywhere)
     FVector SpawnScale = FVector(1.0f, 1.0f, 1.0f);
 
@@ -98,7 +110,7 @@ public:
 	FSkillCollisionData  SkillCollisionData;
 
 public:
-	FSkillEntityData() = default;
+	FSkillEntityData();
 
 	ACSkillEntity* SpawnSkillEntity(class ACharacter* InCharacter);
 };
@@ -113,7 +125,7 @@ struct FSkillPhaseData
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Phase")
-	ESkillPhase PhaseType;
+	ESkillPhase PhaseType = ESkillPhase::Max;
 
 	UPROPERTY(EditAnywhere, Category = "Phase")
 	FDoActionData ActionData;
@@ -142,6 +154,8 @@ public:
 
 
 public:
+	FSkillPhaseData() = default; 
+
 	ACSkillEntity* ExecutePhase(class ACharacter* InCharacter, FName InSectionName = NAME_None);
 
 	void Phase_AnimationPlayback(class ACharacter* InCharacter, float InValue);
@@ -154,9 +168,9 @@ private:
 	ACSkillEntity* Phase_SpawnSkillEntity(class ACharacter* InCharacter);
 };
 
-/// <summary>
+///<summary>
 /// 각 스킬 페이즈별 실행할 정보 구조체 
-/// </summary>
+///</summary>
 USTRUCT(BlueprintType)
 struct FSkillFlowData 
 {

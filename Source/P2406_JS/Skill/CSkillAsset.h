@@ -31,14 +31,7 @@ public:
 public:
 	UCSkillAsset(); 
 
-	/*template <typename T>
-	T* CreateSkillInstance(
-		TSubclassOf<T> SkillClass,
-		ACharacter* InCharacter,
-		const FSkillInfo& InSkillInfo,
-		const TArray<FSkillActionData>& InSkillActionDatas,
-		const TArray<FSkillHitData>& InSkillHitDatas);*/
-
+public:
 	void SkillAsset_BeginPlay(class ACharacter* InOwner, class UCActiveSkill** OutActiveSkill);
 };
 

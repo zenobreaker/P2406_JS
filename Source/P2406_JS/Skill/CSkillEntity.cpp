@@ -6,7 +6,6 @@
 #include "Characters/CBaseCharacter.h"
 
 #include "Skill/CSkillCollisionComponent.h"
-#include "Skill/Collisions/CSkillCollision_Area.h"
 
 int32 ACSkillEntity::GetDamagedCount()
 {
@@ -56,26 +55,14 @@ void ACSkillEntity::DestroySkill()
 
 void ACSkillEntity::CreateCollisionByType(FSkillCollisionData InData)
 {
-	//// 범위형 스킬콜리전 
-	//switch (MyType)
-	//{
-	//	case ESkillCollisionType::Area:
-	//	{
-	//		SkillCollision = NewObject<UCSkillCollision_Area>(this, "Area");
-	//	}
-	//	break;
-	//}
-
-	if (InData.Collision != nullptr)
+	if (InData.SkillCollisionClass != nullptr)
 	{
-		SkillCollision = NewObject<UCSkillCollisionComponent>(this, InData.Collision);
+		SkillCollision = NewObject<UCSkillCollisionComponent>(this, InData.SkillCollisionClass);
 	}
-
 
 	if (SkillCollision != nullptr)
 	{
 		SkillCollision->RegisterComponent();
-		//SkillCollision->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		SkillCollision->SetCollisionData(OwnerCharacter, InData);
 	}
 }
