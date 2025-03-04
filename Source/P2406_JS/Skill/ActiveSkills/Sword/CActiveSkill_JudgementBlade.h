@@ -21,10 +21,6 @@ public:
 	void Begin_Casting() override;
 	void Begin_Skill() override;
 
-public:
-	void Create_SkillEffect() override;
-	void Create_Collision() override;
-
 private: 
 	UFUNCTION()
 	void OnSkillCastingCompleted_JudgementBlade();

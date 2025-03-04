@@ -9,6 +9,8 @@
 
 //-----------------------------------------------------------------------------
 
+//TODO :: 괜스레 모든 로직을 총 수행하는걸 했나 이펙트나 사운드 같은걸 따로 뺄걸그랬나 싶음 
+
 ACSkillEntity* FSkillPhaseData::ExecutePhase(ACharacter* InCharacter, FName InSectionName)
 {
 	Phase_DoAction(InCharacter, InSectionName);

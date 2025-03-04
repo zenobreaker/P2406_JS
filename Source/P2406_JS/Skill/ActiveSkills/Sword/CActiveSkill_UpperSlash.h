@@ -50,8 +50,6 @@ protected:
 	void End_Skill() override;
 
 public:
-	void Create_SkillEffect() override;
-	void Create_Collision() override;
 	void OffSkillDoAction() override;
 
 public:

@@ -19,18 +19,8 @@ void UCActiveSkill_JudgementBlade::Begin_Casting()
 void UCActiveSkill_JudgementBlade::Begin_Skill()
 {
 	Super::Begin_Skill();
-}
 
-void UCActiveSkill_JudgementBlade::Create_SkillEffect()
-{
-	// 현재 진행 중인 페이즈를 기준으로 스킬 이펙트 생성 
-	
-}
-
-void UCActiveSkill_JudgementBlade::Create_Collision()
-{
-	FLog::Log("Judgement Blade");
-
+	OnActivated_Collision();
 }
 
 void UCActiveSkill_JudgementBlade::OnSkillCastingCompleted_JudgementBlade()

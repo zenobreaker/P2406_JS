@@ -94,6 +94,8 @@ public:
 	virtual void Create_SkillEffect() {}
 	virtual void Create_Collision() {}
 
+	void Create_SkillComponent();
+
 public:
 	virtual void OnActivated_Collision();
 	virtual void OnDeactivated_Collision();

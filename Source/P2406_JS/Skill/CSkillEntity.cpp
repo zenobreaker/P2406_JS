@@ -36,7 +36,7 @@ void ACSkillEntity::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ActivateCollision();
+	//ActivateCollision();
 }
 
 void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)

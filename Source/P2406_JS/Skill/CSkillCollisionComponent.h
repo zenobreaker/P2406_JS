@@ -10,7 +10,7 @@ DECLARE_DELEGATE(FOnSkillDamaged);
 DECLARE_DELEGATE_OneParam(FOnSkillDamagedOneParam, ACharacter*);
 DECLARE_DELEGATE_ThreeParams(FOnSkillDamagedThreeParams, ACharacter*, AActor*, ACharacter*);
 
-UCLASS(BlueprintType, Blueprintable)
+UCLASS(Abstract)
 class P2406_JS_API UCSkillCollisionComponent 
 	: public UActorComponent
 	, public IAttackInterface

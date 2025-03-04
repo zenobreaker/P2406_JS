@@ -147,6 +147,8 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 	{
 		SkillEntity = entity;
 		REGISTER_EVENT_WITH_REPLACE(this, OnSkillEnded, entity, ACSkillEntity::DestroySkill);
+		
+		OnActivated_Collision();
 	}
 }
 
@@ -177,16 +179,6 @@ void UCActiveSkill_UpperSlash::End_Skill()
 	OwnerCharacter->GetWorld()->GetTimerManager().SetTimer(GravityResetHandle, timerDelegate, airialTime, false);
 
 	ExecutePhase(ESkillPhase::Finished);
-}
-
-void UCActiveSkill_UpperSlash::Create_SkillEffect()
-{
-
-}
-
-void UCActiveSkill_UpperSlash::Create_Collision()
-{
-
 }
 
 void UCActiveSkill_UpperSlash::OffSkillDoAction()

@@ -163,8 +163,6 @@ public:
 	void Phase_PlaySoundWave(class ACharacter* InCharacter);
 	void Phase_PlayEffect(class ACharacter* InCharacter);
 	void Phase_PlayCameraShake(class ACharacter* InCharacter);
-
-private: 
 	ACSkillEntity* Phase_SpawnSkillEntity(class ACharacter* InCharacter);
 };
 

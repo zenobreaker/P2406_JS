@@ -264,6 +264,12 @@ void UCActiveSkill::Finish_Skill()
 
 
 
+void UCActiveSkill::Create_SkillComponent()
+{
+	Create_SkillEffect();
+	Create_Collision();
+}
+
 // Out of Call 
 //-------------------------------------------------------------------------------
 void UCActiveSkill::OnActivated_Collision()

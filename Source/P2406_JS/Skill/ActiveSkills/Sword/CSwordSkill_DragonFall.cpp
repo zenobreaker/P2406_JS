@@ -370,8 +370,11 @@ void UCSwordSkill_DragonFall::OnLanded()
 
 
 	// 충격파 생성 - 입력했을 때만 (정확히는 모션이 수행되고 나서지만..)
-	if(bCanInput == true)
+	if (bCanInput == true)
+	{
 		RunSkillPhaseData(ESkillPhase::End_Skill);
+		OnActivated_Collision();
+	}
 	
 	// 착지되면 강제로 스킬 종료 
 	// Notify 에게 맡긴다... 
