@@ -67,7 +67,7 @@ void UCActiveSkill_UpperSlash::ReleaseSkill()
 	// 이전 페이즈가 반드시 Begin
 	if (CurrentPhase != ESkillPhase::Begin_Charging)
 	{
-		FLog::Log("Failed Charing");
+		FLog::Log("Failed Charging");
 		return;
 	}
 

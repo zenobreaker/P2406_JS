@@ -156,15 +156,15 @@ public:
 public:
 	FSkillPhaseData() = default; 
 
+public:
 	ACSkillEntity* ExecutePhase(class ACharacter* InCharacter, FName InSectionName = NAME_None);
-
 	void Phase_AnimationPlayback(class ACharacter* InCharacter, float InValue);
-
-private:
 	void Phase_DoAction(class ACharacter* InCharacter, FName InSectionName = NAME_None);
 	void Phase_PlaySoundWave(class ACharacter* InCharacter);
 	void Phase_PlayEffect(class ACharacter* InCharacter);
 	void Phase_PlayCameraShake(class ACharacter* InCharacter);
+
+private: 
 	ACSkillEntity* Phase_SpawnSkillEntity(class ACharacter* InCharacter);
 };
 

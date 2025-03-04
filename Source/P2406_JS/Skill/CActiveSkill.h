@@ -69,13 +69,10 @@ protected:
 public:
 	virtual void ExecuteSkill();
 	virtual void ReleaseSkill() {}
+	virtual void CompleteSkill();
 
 public:
-	// 강제로 스킬을 종료한다. 
-	void EndSkill();
-
 	void Update_Cooldown(float InDeltaTime);
-
 	void CastingSkill(float InTime);
 
 protected:
@@ -87,17 +84,13 @@ public:
 	void OnChangeNextSkillPhase();
 	void OnChangeNextSkillPhase(ESkillPhase InPhase);
 
-	//이건 왜 인지 모르겠는데 적용이 안된다. 사연을 알면 좋은데 모르니.. 
-	UFUNCTION()
-	void OnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
-
 public:
 	virtual void Start_Skill() {}
 	virtual void Begin_Casting() {}
 	virtual void End_Casting() {}
 	virtual void Begin_Skill() {}
 	virtual void End_Skill() {}
-	virtual void Finish_Skill() {}
+	virtual void Finish_Skill();
 	virtual void Create_SkillEffect() {}
 	virtual void Create_Collision() {}
 
@@ -109,7 +102,7 @@ public:
 	virtual void OnSkillDoAction() {}
 	virtual void OffSkillDoAction() {}
 
-protected:
+public:
 	FOnSkilCastingCompleted OnSkillCastingCompleted;
 	FOnSkillEnded OnSkillEnded;
 

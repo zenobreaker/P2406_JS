@@ -74,6 +74,8 @@ protected:
 	void OnPressedKey() override;
 	void OnReleasedKey() override;
 
+public:
+	void Create_Collision();
 
 public:
 	void Start_Skill() override;

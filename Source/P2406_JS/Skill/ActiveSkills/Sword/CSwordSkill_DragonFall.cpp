@@ -60,7 +60,7 @@ void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillF
 		float  min1 = 0.0f, max1 = 0.0f, min2 = 0.0f, max2 = 0.0f, min3 = 0.0f, max3 = 0.0f;
 		Curve->FloatCurves[0].GetTimeRange(min1, max1);
 		Curve->FloatCurves[1].GetTimeRange(min2, max2);
-		Curve->FloatCurves[2].GetTimeRange(min2, max2);
+		Curve->FloatCurves[2].GetTimeRange(min3, max3);
 		max = FMath::Max(max1, FMath::Max(max2, max3));
 
 		// 카메라 타임라인이 끝나면 다음 분기로 보낼거임 
@@ -90,7 +90,10 @@ void UCSwordSkill_DragonFall::Tick(float InDeltaTime)
 	}
 
 	SoarTimelineData.Timeline.TickTimeline(InDeltaTime);
-	if (SoarTimelineData.Timeline.GetPlaybackPosition() >= SoarTimelineData.Timeline.GetScaledTimelineLength() * 0.99f
+	
+	if (FMath::IsNearlyEqual(SoarTimelineData.Timeline.GetPlaybackPosition(),
+		SoarTimelineData.Timeline.GetScaledTimelineLength(),
+		KINDA_SMALL_NUMBER)
 		&& SoarTimelineData.bTimelineFinished == false)
 	{
 		SoarTimelineData.bTimelineFinished = true;
@@ -99,7 +102,7 @@ void UCSwordSkill_DragonFall::Tick(float InDeltaTime)
 
 
 	CameraTimelineData.Timeline.TickTimeline(InDeltaTime);
-	auto v = CameraTimelineData.Timeline.GetPlaybackPosition();
+	float v = CameraTimelineData.Timeline.GetPlaybackPosition();
 	if (v >= CameraTimelineData.MaxValue
 		&& CameraTimelineData.bTimelineFinished == false)
 	{
@@ -160,6 +163,11 @@ void UCSwordSkill_DragonFall::OnReleasedKey()
 
 }
 
+void UCSwordSkill_DragonFall::Create_Collision()
+{
+	RunSkillPhaseData(ESkillPhase::End_Skill);
+}
+
 
 void UCSwordSkill_DragonFall::Start_Skill()
 {
@@ -178,6 +186,7 @@ void UCSwordSkill_DragonFall::Start_Skill()
 
 	// 자주 쓰이는 것이 아니니까 이벤트를 다시 생성 
 	REGISTER_EVENT_WITH_REPLACE(Base, OnCharacterLanded, this, UCSwordSkill_DragonFall::OnLanded);
+
 
 	bCanInput = false;
 	bEndSkillCall = false;
@@ -226,6 +235,8 @@ void UCSwordSkill_DragonFall::Input_AnyKey()
 
 void UCSwordSkill_DragonFall::Begin_Skill()
 {
+	Super::Begin_Skill();
+
 #ifdef  LOG_UCSwordSkill_DragonFall
 	FLog::Log("DF - Begin Skill Phase");
 #endif
@@ -237,6 +248,8 @@ void UCSwordSkill_DragonFall::Begin_Skill()
 
 void UCSwordSkill_DragonFall::End_Skill()
 {
+	Super::End_Skill();
+
 #ifdef  LOG_UCSwordSkill_DragonFall
 	FLog::Log("DF - End Skill Phase");
 #endif
@@ -251,8 +264,12 @@ void UCSwordSkill_DragonFall::End_Skill()
 	ResetCameraData();
 
 	bEndSkillCall = true; 
-	// 완전 종료는 Skill End Notify에서 
-	RunSkillPhaseData(ESkillPhase::End_Skill);
+	
+	// 그냥 착지..
+	// 이펙트랑 사운드 빼고 재생 
+	//RunSkillPhaseData(ESkillPhase::End_Skill);
+	//SkillPhaseTable[ESkillPhase::End_Skill].PhaseDatas[0].Phase_DoAction(OwnerCharacter);
+
 	OnChangeNextSkillPhase();
 }
 
@@ -260,12 +277,13 @@ void UCSwordSkill_DragonFall::Finish_Skill()
 {
 	UNREGISTER_EVENT(Base, OnCharacterLanded, this, UCSwordSkill_DragonFall::OnLanded);
 	
-
 	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SoarTimelineData.Handle);
 	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(CameraTimelineData.Handle);
 
 	RestoreGravity();
 	ReleaseKey();
+
+	Super::Finish_Skill();
 }
 
 
@@ -353,7 +371,7 @@ void UCSwordSkill_DragonFall::OnLanded()
 
 	// 충격파 생성 - 입력했을 때만 (정확히는 모션이 수행되고 나서지만..)
 	if(bCanInput == true)
-		Create_Collision();	
+		RunSkillPhaseData(ESkillPhase::End_Skill);
 	
 	// 착지되면 강제로 스킬 종료 
 	// Notify 에게 맡긴다... 

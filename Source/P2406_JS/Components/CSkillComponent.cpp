@@ -6,6 +6,7 @@
 #include "Components/CMovementComponent.h"
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CSkillManager.h"
+
 #include "Skill/CActiveSkill.h"
 #include "Skill/ActiveSkills/CActvieSkill_Charge.h"
 #include "Weapons/CWeaponData.h"
@@ -63,7 +64,7 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	CheckFalse(SkillSlotTable.Contains((ESkillSlot)InSlot));
 
 	// 해당 스킬의 상태를 체크하여 쿨다운이나 실행 여부 확인
-	auto* skill = SkillSlotTable.FindRef((ESkillSlot)InSlot);
+	UCActiveSkill* skill = SkillSlotTable.FindRef((ESkillSlot)InSlot);
 	CheckNull(skill);
 	CheckTrue(skill->GetIsExecute());
 
@@ -86,9 +87,9 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 		SkillManager->ExecuteSkill(skillID, cooldown);
 	}
 
-	//skill->OnActionBegin.Clear();
-	//skill->OnActionEnd.Clear();
-
+	// 해당 스킬의 종료 콜백 설정 
+	REGISTER_EVENT_WITH_REPLACE(skill, OnSkillEnded, this, UCSkillComponent::EndedSkill);
+	
 	// 스킬 실행 
 	skill->ExecuteSkill();
 
@@ -118,7 +119,7 @@ void UCSkillComponent::EndSkill()
 	DYNAMIC_EVENT_CALL(OnCurrentSkillEnded);
 	
 	if (!!CurrentSkill)
-		CurrentSkill->EndSkill();
+		CurrentSkill->CompleteSkill();
 	CurrentSkill = nullptr;
 	
 	if (bCanMove != nullptr && *bCanMove == false)
@@ -256,6 +257,8 @@ void UCSkillComponent::OnDeactivated_Collision()
 	CurrentSkill->OnDeactivated_Collision();
 }
 
+
+// TODO: 만약 다음에 또 같은 기능을 구현한다면 아래 기능은 뺀다..
 //----------------------------------------------------------------------------------------
 void UCSkillComponent::OnSkillCasting()
 {
@@ -280,15 +283,3 @@ void UCSkillComponent::OffSkillDoAction()
 	CheckNull(CurrentSkill);
 	CurrentSkill->OffSkillDoAction();
 }
-
-//void UCSkillComponent::OnSkillSoaring()
-//{
-//	//FLog::Log("Skill Soar Begin ");
-//	bIsSkillSoaring = true;
-//}
-//
-//void UCSkillComponent::OffSkillSoaring()
-//{
-//	//FLog::Log("Skill Soar End ");
-//	bIsSkillSoaring = false;
-//}

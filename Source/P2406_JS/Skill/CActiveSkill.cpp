@@ -121,17 +121,19 @@ void UCActiveSkill::ExecuteSkill()
 
 	ExecutePhase(ESkillPhase::Start);
 }
-void UCActiveSkill::EndSkill()
+
+// Finish_phase에서 반드시 호출하거나 노티파이 처리함 
+void UCActiveSkill::CompleteSkill()
 {
+	// 이미 종료되었다면 굳이 호출 하지 않는다.
+	if (bIsAction == false)
+		return; 
+
 	// 스킬 종료 
 	bIsAction = false;
 
 	// 종료 관련한 이벤트 있으면 처리 
 	DYNAMIC_EVENT_CALL(OnSkillEnded);
-	//End_Skill();
-	//Finish_Skill();
-	// 스킬의 종료 루틴을 위해 End_Skill을 콜하고 End_Skill에서 Finish로 보내라 
-	ExecutePhase(ESkillPhase::End_Skill);
 }
 
 void UCActiveSkill::Update_Cooldown(float InDeltaTime)
@@ -228,9 +230,11 @@ void UCActiveSkill::RunSkillPhaseData(ESkillPhase InPhase, int32 InIndex, AChara
 
 	// 기본적으로 0번 인덱스가 데이터가 있다는 가정하의 진행해야함
 	if (SkillPhaseTable[InPhase].PhaseDatas.Num() > 0)
-		SkillPhaseTable[InPhase].PhaseDatas[InIndex].ExecutePhase(InCharacter);
+		SkillEntity = SkillPhaseTable[InPhase].PhaseDatas[InIndex].ExecutePhase(InCharacter);
 }
 
+// Skill Move Phases 
+//-------------------------------------------------------------------------------
 
 void UCActiveSkill::OnChangeNextSkillPhase()
 {
@@ -245,17 +249,21 @@ void UCActiveSkill::OnChangeNextSkillPhase(ESkillPhase InPhase)
 	ExecutePhase(next);
 }
 
-void UCActiveSkill::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+
+// Skil Phase Flow 
+//-----------------------------------------------------------------------------
+
+void UCActiveSkill::Finish_Skill()
 {
-	if (bInterrupted)
-	{
-		FLog::Log("Montage Interrupted End ");
-	}
-
-
-	FLog::Log("Montage End Test");
+	// 실행 중인 상태에서만 종료 보장 
+	if(bIsAction == true)
+		CompleteSkill(); // 스킬 종료 보장 
 }
 
+
+
+// Out of Call 
+//-------------------------------------------------------------------------------
 void UCActiveSkill::OnActivated_Collision()
 {
 	CheckNull(SkillEntity);

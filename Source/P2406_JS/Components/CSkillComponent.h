@@ -46,6 +46,9 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+public: 
+	FORCEINLINE UCActiveSkill* GetCurrentActiveSkill() { return CurrentSkill; }
+
 public:
 	void ExecuteSkill(int32 InSlot);
 	void ReleaseSkill(int32 InSlot);
