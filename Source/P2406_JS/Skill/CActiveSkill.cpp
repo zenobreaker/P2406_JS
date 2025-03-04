@@ -131,6 +131,8 @@ void UCActiveSkill::CompleteSkill()
 
 	// 스킬 종료 
 	bIsAction = false;
+	
+	CurrentPhase = ESkillPhase::Max;
 
 	// 종료 관련한 이벤트 있으면 처리 
 	DYNAMIC_EVENT_CALL(OnSkillEnded);
