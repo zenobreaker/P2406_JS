@@ -37,13 +37,14 @@ private:
 	TArray<FHitData> HitDatas;
 
 	UPROPERTY(EditAnywhere)
-	TArray<FDoActionData> DoSubActionDatas;
-
-	UPROPERTY(EditAnywhere)
 	TArray<UCSkillAsset*> ActiveSkillAssets;
 
 	UPROPERTY(EditAnywhere)
 	UCActionDataAsset* JumpAcitonAsset; 
+
+	// 비상!! SubAction ㅂㅐ열로 하면 기존에 로직들 죄다 수정해야함 비상!!
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCSubAction> ExecuteActionClass;
 
 
 public:

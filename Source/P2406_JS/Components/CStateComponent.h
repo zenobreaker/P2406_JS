@@ -24,6 +24,7 @@ public:
 	FORCEINLINE bool IsAirborneMode() const { return Type == EStateType::Airborne; }
 	FORCEINLINE bool IsDownMode() const { return Type == EStateType::Down; }
 	FORCEINLINE bool IsGuardMode() const { return Type == EStateType::Guard; }
+	FORCEINLINE bool IsExecuteMode() const { return Type == EStateType::Execute; }
 	FORCEINLINE bool IsSubActionMode() const { return bInSubActionMode; }
 
 public:	
@@ -43,6 +44,7 @@ public:
 	void SetAirborneMode();
 	void SetDownMode();
 	void SetGuardMode();
+	void SetExecuteMode();
 
 	FString EnumToString(EStateType State);
 

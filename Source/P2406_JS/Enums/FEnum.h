@@ -23,6 +23,7 @@ enum class EStateType : uint8
 	Down, 
 	Guard,
 	Dead, 
+	Execute,
 
 	Max, 
 };

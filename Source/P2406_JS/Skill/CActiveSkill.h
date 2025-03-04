@@ -50,12 +50,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Skill")
 	FOnSkillCooldownUpdated OnSkillCooldownUpdated;
 
-	//UPROPERTY(BlueprintAssignable, Category = "Skill")
-	//FOnActionBegin OnActionBegin;
-
-	//UPROPERTY(BlueprintAssignable, Category = "Skill")
-	//FOnActionEnd OnActionEnd;
-
 public:
 	virtual void BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData);
 	virtual void Tick(float InDeltaTime);

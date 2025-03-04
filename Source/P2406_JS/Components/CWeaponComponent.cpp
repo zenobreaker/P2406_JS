@@ -103,6 +103,14 @@ UCWeaponData* UCWeaponComponent::GetCurrentWeaponData()
 	return Datas[(int32)Type];
 }
 
+UCSubAction* UCWeaponComponent::GetExecuteAction()
+{
+	CheckTrueResult(IsUnarmedMode(), nullptr);
+	CheckFalseResult(!!Datas[(int32)Type], nullptr);
+
+	return Datas[(int32)Type]->GetExecuteAction();
+}
+
 
 void UCWeaponComponent::SetUnarmedMode()
 {
@@ -386,16 +394,32 @@ void UCWeaponComponent::ReleaseSkill(const int32 InIndex)
 	SkillComp->ReleaseSkill(InIndex);
 }
 
-void UCWeaponComponent::SubAction_Pressed()
+void UCWeaponComponent::SubAction_Pressed(int32 InIndex)
 {
-	if (!!GetSubAction())
-		GetSubAction()->Pressed();
+	if (InIndex == 0)
+	{
+		if (!!GetSubAction())
+			GetSubAction()->Pressed();
+	}
+	else
+	{
+		if (!!GetExecuteAction())
+			GetExecuteAction()->Pressed();
+	}
 }
 
-void UCWeaponComponent::SubAction_Released()
+void UCWeaponComponent::SubAction_Released(int32 InIndex)
 {
-	if (!!GetSubAction())
-		GetSubAction()->Released();
+	if (InIndex == 0)
+	{
+		if (!!GetSubAction())
+			GetSubAction()->Released();
+	}
+	else
+	{
+		if (!!GetExecuteAction())
+			GetExecuteAction()->Released();
+	}
 }
 
 bool UCWeaponComponent::TryGuard(ACBaseCharacter::FDamageData& DamageData)

@@ -44,6 +44,7 @@ public:
 	class UCDoAction* GetJumpDoAction(); 
 	class UCSubAction* GetSubAction();
 	class UCWeaponData* GetCurrentWeaponData();
+	class UCSubAction* GetExecuteAction();
 
 
 private:
@@ -93,8 +94,8 @@ public:
 	void ReleaseSkill(const int32 InIndex);
 
 public:
-	void SubAction_Pressed();
-	void SubAction_Released();
+	void SubAction_Pressed(int32 InIndex = 0);
+	void SubAction_Released(int32 InIndex = 0);
 
 public:
 	bool TryGuard(ACBaseCharacter::FDamageData& DamageData);

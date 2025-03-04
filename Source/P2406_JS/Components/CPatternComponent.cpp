@@ -48,6 +48,7 @@ void UCPatternComponent::BeginPlay()
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
 
+	//TODO : 여기 데이터가 제대로 입력안되는 버그 있음
 	for (const FPatternData& data : PatternDatas)
 	{
 		FPatternInfo info; 
@@ -91,17 +92,14 @@ void UCPatternComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	}
 }
 
-void UCPatternComponent::SetPattern(int32 InPaternID)
-{
-	//TODO : 
-}
-
 void UCPatternComponent::ExecutePattern()
 {	
+	CheckTrue(bExecutePattern);
 	CheckNull(DecidedPattern);
 	CheckFalse(DecidedPattern->ActiveSkills.Num() > 0);
 	
 	FLog::Print("Execute Pattern : " + FString::FromInt(DecidedPattern->PatternID));
+	Begin_Pattern();
 
 	//TODO: 각 스킬들을 한꺼번에 실행하는 구조인데 어디다가 딜레이값을 넣어야할지도 모르겠다. 
 	for (int32 i = 0; i < DecidedPattern->ActiveSkills.Num(); i++)
@@ -112,9 +110,8 @@ void UCPatternComponent::ExecutePattern()
 		DecidedPattern->ActiveSkills[i]->ExecuteSkill();
 	}
 
-	bExecutePattern = true;
 	DecidedPattern->CurrentCooldown = DecidedPattern->Cooldown;
-	DecidedPattern = nullptr;
+	//DecidedPattern = nullptr;
 	bDecided = false;
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
 }
@@ -164,6 +161,7 @@ void UCPatternComponent::DecidePattern()
 	FLog::Print("Decide Pattern : " + FString::FromInt(DecidedPattern->PatternID));
 }
 
+// 어째서 trueㄱㅏ 켜지는 거지 끝나자마자 
 void UCPatternComponent::Begin_Pattern()
 {
 	bExecutePattern = true; 
@@ -171,6 +169,36 @@ void UCPatternComponent::Begin_Pattern()
 
 void UCPatternComponent::End_Pattern()
 {
+	DecidedPattern = nullptr;
 	bExecutePattern = false; 
+}
+
+void UCPatternComponent::OnActivated_Collision()
+{
+	CheckNull(DecidedPattern);
+	CheckFalse(DecidedPattern->ActiveSkills.Num() > 0);
+
+	for (UCActiveSkill* skill : DecidedPattern->ActiveSkills)
+	{
+		if (skill == nullptr)
+			continue;
+
+		skill->OnActivated_Collision();
+	}
+
+}
+
+void UCPatternComponent::OnDeactivated_Collision()
+{
+	CheckNull(DecidedPattern);
+	CheckFalse(DecidedPattern->ActiveSkills.Num());
+
+	for (UCActiveSkill* skill : DecidedPattern->ActiveSkills)
+	{
+		if (skill == nullptr)
+			continue;
+
+		skill->OnDeactivated_Collision();
+	}
 }
 

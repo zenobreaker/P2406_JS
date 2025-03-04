@@ -61,9 +61,9 @@ public:
 	FORCEINLINE EEntityGrade GetGrade() const { return Grade; }
 	FORCEINLINE int32 GetGroupID() const { return GroupID; }
 	FORCEINLINE void SetGroupID(int32 InGroupID) { GroupID = InGroupID; }
-
 public:
 	FORCEINLINE bool GetCanAct() const { return bCanAct; }
+	FORCEINLINE bool GetExecutable() const { return bExecutable; }
 
 public:
 	FORCEINLINE FGenericTeamId GetGenericTeamId() const { return FGenericTeamId(TeamID); }
@@ -121,4 +121,5 @@ protected:
 	ECollisionEnabled::Type CollsionEnabledType;
 	bool bShouldCountDownOnLand = false;
 	bool bCanAct = true;
+	bool bExecutable = true; //TODO : µû·Î »©±â
 };

@@ -14,7 +14,7 @@ void UCSkillCollision_Shape::BeginPlay()
 
 	Index = 0;
 
-	ActivateCollision();
+	//ActivateCollision();
 }
 
 void UCSkillCollision_Shape::ActivateCollision()

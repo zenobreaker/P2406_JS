@@ -22,6 +22,8 @@ public:
 	FORCEINLINE class UCSubAction* GetSubAction() { return SubAction; }
 	FORCEINLINE const TArray<class UCActiveSkill*> GetSkills() { return Skills; }
 	FORCEINLINE class UCDoAction* GetJumpAction() { return JumpAction; }
+	FORCEINLINE class UCSubAction* GetExecuteAction() { return ExecuteAction; }
+
 private:
 	UPROPERTY()
 	class ACAttachment* Attachment;
@@ -40,4 +42,7 @@ private:
 
 	UPROPERTY()
 	class UCDoAction* JumpAction; 
+
+	UPROPERTY()
+	class UCSubAction* ExecuteAction;
 };

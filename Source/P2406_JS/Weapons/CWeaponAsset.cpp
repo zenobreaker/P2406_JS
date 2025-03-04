@@ -79,11 +79,23 @@ void UCWeaponAsset::WA_BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponDa
 		subAction->BeginPlay(InOwner, attachment, doAction);
 	}
 
+
+
+	UCSubAction* executeAction = nullptr;
+	if (!!ExecuteActionClass)
+	{
+		executeAction = NewObject<UCSubAction>(this, ExecuteActionClass);
+		executeAction->BeginPlay(InOwner, attachment, doAction);
+	}
+
+
 	*OutWeaponData = NewObject<UCWeaponData>();
 	(*OutWeaponData)->Attachment = attachment;
 	(*OutWeaponData)->Equipment = equipment;
 	(*OutWeaponData)->DoAction = doAction;
 	(*OutWeaponData)->SubAction = subAction;
+	
+	(*OutWeaponData)->ExecuteAction = executeAction;
 
 	// WeaponAsset에 있는 스킬 정보를 가져옴 
 	if (ActiveSkillAssets.Num() > 0)

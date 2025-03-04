@@ -250,6 +250,10 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Released, this, &ACPlayer::OffSubAction);
 
+	PlayerInputComponent->BindAction("Execute", EInputEvent::IE_Pressed, this, &ACPlayer::OnExecute);
+	PlayerInputComponent->BindAction("Execute", EInputEvent::IE_Released, this, &ACPlayer::OffExecute);
+
+
 	PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Pressed, this, &ACPlayer::OnJumpAction);
 	PlayerInputComponent->BindAction("Jumping", EInputEvent::IE_Released, this, &ACPlayer::OnJumpActionEnd);
 
@@ -577,10 +581,6 @@ void ACPlayer::OnSubAction()
 	if (Weapon->IsUnarmedMode())
 	{
 		CheckFalse(State->IsIdleMode());
-
-		//
-
-		return;
 	}
 
 	Weapon->SubAction_Pressed();
@@ -592,6 +592,25 @@ void ACPlayer::OffSubAction()
 	CheckTrue(Weapon->IsUnarmedMode());
 
 	Weapon->SubAction_Released();
+}
+
+void ACPlayer::OnExecute()
+{
+	CheckNull(Weapon);
+	if (Weapon->IsUnarmedMode())
+	{
+		CheckFalse(State->IsIdleMode());
+	}
+
+	Weapon->SubAction_Pressed(1);
+}
+
+void ACPlayer::OffExecute()
+{
+	CheckNull(Weapon);
+	CheckTrue(Weapon->IsUnarmedMode());
+
+	Weapon->SubAction_Released(1);
 }
 
 void ACPlayer::OnJumpAction()

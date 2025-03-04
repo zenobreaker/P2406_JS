@@ -145,6 +145,9 @@ private:
 	void OnSubAction();
 	void OffSubAction();
 
+	void OnExecute();
+	void OffExecute();
+
 private:
 	void OnJumpAction();
 	void OnJumpActionEnd();

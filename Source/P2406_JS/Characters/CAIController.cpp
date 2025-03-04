@@ -96,7 +96,7 @@ void ACAIController::HandleTeamPerception(AActor* InActor)
 	FLog::Log("this calling team Percept");
 }
 
-
+// 상태가 바뀌면 콜 
 void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
 	CheckNull(Perception);
@@ -104,6 +104,7 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 
 	// nullptr은 다 감지하는 것을 의미
 	TArray<AActor*> actors;
+	//현 시점에서 감지된 애들만 리턴 - 감지 대상에서만 보이므로 감지 잃은건 없음
 	Perception->GetCurrentlyPerceivedActors(nullptr, actors);
 	AActor* nearestTarget = nullptr;
 	float nearestDistance = FLT_MAX;

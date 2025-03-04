@@ -71,15 +71,17 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SetPattern(int32 InPaternID);
-
 	void ExecutePattern();
-
 	void DecidePattern();
-	
+
 public:
 	void Begin_Pattern();
 	void End_Pattern();
+
+
+public:
+	void OnActivated_Collision();
+	void OnDeactivated_Collision();
 
 public:
 	FDecidedPattern OnDecidedPattern;
