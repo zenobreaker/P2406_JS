@@ -14,6 +14,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAIStateTypeChanged, EAIStateType, 
 //	IdleWait = 0, CircleAvoid, Max
 //};
 
+//TODO: 사실 여기 기능들은 Controller에 옮겨도 무방한 것 같다. 
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class P2406_JS_API UCAIBehaviorComponent : public UActorComponent
 {
@@ -47,7 +49,7 @@ private:
 	FName PatternDecideKey = "PatternDecide";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
-	FName PatternNumber = "PatternNumber";
+	FName PatternExecuteKey= "bPatternExecute";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName ActionRangeKey = "ActionRange";
@@ -86,8 +88,8 @@ public:
 	bool GetPattrenDecide(); 
 	void SetPatternDecide(bool InPatternDecide);
 
-	int32 GetPatternNumber();
-	void SetPatternNumber(int32 InPatternNumber);
+	bool GetPatternExecute();
+	void SetPatternExecute(bool InValue);
 
 	float GetActionRange();
 	void SetActionRange(float InActionRange);
@@ -104,6 +106,7 @@ public:
 	void SetGuardMode();
 	void SetDeadMode();
 	void SetNoneMode();
+	void SetPatternDecideMode();
 
 
 private:

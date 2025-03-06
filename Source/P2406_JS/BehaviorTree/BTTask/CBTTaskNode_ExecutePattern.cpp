@@ -7,24 +7,41 @@
 UCBTTaskNode_ExecutePattern::UCBTTaskNode_ExecutePattern()
 {
 	NodeName = "Execute Pattern";
+
+	bNotifyTick = true; 
 }
 
 EBTNodeResult::Type UCBTTaskNode_ExecutePattern::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	CheckNullResult(OwnerComp.GetOwner(), EBTNodeResult::Failed);
-	
+
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	CheckNullResult(controller, EBTNodeResult::Failed);
 
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
 	CheckNullResult(pattern, EBTNodeResult::Failed);
+
+	if (pattern->GetDecidePattern() == false || pattern->IsExecutePattern() == true)
+		return EBTNodeResult::Failed;
+
 	pattern->ExecutePattern();
 
-	return EBTNodeResult::Succeeded;
+	return EBTNodeResult::InProgress;
+}
+
+void UCBTTaskNode_ExecutePattern::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
+	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
+
+	//TODO: 패턴 종료된 값 확인
+
 }
 
 EBTNodeResult::Type UCBTTaskNode_ExecutePattern::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	return EBTNodeResult::Type();
+	return EBTNodeResult::Failed;
 }

@@ -36,14 +36,11 @@ void UCPatternComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentPhase = 1; 
+	CurrentPhase = 1;
 
 	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (instance != nullptr)
-	{
 		PatternCondition = instance->PatternCondition;
-	}
-
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
@@ -51,30 +48,32 @@ void UCPatternComponent::BeginPlay()
 	//TODO : 여기 데이터가 제대로 입력안되는 버그 있음
 	for (const FPatternData& data : PatternDatas)
 	{
-		FPatternInfo info; 
+		FPatternInfo info;
 		info.PatternID = data.PatternID;
 		info.Phase = data.Phase;
 		info.Priority = data.Priority;
 		info.ActionRange = data.ActionRange;
-		info.Cooldown = data.Cooldown;
 		info.ConditionIDs = data.ConditionIDs;
 
-		if (data.SkillAssets.Num() > 0)
+		if (data.SkillAsset != nullptr)
 		{
-			for (int32 i = 0; i < data.SkillAssets.Num(); i++)
+			UCActiveSkill* skill = nullptr;
+			data.SkillAsset->SkillAsset_BeginPlay(OwnerCharacter, &skill);
+
+			if (skill == nullptr)
 			{
-				if (data.SkillAssets[i] == nullptr)
-					continue; 
-
-				UCActiveSkill* skill = nullptr;
-				data.SkillAssets[i]->SkillAsset_BeginPlay(OwnerCharacter, &skill);
-
-				info.ActiveSkills.Add(skill);
+				FLog::Log("Warning: ActiveSkill creation failed for PatternID: " + FString::FromInt(info.PatternID));
 			}
+
+			info.ActiveSkill = skill;
 		}
 
-		info.CurrentCooldown = info.Cooldown;
-		PatternInfos.Add(info);
+		if (PatternInfos.Contains(info.PatternID))
+		{
+			FLog::Log("Previous Exist Data Try id : " + FString::FromInt(info.PatternID));
+			continue;
+		}
+		PatternInfos.Add({ info.PatternID, info });
 	}
 }
 
@@ -83,37 +82,24 @@ void UCPatternComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// 패턴 별 쿨타임 돌리기
 	CheckFalse(PatternInfos.Num() > 0);
-	
-	for (int32 i = 0; i < PatternInfos.Num(); i++)
+
+	for (auto& pair : PatternInfos)
 	{
-		PatternInfos[i].CurrentCooldown -= DeltaTime;
+		if (pair.Value.ActiveSkill != nullptr)
+			pair.Value.ActiveSkill->Update_Cooldown(DeltaTime);
 	}
 }
 
 void UCPatternComponent::ExecutePattern()
-{	
+{
 	CheckTrue(bExecutePattern);
-	CheckNull(DecidedPattern);
-	CheckFalse(DecidedPattern->ActiveSkills.Num() > 0);
+	CheckNull(CurrentSkill);
+
+	bExecutePattern = true;
 	
-	FLog::Print("Execute Pattern : " + FString::FromInt(DecidedPattern->PatternID));
-	Begin_Pattern();
-
-	//TODO: 각 스킬들을 한꺼번에 실행하는 구조인데 어디다가 딜레이값을 넣어야할지도 모르겠다. 
-	for (int32 i = 0; i < DecidedPattern->ActiveSkills.Num(); i++)
-	{
-		if(DecidedPattern->ActiveSkills[i] == nullptr)
-			continue; 
-
-		DecidedPattern->ActiveSkills[i]->ExecuteSkill();
-	}
-
-	DecidedPattern->CurrentCooldown = DecidedPattern->Cooldown;
-	//DecidedPattern = nullptr;
-	bDecided = false;
-	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
+	FLog::Print("Execute Pattern : " + CurrentSkill->GetName());
+	CurrentSkill->ExecuteSkill();
 }
 
 void UCPatternComponent::DecidePattern()
@@ -121,19 +107,20 @@ void UCPatternComponent::DecidePattern()
 	CheckTrue(bDecided);
 	CheckTrue(bExecutePattern);
 
-	TArray<FPatternInfo*> selectedInfos;
+	TArray<int32> selectedIds;
 
-	for (FPatternInfo& Pattern : PatternInfos)
+	for (TPair<int32, FPatternInfo>& Pattern : PatternInfos)
 	{
-		if (Pattern.Phase > CurrentPhase)
-			continue; 
+		if (Pattern.Value.ActiveSkill == nullptr)
+			continue;
+
+		if (Pattern.Value.Phase > CurrentPhase)
+			continue;
 
 		bool bCanExecute = true;
+		bCanExecute &= Pattern.Value.ActiveSkill->IsCooldown();
 
-		if (Pattern.CurrentCooldown > 0.0f)
-			bCanExecute &= false;
-
-		for (int32 ConditionID : Pattern.ConditionIDs)
+		for (int32 ConditionID : Pattern.Value.ConditionIDs)
 		{
 			if (!!PatternCondition && PatternCondition->CheckCondition(ConditionID, OwnerCharacter) == false)
 			{
@@ -144,61 +131,63 @@ void UCPatternComponent::DecidePattern()
 
 		if (bCanExecute)
 		{
-			selectedInfos.HeapPush(&Pattern, [=](FPatternInfo& a, FPatternInfo& b)
+			selectedIds.HeapPush(Pattern.Value.PatternID, [this](int32 a, int32 b)
 				{
-					return a.Priority > b.Priority;
+					return PatternInfos[a].Priority > PatternInfos[b].Priority;
 				});
 		}
 	}
 
-	if (selectedInfos.Num() <= 0)
+	if (selectedIds.Num() <= 0)
 		return;
 
 	bDecided = true;
-	DecidedPattern = selectedInfos.HeapTop();
-	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
-	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, DecidedPattern->ActionRange);
-	FLog::Print("Decide Pattern : " + FString::FromInt(DecidedPattern->PatternID));
+	SelectedPatternID = selectedIds.HeapTop();
+
+	// 현재 동작할 패턴 스킬 할당.
+	if (PatternInfos.Contains(SelectedPatternID))
+		CurrentSkill = PatternInfos[SelectedPatternID].ActiveSkill;
+	
+	if (PatternInfos.Contains(SelectedPatternID))
+		DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, PatternInfos[SelectedPatternID].ActionRange);
+
+	FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
 }
 
 // 어째서 trueㄱㅏ 켜지는 거지 끝나자마자 
 void UCPatternComponent::Begin_Pattern()
 {
-	bExecutePattern = true; 
+	CheckNull(CurrentSkill);
+	
+	bExecutePattern = true;
+	FLog::Print("Begin_Pattern : " + (CurrentSkill->GetName()));
 }
 
 void UCPatternComponent::End_Pattern()
 {
-	DecidedPattern = nullptr;
-	bExecutePattern = false; 
+	CheckNull(CurrentSkill);
+	
+	FLog::Print("End_Pattern : " + (CurrentSkill->GetName()));
+	CurrentSkill->CompleteSkill();
+
+	bDecided = false; // 패턴 결정권 다시 복구
+	bExecutePattern = false;	// 수행한 패턴 정상 종료 플래그 ON
+	CurrentSkill = nullptr; // 스킬을 전부 지움 
 }
 
 void UCPatternComponent::OnActivated_Collision()
 {
-	CheckNull(DecidedPattern);
-	CheckFalse(DecidedPattern->ActiveSkills.Num() > 0);
-
-	for (UCActiveSkill* skill : DecidedPattern->ActiveSkills)
-	{
-		if (skill == nullptr)
-			continue;
-
-		skill->OnActivated_Collision();
-	}
-
+	CheckNull(CurrentSkill);
+	
+	FLog::Print("OnActivated_Collision : " + CurrentSkill->GetName());
+	CurrentSkill->OnActivated_Collision();
 }
 
 void UCPatternComponent::OnDeactivated_Collision()
 {
-	CheckNull(DecidedPattern);
-	CheckFalse(DecidedPattern->ActiveSkills.Num());
-
-	for (UCActiveSkill* skill : DecidedPattern->ActiveSkills)
-	{
-		if (skill == nullptr)
-			continue;
-
-		skill->OnDeactivated_Collision();
-	}
+	CheckNull(CurrentSkill);
+	
+	FLog::Print("OnDeactivated_Collision : " + CurrentSkill->GetName());
+	CurrentSkill->OnDeactivated_Collision();
 }
 

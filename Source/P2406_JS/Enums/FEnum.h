@@ -42,6 +42,7 @@ enum class EAIStateType : uint8
 	Airborne, 
 	Down, 
 	Guard, 
+	Pattern_Decide,
 	Dead,
 
 	Max,

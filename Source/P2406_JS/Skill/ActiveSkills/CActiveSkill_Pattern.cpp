@@ -24,11 +24,3 @@ void UCActiveSkill_Pattern::Create_SkillEffect()
 
 	SkillPhaseTable[CurrentPhase].PhaseDatas[0].Phase_PlayEffect(OwnerCharacter);
 }
-
-void UCActiveSkill_Pattern::Create_Collision()
-{
-	CheckFalse(SkillPhaseTable[CurrentPhase].PhaseDatas.Num() > 0);
-
-	
-}
-

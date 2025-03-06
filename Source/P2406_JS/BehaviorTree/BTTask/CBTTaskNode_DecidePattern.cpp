@@ -23,9 +23,13 @@ EBTNodeResult::Type UCBTTaskNode_DecidePattern::ExecuteTask(UBehaviorTreeCompone
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
 	CheckNullResult(pattern, EBTNodeResult::Failed);
 
-	if (pattern->GetDecidePattern() == false && pattern->IsExecutePattern() == false)
+	bool bCheck = true;
+	bCheck &= pattern->GetDecidePattern() == false;
+	bCheck &= pattern->IsExecutePattern() == false;
+	if (bCheck)
 	{
 		pattern->DecidePattern();
+
 		return EBTNodeResult::Succeeded;
 	}
 	return EBTNodeResult::Failed;

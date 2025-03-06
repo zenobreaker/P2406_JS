@@ -16,5 +16,4 @@ protected:
 public:
 	virtual void Begin_Skill() override;
 	virtual void Create_SkillEffect() override; 
-	virtual void Create_Collision() override;
 };

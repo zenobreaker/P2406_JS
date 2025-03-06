@@ -84,14 +84,14 @@ void UCAIBehaviorComponent::SetPatternDecide(bool InPatternDecide)
 	Blackboard->SetValueAsBool(PatternDecideKey, InPatternDecide);
 }
 
-int32 UCAIBehaviorComponent::GetPatternNumber()
+bool UCAIBehaviorComponent::GetPatternExecute()
 {
-	return Blackboard->GetValueAsInt(PatternNumber);
+	return Blackboard->GetValueAsBool(PatternExecuteKey);
 }
 
-void UCAIBehaviorComponent::SetPatternNumber(int32 InPatternNumber)
+void UCAIBehaviorComponent::SetPatternExecute(bool InValue)
 {
-	Blackboard->SetValueAsInt(PatternNumber, InPatternNumber);
+	Blackboard->SetValueAsBool(PatternExecuteKey, InValue);
 }
 
 float UCAIBehaviorComponent::GetActionRange()
@@ -208,6 +208,11 @@ void UCAIBehaviorComponent::SetDeadMode()
 void UCAIBehaviorComponent::SetNoneMode()
 {
 	ChangeType(EAIStateType::Max);
+}
+
+void UCAIBehaviorComponent::SetPatternDecideMode()
+{
+	ChangeType(EAIStateType::Pattern_Decide);
 }
 
 FString UCAIBehaviorComponent::EnumToString(EAIStateType InType)
@@ -354,7 +359,7 @@ void UCAIBehaviorComponent::OnCharacterDead()
 
 void UCAIBehaviorComponent::OnDecidedPattern(bool InValue)
 {
-	Blackboard->SetValueAsBool(PatternDecideKey, InValue);
+	SetPatternDecide(InValue);
 }
 
 void UCAIBehaviorComponent::OnDecidedPattern_Range(float InValue)

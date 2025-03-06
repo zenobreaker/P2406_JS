@@ -15,7 +15,7 @@ void UCActiveSkill_Instance::Begin_Casting()
 	CheckFalse(SkillPhaseTable[ESkillPhase::Begin_Casting].PhaseDatas.Num() > 0);
 	
 	// 여기서 부터 캐스팅을 실시하라고 페이즈 전환
-	currentCastingTime = 0.0f;
+	CurrentCastingTime = 0.0f;
 
 	SkillPhaseTable[ESkillPhase::Begin_Casting].PhaseDatas[0].ExecutePhase(OwnerCharacter);
 }

@@ -117,7 +117,7 @@ void UCActiveSkill::ExecuteSkill()
 	CheckTrue(bIsAction);
 	
 	bIsAction = true; 
-	currentCooldown = SkillInfo.CoolDown;
+	CurrentCooldown = SkillInfo.CoolDown;
 
 	ExecutePhase(ESkillPhase::Start);
 }
@@ -140,15 +140,14 @@ void UCActiveSkill::CompleteSkill()
 
 void UCActiveSkill::Update_Cooldown(float InDeltaTime)
 {
-	if (currentCooldown <= 0.0f)
+	if (CurrentCooldown <= 0.0f)
 		return;
 
-	currentCooldown -= InDeltaTime;
-	/*FLog::Print(SkillInfo.SkillName + " "  + FString::SanitizeFloat(currentCooldown), 1,10.0f, FColor::Red);*/
-	currentCooldown = FMath::Clamp(currentCooldown, 0.0f, SkillInfo.CoolDown);
+	CurrentCooldown -= InDeltaTime;
+	CurrentCooldown = FMath::Clamp(CurrentCooldown, 0.0f, SkillInfo.CoolDown);
 
-	if (OnSkillCooldownUpdated.IsBound())
-		OnSkillCooldownUpdated.Broadcast(InDeltaTime);
+	//if (OnSkillCooldownUpdated.IsBound())
+	//	OnSkillCooldownUpdated.Broadcast(InDeltaTime);
 }
 
 void UCActiveSkill::CastingSkill(float InTime)
@@ -157,7 +156,7 @@ void UCActiveSkill::CastingSkill(float InTime)
 	CheckFalse(CurrentPhase == ESkillPhase::Begin_Casting);
 
 	// ㅋㅐ스팅 완료시
-	if (currentCastingTime >= SkillInfo.CastingTime)
+	if (CurrentCastingTime >= SkillInfo.CastingTime)
 	{
 		// 델레게이트 호출하고 종료 
 		DYNAMIC_EVENT_CALL(OnSkillCastingCompleted);
@@ -165,7 +164,7 @@ void UCActiveSkill::CastingSkill(float InTime)
 		return;
 	}
 
-	currentCastingTime += InTime;
+	CurrentCastingTime += InTime;
 }
 
 

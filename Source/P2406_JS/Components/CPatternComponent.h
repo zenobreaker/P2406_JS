@@ -11,11 +11,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDecidedPattern_Range, float, InValu
 USTRUCT(BlueprintType)
 struct FPatternInfo
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 PatternID; // 패턴 고유 ID
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 PatternID; // 패턴 고유 ID
 
 	UPROPERTY(EditAnywhere)
 	int32 Phase = 0;
@@ -27,22 +27,16 @@ public:
 	float ActionRange = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	float Cooldown = 0.0f;
+	TArray<int32> ConditionIDs; // 패턴을 수행할 수 있는 조건 ID 리스트
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<int32> ConditionIDs; // 패턴을 수행할 수 있는 조건 ID 리스트
+	UPROPERTY(EditAnywhere)
+	class UCActiveSkill* ActiveSkill; // 이 패턴이 실행할 스킬
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<class UCActiveSkill*> ActiveSkills; // 이 패턴이 실행할 스킬들
-
-
-public:
-	float CurrentCooldown = 0.0f;
 
 public:
 	FPatternInfo()
 		: PatternID(-1), Phase(0), Priority(0.0f), ActionRange(0.0f)
-    {}
+	{}
 };
 
 
@@ -54,13 +48,13 @@ class P2406_JS_API UCPatternComponent : public UActorComponent
 private:
 	UPROPERTY(EditAnywhere)
 	int32 MaxPhase;
-	
+
 	UPROPERTY(EditAnywhere)
 	TArray<FPatternData> PatternDatas;
 
 public:
 	FORCEINLINE bool GetDecidePattern() const { return bDecided; }
-	FORCEINLINE bool IsExecutePattern() const {return bExecutePattern;}
+	FORCEINLINE bool IsExecutePattern() const { return bExecutePattern; }
 
 public:
 	UCPatternComponent();
@@ -90,17 +84,21 @@ public:
 private:
 	class ACharacter* OwnerCharacter;
 
-
-
 private:
 	int32 CurrentPhase;
 	int32 PatternIndex;
 
 private:
-	TArray<FPatternInfo> PatternInfos; 
+	UPROPERTY()
+	TMap<int32, FPatternInfo> PatternInfos;
+
+	UPROPERTY()
+	class UCActiveSkill* CurrentSkill;
+
+private:
 	bool bDecided = false;
 	bool bExecutePattern = false;
-	FPatternInfo* DecidedPattern;
+	int32 SelectedPatternID; 
 
 private:
 	UDataTable* PatternDataTable;

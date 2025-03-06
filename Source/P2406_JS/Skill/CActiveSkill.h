@@ -37,13 +37,13 @@ protected:
 public:
 	FORCEINLINE int32 GetSkillID() const { return SkillInfo.SkillID; }
 	FORCEINLINE float GetCooldown() const { return SkillInfo.CoolDown; }
-	FORCEINLINE bool IsCooldown() const { return currentCooldown <= 0.0f; }
+	FORCEINLINE bool IsCooldown() const { return CurrentCooldown <= 0.0f; }
 	FORCEINLINE bool GetIsExecute() const
 	{
 		return (CurrentPhase != ESkillPhase::Max) && (CurrentPhase != ESkillPhase::Finished);
 	}
 	FORCEINLINE bool GetIsFinished() const { return CurrentPhase == ESkillPhase::Finished; }
-	FORCEINLINE bool GetCompleteCasting() const { return currentCastingTime >= SkillInfo.CastingTime; }
+	FORCEINLINE bool GetCompleteCasting() const { return CurrentCooldown >= SkillInfo.CastingTime; }
 
 
 public:
@@ -104,9 +104,9 @@ public:
 
 protected:
 	bool bIsAction = false;
-	float currentCooldown = 0.0f;
-	float currentCastingTime;
-	float currentDelay;
+	float CurrentCooldown = 0.0f;
+	float CurrentCastingTime;
+	float CurrentDelay;
 	ESkillPhase CurrentPhase = ESkillPhase::Max;
 
 	FSkillFlowData SkillFlowData;
