@@ -271,17 +271,17 @@ void UCActiveSkill::Create_SkillComponent()
 
 // Out of Call 
 //-------------------------------------------------------------------------------
-void UCActiveSkill::OnActivated_Collision()
+void UCActiveSkill::OnActivated_Collision(FName InName)
 {
 	CheckNull(SkillEntity);
 
-	SkillEntity->ActivateCollision();
+	SkillEntity->ActivateCollision(InName);
 }
 
-void UCActiveSkill::OnDeactivated_Collision()
+void UCActiveSkill::OnDeactivated_Collision(FName InName)
 {
 	CheckNull(SkillEntity);
 
-	SkillEntity->DeactivateCollision();
+	SkillEntity->DeactivateCollision(InName);
 }
 

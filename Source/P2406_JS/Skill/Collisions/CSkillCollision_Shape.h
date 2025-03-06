@@ -24,13 +24,15 @@ public:
 
 public:
 	// 충돌 시작
-	virtual void ActivateCollision() override;
+	void ActivateCollision() override;
 	// 충돌 종료
-	virtual void DeactivateCollision() override;
+	void DeactivateCollision() override;
 
-	virtual void CheckCollision() override; 
+	void CheckCollision() override; 
+
+protected:
+	void DrawDebugCollisionLine() override;
 
 private:
-	FVector StartLocation;
 	FTimerHandle TimerHandle;
 };

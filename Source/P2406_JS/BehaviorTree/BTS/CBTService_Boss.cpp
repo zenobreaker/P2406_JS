@@ -18,7 +18,7 @@ UCBTService_Boss::UCBTService_Boss()
 {
 	NodeName = "Boss";
 
-	Interval = 0.1f; 
+	Interval = 0.1f;
 	RandomDeviation = 0.0f;
 }
 
@@ -43,7 +43,7 @@ void UCBTService_Boss::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 void UCBTService_Boss::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-	
+
 	CheckNull(CachedBehavior);
 	CheckNull(CachedState);
 	CheckNull(CachedPattern);
@@ -53,51 +53,44 @@ void UCBTService_Boss::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	bCheck |= (CachedBehavior->IsDeadMode());
 	bCheck |= Blackboard->GetValueAsBool("bCanAct") == false;
 	bCheck |= CachedAI->GetCanAct() == false;
-	
+
+	// TODO: 상태이상은 일단 배제
+	ACharacter* target = nullptr;
+	target = CachedBehavior->GetTarget();
+	bCheck &= target == nullptr;
 	if (bCheck)
 	{
+		// 보스라서.. 그만.. 
 		CachedBehavior->SetNoneMode();
 		//SetFocus(nullptr);
 
 		return;
 	}
-	ACharacter* target = nullptr;	
-	target = CachedBehavior->GetTarget();
-	CheckNull(target);
-
-	bool bDecidedPattern = CachedPattern->GetDecidePattern();
-	bool bPatternExecute = CachedPattern->IsExecutePattern();
-
-	bool bAboutPatternCheck= true; 
-	bAboutPatternCheck &= bDecidedPattern == false;
-	bAboutPatternCheck &= bPatternExecute == false;
 
 	// 패턴이 수행 중이면 실행 안함
+	bool bPatternExecute = CachedPattern->IsExecutePattern();
 	if (bPatternExecute == true)
 		return;
 
-	// 패턴 결정 해놓음 
-	CachedPattern->DecidePattern();
-
-	//TODO: 이 내용은 조금 복잡해지는 내용이므로 어드밴스드 서비스나 다른 서비스에서 하는 것도
-	UCConditionComponent* targetCondition = FHelpers::GetComponent<UCConditionComponent>(target);
-	if ((targetCondition && targetCondition->GetDownCondition()) 
-	|| bAboutPatternCheck)
-	{
+	bool bDecidedPattern = CachedPattern->GetDecidePattern();
+	if(bDecidedPattern == false)
+	{	
+		// 패턴 결정 해놓음 
+		CachedPattern->DecidePattern();
+		// 다음 프레임에서 사거리랑 계산하기 위해서 
 		CachedBehavior->SetWaitMode();
-		
+
 		return;
 	}
 
-	
 	ActionRange = CachedBehavior->GetActionRange();
 	float distance = CachedAI->GetDistanceTo(target);
 	if (distance <= ActionRange)
 	{
 		CachedBehavior->SetActionMode();
 
-		return; 
+		return;
 	}
-	
+
 	CachedBehavior->SetApproachMode();
 }

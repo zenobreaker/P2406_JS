@@ -30,10 +30,10 @@ void UCAnimNotify_SkillCollision::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		switch (Type)
 		{
 		case EAnimNotify_Flow::Begin:
-			skill->OnActivated_Collision();
+			skill->OnActivated_Collision(CollisionName);
 			break;
 		case EAnimNotify_Flow::End:
-			skill->OnDeactivated_Collision();
+			skill->OnDeactivated_Collision(CollisionName);
 			break;
 		}
 	}
@@ -45,10 +45,10 @@ void UCAnimNotify_SkillCollision::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		switch (Type)
 		{
 		case EAnimNotify_Flow::Begin:
-			pattern->OnActivated_Collision();
+			pattern->OnActivated_Collision(CollisionName);
 			break;
 		case EAnimNotify_Flow::End:
-			pattern->OnDeactivated_Collision();
+			pattern->OnDeactivated_Collision(CollisionName);
 			break;
 		}
 	}

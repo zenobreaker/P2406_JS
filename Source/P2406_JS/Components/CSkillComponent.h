@@ -71,8 +71,8 @@ private:
 	void HandleChargingSkill_Updated(class UCActvieSkill_Charge* InChargeSkill);
 
 public:
-	void OnActivated_Collision();
-	void OnDeactivated_Collision();
+	void OnActivated_Collision(FName InName = NAME_None);
+	void OnDeactivated_Collision(FName InName = NAME_None);
 	void OnSkillCasting();
 	void OffSkillCasting();
 	void OnSkillDoAction(); 

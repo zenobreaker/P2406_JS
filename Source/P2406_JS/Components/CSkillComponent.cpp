@@ -243,18 +243,18 @@ void UCSkillComponent::Update_SkillCooldown(float InDeltaTime)
 	}
 }
 
-void UCSkillComponent::OnActivated_Collision()
+void UCSkillComponent::OnActivated_Collision(FName InName)
 {
 	CheckNull(CurrentSkill);
 
-	CurrentSkill->OnActivated_Collision();
+	CurrentSkill->OnActivated_Collision(InName);
 }
 
-void UCSkillComponent::OnDeactivated_Collision()
+void UCSkillComponent::OnDeactivated_Collision(FName InName)
 {
 	CheckNull(CurrentSkill);
 
-	CurrentSkill->OnDeactivated_Collision();
+	CurrentSkill->OnDeactivated_Collision(InName);
 }
 
 

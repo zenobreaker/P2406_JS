@@ -7,6 +7,33 @@
 
 #include "Skill/CSkillCollisionComponent.h"
 
+
+ACSkillEntity::ACSkillEntity()
+{
+	// 기본 SceneComponent를 루트 컴포넌트로 설정
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+}
+
+void ACSkillEntity::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	
+	FLog::Log("Create Success Skill Entity");
+}
+
+void ACSkillEntity::BeginPlay()
+{
+	Super::BeginPlay();
+	CheckNull(OwnerCharacter); 
+
+	/*SetActorLocation(OwnerCharacter->GetActorLocation());*/
+}
+
+void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+
+}
+
 int32 ACSkillEntity::GetDamagedCount()
 {
 	CheckNullResult(SkillCollision, 0);
@@ -20,29 +47,6 @@ void ACSkillEntity::SetSkillEntityData(FSkillCollisionData InData)
 	CreateCollisionByType(InData);
 }
 
-ACSkillEntity::ACSkillEntity()
-{
-
-}
-
-void ACSkillEntity::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-
-	FLog::Log("Create Success Skill Entity");
-}
-
-void ACSkillEntity::BeginPlay()
-{
-	Super::BeginPlay();
-
-	//ActivateCollision();
-}
-
-void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-
-}
 
 void ACSkillEntity::DestroySkill()
 {
@@ -62,8 +66,15 @@ void ACSkillEntity::CreateCollisionByType(FSkillCollisionData InData)
 
 	if (SkillCollision != nullptr)
 	{
+		// 해당 클래스에서 정의된 속성에 접근하려면 인스턴스가 필요하다. 
+		if(UClass* skillCollisionClass = InData.SkillCollisionClass.Get())
+		{
+			bool bDrawDebug = skillCollisionClass->GetDefaultObject<UCSkillCollisionComponent>()->GetDrawDebug();
+			SkillCollision->SetDrawDebug(bDrawDebug);
+		}
 		SkillCollision->RegisterComponent();
-		SkillCollision->SetCollisionData(OwnerCharacter, InData);
+		SkillCollision->SetWorldLocationAndRotation(GetActorLocation(),GetActorRotation());
+		SkillCollision->SetCollisionData(OwnerCharacter, InData, this);
 	}
 }
 
@@ -74,11 +85,38 @@ void ACSkillEntity::ActivateCollision()
 	SkillCollision->ActivateCollision();
 }
 
+void ACSkillEntity::ActivateCollision(FName InName)
+{
+	if (InName != NAME_None
+		&& CollisionTable.Num() > 0
+		&& CollisionTable.Contains(InName))
+	{
+		CollisionTable[InName]->ActivateCollision();
+		return;
+	}
+
+	// 기본적인 동작을 위한 퓨어 가상 함수 호출
+	ActivateCollision();
+}
+
 void ACSkillEntity::DeactivateCollision()
 {
 	CheckNull(SkillCollision);
 
 	SkillCollision->DeactivateCollision();
+}
+
+void ACSkillEntity::DeactivateCollision(FName InName)
+{
+	if (InName != NAME_None
+		&& CollisionTable.Num() > 0
+		&& CollisionTable.Contains(InName))
+	{
+		CollisionTable[InName]->DeactivateCollision();
+		return;
+	}
+
+	DeactivateCollision();
 }
 
 void ACSkillEntity::SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs)

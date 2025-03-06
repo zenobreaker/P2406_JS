@@ -2,6 +2,7 @@
 #include "Global.h"
 
 #include "Components/CSkillComponent.h"
+#include "Components/CPatternComponent.h"
 #include "Skill/CActiveSkill.h"
 
 UCAnimNotify_SkillPhase::UCAnimNotify_SkillPhase()
@@ -24,9 +25,17 @@ void UCAnimNotify_SkillPhase::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 	CheckNull(MeshComp->GetOwner());
 
 	UCSkillComponent* skill = FHelpers::GetComponent<UCSkillComponent>(MeshComp->GetOwner());
-	CheckNull(skill);
-
-	UCActiveSkill* activeSkill = skill->GetCurrentActiveSkill();
+	UCActiveSkill* activeSkill = nullptr;
+	if (skill == nullptr)
+	{
+		UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(MeshComp->GetOwner());
+		if (pattern != nullptr)
+		{
+			activeSkill = pattern->GetCurrentActiveSkill();
+		}
+	}
+	else 
+		activeSkill = skill->GetCurrentActiveSkill();
 	CheckNull(activeSkill); 
 
 	switch (Type)
@@ -40,6 +49,7 @@ void UCAnimNotify_SkillPhase::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 		activeSkill->End_Casting();
 		break;
 	case ESkillPhase::Begin_Skill:
+		activeSkill->Begin_Skill();
 		break;
 	case ESkillPhase::End_Skill:
 		activeSkill->End_Skill();
@@ -47,6 +57,9 @@ void UCAnimNotify_SkillPhase::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 	case ESkillPhase::Finished:
 		activeSkill->Finish_Skill();
 		break;
+	case ESkillPhase::Create_Effect:
+		activeSkill->Create_SkillEffect();
+		break; 
 	case ESkillPhase::Max:
 		break;
 	}

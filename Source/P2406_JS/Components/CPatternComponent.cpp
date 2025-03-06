@@ -6,6 +6,7 @@
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CPatternConditionManager.h"
 #include "Skill/CSkillAsset.h"
+#include "Components/CStateComponent.h"
 
 UCPatternComponent::UCPatternComponent()
 {
@@ -98,8 +99,13 @@ void UCPatternComponent::ExecutePattern()
 
 	bExecutePattern = true;
 	
-	FLog::Print("Execute Pattern : " + CurrentSkill->GetName());
+	//FLog::Print("Execute Pattern : " + CurrentSkill->GetName());
 	CurrentSkill->ExecuteSkill();
+
+	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
+	CheckNull(state); 
+
+	state->SetActionMode(); 
 }
 
 void UCPatternComponent::DecidePattern()
@@ -151,23 +157,22 @@ void UCPatternComponent::DecidePattern()
 	if (PatternInfos.Contains(SelectedPatternID))
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, PatternInfos[SelectedPatternID].ActionRange);
 
-	FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
+	//FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
 }
 
-// 어째서 trueㄱㅏ 켜지는 거지 끝나자마자 
 void UCPatternComponent::Begin_Pattern()
 {
 	CheckNull(CurrentSkill);
 	
 	bExecutePattern = true;
-	FLog::Print("Begin_Pattern : " + (CurrentSkill->GetName()));
+	//FLog::Print("Begin_Pattern : " + (CurrentSkill->GetName()));
 }
 
 void UCPatternComponent::End_Pattern()
 {
 	CheckNull(CurrentSkill);
 	
-	FLog::Print("End_Pattern : " + (CurrentSkill->GetName()));
+	//FLog::Print("End_Pattern : " + (CurrentSkill->GetName()));
 	CurrentSkill->CompleteSkill();
 
 	bDecided = false; // 패턴 결정권 다시 복구
@@ -175,19 +180,19 @@ void UCPatternComponent::End_Pattern()
 	CurrentSkill = nullptr; // 스킬을 전부 지움 
 }
 
-void UCPatternComponent::OnActivated_Collision()
+void UCPatternComponent::OnActivated_Collision(FName InName)
 {
 	CheckNull(CurrentSkill);
 	
-	FLog::Print("OnActivated_Collision : " + CurrentSkill->GetName());
-	CurrentSkill->OnActivated_Collision();
+	//FLog::Print("OnActivated_Collision : " + CurrentSkill->GetName());
+	CurrentSkill->OnActivated_Collision(InName);
 }
 
-void UCPatternComponent::OnDeactivated_Collision()
+void UCPatternComponent::OnDeactivated_Collision(FName InName)
 {
 	CheckNull(CurrentSkill);
 	
-	FLog::Print("OnDeactivated_Collision : " + CurrentSkill->GetName());
-	CurrentSkill->OnDeactivated_Collision();
+	//FLog::Print("OnDeactivated_Collision : " + CurrentSkill->GetName());
+	CurrentSkill->OnDeactivated_Collision(InName);
 }
 

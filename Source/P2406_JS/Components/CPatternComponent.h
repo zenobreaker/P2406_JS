@@ -55,7 +55,7 @@ private:
 public:
 	FORCEINLINE bool GetDecidePattern() const { return bDecided; }
 	FORCEINLINE bool IsExecutePattern() const { return bExecutePattern; }
-
+	FORCEINLINE class UCActiveSkill* GetCurrentActiveSkill() { return CurrentSkill; }
 public:
 	UCPatternComponent();
 
@@ -74,8 +74,8 @@ public:
 
 
 public:
-	void OnActivated_Collision();
-	void OnDeactivated_Collision();
+	void OnActivated_Collision(FName InName = NAME_None);
+	void OnDeactivated_Collision(FName InName = NAME_None);
 
 public:
 	FDecidedPattern OnDecidedPattern;

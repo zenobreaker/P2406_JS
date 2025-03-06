@@ -2,6 +2,8 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 
+#include "Skill/CSkillEntity.h"
+
 UCSkillCollision_Shape::UCSkillCollision_Shape()
 {
 
@@ -21,8 +23,6 @@ void UCSkillCollision_Shape::ActivateCollision()
 {
 	CheckTrue(HitDatas.Num() <= Index);
 	CheckNull(OwnerCharacter);
-
-	StartLocation = OwnerCharacter->GetActorLocation();
 
 	if (CollisionData.bRepeat)
 	{
@@ -57,14 +57,13 @@ void UCSkillCollision_Shape::CheckCollision()
 	}
 
 	TArray<FOverlapResult> hitResults;  // 변수명 수정
-	FVector Start = StartLocation;
+	FVector start = GetComponentLocation();
 
 	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
 	switch (CollisionData.CollisionType)
 	{
 	case ESkillCollisionType::Sphere:
 		CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
-		//DrawDebugSphere(OwnerCharacter->GetWorld(), Start, CollisionRadius, 12, FColor::Red, false, 1.0f);
 		break;
 	case ESkillCollisionType::Box:
 		CollisionShape = FCollisionShape::MakeBox(CollisionData.BoxExtent);
@@ -78,15 +77,18 @@ void UCSkillCollision_Shape::CheckCollision()
 		break;
 	}
 
+	DrawDebugCollisionLine();
+
 	
 	// 트레이스 설정 
 	FCollisionQueryParams tracePramams;
+	tracePramams.AddIgnoredActor(Entity);
 	tracePramams.AddIgnoredActor(OwnerCharacter);
 
 	bool bHit = OwnerCharacter->GetWorld()->OverlapMultiByObjectType
 	(
 		hitResults,
-		Start,
+		start,
 		FQuat::Identity,
 		FCollisionObjectQueryParams(ECC_Pawn),
 		CollisionShape,
@@ -97,6 +99,8 @@ void UCSkillCollision_Shape::CheckCollision()
 	{
 		for (auto& Hit : hitResults)
 		{
+			if (Hit.GetActor() == nullptr)
+				continue;
 			AActor* HitActor = Hit.GetActor();
 			if (HitActor == nullptr)
 				continue;
@@ -120,5 +124,25 @@ void UCSkillCollision_Shape::CheckCollision()
 
 
 	Index++;
+}
+
+void UCSkillCollision_Shape::DrawDebugCollisionLine()
+{
+	CheckFalse(bDrawDebug);
+	CheckNull(OwnerCharacter);
+
+	FVector start = GetComponentLocation();
+	switch (CollisionData.CollisionType)
+	{
+	case ESkillCollisionType::Sphere:
+		DrawDebugSphere(OwnerCharacter->GetWorld(), start, CollisionRadius, 12, FColor::Red, false, 1.0f);
+		break;
+	case ESkillCollisionType::Box:
+		///DrawDebugBox(OwnerCharacter->GetWorld(), )
+		break;
+	case ESkillCollisionType::Capsule:
+
+		break;
+	}
 }
 

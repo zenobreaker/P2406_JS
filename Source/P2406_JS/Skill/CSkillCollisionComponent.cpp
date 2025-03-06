@@ -10,8 +10,6 @@ void UCSkillCollisionComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Index = 0;
-
-
 }
 
 void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillCollisionData& InCollisinData)
@@ -22,6 +20,12 @@ void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillColl
 	HitDatas = CollisionData.HitDatas;
 }
 
+void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillCollisionData& InCollisinData, ACSkillEntity* InEntity)
+{
+	SetCollisionData(InOwner, InCollisinData);
+
+	Entity = InEntity;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -32,7 +36,7 @@ bool UCSkillCollisionComponent::CheckMyTeam(AActor* InOtherActor)
 	CheckNullResult(character, false);
 	auto OtherTeamID = character->GetGenericTeamId();
 
-	ACBaseCharacter* myBase = Cast< ACBaseCharacter >(OwnerCharacter);
+	ACBaseCharacter* myBase = Cast<ACBaseCharacter>(OwnerCharacter);
 	CheckNullResult(myBase, false);
 
 	auto myTeamid = myBase->GetGenericTeamId();

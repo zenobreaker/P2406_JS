@@ -24,9 +24,6 @@ class P2406_JS_API ACSkillEntity
 public:
 	FORCEINLINE void SetOwnerCharacter(class ACharacter* InCharacter) { OwnerCharacter = InCharacter; }
 
-	//FORCEINLINE void SetSkillCollisionType(ESkillCollisionType InType) { MyType = InType; }
-	int32 GetDamagedCount();
-	void SetSkillEntityData(FSkillCollisionData InData);
 
 public:	
 	ACSkillEntity();
@@ -38,6 +35,11 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
+	//FORCEINLINE void SetSkillCollisionType(ESkillCollisionType InType) { MyType = InType; }
+	int32 GetDamagedCount();
+	void SetSkillEntityData(FSkillCollisionData InData);
+
+public:
 	UFUNCTION()
 	void DestroySkill(); 
 
@@ -47,10 +49,10 @@ protected:
 public:
 	// 충돌 시작
 	virtual void ActivateCollision();
-	virtual void ActivateCollision(FName InName) {}
+	virtual void ActivateCollision(FName InName);
 	// 충돌 종료
 	virtual void DeactivateCollision();
-	virtual void DeactivateCollision(FName InName) {}
+	virtual void DeactivateCollision(FName InName);
 
 	void SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs);
 	void SetSkillDamageEventOneParam(TArray<TFunction<void(ACharacter*)>> InFuncs);
@@ -69,4 +71,6 @@ protected:
 
 protected:
 	class UCSkillCollisionComponent* SkillCollision;
+	//TArray<class UCSkillCollisionComponent*> SkillCollisions;
+	TMap<FName, class UCSkillCollisionComponent*> CollisionTable;
 };

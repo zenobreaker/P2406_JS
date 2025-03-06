@@ -10,7 +10,7 @@
 #include "Weapons/CAttachment.h"
 
 
-#define  LOG_UCAttackTraceComponent
+//#define  LOG_UCAttackTraceComponent
 
 UCAttackTraceComponent::UCAttackTraceComponent()
 {

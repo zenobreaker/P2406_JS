@@ -27,5 +27,5 @@ void UCActiveSkill_Instance::Begin_Skill()
 	CheckFalse(SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas.Num() > 0);
 	
 	// 캐스팅 해서 왔으면 동작 수행할 것이고 여기선 그에 대한 처리를 해야한다. 
-	SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[0].ExecutePhase(OwnerCharacter);
+	SkillEntity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[0].ExecutePhase(OwnerCharacter);
 }

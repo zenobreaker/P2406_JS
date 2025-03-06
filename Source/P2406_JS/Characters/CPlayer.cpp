@@ -58,11 +58,8 @@ ACPlayer::ACPlayer()
 	CreateArrowGroup();
 
 	FHelpers::GetAsset<UAnimMontage>(&BackstepMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/BackStep_Montage.BackStep_Montage'");
-
 	FHelpers::GetAsset<UAnimMontage>(&JumpMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Unarmed_JumpStart_Montage.Unarmed_JumpStart_Montage'");
-
 	FHelpers::GetClass<UCUserWidget_Player>(&UiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Player.WB_Player_C'");
-
 	FHelpers::GetClass<UCUserWidget_SkillHUD>(&SkillHUDClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/MyCUserWidget_SkillHUD.MyCUserWidget_SkillHUD_C'");
 }
 
@@ -80,6 +77,7 @@ void ACPlayer::CreateActorComponent()
 	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
 	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "A_Trace");
 	FHelpers::CreateActorComponent<UCZoomComponent>(this, &Zoom, "Zoom");
+	FHelpers::CreateActorComponent<UCAirborneComponent>(this, &Airborne, "Airborne");
 
 	if (!!Grapple)
 	{
@@ -171,7 +169,7 @@ void ACPlayer::BeginPlay()
 	REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillExecuted, Weapon, UCWeaponComponent::UnableAttack);
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponBeginAction, Skill, UCSkillComponent::EndedSkill);
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponEndedAction, Skill, UCSkillComponent::EndedSkill);
-	
+
 	//ATrace 
 	REGISTER_EVENT_WITH_REPLACE(ATrace, OnHandledTrace, Weapon, UCWeaponComponent::OnHandledTrace);
 	REGISTER_EVENT_WITH_REPLACE(ATrace, OnHandledJumpTrace, Weapon, UCWeaponComponent::OnHandledJumpTrace);
@@ -341,10 +339,10 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 
 	// Evade Check 
 	{
-		bool isEvade = false; 
+		bool isEvade = false;
 		if (!!Dash)
 			isEvade = Dash->IsEvade();
-		
+
 		if (isEvade)
 			return Damage;
 	}
@@ -404,19 +402,43 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FVector direction = target - start;
 	direction.Normalize();
 
+	// 공중에 띄우기
+	float dirZ = 0.0f;
+	if (!!Airborne)
+	{
+		//dirZ = InHitData.Airial;
+		// 공중에 뜨면 공격자 충돌 무시
+		if (InHitData.Airial > 0)
+		{
+			//GetCapsuleComponent()->IgnoreActorWhenMoving(DamageData.Attacker, true);
+			CollsionEnabledType = GetCapsuleComponent()->GetCollisionEnabled();
+			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
+		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
+		if (Airborne->GetIsAirborne())
+			Condition->AddAirborneCondition();
+	}
+
 	// 기본 런치 값 
 	float launchStrength = InHitData.Launch;
-
 	if (bIsGuarding)
 	{
 		launchStrength *= 0.5f;
 	}
 
-	LaunchCharacter(-direction * launchStrength, false, false);
+	FVector launchVelocity = (-direction * launchStrength);
+	if (InHitData.Airial > 0)
+		launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
+	else
+		launchVelocity.Z = 0.0f;
 
-	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
-	targetRotator.Pitch = 0;
-	SetActorRotation(targetRotator);
+	FLog::Print("Launch + " + launchVelocity.ToString(), 6986);
+	LaunchCharacter(launchVelocity, false, true);
+
+	//FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+	//targetRotator.Pitch = 0;
+	//SetActorRotation(targetRotator);
 }
 
 void ACPlayer::Damaged()
@@ -451,9 +473,6 @@ void ACPlayer::Damaged()
 
 		hitData->PlaySoundWave(this);
 		hitData->PlayEffect(this);
-		
-		//hitData->PlayHitStop(this);
-		//hitData->PlayEffect(GetWorld(), GetActorLocation(), GetActorRotation());
 
 
 		if (HealthPoint->IsDead() == false)
@@ -539,7 +558,8 @@ void ACPlayer::End_Damaged()
 {
 	State->SetIdleMode();
 
-
+	if (Movement->CanMove() == false)
+		Movement->Move();
 }
 
 void ACPlayer::End_Downed()
@@ -554,8 +574,6 @@ void ACPlayer::OnEvade()
 {
 	CheckFalse(State->IsIdleMode());
 	CheckFalse(Movement->CanMove());
-
-	//CheckTrue(InputComponent->GetAxisValue("MoveForward") >= 0.0f);
 
 	State->SetEvadeMode();
 }
@@ -699,7 +717,7 @@ void ACPlayer::OnSkill1()
 void ACPlayer::ReleaseSkill1()
 {
 	CheckNull(Weapon);
-	
+
 	Weapon->ReleaseSkill(0);
 }
 
@@ -750,12 +768,18 @@ void ACPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	CheckFalse(State->IsIdleMode());
+	if (State->IsIdleMode())
+	{
+		Parkour->DoParkour(true);
+	}
 
-	Parkour->DoParkour(true);
+	if (!!Condition && Condition->GetDownCondition())
+	{
+		if (bShouldCountDownOnLand)
+			StartDownTimer();
 
-	if (bShouldCountDownOnLand)
-		StartDownTimer();
+		return;
+	}
 
 	if (!!Grapple)
 		Grapple->ResetGrapple();
@@ -805,11 +829,16 @@ void ACPlayer::AdjustTimeScale(float InTimeScaleData)
 void ACPlayer::OnAirborneConditionActivated()
 {
 	bShouldCountDownOnLand = true;
+	Movement->Stop();
 	Condition->AddDownCondition();
 }
 
 void ACPlayer::OnAirborneConditionDeactivated()
 {
+	Movement->Move();
+
+	if (OnCharacterRaised.IsBound())
+		OnCharacterRaised.Broadcast();
 }
 
 

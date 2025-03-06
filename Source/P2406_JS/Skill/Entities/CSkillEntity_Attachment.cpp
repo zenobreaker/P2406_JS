@@ -12,9 +12,10 @@ void ACSkillEntity_Attachment::BeginPlay()
 	USkeletalMeshComponent* skeletal = FHelpers::GetComponent<USkeletalMeshComponent>(OwnerCharacter);
 	CheckNull(skeletal);
 
-	FHelpers::AttachTo(this,OwnerCharacter->GetMesh());
-
+    // 엔티티를 특정한 메쉬에 붙인다.
+	FHelpers::AttachTo(this, OwnerCharacter->GetMesh(), OwnerCharacter->GetMesh()->GetBoneName(0), EAttachmentRule::SnapToTarget);
 	CheckNull(SkillCollision);
+
 
 	for (FName socketName : SocketNames)
 	{
@@ -22,43 +23,17 @@ void ACSkillEntity_Attachment::BeginPlay()
         FTransform SocketTransform = skeletal->GetSocketTransform(socketName);
 
         // SkillCollision과 동일한 타입의 새 컴포넌트 생성
-        UCSkillCollisionComponent* NewSkillCollision = NewObject<UCSkillCollisionComponent>(this, SkillCollision->GetClass(), socketName);
-        if (NewSkillCollision)
+        UCSkillCollisionComponent* newSkillCollision = NewObject<UCSkillCollisionComponent>(this, SkillCollision->GetClass(), socketName);
+        if (newSkillCollision)
         {
+            newSkillCollision->SetDrawDebug(SkillCollision->GetDrawDebug());
             // 컴포넌트 등록
-            NewSkillCollision->RegisterComponent();
-
-            SkillCollisions.Add(NewSkillCollision);
+            newSkillCollision->RegisterComponent();
+            newSkillCollision->SetCollisionData(OwnerCharacter, SkillCollision->GetCollisionData(), this);
+            newSkillCollision->AttachToComponent(skeletal,
+            FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true),
+            socketName);
+            CollisionTable.Add(socketName, newSkillCollision);
         }
 	}
-}
-
-void ACSkillEntity_Attachment::ActivateCollision(FName InName)
-{
-    CheckFalse(SkillCollisions.Num() > 0);
-
-    for (auto& collision : SkillCollisions)
-    {
-        if (collision->GetName() == InName)
-        {
-            collision->ActivateCollision();
-            
-            return;
-        }
-    }
-}
-
-void ACSkillEntity_Attachment::DeactivateCollision(FName InName)
-{
-    CheckFalse(SkillCollisions.Num() > 0);
-
-    for (auto& collision : SkillCollisions)
-    {
-        if (collision->GetName() == InName)
-        {
-            collision->DeactivateCollision();
-
-            return;
-        }
-    }
 }

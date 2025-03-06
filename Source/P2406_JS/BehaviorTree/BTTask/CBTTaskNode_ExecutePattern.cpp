@@ -35,13 +35,16 @@ void UCBTTaskNode_ExecutePattern::TickTask(UBehaviorTreeComponent& OwnerComp, ui
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	ACAIController* controller = Cast<ACAIController>(OwnerComp.GetOwner());
+	CheckNull(controller); 
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
-
+	CheckNull(pattern);
 	//TODO: 패턴 종료된 값 확인
 
+	if(pattern->IsExecutePattern() == false)
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
 
 EBTNodeResult::Type UCBTTaskNode_ExecutePattern::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	return EBTNodeResult::Failed;
+	return EBTNodeResult::Aborted;
 }

@@ -1,6 +1,8 @@
 #include "Skill/ActiveSkills/CActiveSkill_Pattern.h"
 #include "Global.h"
+
 #include "CActiveSkill_Pattern.h"
+#include "Skill/CSkillEntity.h"
 
 void UCActiveSkill_Pattern::DefineSkillPhases()
 {
@@ -16,11 +18,18 @@ void UCActiveSkill_Pattern::Begin_Skill()
 	// 캐스팅 해서 왔으면 동작 수행할 것이고 여기선 그에 대한 처리를 해야한다. 
 	SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[0].Phase_DoAction(OwnerCharacter);
 	SkillEntity = SkillPhaseTable[CurrentPhase].PhaseDatas[0].Phase_SpawnSkillEntity(OwnerCharacter);
+	
+	if(SkillEntity != nullptr)
+	{
+		SkillEntity->SetActorLocation(OwnerCharacter->GetActorLocation());
+		REGISTER_EVENT_WITH_REPLACE(this, OnSkillEnded, SkillEntity, ACSkillEntity::DestroySkill);
+	}
 }
 
 void UCActiveSkill_Pattern::Create_SkillEffect()
 {
 	CheckFalse(SkillPhaseTable[CurrentPhase].PhaseDatas.Num() > 0);
 
+	SkillPhaseTable[CurrentPhase].PhaseDatas[0].Phase_PlaySoundWave(OwnerCharacter);
 	SkillPhaseTable[CurrentPhase].PhaseDatas[0].Phase_PlayEffect(OwnerCharacter);
 }

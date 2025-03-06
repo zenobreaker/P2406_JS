@@ -17,12 +17,4 @@ private:
 
 public:
 	virtual void BeginPlay() override;
-
-public:
-	void ActivateCollision(FName InName) override;
-	void DeactivateCollision(FName InName) override;
-
-private:
-	TArray<class UCSkillCollisionComponent*> SkillCollisions;
-	
 };

@@ -190,8 +190,8 @@ public:
 	void OnAirborneConditionDeactivated() override;
 
 	void StartDownTimer();
-	virtual void OnDownConditionActivated() override;
-	virtual void OnDownConditionDeactivated() override;
+	void OnDownConditionActivated() override;
+	void OnDownConditionDeactivated() override;
 
 	// IIGuardable을(를) 통해 상속됨
 	bool HasGuard() const override;

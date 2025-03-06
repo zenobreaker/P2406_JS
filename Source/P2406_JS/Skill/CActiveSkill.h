@@ -91,8 +91,8 @@ public:
 	void Create_SkillComponent();
 
 public:
-	virtual void OnActivated_Collision();
-	virtual void OnDeactivated_Collision();
+	virtual void OnActivated_Collision(FName InName = NAME_None);
+	virtual void OnDeactivated_Collision(FName InName = NAME_None);
 	virtual void OnSkillCasting() {}
 	virtual void OffSkillCasting() {}
 	virtual void OnSkillDoAction() {}

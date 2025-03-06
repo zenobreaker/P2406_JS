@@ -16,8 +16,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Type")
 	EAnimNotify_Flow Type = EAnimNotify_Flow::Max;
 
+	UPROPERTY(EditAnywhere, Category = "Type")
+	FName CollisionName = NAME_None;
+
 public:
 	UCAnimNotify_SkillCollision();
+
 private:
 	FString GetNotifyName_Implementation() const override;
 	void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
