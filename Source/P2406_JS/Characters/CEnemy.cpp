@@ -58,10 +58,6 @@ void ACEnemy::BeginPlay()
 
 	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
 
-	if (!!Condition)
-	{
-		OnCharacterLanded.AddDynamic(Condition, &UCConditionComponent::RemoveAirborneCondition);
-	}
 }
 
 void ACEnemy::Change_Color(const FLinearColor& InColor)

@@ -15,6 +15,12 @@ void ACBaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	CollsionEnabledType = GetCapsuleComponent()->GetCollisionEnabled();
+
+
+	if (!!Condition)
+	{
+		OnCharacterLanded.AddDynamic(Condition, &UCConditionComponent::RemoveAirborneCondition);
+	}
 }
 
 void ACBaseCharacter::Landed(const FHitResult& Hit)
@@ -34,6 +40,7 @@ bool ACBaseCharacter::IsJumping()
 	if (Condition != nullptr)
 	{
 		isJumping &= Condition->GetAirborneCondition() == false;
+
 	}
 
 

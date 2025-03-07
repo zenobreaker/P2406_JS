@@ -76,7 +76,8 @@ void UCBTService_Boss::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	if(bDecidedPattern == false)
 	{	
 		// 패턴 결정 해놓음 
-		CachedPattern->DecidePattern();
+		//CachedPattern->DecidePattern();
+		
 		// 다음 프레임에서 사거리랑 계산하기 위해서 
 		CachedBehavior->SetWaitMode();
 

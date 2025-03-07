@@ -436,9 +436,9 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FLog::Print("Launch + " + launchVelocity.ToString(), 6986);
 	LaunchCharacter(launchVelocity, false, true);
 
-	//FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
-	//targetRotator.Pitch = 0;
-	//SetActorRotation(targetRotator);
+	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+	targetRotator.Pitch = 0;
+	SetActorRotation(targetRotator);
 }
 
 void ACPlayer::Damaged()
@@ -558,7 +558,9 @@ void ACPlayer::End_Damaged()
 {
 	State->SetIdleMode();
 
-	if (Movement->CanMove() == false)
+	if (Movement->CanMove() == false 
+		&& (Condition->GetDownCondition() == false 
+			&& Condition->GetAirborneCondition() == false))
 		Movement->Move();
 }
 
@@ -768,17 +770,19 @@ void ACPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (State->IsIdleMode())
-	{
-		Parkour->DoParkour(true);
-	}
-
 	if (!!Condition && Condition->GetDownCondition())
 	{
+		FLog::Log("Player Down ? : " + FString::FromInt(Condition->GetDownCondition()));
+		FLog::Log("Player Air ? : " + FString::FromInt(Condition->GetAirborneCondition()));
 		if (bShouldCountDownOnLand)
 			StartDownTimer();
 
 		return;
+	}
+
+	if (State->IsIdleMode())
+	{
+		Parkour->DoParkour(true);
 	}
 
 	if (!!Grapple)
@@ -835,7 +839,6 @@ void ACPlayer::OnAirborneConditionActivated()
 
 void ACPlayer::OnAirborneConditionDeactivated()
 {
-	Movement->Move();
 
 	if (OnCharacterRaised.IsBound())
 		OnCharacterRaised.Broadcast();

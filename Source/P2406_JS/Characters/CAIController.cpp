@@ -79,7 +79,7 @@ void ACAIController::OnUnPossess()
 
 	// : 비헤이비어 트리 중지
 	UBehaviorTreeComponent* BehaviorTreeComp = FindComponentByClass<UBehaviorTreeComponent>();
-	if (BehaviorTreeComp)
+	if (!!BehaviorTreeComp)
 	{
 		BehaviorTreeComp->StopTree(EBTStopMode::Safe);
 	}

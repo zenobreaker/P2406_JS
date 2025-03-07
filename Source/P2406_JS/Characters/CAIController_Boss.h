@@ -13,7 +13,6 @@ class P2406_JS_API ACAIController_Boss : public ACAIController
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
-	virtual void OnUnPossess() override;
 
 public:
 	void RotateTowardsTarget(float InDeltaTime, ACharacter* InTarget);

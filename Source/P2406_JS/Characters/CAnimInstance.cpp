@@ -136,9 +136,16 @@ void UCAnimInstance::ChangeFeet()
 
 		if (!!Parkour)
 			bUseFootIK = Parkour->IsDoing() == false;
+		if (!!Condition)
+		{
+			bUseFootIK &= Condition->GetDownCondition() == false;
+			bUseFootIK &= Condition->GetAirborneCondition() == false;
+		}
+
 
 		if(bUseFootIK)
 			FeetData = Feet->GetData(); 
+
 	}
 }
 
@@ -189,8 +196,18 @@ void UCAnimInstance::ChangeAirborne()
 
 void UCAnimInstance::ChangeDown()
 {
-	CheckNull(Condition);
+	if (Condition == nullptr)
+	{
+		FLog::Log("Condition is Null");
+	}
 
-	bDown = Condition->GetDownCondition() && Condition->GetAirborneCondition() == false;
+	CheckNull(Condition);
+	
+	bool bCheck = true ; 
+
+	bCheck &= Condition->GetDownCondition();
+	bCheck &= Condition->GetAirborneCondition() == false;
+	
+	bDown = bCheck;
 }
 

@@ -24,11 +24,6 @@ void ACAIController_Boss::OnPossess(APawn* InPawn)
 	RunBehaviorTree(Enemy->GetBehaviorTree());
 }
 
-void ACAIController_Boss::OnUnPossess()
-{
-	Super::OnUnPossess();
-}
-
 void ACAIController_Boss::RotateTowardsTarget(float InDeltaTime, ACharacter* InTarget)
 {
 	CheckNull(Enemy);
