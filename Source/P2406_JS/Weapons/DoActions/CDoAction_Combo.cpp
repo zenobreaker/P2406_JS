@@ -44,6 +44,9 @@ void UCDoAction_Combo::End_DoAction()
 	DoActionDatas[Index].End_DoAction(OwnerCharacter);
 	DoActionDatas[Index].Destroy_GhostTrail();
 	Index = 0;
+
+	bEnable = false;
+	bExist = false;
 }
 
 void UCDoAction_Combo::OnAttachmentEndCollision()

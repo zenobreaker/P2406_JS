@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Skill/CSkillCollisionComponent.h"
 
+
 void ACSkillEntity_Attachment::BeginPlay()
 {
 	Super::BeginPlay();
@@ -18,7 +19,7 @@ void ACSkillEntity_Attachment::BeginPlay()
 
 
 	for (FName socketName : SocketNames)
-	{
+	{   
         // 소켓의 위치 및 회전 가져오기
         FTransform SocketTransform = skeletal->GetSocketTransform(socketName);
 

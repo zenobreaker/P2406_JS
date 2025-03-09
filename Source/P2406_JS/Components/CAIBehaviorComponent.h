@@ -28,9 +28,9 @@ public:
 	FORCEINLINE void SetBlackboard(class UBlackboardComponent* InBlackboard) { Blackboard = InBlackboard; }
 
 	FORCEINLINE UBlackboardComponent* GetBlackboard() const { return Blackboard; }
-	
+
 	FORCEINLINE int32 GetMyToken() const { return Token; }
-	FORCEINLINE void SetMyToken(int32 InValue) { Token= InValue; }
+	FORCEINLINE void SetMyToken(int32 InValue) { Token = InValue; }
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Key")
@@ -49,10 +49,14 @@ private:
 	FName PatternDecideKey = "PatternDecide";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
-	FName PatternExecuteKey= "bPatternExecute";
+	FName PatternExecuteKey = "bPatternExecute";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName ActionRangeKey = "ActionRange";
+
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName StrafeKey = "StrafeMode";
+
 
 private:
 	EAIStateType GetType();
@@ -85,7 +89,7 @@ public:
 	FVector GetEqsLocation();
 	void SetEqsLocation(const FVector& InLocation);
 
-	bool GetPattrenDecide(); 
+	bool GetPattrenDecide();
 	void SetPatternDecide(bool InPatternDecide);
 
 	bool GetPatternExecute();
@@ -93,6 +97,10 @@ public:
 
 	float GetActionRange();
 	void SetActionRange(float InActionRange);
+
+	void SetStrafe(bool InValue);
+	bool GetStrafe();
+
 
 public:
 	void SetWaitMode();
@@ -107,6 +115,7 @@ public:
 	void SetDeadMode();
 	void SetNoneMode();
 	void SetPatternDecideMode();
+	//void SetStrafeMode();
 
 
 private:
@@ -146,8 +155,8 @@ private:
 	class ACEnemy_AI* CachedAI;
 
 	bool bCanMove = true;
-	
-	EAIStateType PrevType; 
+
+	EAIStateType PrevType;
 
 	int32 Token = -1;
 };

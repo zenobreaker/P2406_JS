@@ -19,6 +19,7 @@ public:
     // 몽타주 종료 시 호출되는 함수
     UFUNCTION()
     void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
 private:
     // 애니메이션 몽타주 재생 타이머
     static FTimerHandle RepeatingTimerHandle;

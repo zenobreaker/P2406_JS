@@ -6,7 +6,7 @@
 
 UCSkillCollision_Shape::UCSkillCollision_Shape()
 {
-
+	PrimaryComponentTick.bCanEverTick = true; 
 }
 
 
@@ -19,11 +19,19 @@ void UCSkillCollision_Shape::BeginPlay()
 	//ActivateCollision();
 }
 
+void UCSkillCollision_Shape::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	if (bDrawDebug && bActivate)
+	{
+		DrawDebugCollisionLine();
+	}
+}
+
 void UCSkillCollision_Shape::ActivateCollision()
 {
 	CheckTrue(HitDatas.Num() <= Index);
 	CheckNull(OwnerCharacter);
-
+	bActivate = true; 
 	if (CollisionData.bRepeat)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -42,6 +50,7 @@ void UCSkillCollision_Shape::ActivateCollision()
 
 void UCSkillCollision_Shape::DeactivateCollision()
 {
+	bActivate = false;
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
 

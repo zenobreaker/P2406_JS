@@ -43,6 +43,7 @@ enum class EAIStateType : uint8
 	Down, 
 	Guard, 
 	Pattern_Decide,
+	Strafe,
 	Dead,
 
 	Max,

@@ -35,4 +35,4 @@ void ACAIController_Boss::RotateTowardsTarget(float InDeltaTime, ACharacter* InT
 	FRotator currentRotation = Enemy->GetActorRotation();
 	FRotator newRotation = FMath::RInterpTo(currentRotation, targetRotation, InDeltaTime, 5.0f);
 	Enemy->SetActorRotation(FRotator(currentRotation.Pitch, newRotation.Yaw, currentRotation.Roll));
-}
+}	

@@ -104,6 +104,16 @@ void UCAIBehaviorComponent::SetActionRange(float InActionRange)
 	Blackboard->SetValueAsFloat(ActionRangeKey, InActionRange);
 }
 
+void UCAIBehaviorComponent::SetStrafe(bool InValue)
+{
+	Blackboard->SetValueAsBool(StrafeKey, InValue);
+}
+
+bool UCAIBehaviorComponent::GetStrafe()
+{
+	return Blackboard->GetValueAsBool(StrafeKey);
+}
+
 
 bool UCAIBehaviorComponent::IsWaitMode()
 {
@@ -215,6 +225,7 @@ void UCAIBehaviorComponent::SetPatternDecideMode()
 	ChangeType(EAIStateType::Pattern_Decide);
 }
 
+
 FString UCAIBehaviorComponent::EnumToString(EAIStateType InType)
 {
 	static const TMap<EAIStateType, FString> EnumToStringMap =
@@ -250,6 +261,12 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 	//TODO: 임시 코드 
 	if (PrevType == EAIStateType::Dead)
 		return;
+
+	if (PrevType == EAIStateType::Wait && PrevType != InType)
+	{
+		SetStrafe(false);
+	}
+
 	// 과거와 현재가 같다면 그것은 수행하지 않음. 
 	if (PrevType == InType)
 		return; 

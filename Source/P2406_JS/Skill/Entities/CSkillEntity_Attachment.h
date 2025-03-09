@@ -15,6 +15,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Skill Entity")
 	TArray<FName> SocketNames;
 
+public: 
+	FORCEINLINE void SetSocketNames(const TArray<FName>& InNames) { SocketNames = InNames; }
+	FORCEINLINE TArray<FName> GetSocketNames() { return SocketNames; }
+
 public:
-	virtual void BeginPlay() override;
+	virtual void BeginPlay() override;;
 };

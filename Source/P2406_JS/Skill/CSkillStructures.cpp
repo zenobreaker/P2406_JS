@@ -5,6 +5,7 @@
 #include "Weapons/CWeaponStructures.h" 
 #include "Skill/CSkillEntity.h"
 #include "Skill/CSkillCollisionComponent.h"
+#include "Skill/Entities/CSkillEntity_Attachment.h"
 
 
 //-----------------------------------------------------------------------------
@@ -111,7 +112,6 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 		);
 
 	CheckNullResult(skillEntity, nullptr);
-
 
 	FLog::Log("Entity Create");
 	skillEntity->SetOwnerCharacter(InCharacter);

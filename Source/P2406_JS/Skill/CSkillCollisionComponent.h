@@ -61,6 +61,10 @@ protected:
 	UPROPERTY()
 	FSkillCollisionData CollisionData;
 
+
+	// IAttackInterface을(를) 통해 상속됨
+	AActor* GetDamageSource() const override;
+
 protected:
 	class AActor* SkillCauser;  // 이 충돌체가 생성되는 원인격
 	class ACharacter* OwnerCharacter;	// 스킬 시전자 
@@ -69,6 +73,8 @@ protected:
 protected:
 	int32 Index;
 	TArray<FHitData> HitDatas;
+	bool bActivate = false; 
+
 
 protected:
 	FTimerHandle CollisionTimerHandle;
@@ -77,6 +83,4 @@ protected:
 	TArray<AActor*> Ignores;
 	TArray<AActor*> Hitted;
 
-	// IAttackInterface을(를) 통해 상속됨
-	AActor* GetDamageSource() const override;
 };

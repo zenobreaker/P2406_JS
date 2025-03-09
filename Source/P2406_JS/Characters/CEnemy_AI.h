@@ -67,9 +67,9 @@ public:
 protected:
 	void Launch(const FHitData& InHitData, const bool bIsGuarding = false) override;
 
-private:
+protected:
 	UFUNCTION()
-	void OnHealthPointChanged(float InHealth, float InMaxHealth);
+	virtual void OnHealthPointChanged(float InHealth, float InMaxHealth);
 
 	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
 
