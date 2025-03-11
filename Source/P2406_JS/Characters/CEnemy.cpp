@@ -122,11 +122,10 @@ void ACEnemy::Damaged()
 		GetWorld()->GetTimerManager().SetTimer(ChangeColor_TimerHandle, timerDelegate, 0.2f, false);
 	}
 
-	if (!!DamageData.Event && !!DamageData.Event->HitData)
+	if (!!DamageData.Event && !!DamageData.Event->HitData )
 	{
 		FHitData* hitData = DamageData.Event->HitData;
 
-		Play_DamageMontage(*hitData);
 
 		// 히트 및 효과 처리 
 		{
@@ -140,10 +139,14 @@ void ACEnemy::Damaged()
 			hitData->PlayCameraShake(this);
 		}
 
-
-		if (HealthPoint->IsDead() == false)
+		if (!!Condition && Condition->GetSuperArmorCondition() == false)
 		{
-			Launch(*hitData);
+			Play_DamageMontage(*hitData);
+
+			if (HealthPoint->IsDead() == false)
+			{
+				Launch(*hitData);
+			}
 		}
 
 		//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
@@ -169,6 +172,11 @@ void ACEnemy::Damaged()
 	DamageData.Attacker = nullptr;
 	DamageData.Causer = nullptr;
 	DamageData.Event = nullptr;
+
+	DYNAMIC_EVENT_CALL(OnCharacterDamaged);
+	// 슈퍼아머는 경직 모션을 걸리지 않기 때문에 바로 end 처리한다.
+	if (!!Condition && Condition->GetSuperArmorCondition())
+		End_Damaged();
 }
 
 void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)

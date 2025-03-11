@@ -1,9 +1,10 @@
 #include "Components/CAIBehaviorComponent.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
-#include "Characters/CEnemy_AI.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+#include "Characters/CEnemy_AI.h"
+#include "Characters/CBoss_AI.h"
 #include "Components/CStateComponent.h"
 #include "Components/CConditionComponent.h"
 #include "Components/CPatternComponent.h"
@@ -44,6 +45,16 @@ void UCAIBehaviorComponent::BeginPlay()
 
 	if(!!Blackboard)
 		Blackboard->SetValueAsBool("bCanAct", true);
+
+	ACBoss_AI* boss = Cast<ACBoss_AI>(GetOwner());
+	if (!!boss)
+	{
+		int32 curentPhase = boss->GetCurrentPhase(); 
+		SetCurrentPhase(curentPhase);
+		SetLastPhase(curentPhase);
+
+		REGISTER_EVENT_WITH_REPLACE(boss, OnBossPhaseUpdated, this, UCAIBehaviorComponent::OnPhaseChanged);
+	}
 }
 
 EAIStateType UCAIBehaviorComponent::GetType()
@@ -112,6 +123,26 @@ void UCAIBehaviorComponent::SetStrafe(bool InValue)
 bool UCAIBehaviorComponent::GetStrafe()
 {
 	return Blackboard->GetValueAsBool(StrafeKey);
+}
+
+void UCAIBehaviorComponent::SetLastPhase(int32 InPhase)
+{
+	Blackboard->SetValueAsInt(LastPhaseKey, InPhase);
+}
+
+int32 UCAIBehaviorComponent::GetLastPhase()
+{
+	return Blackboard->GetValueAsInt(LastPhaseKey);
+}
+
+void UCAIBehaviorComponent::SetCurrentPhase(int32 InPhase)
+{
+	Blackboard->SetValueAsInt(CurrentPhaseKey, InPhase);
+}
+
+int32 UCAIBehaviorComponent::GetCurrentPhase()
+{
+	return Blackboard->GetValueAsInt(CurrentPhaseKey);
 }
 
 
@@ -382,6 +413,11 @@ void UCAIBehaviorComponent::OnDecidedPattern(bool InValue)
 void UCAIBehaviorComponent::OnDecidedPattern_Range(float InValue)
 {
 	Blackboard->SetValueAsFloat(ActionRangeKey, InValue);
+}
+
+void UCAIBehaviorComponent::OnPhaseChanged(int32 InPhase)
+{
+	SetCurrentPhase(InPhase);
 }
 
 ACharacter* UCAIBehaviorComponent::GetTarget()

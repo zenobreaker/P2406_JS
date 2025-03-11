@@ -57,6 +57,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName StrafeKey = "StrafeMode";
 
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName CurrentPhaseKey = "CurrentPhase";
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName LastPhaseKey = "LastPhase";
 
 private:
 	EAIStateType GetType();
@@ -101,6 +105,10 @@ public:
 	void SetStrafe(bool InValue);
 	bool GetStrafe();
 
+	void SetLastPhase(int32 InPhase);
+	int32 GetLastPhase();
+	void SetCurrentPhase(int32 InPhase);
+	int32 GetCurrentPhase();
 
 public:
 	void SetWaitMode();
@@ -142,6 +150,8 @@ public:
 	UFUNCTION()
 	void OnDecidedPattern_Range(float InValue);
 
+	UFUNCTION()
+	void OnPhaseChanged(int32 InPhase);
 
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;

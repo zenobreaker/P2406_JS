@@ -77,6 +77,11 @@ public:
 	void OnActivated_Collision(FName InName = NAME_None);
 	void OnDeactivated_Collision(FName InName = NAME_None);
 
+
+private: 
+	UFUNCTION()
+	void UpdatedPhase(int32 InPhase);
+
 public:
 	FDecidedPattern OnDecidedPattern;
 	FDecidedPattern_Range OnDecidedPattern_Range;

@@ -59,6 +59,7 @@ enum class EConditionState : uint8
     CONDITION_STRUNED = 1 << 1 UMETA(DisplayName = "Stunned"),
     CONDITION_FROZEN = 1 << 2 UMETA(DisplayName = "Frozen"),
     CONDITION_AIRBORNE = 1 << 3 UMETA(DisplayName = "Airborne"),
+    CONDITION_SUPERARMOR = 1 << 3 UMETA(DisplayName = "Airborne"),
     // 필요 상태 추가
 };
 

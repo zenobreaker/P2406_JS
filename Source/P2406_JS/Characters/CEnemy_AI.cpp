@@ -41,7 +41,7 @@ ACEnemy_AI::ACEnemy_AI()
 	LabelWidget->SetDrawSize(FVector2D(120, 0));
 	LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
-	FHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BlackboardData'/Game/Enemies/Melee/Melee_Base/BB_Melee_Small.BB_Melee_Small'");
+	//FHelpers::GetAsset<UBehaviorTree>(&BehaviorTree, "/Script/AIModule.BlackboardData'/Game/Enemies/Melee/Melee_Base/BB_Melee_Small.BB_Melee_Small'");
 
 	if (IIGuardable::Execute_HasGuard(this))
 	{
@@ -144,6 +144,8 @@ void ACEnemy_AI::OnHealthPointChanged(float InHealth, float InMaxHealth)
 void ACEnemy_AI::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	Super::OnStateTypeChanged(InPrevType, InNewType);
+
+	CheckNull(LabelWidget);
 
 	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	enemyLabel->UpdateStateName(StaticEnum<EStateType>()->GetNameStringByValue((int64)InNewType));

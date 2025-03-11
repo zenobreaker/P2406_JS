@@ -2,11 +2,12 @@
 #include "Global.h"
 #include "Engine/DataTable.h"
 
+#include "Characters/CBoss_AI.h"
+#include "Components/CStateComponent.h"
 #include "Gameframework/Character.h"
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CPatternConditionManager.h"
 #include "Skill/CSkillAsset.h"
-#include "Components/CStateComponent.h"
 
 UCPatternComponent::UCPatternComponent()
 {
@@ -76,6 +77,10 @@ void UCPatternComponent::BeginPlay()
 		}
 		PatternInfos.Add({ info.PatternID, info });
 	}
+
+	ACBoss_AI* boss = Cast<ACBoss_AI>(OwnerCharacter);
+	if (!!boss)
+		REGISTER_EVENT_WITH_REPLACE(boss, OnBossPhaseUpdated, this, UCPatternComponent::UpdatedPhase);
 }
 
 
@@ -98,14 +103,14 @@ void UCPatternComponent::ExecutePattern()
 	CheckNull(CurrentSkill);
 
 	bExecutePattern = true;
-	
+
 	//FLog::Print("Execute Pattern : " + CurrentSkill->GetName());
 	CurrentSkill->ExecuteSkill();
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
-	CheckNull(state); 
+	CheckNull(state);
 
-	state->SetActionMode(); 
+	state->SetActionMode();
 }
 
 void UCPatternComponent::DecidePattern()
@@ -153,7 +158,7 @@ void UCPatternComponent::DecidePattern()
 	// 현재 동작할 패턴 스킬 할당.
 	if (PatternInfos.Contains(SelectedPatternID))
 		CurrentSkill = PatternInfos[SelectedPatternID].ActiveSkill;
-	
+
 	if (PatternInfos.Contains(SelectedPatternID))
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, PatternInfos[SelectedPatternID].ActionRange);
 
@@ -163,7 +168,7 @@ void UCPatternComponent::DecidePattern()
 void UCPatternComponent::Begin_Pattern()
 {
 	CheckNull(CurrentSkill);
-	
+
 	bExecutePattern = true;
 	//FLog::Print("Begin_Pattern : " + (CurrentSkill->GetName()));
 }
@@ -171,7 +176,7 @@ void UCPatternComponent::Begin_Pattern()
 void UCPatternComponent::End_Pattern()
 {
 	CheckNull(CurrentSkill);
-	
+
 	//FLog::Print("End_Pattern : " + (CurrentSkill->GetName()));
 	CurrentSkill->CompleteSkill();
 
@@ -183,7 +188,7 @@ void UCPatternComponent::End_Pattern()
 void UCPatternComponent::OnActivated_Collision(FName InName)
 {
 	CheckNull(CurrentSkill);
-	
+
 	//FLog::Print("OnActivated_Collision : " + CurrentSkill->GetName());
 	CurrentSkill->OnActivated_Collision(InName);
 }
@@ -191,8 +196,14 @@ void UCPatternComponent::OnActivated_Collision(FName InName)
 void UCPatternComponent::OnDeactivated_Collision(FName InName)
 {
 	CheckNull(CurrentSkill);
-	
+
 	//FLog::Print("OnDeactivated_Collision : " + CurrentSkill->GetName());
 	CurrentSkill->OnDeactivated_Collision(InName);
+}
+
+void UCPatternComponent::UpdatedPhase(int32 InPhase)
+{
+	CurrentPhase = InPhase;
+	FLog::Log("Boss Current Phase : " + FString::FromInt(CurrentPhase));
 }
 

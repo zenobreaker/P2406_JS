@@ -19,6 +19,7 @@ public:
     FORCEINLINE bool IsNoneCondition() { return Condition == EConditionState::CONDITION_NONE; }
     FORCEINLINE bool GetAirborneCondition() { return HasCondition(EConditionState::CONDITION_AIRBORNE); }
     FORCEINLINE bool GetDownCondition() { return HasCondition(EConditionState::CONDITION_DOWNED); }
+    FORCEINLINE bool GetSuperArmorCondition() { return HasCondition(EConditionState::CONDITION_SUPERARMOR); }
 
 public:	
 	UCConditionComponent();
@@ -29,15 +30,16 @@ protected:
 public:
     UFUNCTION()
     void AddAirborneCondition();
-    
     UFUNCTION()
     void RemoveAirborneCondition();
 
     UFUNCTION()
     void AddDownCondition();
-
     UFUNCTION()
     void RemoveDownCondition();
+
+    void AddSuperArmorCondition(); 
+    void RemoveSuperArmorCondition();
 
 private:
     //void ChangeType(EConditionState InPrevType, EConditionState InNewType);

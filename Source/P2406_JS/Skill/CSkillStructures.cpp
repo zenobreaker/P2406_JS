@@ -55,6 +55,7 @@ void FSkillPhaseData::Phase_PlayEffect(ACharacter* InCharacter)
 
 	FTransform transform;
 	transform.SetLocation(location);
+	transform.SetRotation(FQuat(rotator));
 	transform.SetScale3D(EffectScale);
 
 	FHelpers::PlayEffect(InCharacter->GetWorld(), Effect, transform);

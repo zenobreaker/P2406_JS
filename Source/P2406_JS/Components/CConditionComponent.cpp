@@ -36,6 +36,16 @@ void UCConditionComponent::RemoveDownCondition()
 	RemoveCondition(EConditionState::CONDITION_DOWNED);
 }
 
+void UCConditionComponent::AddSuperArmorCondition()
+{
+	AddCondition(EConditionState::CONDITION_SUPERARMOR);
+}
+
+void UCConditionComponent::RemoveSuperArmorCondition()
+{
+	RemoveCondition(EConditionState::CONDITION_SUPERARMOR);
+}
+
 
 
 //TODO: 다운상태는 어느 정도 시간이 지나면 일어나야 한다. => 이러한 정보 데이터를 구현해야할것
