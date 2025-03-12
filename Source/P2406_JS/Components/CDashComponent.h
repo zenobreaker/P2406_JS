@@ -36,7 +36,7 @@ public:
 
 
 public:
-	FORCEINLINE bool IsEvade() const {return bIsEvadeSuccessed;}
+	
 
 public:
 	UCDashComponent();
@@ -48,6 +48,7 @@ protected:
 public:
 	void OnDash();
 	void DashAction();
+	bool IsEvade();
 
 public:
 	void Begin_DashSpeed();

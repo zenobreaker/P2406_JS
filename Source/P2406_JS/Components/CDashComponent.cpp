@@ -116,6 +116,16 @@ void UCDashComponent::DashAction()
 	}
 }
 
+bool UCDashComponent::IsEvade()
+{
+	CheckTrueResult(bIsEvadeSuccessed, true); 
+	CheckFalseResult(bIsDashing, false);
+
+	HandleEvade(); 
+
+	return true;
+}
+
 void UCDashComponent::Begin_DashSpeed()
 {
 	CheckNull(OwnerCharacter);
