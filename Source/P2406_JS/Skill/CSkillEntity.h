@@ -48,10 +48,8 @@ protected:
 
 public:
 	// 충돌 시작
-	virtual void ActivateCollision();
 	virtual void ActivateCollision(FName InName);
 	// 충돌 종료
-	virtual void DeactivateCollision();
 	virtual void DeactivateCollision(FName InName);
 
 	void SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs);
@@ -63,14 +61,16 @@ public:
 	// IAttackInterface을(를) 통해 상속됨
 	AActor* GetDamageSource() const override;
 
-private:
-	TArray<AActor*> Hitted;
+//private:
+//	TArray<AActor*> Hitted;
 
 protected:
 	class ACharacter* OwnerCharacter;
 
 protected:
+	int32 Index; 
+
+protected:
 	class UCSkillCollisionComponent* SkillCollision;
-	//TArray<class UCSkillCollisionComponent*> SkillCollisions;
 	TMap<FName, class UCSkillCollisionComponent*> CollisionTable;
 };

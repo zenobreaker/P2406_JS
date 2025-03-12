@@ -38,11 +38,11 @@ public:
 
 public:
 	// 충돌 시작
-	virtual void ActivateCollision() PURE_VIRTUAL(UCSkillCollisionComponent::ActivateCollision, );
+	virtual void ActivateCollision(int32 InInex = 0) {} /*PURE_VIRTUAL(UCSkillCollisionComponent::ActivateCollision, );*/
 	// 충돌 종료
-	virtual void DeactivateCollision() PURE_VIRTUAL(UCSkillCollisionComponent::DeactivateCollision, );
+	virtual void DeactivateCollision(int32 InInex = 0) {}/*PURE_VIRTUAL(UCSkillCollisionComponent::DeactivateCollision, );*/
 	// 충돌 검사 
-	virtual void CheckCollision()  PURE_VIRTUAL(UCSkillCollisionComponent::CheckCollision, );
+	virtual void CheckCollision() {} /*PURE_VIRTUAL(UCSkillCollisionComponent::CheckCollision, );*/
 
 
 protected:

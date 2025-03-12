@@ -27,8 +27,11 @@ void UCSkillCollision_Shape::TickComponent(float DeltaTime, ELevelTick TickType,
 	}
 }
 
-void UCSkillCollision_Shape::ActivateCollision()
+void UCSkillCollision_Shape::ActivateCollision(int32 InIndex)
 {
+	Super::ActivateCollision(InIndex);
+	Index = InIndex;
+
 	CheckTrue(HitDatas.Num() <= Index);
 	CheckNull(OwnerCharacter);
 	bActivate = true; 
@@ -48,14 +51,18 @@ void UCSkillCollision_Shape::ActivateCollision()
 	}
 }
 
-void UCSkillCollision_Shape::DeactivateCollision()
+void UCSkillCollision_Shape::DeactivateCollision(int32 InIndex)
 {
+	Super::DeactivateCollision(InIndex);
+
 	bActivate = false;
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
 
 void UCSkillCollision_Shape::CheckCollision()
 {
+	Super::CheckCollision();
+
 	CheckNull(OwnerCharacter);
 
 	if (Index >= HitDatas.Num())

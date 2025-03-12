@@ -15,21 +15,21 @@ public:
 	UCSkillCollision_Shape();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Size")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Size")
 	float CollisionRadius = 200.0f;
 
 
 public:
-	void BeginPlay() override; 
+	void BeginPlay() override;
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	// 충돌 시작
-	void ActivateCollision() override;
+	void ActivateCollision(int32 InIndex = 0) override;
 	// 충돌 종료
-	void DeactivateCollision() override;
+	void DeactivateCollision(int32 InIndex = 0) override;
 
-	void CheckCollision() override; 
+	void CheckCollision() override;
 
 protected:
 	void DrawDebugCollisionLine() override;

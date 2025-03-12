@@ -78,33 +78,23 @@ void ACSkillEntity::CreateCollisionByType(FSkillCollisionData InData)
 	}
 }
 
-void ACSkillEntity::ActivateCollision()
-{
-	CheckNull(SkillCollision);
-
-	SkillCollision->ActivateCollision();
-}
-
 void ACSkillEntity::ActivateCollision(FName InName)
 {
 	if (InName != NAME_None
 		&& CollisionTable.Num() > 0
 		&& CollisionTable.Contains(InName))
 	{
-		CollisionTable[InName]->ActivateCollision();
+		CollisionTable[InName]->ActivateCollision(Index++);
 		return;
 	}
 
 	// 기본적인 동작을 위한 퓨어 가상 함수 호출
-	ActivateCollision();
-}
 
-void ACSkillEntity::DeactivateCollision()
-{
 	CheckNull(SkillCollision);
 
-	SkillCollision->DeactivateCollision();
+	SkillCollision->ActivateCollision(Index++);
 }
+
 
 void ACSkillEntity::DeactivateCollision(FName InName)
 {
@@ -112,11 +102,13 @@ void ACSkillEntity::DeactivateCollision(FName InName)
 		&& CollisionTable.Num() > 0
 		&& CollisionTable.Contains(InName))
 	{
-		CollisionTable[InName]->DeactivateCollision();
+		CollisionTable[InName]->DeactivateCollision(Index);
 		return;
 	}
 
-	DeactivateCollision();
+	CheckNull(SkillCollision);
+
+	SkillCollision->DeactivateCollision(Index);
 }
 
 void ACSkillEntity::SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs)

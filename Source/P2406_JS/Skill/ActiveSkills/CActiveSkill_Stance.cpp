@@ -53,7 +53,8 @@ bool UCActiveSkill_Stance::CheckPressedSetKey()
 {
 	CheckNullResult(OwnerCharacter, false);
 
-	
+	//IsAnyInputKeyDown();
+
 	for (auto& keyPair : InputKeyTable)
 	{
 		if (CheckPressedSetKey(keyPair.Key) == true)
