@@ -20,9 +20,9 @@ ACAIController::ACAIController()
 
 	// 시야 구성 
 	Sight = CreateDefaultSubobject<UAISenseConfig_Sight>("Sight");
-	Sight->SightRadius = 600; // 시야 범위 
-	Sight->LoseSightRadius = 800; // 시야 범위를 벗어나면 감지를 잃기 시작하는 범위 
-	Sight->PeripheralVisionAngleDegrees = 45; // 감지 시야 좌우 각도 
+	Sight->SightRadius = SightRadius; // 시야 범위 
+	Sight->LoseSightRadius = LoseSightRadius; // 시야 범위를 벗어나면 감지를 잃기 시작하는 범위 
+	Sight->PeripheralVisionAngleDegrees = PeripheralVisionAngleDegrees; // 감지 시야 좌우 각도 
 	Sight->SetMaxAge(2); // 감지를 벗어나면 잃기 시작하는 시간 
 
 	// 블루프린트에서 사용 불가능 
@@ -42,6 +42,15 @@ ACAIController::ACAIController()
 void ACAIController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	Sight->SightRadius = SightRadius; // 시야 범위 
+	Sight->LoseSightRadius = LoseSightRadius; // 시야 범위를 벗어나면 감지를 잃기 시작하는 범위 
+	Sight->PeripheralVisionAngleDegrees = PeripheralVisionAngleDegrees; // 감지 시야 좌우 각도 
+	Sight->SetMaxAge(2); // 감지를 벗어나면 잃기 시작하는 시간 
+
+	// 갖는 대상이 배열일 땐 객체로 전달한다.
+	Perception->ConfigureSense(*Sight);
+	Perception->SetDominantSense(*Sight->GetSenseImplementation());
 
 	Perception->OnPerceptionUpdated.AddDynamic(this, &ACAIController::OnPerceptionUpdated);
 }
@@ -137,7 +146,15 @@ void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 	}
 
 	// 루프 끝난 후 Blackboard 설정
-	Blackboard->SetValueAsObject("Target", nearestTarget);
+	//Blackboard->SetValueAsObject("Target", nearestTarget);
+	Behavior->SetTarget(Cast<ACharacter>(nearestTarget));
+
+	// 현재 감지 된게 없다면 이전에 감지 정보를 저장 
+	if (actors.IsEmpty())
+	{
+		auto target = Behavior->GetTarget(); 
+		Behavior->SetLateTarget(target);
+	}
 }
 
 void ACAIController::OnEnemyDead()
@@ -146,7 +163,10 @@ void ACAIController::OnEnemyDead()
 
 	ClearFocus(EAIFocusPriority::Gameplay);
 
-	Blackboard->SetValueAsObject("Target", nullptr);
+	//Blackboard->SetValueAsObject("Target", nullptr);
+	
+	Behavior->SetLateTarget(nullptr);
+	Behavior->SetTarget(nullptr);
 }
 
 

@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 
 #include "Components/CHealthPointComponent.h"
+#include "Components/CAIBehaviorComponent.h"
 
 bool FPatternCondition::IsConditionMet(ACharacter* InCharacter)
 {
@@ -23,9 +24,19 @@ bool FPatternCondition::IsConditionMet(ACharacter* InCharacter)
 	break;
 	case EPatternConditionType::TimeElapsed:
 		break;
-	case EPatternConditionType::BossDamaged:
+		
+		//TODO : 이건 좀 생각해봐야할 듯.. 조건이 넘 어려움 
+	case EPatternConditionType::BossDamagedRatio:
+
 		break;
 	case EPatternConditionType::PlayerInRange:
+		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(InCharacter);
+		if (behavior != nullptr)
+		{
+			ACharacter* target = behavior->GetTarget();
+			if (target != nullptr)
+				bResult = true; 
+		}
 		break;
 	}
 

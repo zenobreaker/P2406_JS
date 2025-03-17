@@ -29,10 +29,33 @@ void ACAIController_Boss::RotateTowardsTarget(float InDeltaTime, ACharacter* InT
 	CheckNull(Enemy);
 	CheckNull(InTarget);
 
-	FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation(Enemy->GetActorLocation(), InTarget->GetActorLocation());
+	FVector enemyLocation = Enemy->GetActorLocation();
+	FVector targetLocation = InTarget->GetActorLocation();
 
-
+	FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation(enemyLocation, targetLocation);
 	FRotator currentRotation = Enemy->GetActorRotation();
-	FRotator newRotation = FMath::RInterpTo(currentRotation, targetRotation, InDeltaTime, 5.0f);
-	Enemy->SetActorRotation(FRotator(currentRotation.Pitch, newRotation.Yaw, currentRotation.Roll));
+	float deltaYaw = /*FMath::Abs*/(FMath::FindDeltaAngleDegrees(currentRotation.Yaw, targetRotation.Yaw));
+
+	// 각도 차이에 따라 보간 속도를 동적 조절
+	float rotationSpeed = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 90.0f), FVector2D(5.0f, 30.0f), FMath::Abs(deltaYaw));
+	// 선형 보간을 사용하여 일정한 속도로 회전
+	//float rotationDirection = deltaYaw < 0.0f ? 1.0f : -1.0f;
+	//FRotator newRotation = FMath::Lerp(currentRotation, targetRotation, InDeltaTime * rotationSpeed);
+	//float targetYaw = currentRotation.Yaw + rotationDirection * rotationSpeed * InDeltaTime;
+	FLog::Print("Rotate Speed " + FString::SanitizeFloat(rotationSpeed) + " Yaw : " + FString::SanitizeFloat(deltaYaw), 36360);
+	// 회전 방향 결정
+	if (deltaYaw < 0.0f) // 반시계방향 회전
+	{
+		Enemy->SetActorRotation(FRotator(currentRotation.Pitch, currentRotation.Yaw - rotationSpeed * InDeltaTime, currentRotation.Roll));
+	}
+	else // 시계방향 회전
+	{
+		Enemy->SetActorRotation(FRotator(currentRotation.Pitch, currentRotation.Yaw + rotationSpeed * InDeltaTime, currentRotation.Roll));
+	}
+	// 보스가 바라보는 방향 (빨간색)
+	DrawDebugLine(GetWorld(), enemyLocation, enemyLocation + Enemy->GetActorForwardVector() * 200.0f, FColor::Red, false, 0.1f, 0, 2.0f);
+
+	// 목표 방향 (파란색)
+	DrawDebugLine(GetWorld(), enemyLocation, targetLocation, FColor::Blue, false, 0.1f, 0, 2.0f);
+
 }	

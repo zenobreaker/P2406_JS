@@ -11,10 +11,22 @@ class P2406_JS_API ACAIController : public AAIController
 	GENERATED_BODY()
 
 
-
 protected:
+	UPROPERTY(EditDefaultsOnly, Category ="Sight")
+	float SightRadius = 600;
+
+	UPROPERTY(EditDefaultsOnly, Category ="Sight")
+	float LoseSightRadius = 800;
+	UPROPERTY(EditDefaultsOnly, Category ="Sight")
+	float PeripheralVisionAngleDegrees = 45; 
+
 	UPROPERTY(VisibleAnywhere)
 	class UAIPerceptionComponent* Perception;
+
+public:
+	FORCEINLINE float GetSightRadius() { return SightRadius; }
+	FORCEINLINE float GetLoseSightRadius() { return LoseSightRadius; }
+	FORCEINLINE float GetPeripheralVisionAngleDegrees() { return PeripheralVisionAngleDegrees; }
 
 public:
 	ACAIController();

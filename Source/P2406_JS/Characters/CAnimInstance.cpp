@@ -4,6 +4,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Characters/CBaseCharacter.h"
 #include "Characters/CPlayer.h"
+#include "Characters/CEnemy_AI.h"
 #include "Characters/IGuardable.h"
 
 #include "Components/CConditionComponent.h"
@@ -21,10 +22,10 @@ void UCAnimInstance::NativeBeginPlay()
 
 	Weapon = FHelpers::GetComponent<UCWeaponComponent>(OwnerCharacter);
 	State = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
-	Skill = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter); 
+	Skill = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
 	Grapple = FHelpers::GetComponent<UCGrapplingComponent>(OwnerCharacter);
 	Condition = FHelpers::GetComponent<UCConditionComponent>(OwnerCharacter);
-	Feet = FHelpers::GetComponent<UCFeetComponent>(OwnerCharacter); 
+	Feet = FHelpers::GetComponent<UCFeetComponent>(OwnerCharacter);
 	Parkour = FHelpers::GetComponent<UCParkourComponent>(OwnerCharacter);
 
 	if (!!Weapon)
@@ -34,7 +35,7 @@ void UCAnimInstance::NativeBeginPlay()
 		State->OnStateTypeChanged.AddDynamic(this, &UCAnimInstance::OnStateTypeChanged);
 
 	ACBaseCharacter* baseCharacter = Cast<ACBaseCharacter>(OwnerCharacter);
-	if(!!baseCharacter)
+	if (!!baseCharacter)
 	{
 		baseCharacter->OnCharacterDowned.AddDynamic(this, &UCAnimInstance::OnCharacterDowned);
 
@@ -44,7 +45,7 @@ void UCAnimInstance::NativeBeginPlay()
 	if (Cast<ACPlayer>(OwnerCharacter) != nullptr)
 		bPlayer = true;
 	else
-		bPlayer = false; 
+		bPlayer = false;
 }
 
 void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -69,25 +70,25 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	ChangeFallingAttack();
 
 	// Falling 
-	ChangeFalling(); 
-	
+	ChangeFalling();
+
 	// Airborne
-	ChangeAirborne(); 
-	
+	ChangeAirborne();
+
 	// Down 
-	ChangeDown(); 
+	ChangeDown();
 
 	// Grappling 
-	ChangeGrappling(); 
+	ChangeGrappling();
 
 	// Bow Aim
-	ChangeBowAiming(); 
+	ChangeBowAiming();
 
 	// Gaurd 
 	ChangeGuardState();
 
 	//IK
-	ChangeFeet(); 
+	ChangeFeet();
 }
 
 //-----------------------------------------------------------------------------
@@ -121,7 +122,7 @@ void UCAnimInstance::OnCharacterRaised()
 void UCAnimInstance::ChangeGuardState()
 {
 	// 내가 가져올 때 인터페이스에서 가져오고 거기서 값을 그걸로 바꾼다. 
-	UCGuardComponent* guard= FHelpers::GetComponent<UCGuardComponent>(OwnerCharacter);
+	UCGuardComponent* guard = FHelpers::GetComponent<UCGuardComponent>(OwnerCharacter);
 	CheckNull(guard);
 
 	bGuarding = guard->GetGuarding();
@@ -143,8 +144,8 @@ void UCAnimInstance::ChangeFeet()
 		}
 
 
-		if(bUseFootIK)
-			FeetData = Feet->GetData(); 
+		if (bUseFootIK)
+			FeetData = Feet->GetData();
 
 	}
 }
@@ -163,7 +164,7 @@ void UCAnimInstance::ChangeFallingAttack()
 
 void UCAnimInstance::ChangeFalling()
 {
-	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling(); 
+	bFalling = OwnerCharacter->GetCharacterMovement()->IsFalling();
 
 	bFalling &= bFallingAttack == false;
 }
@@ -188,7 +189,7 @@ void UCAnimInstance::ChangeGrappling()
 
 void UCAnimInstance::ChangeAirborne()
 {
-	CheckNull(Condition); 
+	CheckNull(Condition);
 
 	bool bAirborne = Condition->GetAirborneCondition();
 	bIsAirborneHit = bFalling && bAirborne;
@@ -202,12 +203,12 @@ void UCAnimInstance::ChangeDown()
 	}
 
 	CheckNull(Condition);
-	
-	bool bCheck = true ; 
+
+	bool bCheck = true;
 
 	bCheck &= Condition->GetDownCondition();
 	bCheck &= Condition->GetAirborneCondition() == false;
-	
+
 	bDown = bCheck;
 }
 

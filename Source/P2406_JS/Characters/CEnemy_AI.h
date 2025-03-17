@@ -34,14 +34,16 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCWeaponComponent* Weapon; 
 
-	UPROPERTY(VisibleAnywhere)
-	class UCAIBehaviorComponent* Behavior;
 
 	UPROPERTY(VisibleAnywhere)
 	class UCGuardComponent* Guard; 
 
 	UPROPERTY(VisibleAnywhere)
 	class UCAttackTraceComponent* ATrace; 
+
+protected:
+	UPROPERTY(VisibleAnywhere)
+	class UCAIBehaviorComponent* Behavior;
 
 private:
 	UPROPERTY(VisibleAnywhere)

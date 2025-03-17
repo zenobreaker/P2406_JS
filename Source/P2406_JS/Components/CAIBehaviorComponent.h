@@ -7,6 +7,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAIStateTypeChanged, EAIStateType, InPrevType, EAIStateType, InNewType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRotated, bool, InValue);
 
 //UENUM()
 //enum class EWaitPatternState : uint8
@@ -40,6 +41,9 @@ private:
 	FName TargetKey = "Target";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
+	FName LateTargetKey = "LateTarget";
+
+	UPROPERTY(EditAnywhere, Category = "Key")
 	FName PatrolLocationKey = "PatrolLocation";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
@@ -59,8 +63,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName CurrentPhaseKey = "CurrentPhase";
+
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName LastPhaseKey = "LastPhase";
+
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName IsRotatingKey = "bIsRotating";
+
 
 private:
 	EAIStateType GetType();
@@ -86,6 +95,8 @@ protected:
 public:
 	class ACharacter* GetTarget();
 	void SetTarget(class ACharacter* InTarget);
+	class ACharacter* GetLateTarget();
+	void SetLateTarget(class ACharacter* InTarget);
 
 	FVector GetPatrolLocation();
 	void SetPatrolLocation(const FVector& InLocation);
@@ -107,8 +118,12 @@ public:
 
 	void SetLastPhase(int32 InPhase);
 	int32 GetLastPhase();
+
 	void SetCurrentPhase(int32 InPhase);
 	int32 GetCurrentPhase();
+
+	void  SetRotating(bool InValue);
+	bool GetIsRotationg();
 
 public:
 	void SetWaitMode();
@@ -155,18 +170,15 @@ public:
 
 public:
 	FAIStateTypeChanged OnAIStateTypeChanged;
-
-
-
+	FOnRotated OnRotated;
 private:
 	class UBlackboardComponent* Blackboard;
 
 private:
 	class ACEnemy_AI* CachedAI;
 
+private:
 	bool bCanMove = true;
-
 	EAIStateType PrevType;
-
 	int32 Token = -1;
 };

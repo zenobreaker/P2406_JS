@@ -19,6 +19,8 @@ UCBTService_PhaseService::UCBTService_PhaseService()
 
 void UCBTService_PhaseService::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 {
+	Super::OnSearchStart(SearchData); 
+
 	CachedController = Cast<ACAIController>(SearchData.OwnerComp.GetOwner());
 	if (!!CachedController)
 	{

@@ -4,6 +4,7 @@
 
 #include "Characters/CBoss_AI.h"
 #include "Components/CStateComponent.h"
+#include "Components/AddOns/CPatternDecider.h"
 #include "Gameframework/Character.h"
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CPatternConditionManager.h"
@@ -12,25 +13,8 @@
 UCPatternComponent::UCPatternComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	//FHelpers::GetAsset<UDataTable>(&PatternDataTable, "");
-
-	//int maxPhase = 0; 
-	//if (!!PatternDataTable)
-	//{
-	//	TArray<FPatternData*> Rows;
-	//	PatternDataTable->GetAllRows("Pattern Data String", Rows);
-	//	for (const FPatternData* row : Rows)
-	//	{
-	//		if (row != nullptr)
-	//		{
-	//			maxPhase = FMath::Max(maxPhase, row->Phase);
-	//			Patterns.AddUnique(*row);
-	//		}
-	//	}
-	//}
-
-	//MaxPhase = maxPhase;
+	
+	FHelpers::GetClass<UCPatternDecider>(&PatternDeciderClass, L"/Script/Engine.Blueprint'/Game/Enemies/Boss/BP_CPatternDcider.BP_CPatternDcider_C'");
 }
 
 
@@ -46,6 +30,10 @@ void UCPatternComponent::BeginPlay()
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	CheckNull(OwnerCharacter);
+
+	PatternDecider = NewObject<UCPatternDecider>(this, PatternDeciderClass);
+	if (PatternDecider != nullptr)
+		PatternDecider->BeginPlay();
 
 	//TODO : 여기 데이터가 제대로 입력안되는 버그 있음
 	for (const FPatternData& data : PatternDatas)
@@ -140,6 +128,9 @@ void UCPatternComponent::DecidePattern()
 			}
 		}
 
+		if (bCanExecute  == false && PatternDecider->EvaluatePattern() == EPatternDecision::KeepPattern)
+			bCanExecute = true; 
+
 		if (bCanExecute)
 		{
 			selectedIds.HeapPush(Pattern.Value.PatternID, [this](int32 a, int32 b)
@@ -164,6 +155,16 @@ void UCPatternComponent::DecidePattern()
 
 	//FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
 }
+
+
+
+
+
+
+// -----------------------------------------------------------------------------------
+/// <summary>
+///  Pattern Out of Call
+/// </summary>
 
 void UCPatternComponent::Begin_Pattern()
 {

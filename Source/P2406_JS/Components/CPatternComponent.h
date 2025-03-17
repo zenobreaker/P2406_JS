@@ -46,15 +46,20 @@ class P2406_JS_API UCPatternComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Pattern")
 	int32 MaxPhase;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Pattern")
 	TArray<FPatternData> PatternDatas;
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Pattern")
+	TSubclassOf<class UCPatternDecider> PatternDeciderClass;
 
 public:
 	FORCEINLINE bool GetDecidePattern() const { return bDecided; }
 	FORCEINLINE bool IsExecutePattern() const { return bExecutePattern; }
+	FORCEINLINE int32 GetSelectedPatternID() const { return SelectedPatternID; }
 	FORCEINLINE class UCActiveSkill* GetCurrentActiveSkill() { return CurrentSkill; }
 public:
 	UCPatternComponent();
@@ -67,6 +72,9 @@ public:
 
 	void ExecutePattern();
 	void DecidePattern();
+
+	//TODO: 패턴을 수행하기 위한 조건을 반환하는 함수가 필요해
+	// 1. 추격 2. 뭐 대기 .. 
 
 public:
 	void Begin_Pattern();
@@ -109,4 +117,5 @@ private:
 	UDataTable* PatternDataTable;
 	class UCGameInstance* GameInstance;
 	class UCPatternConditionManager* PatternCondition;
+	class UCPatternDecider* PatternDecider; 
 };

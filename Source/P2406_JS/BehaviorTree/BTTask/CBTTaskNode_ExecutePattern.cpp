@@ -24,6 +24,8 @@ EBTNodeResult::Type UCBTTaskNode_ExecutePattern::ExecuteTask(UBehaviorTreeCompon
 
 	if (pattern->GetDecidePattern() == false || pattern->IsExecutePattern() == true)
 		return EBTNodeResult::Failed;
+	
+	controller->ClearFocus(EAIFocusPriority::Gameplay);
 
 	pattern->ExecutePattern();
 

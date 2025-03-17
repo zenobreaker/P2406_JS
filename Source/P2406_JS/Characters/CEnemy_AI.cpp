@@ -146,6 +146,7 @@ void ACEnemy_AI::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 	Super::OnStateTypeChanged(InPrevType, InNewType);
 
 	CheckNull(LabelWidget);
+	CheckNull(LabelWidget->GetUserWidgetObject());
 
 	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	enemyLabel->UpdateStateName(StaticEnum<EStateType>()->GetNameStringByValue((int64)InNewType));

@@ -12,7 +12,7 @@ enum class EPatternConditionType : uint8
     HealthBelow,    // 특정 수치 이하 
     TimeElapsed,    // 일정 시간 경과
     PlayerInRange,  // 거리 
-    BossDamaged,    // 일정 데미지 
+    BossDamagedRatio,    // 일정 데미지 
     Max,
 };
 

@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
 #include "CBTService_PatternPostDecision.generated.h"
 
+// 패턴 수행 후 처리를 하는 노드
 UCLASS()
 class P2406_JS_API UCBTService_PatternPostDecision : public UBTService
 {

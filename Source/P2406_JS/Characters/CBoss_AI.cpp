@@ -1,6 +1,8 @@
 #include "Characters/CBoss_AI.h"
 #include "Global.h"
 
+#include "Characters/CEnemy_AI.h"
+#include "Components/CAIBehaviorComponent.h"
 #include "Components/CPatternComponent.h"
 #include "Components/CConditionComponent.h"
 #include "Components/CHealthPointComponent.h"
@@ -21,6 +23,9 @@ void ACBoss_AI::BeginPlay()
 
 	CurrentPhase = 1; 
 	StartTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+	
+	if (!!Behavior)
+		REGISTER_EVENT_WITH_REPLACE(Behavior, OnRotated, this, ACBoss_AI::OnRotated);
 }
 
 void ACBoss_AI::Damaged()
@@ -83,5 +88,25 @@ void ACBoss_AI::SetNextPhase(int32 InNextPhase)
 	CurrentPhase = FMath::Clamp(InNextPhase, 0, BossPhaseData->BossMaxPhase);
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnBossPhaseUpdated, CurrentPhase); 
+}
+
+void ACBoss_AI::SetBossIdleMode()
+{
+	BossStateType = EBossState::Idle;
+}
+
+void ACBoss_AI::SetBossRotateMode()
+{
+	BossStateType = EBossState::Rotate;
+}
+
+void ACBoss_AI::OnRotated(bool InValue)
+{
+	if (InValue)
+		SetBossRotateMode();
+	else
+		SetBossIdleMode();
+
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnBossStateChanged, BossStateType);
 }
 

@@ -10,6 +10,10 @@ class P2406_JS_API UCBTTaskNode_ExecutePattern : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
+private: 
+	UPROPERTY(EditAnywhere, Category ="Pattern Numbert")
+	int32 PatternNumber = -1; 
+
 public:
 	UCBTTaskNode_ExecutePattern();
 

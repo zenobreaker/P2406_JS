@@ -145,6 +145,18 @@ int32 UCAIBehaviorComponent::GetCurrentPhase()
 	return Blackboard->GetValueAsInt(CurrentPhaseKey);
 }
 
+void UCAIBehaviorComponent::SetRotating(bool InValue)
+{
+	Blackboard->SetValueAsBool(IsRotatingKey, InValue);
+
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnRotated, InValue);
+}
+
+bool UCAIBehaviorComponent::GetIsRotationg()
+{
+	return Blackboard->GetValueAsBool(IsRotatingKey);
+}
+
 
 bool UCAIBehaviorComponent::IsWaitMode()
 {
@@ -444,4 +456,14 @@ void UCAIBehaviorComponent::SetTarget(ACharacter* InTarget)
 	CheckNull(InTarget);
 
 	Blackboard->SetValueAsObject(TargetKey, InTarget);
+}
+
+ACharacter* UCAIBehaviorComponent::GetLateTarget()
+{
+	return Cast<ACharacter>(Blackboard->GetValueAsObject(LateTargetKey));
+}
+
+void UCAIBehaviorComponent::SetLateTarget(ACharacter* InTarget)
+{
+	Blackboard->SetValueAsObject(LateTargetKey, InTarget);
 }
