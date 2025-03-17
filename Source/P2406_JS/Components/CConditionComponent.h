@@ -20,7 +20,7 @@ public:
     FORCEINLINE bool GetAirborneCondition() { return HasCondition(EConditionState::CONDITION_AIRBORNE); }
     FORCEINLINE bool GetDownCondition() { return HasCondition(EConditionState::CONDITION_DOWNED); }
     FORCEINLINE bool GetSuperArmorCondition() { return HasCondition(EConditionState::CONDITION_SUPERARMOR); }
-
+    FORCEINLINE bool GetInvicibleCondition() { return HasCondition(EConditionState::CONDITION_INVICIBLE); }
 public:	
 	UCConditionComponent();
 
@@ -40,6 +40,9 @@ public:
 
     void AddSuperArmorCondition(); 
     void RemoveSuperArmorCondition();
+
+    void AddInvicibleCondition();
+    void RemoveInvicibleCondition();
 
 private:
     //void ChangeType(EConditionState InPrevType, EConditionState InNewType);
