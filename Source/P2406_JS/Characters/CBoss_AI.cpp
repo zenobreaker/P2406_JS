@@ -1,5 +1,6 @@
 #include "Characters/CBoss_AI.h"
 #include "Global.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 #include "Characters/CEnemy_AI.h"
 #include "Components/CAIBehaviorComponent.h"
@@ -88,6 +89,31 @@ void ACBoss_AI::SetNextPhase(int32 InNextPhase)
 	CurrentPhase = FMath::Clamp(InNextPhase, 0, BossPhaseData->BossMaxPhase);
 
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnBossPhaseUpdated, CurrentPhase); 
+}
+
+void ACBoss_AI::StartOpeningPattern()
+{
+	bIsOpeningPatternActive = true; 
+
+	CheckNull(Behavior);
+	
+	UBlackboardComponent* blackboard = Behavior->GetBlackboard();
+	CheckNull(blackboard); 
+
+	blackboard->SetValueAsBool("bIsOpeningPattern", true); 
+}
+
+void ACBoss_AI::EndOpeningPattern()
+{
+	bIsOpeningPatternActive = false; 
+
+
+	CheckNull(Behavior);
+
+	UBlackboardComponent* blackboard = Behavior->GetBlackboard();
+	CheckNull(blackboard);
+
+	blackboard->SetValueAsBool("bIsOpeningPattern", false);
 }
 
 void ACBoss_AI::SetBossIdleMode()

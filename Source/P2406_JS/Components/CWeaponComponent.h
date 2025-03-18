@@ -98,7 +98,7 @@ public:
 	void SubAction_Released(int32 InIndex = 0);
 
 public:
-	bool TryGuard(ACBaseCharacter::FDamageData& DamageData);
+	bool TryGuard(class ACharacter* InAttacker);
 
 private:
 	void SetMode(EWeaponType InType);

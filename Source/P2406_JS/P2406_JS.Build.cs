@@ -21,6 +21,7 @@ public class P2406_JS : ModuleRules
             "NavigationSystem", 
             "CableComponent",
             "Niagara",
+            "AIModule"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

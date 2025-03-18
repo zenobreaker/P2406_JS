@@ -34,7 +34,7 @@ void UCSubAction::Released()
 	bInAction = false; 
 }
 
-bool UCSubAction::TryGuard(ACBaseCharacter::FDamageData& DamageData)
+bool UCSubAction::TryGuard(ACharacter* InAttacker)
 {
 	return false;
 }

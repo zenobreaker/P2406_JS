@@ -47,11 +47,11 @@ void UCSubAction_Sword_Guard::Released()
 
 
 // 이 함수가 호출되었다는 건 데미지가 들어왔다는 것 
-bool UCSubAction_Sword_Guard::TryGuard(ACBaseCharacter::FDamageData& DamageData)
+bool UCSubAction_Sword_Guard::TryGuard(ACharacter* InAttacker)
 {
-	CheckNullResult(Guard, Super::TryGuard(DamageData));
+	CheckNullResult(Guard, Super::TryGuard(InAttacker));
 
-	return Guard->CheckBlocking(DamageData);
+	return Guard->CheckBlocking(InAttacker);
 }
 
 

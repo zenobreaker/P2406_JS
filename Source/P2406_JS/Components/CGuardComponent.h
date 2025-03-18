@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Characters/CBaseCharacter.h"
+#include "Damages/CDamageHandler.h"
 #include "Weapons/CWeaponStructures.h"
 #include "Weapons/Guards/CGuardStructures.h"
 #include "CGuardComponent.generated.h"
@@ -41,7 +42,7 @@ public:
 
 	void StopGuard();
 
-	bool CheckBlocking(ACBaseCharacter::FDamageData& InDamageData);
+	bool CheckBlocking(class ACharacter* InAttacker);
 
 	void CalcGuardHP(const float InDeltaTime = 0.0f);
 

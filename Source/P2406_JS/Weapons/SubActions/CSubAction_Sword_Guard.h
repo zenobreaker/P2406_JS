@@ -26,7 +26,7 @@ public:
 	void Released() override;
 
 public:
-	virtual bool TryGuard(struct ACBaseCharacter::FDamageData& DamageData) override;
+	virtual bool TryGuard(class ACharacter* InAttacker) override;
 
 public:
 	UFUNCTION()

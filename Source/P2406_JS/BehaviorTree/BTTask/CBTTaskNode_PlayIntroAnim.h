@@ -21,10 +21,14 @@ private:
 	float PlayRate = 1.0f;
 
 	UPROPERTY(EditAnywhere)
-	FName CompleteIntoKey = "bCompleteIntro";
+	FBlackboardKeySelector BoardKey;
 
 protected:
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+
+private:
+	void SetBlackboardValue(class UBlackboardComponent* InBlackboard);
 
 private:
 	FTimerHandle Handle;

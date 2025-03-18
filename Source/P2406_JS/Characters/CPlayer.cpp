@@ -319,7 +319,7 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 		// 무기에게 가드 판정 갖고옴 
 		bool isGuard = false;
 		if (!!Guard)
-			isGuard = Guard->CheckBlocking(DamageData);
+			isGuard = Guard->CheckBlocking(DamageData.Attacker);
 
 		if (*bCountering == true)
 		{

@@ -422,7 +422,7 @@ void UCWeaponComponent::SubAction_Released(int32 InIndex)
 	}
 }
 
-bool UCWeaponComponent::TryGuard(ACBaseCharacter::FDamageData& DamageData)
+bool UCWeaponComponent::TryGuard(ACharacter* InAttacker)
 {
 	CheckTrueResult(OwnerCharacter == nullptr, false);
 
@@ -434,7 +434,7 @@ bool UCWeaponComponent::TryGuard(ACBaseCharacter::FDamageData& DamageData)
 
 	// 방어 각도 계산은 서브액션무기에게 전달
 	if (!!GetSubAction())
-		return GetSubAction()->TryGuard(DamageData);
+		return GetSubAction()->TryGuard(InAttacker);
 
 	return false;
 }

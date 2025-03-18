@@ -29,7 +29,7 @@ public:
 	virtual void Released();
 
 public:
-	virtual bool TryGuard(ACBaseCharacter::FDamageData& DamageData);
+	virtual bool TryGuard(class ACharacter* InAttacker);
 
 
 public:

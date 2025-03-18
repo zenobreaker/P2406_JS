@@ -51,6 +51,11 @@ void UCBTService_CheckRotate::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 
 	CheckNull(Blackboard);
 
+	//TODO: 하드코딩 수정해보기
+	bool open = Blackboard->GetValueAsBool("bIsOpeningPattern");
+	if (open == true)
+		return; 
+
 	ACharacter* target = CachedBehavior->GetTarget();
 	ACharacter* lateTarget = CachedBehavior->GetLateTarget();
 	if (target == nullptr && lateTarget == nullptr)

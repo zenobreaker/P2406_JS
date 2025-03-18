@@ -186,16 +186,17 @@ void UCGuardComponent::StopGuard()
 	//OwnerCharacter->bUseControllerRotationYaw = prevRotationYaw;
 }
 
-bool UCGuardComponent::CheckBlocking(ACBaseCharacter::FDamageData& InDamageData)
+bool UCGuardComponent::CheckBlocking(class ACharacter* InAttacker)
 {
 	CheckNullResult(DoGuard, false);
+	CheckNullResult(InAttacker, false);
 	CheckFalseResult(DoGuard->GetGuarding(), false);
 
 	// 이미 저스트 타이밍에 걸렸다면 다음 판정은 하지 않음.
 	if (DoParry->GetParring() == true)
 		return true; 
 
-	FVector attackerLocation = InDamageData.Attacker->GetActorLocation();
+	FVector attackerLocation = InAttacker->GetActorLocation();
 
 	FVector toAttack = (attackerLocation - OwnerCharacter->GetActorLocation()).GetSafeNormal();
 	FVector forward = OwnerCharacter->GetActorForwardVector();

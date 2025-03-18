@@ -9,6 +9,7 @@
 #include "Components/CConditionComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Components/CMovementComponent.h"
+#include "Damages/CDamageHandler.h"
 #include "Weapons/CWeaponStructures.h"
 
 
@@ -39,6 +40,9 @@ ACEnemy::ACEnemy()
 
 	FHelpers::GetAsset<UAnimMontage>(&AirborneDamagedMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Damage/Airborne_Fall.Airborne_Fall'");
 	FHelpers::GetAsset<UAnimMontage>(&DeadMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Enemy_DeadFall_Montage.Enemy_DeadFall_Montage'");
+	
+	DamageHandlerClass = UCDamageHandler::StaticClass();
+	
 }
 
 
@@ -58,6 +62,11 @@ void ACEnemy::BeginPlay()
 
 	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
 
+	if (!!DamageHandlerClass)
+	{
+		DamageHandler = NewObject<UCDamageHandler>(this, DamageHandlerClass);
+		DamageHandler->BeginPlay(this);
+	}
 }
 
 void ACEnemy::Change_Color(const FLinearColor& InColor)
@@ -107,10 +116,10 @@ void ACEnemy::OnConditionTypeChanged(EConditionState InPrevCondition, ECondition
 void ACEnemy::Damaged()
 {
 	//Apply Damage
-	{
-		HealthPoint->Damage(DamageData.Power);
-		DamageData.Power = 0.0f;
-	}
+	//{
+	//	HealthPoint->Damage(DamageData.Power);
+	//	DamageData.Power = 0.0f;
+	//}
 
 	//Change Color
 	{
@@ -122,41 +131,50 @@ void ACEnemy::Damaged()
 		GetWorld()->GetTimerManager().SetTimer(ChangeColor_TimerHandle, timerDelegate, 0.2f, false);
 	}
 
-	if (!!DamageData.Event && !!DamageData.Event->HitData )
+	if (!!DamageHandler)
 	{
-		FHitData* hitData = DamageData.Event->HitData;
-
-
-		// 히트 및 효과 처리 
+		if (!!DamageData.Event && !!DamageData.Event->HitData)
 		{
-			hitData->PlaySoundWave(this);
-			hitData->PlayEffect(this);
-		}
-
-		if (DamageData.Event->bFirstHit)
-		{
-			hitData->PlayHitStop(this);
-			hitData->PlayCameraShake(this);
-		}
-
-		if (!!Condition && Condition->GetSuperArmorCondition() == false)
-		{
-			Play_DamageMontage(*hitData);
-
-			if (HealthPoint->IsDead() == false)
-			{
-				Launch(*hitData);
-			}
-		}
-
-		//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
-		//TODO: 상태 변화에 대한 정보를 받는 처리를 따로 호출할 수 있도록 해야하지않을까?
-		if (!!Condition)
-		{
-			if (hitData->bDown)
-				Condition->AddDownCondition();
+			FHitData* hitData = DamageData.Event->HitData;
+			DamageHandler->ApplyDamage(DamageData, *hitData);
 		}
 	}
+
+	//if (!!DamageData.Event && !!DamageData.Event->HitData )
+	//{
+	//	FHitData* hitData = DamageData.Event->HitData;
+
+
+	//	// 히트 및 효과 처리 
+	//	{
+	//		hitData->PlaySoundWave(this);
+	//		hitData->PlayEffect(this);
+	//	}
+
+	//	if (DamageData.Event->bFirstHit)
+	//	{
+	//		hitData->PlayHitStop(this);
+	//		hitData->PlayCameraShake(this);
+	//	}
+
+	//	if (!!Condition && Condition->GetSuperArmorCondition() == false)
+	//	{
+	//		Play_DamageMontage(*hitData);
+
+	//		if (HealthPoint->IsDead() == false)
+	//		{
+	//			Launch(*hitData);
+	//		}
+	//	}
+
+	//	//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
+	//	//TODO: 상태 변화에 대한 정보를 받는 처리를 따로 호출할 수 있도록 해야하지않을까?
+	//	if (!!Condition)
+	//	{
+	//		if (hitData->bDown)
+	//			Condition->AddDownCondition();
+	//	}
+	//}
 
 	if (HealthPoint->IsDead())
 	{
@@ -226,18 +244,6 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
 	targetRotator.Pitch = 0;
 	SetActorRotation(targetRotator);
-}
-
-void Test_Trash()
-{
-	//if (check)
-	//{
-	//	FLog::Log("Current Falling : " + FString::FromInt(check));
-	//}
-	/*if (check)
-	{
-		FLog::Log("Current Airborne  : " + FString::FromInt(check));
-	*/
 }
 
 void ACEnemy::Play_DamageMontage(const FHitData& hitData)

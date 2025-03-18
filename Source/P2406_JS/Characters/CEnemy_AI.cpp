@@ -96,7 +96,7 @@ float ACEnemy_AI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	bool bCountering = false; 
 	if (Guard != nullptr && Guard->GetGuarding())
 	{
-		bBlocking = Guard->CheckBlocking(DamageData);
+		bBlocking = Guard->CheckBlocking(DamageData.Attacker);
 
 		bCountering = Guard->GetCountering();
 	}

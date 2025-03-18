@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Enums/FEnum.h"
+#include "Damages/CDamageHandler.h"
 #include "GenericTeamAgentInterface.h"
 #include "CBaseCharacter.generated.h"
 
@@ -100,8 +101,6 @@ protected:
 	virtual void ResetIgoreCollision();
 
 
-
-protected:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCAirborneComponent* Airborne;
@@ -109,15 +108,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCConditionComponent* Condition;
 
-public:
-	struct FDamageData
-	{
-		float Power;
-		class ACharacter* Attacker;
-		class AActor* Causer;
+//public:
+	//struct FDamageData
+	//{
+	//	float Power;
+	//	class ACharacter* Attacker;
+	//	class AActor* Causer;
 
-		struct FActionDamageEvent* Event;
-	} DamageData;
+	//	struct FActionDamageEvent* Event;
+
+public:
+	struct FDamageData DamageData;
 
 protected:
 	ECollisionEnabled::Type CollsionEnabledType;

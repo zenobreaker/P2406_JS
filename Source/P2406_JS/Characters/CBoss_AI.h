@@ -36,6 +36,7 @@ public:
 	FORCEINLINE int32 GetCurrentPhase() const { return CurrentPhase; }
 	FORCEINLINE bool IsBossIdleState() const { return BossStateType == EBossState::Idle; }
 	FORCEINLINE bool IsBossRotateState() const { return BossStateType == EBossState::Rotate; }
+	
 
 public:
 	ACBoss_AI();
@@ -49,13 +50,15 @@ protected:
 protected:
 	void OnHealthPointChanged(float InHealth, float InMaxHealth) override;
 
-public: 
+public:
 	void SetBossIdleMode();
-	void SetBossRotateMode(); 
+	void SetBossRotateMode();
 
 public:
 	void CheckPhaseTransition();
 	void SetNextPhase(int32 InNextPhase);
+	void StartOpeningPattern();
+	void EndOpeningPattern();
 
 private:
 	UFUNCTION()
@@ -75,5 +78,8 @@ private:
 	int32 CurrentPhase;
 	float StartTime;
 	float CurrentTime;
-	EBossState BossStateType; 
+	EBossState BossStateType;
+
+protected:
+	bool bIsOpeningPatternActive = false;
 };
