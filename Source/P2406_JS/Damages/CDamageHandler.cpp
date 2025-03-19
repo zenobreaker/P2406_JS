@@ -17,14 +17,15 @@ UCDamageHandler::UCDamageHandler()
 	DamageMontages.Emplace(EDamageType::Airbone);
 }
 
-void UCDamageHandler::BeginPlay(ACharacter* InCharacter)
+void UCDamageHandler::BeginPlay()
 {
-	CheckNull(InCharacter);
-	OwnerCharacter = InCharacter;
+	Super::BeginPlay();
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	CheckNull(OwnerCharacter);
 
-	Airborne = FHelpers::GetComponent<UCAirborneComponent>(InCharacter);
-	Condition = FHelpers::GetComponent<UCConditionComponent>(InCharacter);
-	HealthPoint = FHelpers::GetComponent<UCHealthPointComponent>(InCharacter);
+	Airborne = FHelpers::GetComponent<UCAirborneComponent>(OwnerCharacter);
+	Condition = FHelpers::GetComponent<UCConditionComponent>(OwnerCharacter);
+	HealthPoint = FHelpers::GetComponent<UCHealthPointComponent>(OwnerCharacter);
 }
 
 void UCDamageHandler::ApplyDamage(FDamageData& InDamageData, FHitData& InHitData)
@@ -47,13 +48,12 @@ void UCDamageHandler::ApplyDamage(FDamageData& InDamageData, FHitData& InHitData
 	if (!!Condition && Condition->GetSuperArmorCondition() == true)
 		return;
 
+	// 피격 애님 진행
+	PlayDamageMontage(InHitData);
 
 	// 다운 시키는 공격인지 확인
 	if (!!Condition && InHitData.bDown)
 		Condition->AddDownCondition();
-
-	// 피격 애님 진행
-	PlayDamageMontage(InHitData);
 
 	// 공중 & 런치 처리 
 	HandleLaunch(InHitData, InDamageData.Attacker);

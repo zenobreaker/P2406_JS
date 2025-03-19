@@ -40,8 +40,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCStateComponent* State;
 
-	UPROPERTY(EditAnywhere, Category = "Damage")
-	TSubclassOf<class UCDamageHandler> DamageHandlerClass;
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	class UCDamageHandler* DamageHandler;
 
 public:
 	ACEnemy();
@@ -94,9 +94,6 @@ public:
 	void StartDownTimer();
 	virtual void OnDownConditionActivated() override;
 	virtual void OnDownConditionDeactivated() override; 
-
-protected:
-	class UCDamageHandler* DamageHandler; 
 
 private:
 	FTimerHandle ChangeColor_TimerHandle;

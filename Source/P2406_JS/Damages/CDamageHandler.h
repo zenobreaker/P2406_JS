@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "Components/ActorComponent.h"
 #include "IDamageState.h"
 #include "CDamageHandler.generated.h"
 
@@ -41,8 +41,8 @@ public:
 	struct FActionDamageEvent* Event;
 };
 
-UCLASS(Blueprintable)
-class P2406_JS_API UCDamageHandler : public UObject
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class P2406_JS_API UCDamageHandler : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -53,7 +53,9 @@ private:
 public:
 	UCDamageHandler();
 public:
-	void BeginPlay(class ACharacter* InCharacter);
+	void BeginPlay() override;
+
+public:
 	void ApplyDamage(struct FDamageData& InDamageData, struct FHitData& InHitData);
 	void HandleHitEffect(struct FHitData& InHitData, bool bFirstHit = false);
 	void HandleLaunch(struct FHitData& InHitData, class ACharacter* InAttacker, const bool bIsGuarding = false);
