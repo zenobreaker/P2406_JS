@@ -42,7 +42,7 @@ protected:
 
 	bool IsMyTeam(class ACharacter* InAttacker, class ACharacter* InOther);
 
-	bool IsOtherIsMe(class ACharacter* InOther);
+	bool IsOtherIsMe(class AActor* InOther);
 
 public: 
 	virtual void PlayFallAttackMontage() {};
@@ -63,10 +63,10 @@ public:
 
 
 	UFUNCTION()
-	virtual void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther) {}
+	virtual void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class AActor* InOther) {}
 
 	UFUNCTION()
-	virtual void OnAttachmentEndOverlap(class ACharacter* InAttacker, class ACharacter* InOther) {}
+	virtual void OnAttachmentEndOverlap(class ACharacter* InAttacker, class AActor* InOther) {}
 
 protected:
 	bool bBeginAction;
@@ -83,6 +83,6 @@ protected:
 	TArray<FHitData> HitDatas;
 
 protected:
-	TArray<class ACharacter*> Hitted;
+	TArray<class AActor*> Hitted;
 };
 

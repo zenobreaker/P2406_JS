@@ -7,6 +7,7 @@
 #include "Characters/CPlayer.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CConditionComponent.h"
+#include "Characters/IDamagable.h"
 #include "Weapons/CAttachment.h"
 
 
@@ -91,15 +92,15 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime,
 
 	if (bCheck)
 	{
-		for (ACharacter* hit : Hits)
+		for (AActor* hit : Hits)
 			CheckTrue(hit == TraceHitResult.GetActor());
 
 		TraceHitResult.GetActor()->Tags.Add(FName("NormalTrace"));
 		HandleTrace(TraceHitResult.GetActor());
-		
-		return; 
+
+		return;
 	}
-	
+
 	HandleAirborneTrace();
 }
 
@@ -125,10 +126,11 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 {
 	CheckNull(InHitActor);
 	// 간단한 충돌 처리
-	// 
+
 	 // 캐릭터 여부 확인
-	ACharacter* hitCharacter = Cast<ACharacter>(InHitActor);
-	CheckNull(hitCharacter);
+	//Damage interface와 DamageHandler로 처리하므로 캐릭터 캐스팅 불필요
+	/*ACharacter* hitCharacter = Cast<ACharacter>(InHitActor);
+	CheckNull(hitCharacter);*/
 
 	// 아군 검사 
 	bool bFriend = GetMyTeam(InHitActor);
@@ -136,34 +138,30 @@ void UCAttackTraceComponent::HandleTrace(AActor* InHitActor)
 		return;
 
 	// 이미 무기로 충돌 처리된 경우 무시
-	if (hitCharacter->Tags.Contains(FName("HitByWeapon")))
+	if (InHitActor->Tags.Contains(FName("HitByWeapon")))
 		return;
 
 	// 트레이스 처리
-	Hits.AddUnique(hitCharacter);
-	//UE_LOG(LogTemp, Log, TEXT("Trace Hit Actor: %s"), *InHitActor->GetName());
+	Hits.AddUnique(InHitActor);
 
 	CheckNull(Weapon->GetAttachment());
-
-	Hitcount++; 
 	switch (CurrentType)
 	{
-		case EAttackType::NormalAttack:
-			DYNAMIC_EVENT_CALL_THREE_PARAMS(
-				OnHandledTrace, OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
-			break;
-		case EAttackType::ParryAttack:
-			DYNAMIC_EVENT_CALL_THREE_PARAMS(
-				OnHandledParryTrace, OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
-			break;
-		case EAttackType::JumpAttack:
-			DYNAMIC_EVENT_CALL_THREE_PARAMS(
-				OnHandledJumpTrace, OwnerCharacter, Weapon->GetAttachment(), hitCharacter);
-			break;
-		default:
-			break;
+	case EAttackType::NormalAttack:
+		DYNAMIC_EVENT_CALL_THREE_PARAMS(
+			OnHandledTrace, OwnerCharacter, Weapon->GetAttachment(), InHitActor);
+		break;
+	case EAttackType::ParryAttack:
+		DYNAMIC_EVENT_CALL_THREE_PARAMS(
+			OnHandledParryTrace, OwnerCharacter, Weapon->GetAttachment(), InHitActor);
+		break;
+	case EAttackType::JumpAttack:
+		DYNAMIC_EVENT_CALL_THREE_PARAMS(
+			OnHandledJumpTrace, OwnerCharacter, Weapon->GetAttachment(), InHitActor);
+		break;
+	default:
+		break;
 	}
-
 
 }
 
@@ -183,7 +181,7 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 	QueryParams.AddIgnoredActor(attachment);
 
 	float radius = 200.0f;
-	
+
 	if (!!Player && Player->IsJumping())
 		radius = 250.0f;
 
@@ -216,18 +214,18 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 		for (FHitResult& hit : traceHitResults)
 		{
 			AActor* HitActor = hit.GetActor();
-			
+
 			UCConditionComponent* targetCondition = FHelpers::GetComponent<UCConditionComponent>(hit.GetActor());
 			if (targetCondition == nullptr)
-				continue; 
+				continue;
 
 			if (targetCondition->GetAirborneCondition() == false)
-				continue; 
+				continue;
 
 
 			if (HitActor->Tags.Contains(FName("NormalTrace")))
 				return false;
-			
+
 			if (Hits.Contains(HitActor))
 				continue;
 

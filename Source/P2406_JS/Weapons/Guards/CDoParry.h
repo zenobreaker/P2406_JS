@@ -31,7 +31,7 @@ public:
 	(
 		class ACharacter* InAttacker, 
 		class AActor* InAttackCauser, 
-		class ACharacter* InOther
+		class AActor* InOther
 	);
 		
 	void EndTrace();

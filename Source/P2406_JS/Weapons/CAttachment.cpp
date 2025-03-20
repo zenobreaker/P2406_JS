@@ -89,7 +89,7 @@ void ACAttachment::OffCollisions()
 	bEnable = false;
 }
 
-void ACAttachment::HandleAttachmentOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void ACAttachment::HandleAttachmentOverlap(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	DYNAMIC_EVENT_CALL_THREE_PARAMS(OnAttachmentBeginOverlap, InAttacker, InAttackCauser, InOther);
 	/*if (OnAttachmentBeginOverlap.IsBound())
@@ -102,9 +102,9 @@ void ACAttachment::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 {
 	CheckTrue(OwnerCharacter == OtherActor);
 
-	ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
-	if (HitCharacter)
-		HandleAttachmentOverlap(OwnerCharacter, this, HitCharacter);
+	/*ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
+	if (HitCharacter)*/
+		HandleAttachmentOverlap(OwnerCharacter, this, OtherActor);
 }
 
 void ACAttachment::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -112,7 +112,7 @@ void ACAttachment::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponen
 	CheckTrue(OwnerCharacter == OtherActor);
 
 	if (OnAttachmentEndOverlap.IsBound())
-		OnAttachmentEndOverlap.Broadcast(OwnerCharacter, Cast<ACharacter>(OtherActor));
+		OnAttachmentEndOverlap.Broadcast(OwnerCharacter, /*Cast<ACharacter>*/(OtherActor));
 }
 
 void ACAttachment::OnDestroy()

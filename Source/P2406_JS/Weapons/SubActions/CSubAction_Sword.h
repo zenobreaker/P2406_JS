@@ -80,7 +80,7 @@ public:
 	virtual void OnAttachmentEndCollision();
 
 	UFUNCTION()
-	virtual void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
+	virtual void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class AActor* InOther);
 
 
 private:
@@ -102,7 +102,7 @@ public:
 
 private:
 	int32 Index; 
-	TArray<class ACharacter*> Hitted;
+	TArray<class AActor*> Hitted;
 	FTimerHandle AirSlashTimeHandle;
 	FTimerHandle TrackEnemyTimeHandle;
 	FTimerHandle EnemyStateChangeHandle;

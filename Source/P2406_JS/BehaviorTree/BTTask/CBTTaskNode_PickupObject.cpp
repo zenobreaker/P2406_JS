@@ -51,6 +51,7 @@ EBTNodeResult::Type UCBTTaskNode_PickupObject::ExecuteTask(UBehaviorTreeComponen
 	return EBTNodeResult::InProgress;
 }
 
+
 //TODO: 나중에 공통 로직으로 리팩토링하기
 void UCBTTaskNode_PickupObject::SetBlackboardValue(UBlackboardComponent* InBlackboard)
 {

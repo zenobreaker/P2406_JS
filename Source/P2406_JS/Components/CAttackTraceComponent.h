@@ -14,9 +14,9 @@ enum class EAttackType : uint8
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledTrace, class ACharacter*, InAttacker,class AActor*, InAttackCauser, class ACharacter*, InOther);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledJumpTrace, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class ACharacter*, InOther);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledParryTrace, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class ACharacter*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledTrace, class ACharacter*, InAttacker,class AActor*, InAttackCauser, class AActor*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledJumpTrace, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class AActor*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHandledParryTrace, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class AActor*, InOther);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndTrace);
 
 
@@ -82,11 +82,10 @@ private:
     EAttackType CurrentType; 
 
 private:
-    TArray<class ACharacter*> Hits; 
+    TArray<class AActor*> Hits; 
     class ACPlayer* Player;
     class ACharacter* OwnerCharacter; 
     class UCWeaponComponent* Weapon; 
     class ACAttachment* Attachment;
 
-    int32 Hitcount = 0;
 };

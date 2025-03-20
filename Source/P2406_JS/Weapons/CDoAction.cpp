@@ -52,7 +52,7 @@ ACharacter* UCDoAction::FindBestTarget()
 
 	float angle = -2.0f;
 	ACharacter* candidate = nullptr;
-	for (ACharacter* hitted : Hitted)
+	for (AActor* hitted : Hitted)
 	{
 		FVector direction = hitted->GetActorLocation() - OwnerCharacter->GetActorLocation();
 		direction = direction.GetSafeNormal2D();
@@ -64,7 +64,7 @@ ACharacter* UCDoAction::FindBestTarget()
 			continue;
 
 		angle = dot;
-		candidate = hitted;
+		candidate = Cast<ACharacter>(hitted);
 		hitted->Tags.Remove(FName("HitByWeapon"));
 	}
 
@@ -89,9 +89,9 @@ bool UCDoAction::IsMyTeam(ACharacter* InAttacker, ACharacter* InOther)
 	return false;
 }
 
-bool UCDoAction::IsOtherIsMe(ACharacter* InOther)
+bool UCDoAction::IsOtherIsMe(AActor* InOther)
 {
-	for (ACharacter* hitted : Hitted)
+	for (AActor* hitted : Hitted)
 		CheckTrueResult(hitted == InOther, true);
 
 	return false;

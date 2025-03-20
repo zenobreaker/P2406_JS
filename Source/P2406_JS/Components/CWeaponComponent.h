@@ -121,7 +121,7 @@ public:
 	(
 		class ACharacter* InAttacker,
 		class AActor* InAttackCauser,
-		class ACharacter* InOther
+		class AActor* InOther
 	);
 
 	UFUNCTION()
@@ -129,7 +129,7 @@ public:
 	(
 		class ACharacter* InAttacker,
 		class AActor* InAttackCauser,
-		class ACharacter* InOther
+		class AActor* InOther
 	);
 
 public:

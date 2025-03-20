@@ -1,10 +1,13 @@
 #include "Weapons/CWeaponStructures.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Components/CStateComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Animation/AnimMontage.h"
+#include "Characters/IDamagable.h"
+
 //#include "Characters/CGhostTrail.h"
 
 
@@ -63,23 +66,25 @@ void FDoActionData::AnimationPlayback(ACharacter* InOwner, float InValue)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther, bool bFirstHit)
+void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther, bool bFirstHit)
 {
 	FActionDamageEvent e;
 	e.bFirstHit = bFirstHit;
 	e.HitData = this;
 
-	InOther->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
+	IIDamagable* damagable = Cast<IIDamagable>(InOther);
+	if(damagable != nullptr)
+		damagable->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
 }
 
-void FHitData::PlayHitStop(ACharacter* InCharacter)
+void FHitData::PlayHitStop(AActor* InActor)
 {
-	CheckNull(InCharacter);
+	CheckNull(InActor);
 	CheckTrue(FMath::IsNearlyZero(StopTime));
 
 
 	TArray<AActor*> actors;
-	TArray<TObjectPtr<AActor>>& arr = InCharacter->GetWorld()->GetCurrentLevel()->Actors;
+	TArray<TObjectPtr<AActor>>& arr = InActor->GetWorld()->GetCurrentLevel()->Actors;
 	for (AActor* actor : arr)
 	{
 		if (actor == nullptr)
@@ -109,37 +114,37 @@ void FHitData::PlayHitStop(ACharacter* InCharacter)
 
 
 	FTimerHandle timerHandle;
-	InCharacter->GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, StopTime, false);
+	InActor->GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, StopTime, false);
 }
 
-void FHitData::PlaySoundWave(ACharacter* InOwner)
+void FHitData::PlaySoundWave(AActor* InActor)
 {
 	CheckNull(Sound);
 
-	UWorld* world = InOwner->GetWorld();
-	FVector location = InOwner->GetActorLocation();
+	UWorld* world = InActor->GetWorld();
+	FVector location = InActor->GetActorLocation();
 
 	UGameplayStatics::SpawnSoundAtLocation(world, Sound, location);
 }
 
-void FHitData::PlayCameraShake(ACharacter* InCharacter)
+void FHitData::PlayCameraShake(AActor* InActor)
 {
-	CheckNull(InCharacter);
+	CheckNull(InActor);
 	CheckNull(CameraShake);
 
-	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(InCharacter->GetWorld(), 0);
+	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(InActor->GetWorld(), 0);
 	CheckNull(cameraManager);
 
 	cameraManager->StartCameraShake(CameraShake);
 }
 
-void FHitData::PlayEffect(ACharacter* InCharacter)
+void FHitData::PlayEffect(AActor* InActor)
 {
-	CheckNull(InCharacter);
+	CheckNull(InActor);
 	CheckNull(Effect);
 
-	FVector location = InCharacter->GetActorLocation();
-	FRotator rotator = InCharacter->GetActorRotation();
+	FVector location = InActor->GetActorLocation();
+	FRotator rotator = InActor->GetActorRotation();
 
 	location += rotator.RotateVector(EffectLocation);
 
@@ -147,7 +152,7 @@ void FHitData::PlayEffect(ACharacter* InCharacter)
 	transform.SetLocation(location);
 	transform.SetScale3D(EffectScale);
 
-	FHelpers::PlayEffect(InCharacter->GetWorld(), Effect, transform);
+	FHelpers::PlayEffect(InActor->GetWorld(), Effect, transform);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

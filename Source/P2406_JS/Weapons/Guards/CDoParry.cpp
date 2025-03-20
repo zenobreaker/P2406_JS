@@ -26,7 +26,7 @@ void UCDoParry::End_DoAction_Parry()
 	bParring = false; 
 }
 
-void UCDoParry::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCDoParry::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	CheckNull(InAttacker);
 

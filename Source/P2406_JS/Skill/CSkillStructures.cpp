@@ -50,6 +50,7 @@ void FSkillPhaseData::Phase_PlayEffect(ACharacter* InCharacter)
 
 	FVector location = InCharacter->GetActorLocation();
 	FRotator rotator = InCharacter->GetActorRotation();
+	rotator += EffectRotation;
 
 	location += rotator.RotateVector(EffectLocation);
 

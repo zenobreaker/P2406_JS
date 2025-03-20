@@ -7,11 +7,11 @@
 #include "Perception/AISenseConfig_Team.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "EnvironmentQuery/EnvQueryManager.h"
 
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/CHealthPointComponent.h"
-
-#include "EnvironmentQuery/EnvQueryManager.h"
+#include "Weapons/Attachments/CAttachment_Destructible.h"
 
 ACAIController::ACAIController()
 {
@@ -105,6 +105,14 @@ void ACAIController::HandleTeamPerception(AActor* InActor)
 	FLog::Log("this calling team Percept");
 }
 
+void ACAIController::RegsterDestroyedEntity(AActor* InActor)
+{
+	ACAttachment_Destructible* destructible = Cast<ACAttachment_Destructible>(InActor); 
+	CheckNull(destructible); 
+
+	REGISTER_EVENT_WITH_REPLACE(destructible, OnDestroyedObject, this, ACAIController::OnDestroyedEntity);
+}
+
 // 상태가 바뀌면 콜 
 void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
@@ -167,6 +175,13 @@ void ACAIController::OnEnemyDead()
 	
 	Behavior->SetLateTarget(nullptr);
 	Behavior->SetTarget(nullptr);
+}
+
+void ACAIController::OnDestroyedEntity()
+{
+	FLog::Log("Destroyed Object");
+	Blackboard->SetValueAsObject("PickupObject", nullptr); 
+	Blackboard->SetValueAsBool("bIsOpeningPattern", false);
 }
 
 

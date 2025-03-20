@@ -14,9 +14,6 @@ void UCSkillCollision_Shape::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Index = 0;
-
-	//ActivateCollision();
 }
 
 void UCSkillCollision_Shape::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

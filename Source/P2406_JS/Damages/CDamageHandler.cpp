@@ -9,67 +9,89 @@
 
 UCDamageHandler::UCDamageHandler()
 {
-	DamageMontages.Emplace(EDamageType::Normal);
-	DamageMontages.Emplace(EDamageType::Strong );
-	DamageMontages.Emplace(EDamageType::Down);
-	DamageMontages.Emplace(EDamageType::Begin_Down);
-	DamageMontages.Emplace(EDamageType::Down);
-	DamageMontages.Emplace(EDamageType::Airbone);
+	DamageMontages.Emplace(EDamageAnimType::Normal);
+	DamageMontages.Emplace(EDamageAnimType::Strong);
+	DamageMontages.Emplace(EDamageAnimType::Down);
+	DamageMontages.Emplace(EDamageAnimType::Begin_Down);
+	DamageMontages.Emplace(EDamageAnimType::Down);
+	DamageMontages.Emplace(EDamageAnimType::Airbone);
 }
 
 void UCDamageHandler::BeginPlay()
 {
 	Super::BeginPlay();
+	AActor* thisOne = GetOwner();
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	HealthPoint = FHelpers::GetComponent<UCHealthPointComponent>(GetOwner());
+	
 	CheckNull(OwnerCharacter);
 
 	Airborne = FHelpers::GetComponent<UCAirborneComponent>(OwnerCharacter);
 	Condition = FHelpers::GetComponent<UCConditionComponent>(OwnerCharacter);
-	HealthPoint = FHelpers::GetComponent<UCHealthPointComponent>(OwnerCharacter);
 }
 
-void UCDamageHandler::ApplyDamage(FDamageData& InDamageData, FHitData& InHitData)
+void UCDamageHandler::OnComponentCreated()
 {
-	CheckNull(OwnerCharacter);
+	Super::OnComponentCreated();
+	RegisterComponent();
+}
+
+
+void UCDamageHandler::ApplyDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	DamageData.Power = Damage;
+	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
+	DamageData.Causer = DamageCauser;
+	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
+
+	ApplyDamage(DamageData);
+}
+
+void UCDamageHandler::ApplyDamage(FDamageData& InDamageData)
+{
 	CheckNull(HealthPoint);
 	CheckTrue(HealthPoint->IsDead());
 
 	// 무적 상태 확인
 	if (!!Condition && Condition->GetInvicibleCondition() == true)
 		return;
+	
+	
+	FHitData* hitData = InDamageData.Event->HitData;
 
 	// 체력 감소 
-	HealthPoint->Damage(InHitData.Power);
+	HealthPoint->Damage(hitData->Power);
 
 	// 히트 이펙트 및 사운드 처리 
-	HandleHitEffect(InHitData, InDamageData.Event->bFirstHit);
+	HandleHitEffect(*hitData, InDamageData.Event->bFirstHit);
 
 	// 슈퍼아머 상태 확인
 	if (!!Condition && Condition->GetSuperArmorCondition() == true)
 		return;
 
 	// 피격 애님 진행
-	PlayDamageMontage(InHitData);
+	PlayDamageMontage(*hitData);
 
 	// 다운 시키는 공격인지 확인
-	if (!!Condition && InHitData.bDown)
+	if (!!Condition && hitData->bDown)
 		Condition->AddDownCondition();
 
 	// 공중 & 런치 처리 
-	HandleLaunch(InHitData, InDamageData.Attacker);
+	HandleLaunch(*hitData, InDamageData.Attacker);
 }
+
 
 void UCDamageHandler::HandleHitEffect(FHitData& InHitData, bool bFirstHit)
 {
-	CheckNull(OwnerCharacter);
+	CheckNull(GetOwner());
 
-	InHitData.PlaySoundWave(OwnerCharacter);
-	InHitData.PlayEffect(OwnerCharacter);
+	InHitData.PlaySoundWave(GetOwner());
+	InHitData.PlayEffect(GetOwner());
 
 	if (bFirstHit)
 	{
-		InHitData.PlayHitStop(OwnerCharacter);
-		InHitData.PlayCameraShake(OwnerCharacter);
+		InHitData.PlayHitStop(GetOwner());
+		InHitData.PlayCameraShake(GetOwner());
 	}
 }
 
@@ -104,10 +126,10 @@ void UCDamageHandler::PlayDamageMontage(FHitData& InHitData)
 	CheckNull(OwnerCharacter);
 	CheckFalse(DamageMontages.Num() > 0);
 
-	if (DamageMontages.Contains(EDamageType::Normal) == false)
+	if (DamageMontages.Contains(EDamageAnimType::Normal) == false)
 		return;
-	UAnimMontage* montage = DamageMontages[EDamageType::Normal].Montage;
-	float playRate = DamageMontages[EDamageType::Normal].PlayRate;
+	UAnimMontage* montage = DamageMontages[EDamageAnimType::Normal].Montage;
+	float playRate = DamageMontages[EDamageAnimType::Normal].PlayRate;
 
 	bool check = false;
 
@@ -126,28 +148,28 @@ void UCDamageHandler::PlayDamageMontage(FHitData& InHitData)
 		// 다운 시키는 공격이라면 다운되는 상태로 
 		if (InHitData.bDown)
 		{
-			if (DamageMontages.Contains(EDamageType::Begin_Down))
+			if (DamageMontages.Contains(EDamageAnimType::Begin_Down))
 			{
-				montage = DamageMontages[EDamageType::Begin_Down].Montage;
-				playRate = DamageMontages[EDamageType::Begin_Down].PlayRate;
+				montage = DamageMontages[EDamageAnimType::Begin_Down].Montage;
+				playRate = DamageMontages[EDamageAnimType::Begin_Down].PlayRate;
 			}
 		}
 	}
 	else if (isAirborne == true)
 	{
-		if (DamageMontages.Contains(EDamageType::Airbone))
+		if (DamageMontages.Contains(EDamageAnimType::Airbone))
 		{
-			montage = DamageMontages[EDamageType::Airbone].Montage;
-			playRate = DamageMontages[EDamageType::Airbone].PlayRate;
+			montage = DamageMontages[EDamageAnimType::Airbone].Montage;
+			playRate = DamageMontages[EDamageAnimType::Airbone].PlayRate;
 		}
 	}
 	else if (isGroundDown == true)
 	{
 
-		if (DamageMontages.Contains(EDamageType::Down))
+		if (DamageMontages.Contains(EDamageAnimType::Down))
 		{
-			montage = DamageMontages[EDamageType::Down].Montage;
-			playRate = DamageMontages[EDamageType::Down].PlayRate;
+			montage = DamageMontages[EDamageAnimType::Down].Montage;
+			playRate = DamageMontages[EDamageAnimType::Down].PlayRate;
 		}
 	}
 

@@ -137,6 +137,9 @@ public:
 	FVector EffectLocation = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, Category = "Phase")
+	FRotator EffectRotation = FRotator::ZeroRotator;
+
+	UPROPERTY(EditAnywhere, Category = "Phase")
 	FVector EffectScale = FVector(1.0f, 1.0f, 1.0f);
 
 	UPROPERTY(EditAnywhere, Category = "Phase")

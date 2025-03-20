@@ -7,7 +7,7 @@
 
 
 UENUM(BlueprintType)
-enum class EDamageType : uint8
+enum class EDamageAnimType : uint8
 {
 	Normal = 0, Strong, Launch, Begin_Down, Down, Airbone, Max,
 };
@@ -48,15 +48,19 @@ class P2406_JS_API UCDamageHandler : public UActorComponent
 
 private: 
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	TMap<EDamageType, struct FDamageAnimData> DamageMontages;
+	TMap<EDamageAnimType, struct FDamageAnimData> DamageMontages;
 
 public:
 	UCDamageHandler();
 public:
 	void BeginPlay() override;
+	void OnComponentCreated() override; 
 
 public:
-	void ApplyDamage(struct FDamageData& InDamageData, struct FHitData& InHitData);
+	void ApplyDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	void ApplyDamage(struct FDamageData& InDamageData);
+
+public:
 	void HandleHitEffect(struct FHitData& InHitData, bool bFirstHit = false);
 	void HandleLaunch(struct FHitData& InHitData, class ACharacter* InAttacker, const bool bIsGuarding = false);
 	void PlayDamageMontage(struct FHitData& InHitData); 
@@ -65,7 +69,7 @@ protected:
 	class ACharacter* OwnerCharacter;
 
 protected:
-	TMap<EDamageType, IIDamageState*> DamageStateTable; 
+	TMap<EDamageAnimType, IIDamageState*> DamageStateTable;
 	FDamageData DamageData;
 
 private: 

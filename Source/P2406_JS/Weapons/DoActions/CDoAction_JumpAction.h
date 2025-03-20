@@ -82,8 +82,8 @@ public:
 public:
 	void OnAttachmentEndCollision() override;
 
-	void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther) override;
-	void OnAttachmentEndOverlap(class ACharacter* InAttacker, class ACharacter* InOther) override;
+	void OnAttachmentBeginOverlap(class ACharacter* InAttacker,class AActor* InAttackCauser, class AActor* InOther) override;
+	void OnAttachmentEndOverlap(class ACharacter* InAttacker, class AActor* InOther) override;
 
 public:
 	void DoAction_FallAttackFlow(FallAttackState InState);
@@ -136,5 +136,5 @@ private:
 
 	ECollisionResponse PreviousCollisionResponse;
 
-	TArray<class ACharacter*> Hitted;
+	TArray<class AActor*> Hitted;
 };

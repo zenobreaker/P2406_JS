@@ -123,11 +123,11 @@ void UCSubAction_Sword::OnAttachmentEndCollision()
 	//Owner->GetWorld()->GetTimerManager().ClearTimer(TrackEnemyTimeHandle);
 }
 
-void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCSubAction_Sword::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	CheckNull(InOther);
 
-	for (ACharacter* hitted : Hitted)
+	for (AActor* hitted : Hitted)
 		CheckTrue(hitted == InOther);
 
 

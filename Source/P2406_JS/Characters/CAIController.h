@@ -43,12 +43,19 @@ public:
 	void HandleSightPerception(class AActor* InActor);
 	void HandleTeamPerception(class AActor* InActor);
 
+public:
+	void RegsterDestroyedEntity(AActor* InActor); 
+
 protected:
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
 	UFUNCTION()
 	void OnEnemyDead();
+
+	UFUNCTION()
+	void OnDestroyedEntity();
+
 
 protected:
 	class ACEnemy_AI* Enemy;

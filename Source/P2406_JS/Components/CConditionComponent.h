@@ -21,6 +21,7 @@ public:
     FORCEINLINE bool GetDownCondition() { return HasCondition(EConditionState::CONDITION_DOWNED); }
     FORCEINLINE bool GetSuperArmorCondition() { return HasCondition(EConditionState::CONDITION_SUPERARMOR); }
     FORCEINLINE bool GetInvicibleCondition() { return HasCondition(EConditionState::CONDITION_INVICIBLE); }
+
 public:	
 	UCConditionComponent();
 

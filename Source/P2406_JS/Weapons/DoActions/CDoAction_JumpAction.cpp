@@ -147,7 +147,7 @@ void UCDoAction_JumpAction::OnAttachmentEndCollision()
 	Hitted.Empty();
 }
 
-void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 
@@ -162,7 +162,7 @@ void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AAc
 		return;
 
 	CheckNull(InOther);
-	CheckTrue(IsMyTeam(InAttacker, InOther));
+	CheckTrue(IsMyTeam(InAttacker, Cast<ACharacter>(InOther)));
 	CheckTrue(IsOtherIsMe(InOther));
 
 	Hitted.AddUnique(InOther);
@@ -191,7 +191,7 @@ void UCDoAction_JumpAction::OnAttachmentBeginOverlap(ACharacter* InAttacker, AAc
 	//);
 }
 
-void UCDoAction_JumpAction::OnAttachmentEndOverlap(ACharacter* InAttacker, ACharacter* InOther)
+void UCDoAction_JumpAction::OnAttachmentEndOverlap(ACharacter* InAttacker, AActor* InOther)
 {
 
 }

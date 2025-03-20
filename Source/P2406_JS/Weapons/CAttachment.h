@@ -11,8 +11,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAttachmentBeginCollision);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAttachmentEndCollision);
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAttachmentBeginOverlap, class  ACharacter*, InAttacker, AActor*, InAttackCauser, class ACharacter*, InOther);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAttachmentEndOverlap, class ACharacter*, InAttacker, class ACharacter*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAttachmentBeginOverlap, class  ACharacter*, InAttacker, AActor*, InAttackCauser, class AActor*, InOther);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAttachmentEndOverlap, class ACharacter*, InAttacker, class AActor*, InOther);
 
 UCLASS()
 class P2406_JS_API ACAttachment
@@ -53,7 +53,8 @@ public:
 	void OnCollisions();
 	void OffCollisions();
 
-	void HandleAttachmentOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther);
+	//A
+	void HandleAttachmentOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class AActor* InOther);
 
 public:
 	UFUNCTION(BlueprintNativeEvent)

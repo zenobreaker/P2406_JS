@@ -25,9 +25,9 @@ public:
 public:	
 	UCHealthPointComponent();
 
-protected:
-	virtual void BeginPlay() override;
-
+public:
+	void BeginPlay() override;
+	void OnComponentCreated() override;
 
 public:
 	void Damage(float InAmount);

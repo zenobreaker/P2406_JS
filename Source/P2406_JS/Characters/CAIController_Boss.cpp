@@ -37,7 +37,7 @@ void ACAIController_Boss::RotateTowardsTarget(float InDeltaTime, ACharacter* InT
 	float deltaYaw = /*FMath::Abs*/(FMath::FindDeltaAngleDegrees(currentRotation.Yaw, targetRotation.Yaw));
 
 	// 각도 차이에 따라 보간 속도를 동적 조절
-	float rotationSpeed = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 90.0f), FVector2D(5.0f, 30.0f), FMath::Abs(deltaYaw));
+	float rotationSpeed = FMath::GetMappedRangeValueClamped(RotateAngleRange, RotateSpeedRange, FMath::Abs(deltaYaw));
 	// 선형 보간을 사용하여 일정한 속도로 회전
 	//float rotationDirection = deltaYaw < 0.0f ? 1.0f : -1.0f;
 	//FRotator newRotation = FMath::Lerp(currentRotation, targetRotation, InDeltaTime * rotationSpeed);

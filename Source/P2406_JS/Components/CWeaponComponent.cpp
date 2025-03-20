@@ -229,14 +229,14 @@ void UCWeaponComponent::ChangeGuardValue(float InValue, float InMaxValue)
 		OnGuardValueChanged.Broadcast(InValue, InMaxValue);
 }
 
-void UCWeaponComponent::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCWeaponComponent::OnHandledTrace(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	CheckNull(GetDoAction()); 
 	
 	GetDoAction()->OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 }
 
-void UCWeaponComponent::OnHandledJumpTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCWeaponComponent::OnHandledJumpTrace(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	CheckNull(GetJumpDoAction());
 

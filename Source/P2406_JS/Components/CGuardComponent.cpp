@@ -299,7 +299,7 @@ void UCGuardComponent::End_Parry()
 
 //-----------------------------------------------------------------------------
 
-void UCGuardComponent::OnHandledParryTrace(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCGuardComponent::OnHandledParryTrace(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	// 반격 시 충돌 처리	
 	 // 캐릭터 여부 확인

@@ -18,12 +18,12 @@ public:
 public:
 	void OnAttachmentEndCollision() override;
 
-	void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther) override;
-	void OnAttachmentEndOverlap(class ACharacter* InAttacker, class ACharacter* InOther) override;
+	void OnAttachmentBeginOverlap(class ACharacter* InAttacker, AActor* InAttackCauser, class AActor* InOther) override;
+	void OnAttachmentEndOverlap(class ACharacter* InAttacker, class AActor* InOther) override;
 
 private:
 	int32 Index; // ½ºÅ³º° Phase Index
 
 private:
-	TArray<class ACharacter*> Hitted; 
+	TArray<class AActor*> Hitted;
 };

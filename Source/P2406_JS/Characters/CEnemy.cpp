@@ -20,7 +20,7 @@ ACEnemy::ACEnemy()
 	FHelpers::CreateActorComponent<UCStateComponent>(this, &State, "State");
 	FHelpers::CreateActorComponent<UCAirborneComponent>(this, &Airborne, "Airborne");
 	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
-
+	FHelpers::CreateActorComponent<UCDamageHandler>(this, &DamageHandler, "Damage");
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -41,7 +41,6 @@ ACEnemy::ACEnemy()
 	FHelpers::GetAsset<UAnimMontage>(&AirborneDamagedMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Damage/Airborne_Fall.Airborne_Fall'");
 	FHelpers::GetAsset<UAnimMontage>(&DeadMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Enemy_DeadFall_Montage.Enemy_DeadFall_Montage'");
 	
-	DamageHandlerClass = UCDamageHandler::StaticClass();
 	
 }
 
@@ -62,11 +61,6 @@ void ACEnemy::BeginPlay()
 
 	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
 
-	if (!!DamageHandlerClass)
-	{
-		DamageHandler = NewObject<UCDamageHandler>(this, DamageHandlerClass);
-		DamageHandler->BeginPlay(this);
-	}
 }
 
 void ACEnemy::Change_Color(const FLinearColor& InColor)
@@ -135,8 +129,8 @@ void ACEnemy::Damaged()
 	{
 		if (!!DamageData.Event && !!DamageData.Event->HitData)
 		{
-			FHitData* hitData = DamageData.Event->HitData;
-			DamageHandler->ApplyDamage(DamageData, *hitData);
+			//FHitData* hitData = DamageData.Event->HitData;
+			DamageHandler->ApplyDamage(DamageData);
 		}
 	}
 

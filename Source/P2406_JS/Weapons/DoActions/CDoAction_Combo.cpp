@@ -73,14 +73,15 @@ void UCDoAction_Combo::OnAttachmentEndCollision()
 	Hitted.Empty();
 }
 
-void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* InAttackCauser, ACharacter* InOther)
+void UCDoAction_Combo::OnAttachmentBeginOverlap(
+	ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther)
 {
 	Super::OnAttachmentBeginOverlap(InAttacker, InAttackCauser, InOther);
 	CheckNull(InOther);
 
-	CheckTrue(IsMyTeam(InAttacker, InOther)); 
+	CheckTrue(IsMyTeam(InAttacker, Cast<ACharacter>(InOther))); 
 
-	CheckTrue(IsOtherIsMe(InOther));
+	CheckTrue(IsOtherIsMe(Cast<ACharacter>(InOther)));
 
 	if (OwnerCharacter->GetCharacterMovement()->IsFalling())
 		return;
@@ -96,7 +97,7 @@ void UCDoAction_Combo::OnAttachmentBeginOverlap(ACharacter* InAttacker, AActor* 
 	InOther->Tags.Add(FName("HitByWeapon"));
 }
 
-void UCDoAction_Combo::OnAttachmentEndOverlap(ACharacter* InAttacker, ACharacter* InOther)
+void UCDoAction_Combo::OnAttachmentEndOverlap(ACharacter* InAttacker, AActor* InOther)
 {
 
 }

@@ -28,6 +28,7 @@ void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillColl
 }
 
 
+
 //-----------------------------------------------------------------------------
 
 bool UCSkillCollisionComponent::CheckMyTeam(AActor* InOtherActor)

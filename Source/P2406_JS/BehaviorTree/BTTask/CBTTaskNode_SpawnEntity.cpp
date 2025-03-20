@@ -15,7 +15,7 @@ EBTNodeResult::Type UCBTTaskNode_SpawnEntity::ExecuteTask(UBehaviorTreeComponent
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 	CheckNullResult(EntityClass, EBTNodeResult::Failed);
 
-	AAIController* aiController = OwnerComp.GetAIOwner();
+	ACAIController* aiController = Cast<ACAIController>(OwnerComp.GetAIOwner());
 	CheckNullResult(aiController, EBTNodeResult::Failed);
 	ACBoss_AI* boss = Cast<ACBoss_AI>(aiController->GetPawn());
 	CheckNullResult(boss, EBTNodeResult::Failed);
@@ -32,11 +32,13 @@ EBTNodeResult::Type UCBTTaskNode_SpawnEntity::ExecuteTask(UBehaviorTreeComponent
 	if (!!blackboard)
 	{
 		aiController->ClearFocus(EAIFocusPriority::Gameplay);
+		aiController->RegsterDestroyedEntity(entity);
+
 		boss->SetBossIdleMode();
+
 		blackboard->SetValueAsVector("TargetLocation", entity->GetActorLocation());
 		blackboard->SetValueAsObject("PickupObject", entity);
+
 	}
-
-
 	return EBTNodeResult::Succeeded;
 }

@@ -144,11 +144,11 @@ public:
 
 
 public:
-	void SendDamage(class ACharacter* InAttacker, AActor* InAttackCauser, class ACharacter* InOther, bool bFirstHit = false);
-	void PlayHitStop(class ACharacter* InCharacter);
-	void PlaySoundWave(class ACharacter* InOwner);
-	void PlayEffect(class ACharacter* InCharacter);
-	void PlayCameraShake(class ACharacter* InCharacter);
+	void SendDamage(class ACharacter* InAttacker, AActor* InAttackCauser, class AActor* InOther, bool bFirstHit = false);
+	void PlayHitStop(class AActor* InActor);
+	void PlaySoundWave(class AActor* InActor);
+	void PlayEffect(class AActor* InActor);
+	void PlayCameraShake(class AActor* InActor);
 };
 
 USTRUCT()
