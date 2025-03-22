@@ -100,8 +100,10 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 		+ InCharacter->GetActorRightVector() * Offset.Y
 		+ InCharacter->GetActorUpVector() * Offset.Z;
 
-
+	FRotator spawnRotation = InCharacter->GetActorRotation();
+	
 	FTransform transform;
+	transform.SetRotation(FQuat(spawnRotation));
 	transform.SetLocation(spawnLocation);
 
 	ACSkillEntity* skillEntity = InCharacter->GetWorld()->SpawnActorDeferred<ACSkillEntity>

@@ -72,6 +72,7 @@ void ACSkillEntity::CreateCollisionByType(FSkillCollisionData InData)
 			bool bDrawDebug = skillCollisionClass->GetDefaultObject<UCSkillCollisionComponent>()->GetDrawDebug();
 			SkillCollision->SetDrawDebug(bDrawDebug);
 		}
+		SkillCollision->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 		SkillCollision->RegisterComponent();
 		SkillCollision->SetWorldLocationAndRotation(GetActorLocation(),GetActorRotation());
 		SkillCollision->SetCollisionData(OwnerCharacter, InData, this);

@@ -753,7 +753,9 @@ void ACPlayer::ReleaseSkill3()
 
 void ACPlayer::OnSkill4()
 {
+	CheckNull(Weapon);
 
+	Weapon->ExecuteSkill(3);
 }
 
 void ACPlayer::ReleaseSkill4()
