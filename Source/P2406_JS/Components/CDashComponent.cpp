@@ -47,6 +47,7 @@ void UCDashComponent::BeginPlay()
 	{
 		bCanMove = Movement->GetCanMovePtr();
 		bControlRotation = Movement->GetCanControlRotaionPtr();
+		InputVec = Movement->GetInputDirection();
 	}
 }
 
@@ -71,22 +72,20 @@ void UCDashComponent::OnDash()
 
 void UCDashComponent::DashAction()
 {
-	//CheckTrue(State->IsDashMode());
 	CheckNull(bCanMove);
 	CheckFalse(*bCanMove);
 	CheckTrue(bIsDashing);
 	CheckNull(OwnerCharacter);
+	CheckNull(InputVec);
 
 	// 콜한 시점의 위치 저장 
 	PrevLocation = OwnerCharacter->GetActorLocation();
-	FVector right = OwnerCharacter->GetActorRightVector();
-//	FVector move = OwnerCharacter->GetVelocity().GetSafeNormal();
-	FVector moveInput = OwnerCharacter->GetLastMovementInputVector().GetSafeNormal();
+	FVector forward = OwnerCharacter->GetActorForwardVector(); 
+	FVector moveInput = OwnerCharacter->GetLastMovementInputVector().GetSafeNormal(); 
+	moveInput.Z = 0;
 
 	GroundNormal = GetGroundNormal();
-
-
-	float dot = FVector::DotProduct(right, moveInput);
+	FVector cross = FVector::CrossProduct(forward, moveInput);
 
 	// 자유 카메라 모드 일 때 
 	if (bControlRotation == nullptr || *bControlRotation == false)
@@ -100,18 +99,16 @@ void UCDashComponent::DashAction()
 	{
 		// 전방
 		DashDirection dir = DashDirection::Forward;
-
-		const float Magrin = 0.3f;
-		if (dot > Magrin)
-			dir = DashDirection::Right;
-		else if (dot < -Magrin)
-			dir = DashDirection::Left;
-		else if (moveInput.X <= 0)
+		if (moveInput.X <= 0)
 			dir = DashDirection::Back;
+
+		if (cross.Z > 0 && InputVec->Y != 0)
+			dir = DashDirection::Right;
+		else if (cross.Z < 0 && InputVec->Y != 0)
+			dir = DashDirection::Left;
 
 
 		CheckTrue(DashMontages.Num() == 0);
-
 		OwnerCharacter->PlayAnimMontage(DashMontages[(int32)dir]);
 	}
 }
@@ -305,11 +302,11 @@ void UCDashComponent::HandleBeginDash()
 	bIsDashing = true;
 
 	// PostProcess
-	if (!!Camera)
-	{
-		Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
-		Camera->PostProcessSettings.MotionBlurAmount = BlurAmount;
-	}
+	//if (!!Camera)
+	//{
+	//	Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
+	//	Camera->PostProcessSettings.MotionBlurAmount = BlurAmount;
+	//}
 
 	//Sound
 	PlaySoundWave();

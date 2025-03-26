@@ -102,7 +102,7 @@ private:
 	const bool* bControlRotation;
 	const bool* bCanMove; 
 
-	FVector InputVec;
+	FVector* InputVec;
 	int32 CurrentTrailCount = 0;
 	float StartDashTime = 0.0f;
 	FVector PrevLocation;

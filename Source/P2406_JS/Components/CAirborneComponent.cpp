@@ -33,22 +33,19 @@ void UCAirborneComponent::BeginPlay()
 
 
 
-float UCAirborneComponent::Calc_AirborenValue(float LaunchPower, AActor* InCauser)
+float UCAirborneComponent::Calc_AirborneValue(float InAerial, AActor* InCauser)
 {
 	float finalLaunchPower = 0.0f;
-	if (bIsAirborne == false && LaunchPower > 0.0f)
+	if (bIsAirborne == false && InAerial > 0.0f)
 	{
 		bIsAirborne = true;
-		finalLaunchPower = LaunchPower;
-		// 띄울 때 콜리전 상태를 변경해서 주변 충돌체 영향 없도록 
-		if (!!InCauser)
-			Causer = InCauser;
+		finalLaunchPower = InAerial;
 	}
 	else if(bIsAirborne == true)
 	{
 		// 이미 띄우는 힘이 있다면 
-		if (LaunchPower > 0.0f)
-			finalLaunchPower = FMath::Clamp(LaunchPower, LaunchPower * 0.1f, LaunchPower * 5.0f); // 10%로
+		if (InAerial > 0.0f)
+			finalLaunchPower = FMath::Clamp(InAerial, InAerial * 0.1f, InAerial * 5.0f); // 10%로
 		else
 		{
 			OwnerCharacter->GetCharacterMovement()->Velocity.Z = 0.0f;
@@ -69,9 +66,6 @@ void UCAirborneComponent::Landed()
 		return; 
 
 	bIsAirborne = false;
-	
-	if (!!Causer)
-		Causer = nullptr;
 }
 
 void UCAirborneComponent::OnCharacterEndDamaged()
