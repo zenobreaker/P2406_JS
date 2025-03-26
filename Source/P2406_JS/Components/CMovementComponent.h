@@ -40,6 +40,9 @@ public:
 	FORCEINLINE float GetSprintSpeed() const { return Speed[(int32)ESpeedType::Sprint]; }
 
 	FORCEINLINE const bool* GetCanControlRotaionPtr() { return &bCanControlRotaion; }
+	FORCEINLINE FVector* GetInputDirection() { return &InputDirection;  }
+
+
 public:
 	UCMovementComponent();
 

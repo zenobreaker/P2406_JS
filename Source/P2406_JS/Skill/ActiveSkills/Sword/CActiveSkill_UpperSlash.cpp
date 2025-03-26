@@ -16,9 +16,19 @@ void UCActiveSkill_UpperSlash::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkill
 
 	CurrentState = UpperSlashState::UpperSlash;
 	
-	FOnTimelineFloat timeline;
-	timeline.BindUFunction(this, "OnRising");
-	Timeline.AddInterpFloat(Curve, timeline);
+	if (Timeline.GetTimelineLength() == 0)
+	{
+		FOnTimelineFloat timeline;
+		timeline.BindUFunction(this, "OnRising");
+		Timeline.AddInterpFloat(Curve, timeline);
+	}
+
+
+	if (Timeline.IsPlaying())
+	{
+		Timeline.Stop();
+		Timeline.SetNewTime(0.0f);
+	}
 	Timeline.SetPlayRate(PlayRate);
 	
 	CheckNull(InOwner); 

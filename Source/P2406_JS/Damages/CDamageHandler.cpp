@@ -103,21 +103,23 @@ void UCDamageHandler::HandleLaunch(FHitData& InHitData, ACharacter* InAttacker, 
 	FVector target = InAttacker->GetActorLocation();
 	FVector direction = target - start;
 	direction.Normalize();
+	direction.Z = 0;
 
 	float dirZ = 0.0f;
 	if (!!Airborne && InHitData.Airial > 0)
 	{
-		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, InAttacker);
-		if (Airborne->GetIsAirborne() == true)
-			Condition->AddAirborneCondition();
+		Condition->AddAirborneCondition();
 	}
+	dirZ = Airborne->Calc_AirborneValue(InHitData.Airial, InAttacker);
 
 	// 기본 런치
 	float launchStrength = InHitData.Launch;
 	if (bIsGuarding == true)
 		launchStrength *= 0.5f;
-
 	FVector launchVelocity = (-direction * launchStrength) + FVector(0, 0, dirZ);
+	FLog::Log("Current Launch: " + FString::SanitizeFloat(InHitData.Launch));
+	FLog::Log("Damage Handler Launch : " + launchVelocity.ToString());
+
 	OwnerCharacter->LaunchCharacter(launchVelocity, false, true);
 }
 

@@ -12,21 +12,21 @@ ACSkillEntity::ACSkillEntity()
 {
 	// 기본 SceneComponent를 루트 컴포넌트로 설정
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+
+	CollisionTable.Emplace("Default", TArray<UCSkillCollisionComponent*>());
 }
 
 void ACSkillEntity::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	
+
 	FLog::Log("Create Success Skill Entity");
 }
 
 void ACSkillEntity::BeginPlay()
 {
 	Super::BeginPlay();
-	CheckNull(OwnerCharacter); 
 
-	/*SetActorLocation(OwnerCharacter->GetActorLocation());*/
 }
 
 void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -36,115 +36,121 @@ void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 int32 ACSkillEntity::GetDamagedCount()
 {
-	CheckNullResult(SkillCollision, 0);
-
-	return SkillCollision->GetDamagedCount();
+	return DamagedList.Num();
 }
 
-void ACSkillEntity::SetSkillEntityData(FSkillCollisionData InData)
+void ACSkillEntity::SetSkillEntityData(TArray<FSkillCollisionData>& InDatas)
 {
-	//FLog::Log("Entity Creator");
-	CreateCollisionByType(InData);
-}
+	CheckFalse(InDatas.Num() > 0);
 
+	for (FSkillCollisionData& data : InDatas)
+	{
+		if (data.SkillCollisionClass == nullptr || data.SkillCollisionClass == (UCSkillCollisionComponent::StaticClass()))
+			continue;
+
+		UCSkillCollisionComponent* skillCollision = nullptr;
+		skillCollision = NewObject<UCSkillCollisionComponent>(this, data.SkillCollisionClass);
+
+		if (skillCollision != nullptr)
+		{
+			// 해당 클래스에서 정의된 속성에 접근하려면 인스턴스가 필요하다. 
+			bool bDrawDebug = false;
+			if (UClass* skillCollisionClass = data.SkillCollisionClass.Get())
+			{
+				bDrawDebug = skillCollisionClass->GetDefaultObject<UCSkillCollisionComponent>()->GetDrawDebug();
+			}
+			skillCollision->SetDrawDebug(bDrawDebug);
+			skillCollision->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+			skillCollision->RegisterComponent();
+			skillCollision->SetWorldLocationAndRotation(GetActorLocation(), GetActorRotation());
+			skillCollision->SetCollisionData(OwnerCharacter, data, this);
+
+			if (data.GroupName.IsNone() || data.GroupName.IsEqual("Default"))
+				CollisionTable.FindOrAdd("Default").AddUnique(skillCollision);
+			else
+				CollisionTable.FindOrAdd(data.GroupName).AddUnique(skillCollision);
+		}
+	}
+
+}
 
 void ACSkillEntity::DestroySkill()
 {
-	SkillCollision->DestroyComponent(); 
+	for (TPair<FName, TArray<UCSkillCollisionComponent*>>& pair : CollisionTable)
+	{
+		for (UCSkillCollisionComponent* skill : pair.Value)
+			skill->DestroyComponent();
+	}
 
 	FLog::Log("Skill Destroyed");
-	//TODO: 나중에 오브젝트 콜링해도될듯
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+
 	Destroy();
 }
 
-void ACSkillEntity::CreateCollisionByType(FSkillCollisionData InData)
+void ACSkillEntity::OnDamaged(AActor* InOther)
 {
-	if (InData.SkillCollisionClass != nullptr)
-	{
-		SkillCollision = NewObject<UCSkillCollisionComponent>(this, InData.SkillCollisionClass);
-	}
+	CheckTrue(InOther == OwnerCharacter);
 
-	if (SkillCollision != nullptr)
+	DamagedList.AddUnique(InOther);
+}
+
+
+void ACSkillEntity::ActivateCollisionSequence(FName InName)
+{
+	CheckFalse(CollisionTable.Contains(InName));
+	CheckFalse(CollisionTable.Num() > 0);
+
+	const TArray<UCSkillCollisionComponent*>& SCCs = CollisionTable[InName];
+
+	bool bIsFirst = true;
+
+	for (UCSkillCollisionComponent* scc : SCCs)
 	{
-		// 해당 클래스에서 정의된 속성에 접근하려면 인스턴스가 필요하다. 
-		if(UClass* skillCollisionClass = InData.SkillCollisionClass.Get())
+		if (bIsFirst)
 		{
-			bool bDrawDebug = skillCollisionClass->GetDefaultObject<UCSkillCollisionComponent>()->GetDrawDebug();
-			SkillCollision->SetDrawDebug(bDrawDebug);
+			ActivateCollisionComponent(scc);
+			bIsFirst = false;
 		}
-		SkillCollision->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
-		SkillCollision->RegisterComponent();
-		SkillCollision->SetWorldLocationAndRotation(GetActorLocation(),GetActorRotation());
-		SkillCollision->SetCollisionData(OwnerCharacter, InData, this);
+		else
+		{
+			FTimerDelegate timerDelegate;
+			timerDelegate.BindUObject(this, &ACSkillEntity::ActivateCollisionComponent, scc);
+
+			float nextDelay = scc->GetCollisionData().NextDelay;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, timerDelegate, nextDelay, false);
+		}
 	}
+}
+
+void ACSkillEntity::ActivateCollisionComponent(UCSkillCollisionComponent* InSCC)
+{
+	CheckNull(InSCC);
+
+	InSCC->ActivateCollision();
 }
 
 void ACSkillEntity::ActivateCollision(FName InName)
 {
-	if (InName != NAME_None
-		&& CollisionTable.Num() > 0
-		&& CollisionTable.Contains(InName))
-	{
-		CollisionTable[InName]->ActivateCollision(Index++);
-		return;
-	}
+	if (InName == NAME_None)
+		InName = "Default";
 
-	// 기본적인 동작을 위한 퓨어 가상 함수 호출
-
-	CheckNull(SkillCollision);
-
-	SkillCollision->ActivateCollision(Index++);
+	ActivateCollisionSequence(InName);
 }
 
 
 void ACSkillEntity::DeactivateCollision(FName InName)
 {
-	if (InName != NAME_None
-		&& CollisionTable.Num() > 0
+	if (CollisionTable.Num() > 0
 		&& CollisionTable.Contains(InName))
 	{
-		CollisionTable[InName]->DeactivateCollision(Index);
+		for (UCSkillCollisionComponent* skill : CollisionTable[InName])
+		{
+			if (skill == nullptr)
+				continue;
+			skill->DeactivateCollision();
+		}
 		return;
-	}
-
-	CheckNull(SkillCollision);
-
-	SkillCollision->DeactivateCollision(Index);
-}
-
-void ACSkillEntity::SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs)
-{
-	CheckNull(SkillCollision);
-
-	for (auto& Func : InFuncs)
-	{
-		FOnSkillDamaged NewDelegate;
-		NewDelegate.BindLambda(Func);
-		SkillCollision->OnSkillDamageds.Add(NewDelegate);
-	}
-}
-
-void ACSkillEntity::SetSkillDamageEventOneParam(TArray<TFunction<void(ACharacter*)>> InFuncs)
-{
-	CheckNull(SkillCollision);
-
-	for (auto& Func : InFuncs)
-	{
-		FOnSkillDamagedOneParam NewDelegate;
-		NewDelegate.BindLambda(Func);
-		SkillCollision->OnSkillDamagedOneParams.Add(NewDelegate);
-	}
-}
-
-void ACSkillEntity::SetSkillDamageEventThreeParams(TArray<TFunction<void(ACharacter*, AActor*, ACharacter*)>> InFuncs)
-{
-	CheckNull(SkillCollision);
-
-	for (auto& Func : InFuncs)
-	{
-		FOnSkillDamagedThreeParams NewDelegate;
-		NewDelegate.BindLambda(Func);
-		SkillCollision->OnSkillDamagedThreeParams.Add(NewDelegate);
 	}
 }
 

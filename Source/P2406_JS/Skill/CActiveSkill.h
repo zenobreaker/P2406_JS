@@ -42,7 +42,7 @@ public:
 	{
 		return (CurrentPhase != ESkillPhase::Max) && (CurrentPhase != ESkillPhase::Finished);
 	}
-	FORCEINLINE bool GetIsFinished() const { return CurrentPhase == ESkillPhase::Finished; }
+	FORCEINLINE bool GetIsFinished() const { return CurrentPhase == ESkillPhase::Max; }
 	FORCEINLINE bool GetCompleteCasting() const { return CurrentCooldown >= SkillInfo.CastingTime; }
 
 

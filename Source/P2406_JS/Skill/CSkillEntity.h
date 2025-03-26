@@ -14,7 +14,7 @@
 /// 스킬의 속성, 충돌관리하는 CollisionComponent를 관리
 /// </summary>
 UCLASS()
-class P2406_JS_API ACSkillEntity 
+class P2406_JS_API ACSkillEntity
 	: public AActor
 	, public IAttackInterface
 {
@@ -24,53 +24,53 @@ class P2406_JS_API ACSkillEntity
 public:
 	FORCEINLINE void SetOwnerCharacter(class ACharacter* InCharacter) { OwnerCharacter = InCharacter; }
 
-
-public:	
+public:
 	ACSkillEntity();
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
-	
+
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	//FORCEINLINE void SetSkillCollisionType(ESkillCollisionType InType) { MyType = InType; }
 	int32 GetDamagedCount();
-	void SetSkillEntityData(FSkillCollisionData InData);
+
+	virtual void SetSkillEntityData(TArray<FSkillCollisionData>& InDatas);
 
 public:
 	UFUNCTION()
-	void DestroySkill(); 
+	void DestroySkill();
 
-protected:
-	void CreateCollisionByType(FSkillCollisionData InData);
+	UFUNCTION()
+	void OnDamaged(class AActor* InOther);
+
+private:
+	virtual void ActivateCollisionSequence(FName InName = "Default");
+	virtual void ActivateCollisionComponent(class UCSkillCollisionComponent* InSCC);
 
 public:
 	// 충돌 시작
-	virtual void ActivateCollision(FName InName);
+	virtual void ActivateCollision(FName InName = "Default");
 	// 충돌 종료
-	virtual void DeactivateCollision(FName InName);
-
-	void SetSkillDamageEvent(TArray<TFunction<void()>> InFuncs);
-	void SetSkillDamageEventOneParam(TArray<TFunction<void(ACharacter*)>> InFuncs);
-	void SetSkillDamageEventThreeParams(TArray<TFunction<void(ACharacter*, AActor*, ACharacter*)>> InFuncs);
+	virtual void DeactivateCollision(FName InName = "Default");
 
 
 public:
 	// IAttackInterface을(를) 통해 상속됨
 	AActor* GetDamageSource() const override;
 
-//private:
-//	TArray<AActor*> Hitted;
-
 protected:
 	class ACharacter* OwnerCharacter;
 
 protected:
-	int32 Index; 
+	float CollisionInterval = -1.0f;
+	int32 Index;
 
 protected:
-	class UCSkillCollisionComponent* SkillCollision;
-	TMap<FName, class UCSkillCollisionComponent*> CollisionTable;
+	TMap<FName, TArray<UCSkillCollisionComponent*>> CollisionTable;
+
+private:
+	TArray<AActor*> DamagedList;
+	FTimerHandle TimerHandle;
 };

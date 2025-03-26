@@ -213,7 +213,7 @@ void ACEnemy::Launch(const FHitData& InHitData, const bool bIsGuarding)
 			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
-		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
+		dirZ = Airborne->Calc_AirborneValue(InHitData.Airial, DamageData.Attacker);
 		if (Airborne->GetIsAirborne())
 			Condition->AddAirborneCondition();
 	}
@@ -340,7 +340,11 @@ void ACEnemy::End_Downed()
 /// </summary>
 void ACEnemy::OnAirborneConditionActivated()
 {
-	// 딱히 뭐 할 건 없지만 상태 변수를 조진다
+	CollsionEnabledType = GetCapsuleComponent()->GetCollisionEnabled();
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	
 	bShouldCountDownOnLand = true;
 	bCanAct = false;
 	Condition->AddDownCondition();

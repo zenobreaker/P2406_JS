@@ -29,9 +29,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateChargeGauge(float InValue, float InMaxValue);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "BossGauge")
-	void VisibleBossGauge(class ACharacter* InCharacter); 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "BossGauge")
+	void UpdateBossGaugeVisibility(bool bInVisible); 
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "BossGauge")
-	void UpdateBossGauge(class ACharacter* InCharacter);
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "BossGauge")
+	void UpdateBossGauge(float InValue, float InMaxValue);
 };

@@ -20,7 +20,7 @@ void UCActiveSkill_JudgementBlade::Begin_Skill()
 {
 	Super::Begin_Skill();
 
-	OnActivated_Collision();
+	//OnActivated_Collision();
 }
 
 void UCActiveSkill_JudgementBlade::OnSkillCastingCompleted_JudgementBlade()

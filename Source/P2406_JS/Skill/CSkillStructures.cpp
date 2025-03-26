@@ -77,12 +77,12 @@ ACSkillEntity* FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
 {
 	CheckNullResult(InCharacter, nullptr);
 
-	return SkillEntityData.SpawnSkillEntity(InCharacter);
+	return SkillEntityData.SpawnSkillEntity(InCharacter, Effect);
 }
 
 //-----------------------------------------------------------------------------
 
-ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
+ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter, UFXSystemAsset* InEffect)
 {
 	CheckNullResult(InCharacter, nullptr);
 	CheckNullResult(SkillEntity, nullptr);
@@ -96,9 +96,9 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 
 	// 스킬 생성 위치 설정 
 	FVector spawnLocation = InCharacter->GetActorLocation()
-		+ InCharacter->GetActorForwardVector() * Offset.X
-		+ InCharacter->GetActorRightVector() * Offset.Y
-		+ InCharacter->GetActorUpVector() * Offset.Z;
+		+ InCharacter->GetActorForwardVector() * SpawnLocation.X
+		+ InCharacter->GetActorRightVector() * SpawnLocation.Y
+		+ InCharacter->GetActorUpVector() * SpawnLocation.Z;
 
 	FRotator spawnRotation = InCharacter->GetActorRotation();
 	
@@ -119,7 +119,8 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter)
 
 	FLog::Log("Entity Create");
 	skillEntity->SetOwnerCharacter(InCharacter);
-	skillEntity->SetSkillEntityData(SkillCollisionData);
+	//skillEntity->SetInterval(CollisionCreateDelay);
+	skillEntity->SetSkillEntityData(SkillCollisionDatas);
 	UGameplayStatics::FinishSpawningActor(skillEntity, transform);
 
 	return skillEntity;
@@ -130,7 +131,43 @@ FSkillEntityData::FSkillEntityData()
 	SkillEntity = ACSkillEntity::StaticClass();
 }
 
+//----------------------------------------------------------------------------------
+
 FSkillCollisionData::FSkillCollisionData()
 {
 	SkillCollisionClass = UCSkillCollisionComponent::StaticClass();
+}
+
+UFXSystemAsset* FSkillCollisionData::GetSkillEffectAsset()
+{
+	return SkillEffect.GetEffect();
+}
+
+void FSkillCollisionData::Play_SkillEffect(AActor* InActor)
+{
+	SkillEffect.Play_Effect(InActor);
+}
+
+UFXSystemAsset* FSkillEffectInfo::GetEffect()
+{
+	return SkillEffectAsset;
+}
+
+void FSkillEffectInfo::Play_Effect(AActor* InActor)
+{
+	CheckNull(InActor);
+	CheckNull(SkillEffectAsset);
+
+	FVector location = InActor->GetActorLocation();
+	FRotator rotator = InActor->GetActorRotation();
+	rotator += EffectRotation;
+
+	location += rotator.RotateVector(EffectLocation);
+
+	FTransform transform;
+	transform.SetLocation(location);
+	transform.SetRotation(FQuat(rotator));
+	transform.SetScale3D(EffectScale);
+
+	FHelpers::PlayEffect(InActor->GetWorld(), SkillEffectAsset, transform);
 }

@@ -225,7 +225,7 @@ void UCSkillComponent::Update_CheckSkillComplete(float InDeltaTime)
 
 			if (active->GetIsFinished())
 			{
-				//FLog::Print("Remove Skill " + active->GetName(), -1, 10.0f, FColor::Red);
+				FLog::Log("Remove Skill " + active->GetName());
 				ActiveSkills.RemoveAt(i);
 			}
 		}

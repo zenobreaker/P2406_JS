@@ -415,7 +415,7 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 			GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
-		dirZ = Airborne->Calc_AirborenValue(InHitData.Airial, DamageData.Attacker);
+		dirZ = Airborne->Calc_AirborneValue(InHitData.Airial, DamageData.Attacker);
 		if (Airborne->GetIsAirborne())
 			Condition->AddAirborneCondition();
 	}
@@ -571,6 +571,27 @@ void ACPlayer::End_Downed()
 	if (OnCharacterRaised.IsBound())
 		OnCharacterRaised.Broadcast();
 }
+
+void ACPlayer::VisibleBossGauge()
+{
+	CheckNull(UserInterface); 
+
+	UserInterface->UpdateBossGaugeVisibility(true);
+}
+
+void ACPlayer::HideBossGauge()
+{
+	CheckNull(UserInterface);
+
+	UserInterface->UpdateBossGaugeVisibility(false);
+}
+void ACPlayer::UpdateBossGauge(float InValue, float MaxValue)
+{
+	CheckNull(UserInterface);
+
+	UserInterface->UpdateBossGauge(InValue, MaxValue);
+}
+
 
 void ACPlayer::OnEvade()
 {

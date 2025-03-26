@@ -21,4 +21,6 @@ public:
 
 public:
 	virtual void BeginPlay() override;;
+
+	void SetSkillEntityData(TArray<FSkillCollisionData>& InDatas) override;
 };

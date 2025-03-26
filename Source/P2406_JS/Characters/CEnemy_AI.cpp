@@ -160,6 +160,7 @@ void ACEnemy_AI::OnToggleEnemyUI(bool InToggle)
 
 void ACEnemy_AI::Tick_LabelRenderScale()
 {
+	CheckNull(LabelWidget);
 	UCUserWidget_Enemy* label = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 	CheckNull(label);
 	CheckNull(GetController());

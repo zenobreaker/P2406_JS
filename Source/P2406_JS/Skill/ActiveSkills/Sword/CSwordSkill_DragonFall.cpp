@@ -241,7 +241,7 @@ void UCSwordSkill_DragonFall::Begin_Skill()
 	FLog::Log("DF - Begin Skill Phase");
 #endif
 
-	//OnSkillDoAction 
+	OnSkillDoAction();
 
 	RunSkillPhaseData(ESkillPhase::Begin_Skill);
 }

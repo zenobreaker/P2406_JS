@@ -133,6 +133,15 @@ protected:
 public:
 	void End_Damaged() override;
 	void End_Downed() override;
+	
+public:
+	void VisibleBossGauge();
+
+	UFUNCTION()
+	void HideBossGauge();
+	
+	UFUNCTION()
+	void UpdateBossGauge(float InValue, float MaxValue);
 
 private:
 	void OnEvade();

@@ -2,14 +2,18 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 
+#include "Skill/CSkillEntity.h"
 #include "Characters/IDamagable.h"
 #include "Characters/CBaseCharacter.h"
+
+float UCSkillCollisionComponent::GetNextDelay()
+{
+	return CollisionData.NextDelay;
+}
 
 void UCSkillCollisionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Index = 0;
 }
 
 void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillCollisionData& InCollisinData)
@@ -17,16 +21,41 @@ void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillColl
 	OwnerCharacter = InOwner; 
 	CollisionData = InCollisinData;
 
-	HitDatas = CollisionData.HitDatas;
+	HitData = CollisionData.HitData;
 }
 
-void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillCollisionData& InCollisinData, ACSkillEntity* InEntity)
+void UCSkillCollisionComponent::SetCollisionData(ACharacter* InOwner, FSkillCollisionData& InCollisinData, 
+	ACSkillEntity* InEntity, UFXSystemAsset* InAsset)
 {
 	SetCollisionData(InOwner, InCollisinData);
 
 	Entity = InEntity;
+	UFXSystemAsset* sfxAsset = InCollisinData.GetSkillEffectAsset();
+	CheckNull(sfxAsset);
+	
+	if(sfxAsset->IsA<UParticleSystem>())
+	{
+		Particle = NewObject<UParticleSystemComponent>(this);
+		Particle->SetTemplate(Cast<UParticleSystem>(sfxAsset));
+		Particle->RegisterComponent();
+	}
+	else if (sfxAsset->IsA<UNiagaraSystem>())
+	{
+		Niagara = NewObject<UNiagaraComponent>(this);
+		Niagara->SetAsset(Cast<UNiagaraSystem>(sfxAsset));
+		Niagara->RegisterComponent();
+	}
 }
 
+void UCSkillCollisionComponent::ActivateCollision()
+{
+	CollisionData.Play_SkillEffect(Entity); 
+}
+
+void UCSkillCollisionComponent::DeactivateCollision()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+}
 
 
 //-----------------------------------------------------------------------------

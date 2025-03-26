@@ -1,161 +1,246 @@
-#include "CSkillCollision_Shape.h"
+#include "Skill/Collisions/CSkillCollision_Shape.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 #include "Skill/CSkillEntity.h"
+#include "Characters/IDamagable.h"
 
 UCSkillCollision_Shape::UCSkillCollision_Shape()
 {
-	PrimaryComponentTick.bCanEverTick = true; 
-}
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>("Capsule");
+	Capsule->InitCapsuleSize(InitScale.X, InitScale.Y);
 
+	Box = CreateDefaultSubobject<UBoxComponent>("Box");
+	Box->InitBoxExtent(InitScale);
+
+	PrimaryComponentTick.bCanEverTick = true;
+}
 
 void UCSkillCollision_Shape::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (CollisionData.CollisionType == ESkillCollisionType::Capsule || CollisionData.CollisionType == ESkillCollisionType::Sphere)
+	{
+		//Capsule->AttachToComponent(Entity->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		Capsule->OnComponentBeginOverlap.AddDynamic(this, &UCSkillCollision_Shape::OnComponentBeginOverlap);
+		Capsule->OnComponentEndOverlap.AddDynamic(this, &UCSkillCollision_Shape::OnComponentEndOverlap);
+		Capsule->SetWorldLocation(Entity->GetActorLocation());
+		Capsule->SetWorldRotation(Entity->GetActorRotation());
+
+		// 레이저 타입이면 캡슐을 회전시킴
+		if (Type == EScaleType::Laser_Axis_X)
+		{
+			Capsule->SetWorldRotation(FRotator(-90, Entity->GetActorRotation().Yaw, Entity->GetActorRotation().Roll));
+		}
+
+		Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	else if (CollisionData.CollisionType == ESkillCollisionType::Box)
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		Box->OnComponentBeginOverlap.AddDynamic(this, &UCSkillCollision_Shape::OnComponentBeginOverlap);
+		Box->OnComponentEndOverlap.AddDynamic(this, &UCSkillCollision_Shape::OnComponentEndOverlap);
+
+		Box->SetWorldLocation(Entity->GetActorLocation());
+		Box->SetWorldRotation(Entity->GetActorRotation());
+	}
+
+	if (!!Particle)
+	{
+		Particle->OnSystemFinished.AddDynamic(this, &UCSkillCollision_Shape::OnSystemFinished);
+		FLog::Log("Particle : " + Particle->GetComponentScale().ToString());
+	}
+	if (!!Niagara)
+		Niagara->OnSystemFinished.AddDynamic(this, &UCSkillCollision_Shape::OnNiagaraSystemFinished);
 }
+
 
 void UCSkillCollision_Shape::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (bDrawDebug && bActivate)
-	{
-		DrawDebugCollisionLine();
-	}
+	CheckFalse(bActivate);
+	CheckTrue(ElapsedTime >= SpawnLifeTime);
+	CheckTrue(Type == EScaleType::Max);
+
+	float alpha = FMath::Clamp(ElapsedTime / Durataion, 0.0f, 1.0f);
+
+	FVector currentScale = FMath::Lerp(InitScale, DestScale, alpha);
+
+	if (Type == EScaleType::AOE)
+		Execute_Scaling(currentScale);
+	else if (Type == EScaleType::Laser_Axis_X)
+		Execute_Laser(currentScale);
+
+	ElapsedTime += DeltaTime;
+	FLog::Print("Scaling : " + currentScale.ToString() + " " + FString::SanitizeFloat(ElapsedTime), 7535);
 }
 
-void UCSkillCollision_Shape::ActivateCollision(int32 InIndex)
+void UCSkillCollision_Shape::ActivateCollision()
 {
-	Super::ActivateCollision(InIndex);
-	Index = InIndex;
-
-	CheckTrue(HitDatas.Num() <= Index);
+	Super::ActivateCollision();
 	CheckNull(OwnerCharacter);
-	bActivate = true; 
+
+	ElapsedTime = 0.0f;
+
+	bActivate = true;
+
+	if (bDrawDebug)
+	{
+		if (CollisionData.CollisionType == ESkillCollisionType::Capsule || CollisionData.CollisionType == ESkillCollisionType::Sphere)
+		{
+			Capsule->bHiddenInGame = false;
+			Capsule->SetVisibility(true);
+			Capsule->RegisterComponent();  // 컴포넌트 등록
+		}
+		else
+		{
+			Box->bHiddenInGame = false;
+			Box->SetVisibility(true);
+			Box->RegisterComponent();  // 컴포넌트 등록
+		}
+	}
+
 	if (CollisionData.bRepeat)
 	{
-		GetWorld()->GetTimerManager().SetTimer(
-			TimerHandle,
-			this,
-			&UCSkillCollisionComponent::CheckCollision,
+		FTimerDelegate timerDelegate = FTimerDelegate::CreateLambda([&]()
+			{
+				CheckCollision();
+			});
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle,
+			timerDelegate,
 			CollisionData.CollisionInterval,
-			true,
-			0.0f);
-	}
-	else
-	{
-		CheckCollision();
+			true, 0);
 	}
 }
 
-void UCSkillCollision_Shape::DeactivateCollision(int32 InIndex)
-{
-	Super::DeactivateCollision(InIndex);
 
-	bActivate = false;
-	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+void UCSkillCollision_Shape::DeactivateCollision()
+{
+	Super::DeactivateCollision();
+
+	EndSkillCollision();
 }
 
 void UCSkillCollision_Shape::CheckCollision()
 {
-	Super::CheckCollision();
+	CheckFalse(Hitted.Num() > 0);
 
-	CheckNull(OwnerCharacter);
-
-	if (Index >= HitDatas.Num())
+	for (int i = Hitted.Num() - 1; i >= 0; i--)
 	{
-		DeactivateCollision();
-
-		return;
-	}
-
-	TArray<FOverlapResult> hitResults;  // 변수명 수정
-	FVector start = GetComponentLocation();
-
-	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
-	switch (CollisionData.CollisionType)
-	{
-	case ESkillCollisionType::Sphere:
-		CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
-		break;
-	case ESkillCollisionType::Box:
-		CollisionShape = FCollisionShape::MakeBox(CollisionData.BoxExtent);
-		break;
-	case ESkillCollisionType::Capsule:
-		CollisionShape = FCollisionShape::MakeCapsule
-		(
-			CollisionData.CapsuleRadius,
-			CollisionData.CapsuleHalfHeight
-		);
-		break;
-	}
-
-	DrawDebugCollisionLine();
-
-	
-	// 트레이스 설정 
-	FCollisionQueryParams tracePramams;
-	tracePramams.AddIgnoredActor(Entity);
-	tracePramams.AddIgnoredActor(OwnerCharacter);
-
-	bool bHit = OwnerCharacter->GetWorld()->OverlapMultiByObjectType
-	(
-		hitResults,
-		start,
-		FQuat::Identity,
-		FCollisionObjectQueryParams(ECC_Pawn),
-		CollisionShape,
-		tracePramams
-	);
-
-	if (bHit)
-	{
-		for (auto& Hit : hitResults)
+		if (CollisionData.bRepeat == false)
 		{
-			if (Hit.GetActor() == nullptr)
+			if (LastList.Find(Hitted[i]) != INDEX_NONE)
 				continue;
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor == nullptr)
-				continue;
-			if (CheckMyTeam(HitActor) == true)
-				continue;
-
-			ACBaseCharacter* character = Cast<ACBaseCharacter>(HitActor);
-			if (character == nullptr)
-				continue;
-
-			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-			HitDatas[Index].SendDamage(OwnerCharacter, nullptr, character);
-			if (OnSkillDamageds.Num() > 0)
-				OnSkillDamageds[Index].ExecuteIfBound();
-			if (OnSkillDamagedOneParams.Num() > 0)
-				OnSkillDamagedOneParams[Index].ExecuteIfBound(character);
-			if (OnSkillDamagedThreeParams.Num() > 0)
-				OnSkillDamagedThreeParams[Index].ExecuteIfBound(OwnerCharacter, nullptr, character);
 		}
+
+		FLog::Log(" Hit! : " + Hitted[i]->GetName());
+		HitData.SendDamage(OwnerCharacter, Entity, Hitted[i]);
+
+		/*if(Hitted[i] != nullptr)
+			LastList.AddUnique(Hitted[i]);*/
 	}
 
+	//TODO : 엔티티에 일부 기능을 넣어놓기
+	// 데미지 데이터 개수만큼 트레이싱발사
+	// 
 
-	Index++;
+	//if (CollisionData.bRepeat == false && HitDatas.Num() >= Index)
+	//	Index++;
 }
+
+
+
+void UCSkillCollision_Shape::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	CheckTrue(OtherActor == OwnerCharacter);
+	CheckTrue(CheckMyTeam(OtherActor));
+	CheckNull(Cast<IIDamagable>(OtherActor));
+
+	Hitted.AddUnique(OtherActor);
+
+	CheckTrue(CollisionData.bRepeat);
+	CheckCollision();
+}
+
+void UCSkillCollision_Shape::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	CheckTrue(OtherActor == OwnerCharacter);
+
+	CheckFalse(Hitted.Num() > 0);
+
+	Hitted.Remove(OtherActor);
+}
+
+void UCSkillCollision_Shape::OnSystemFinished(UParticleSystemComponent* PSystem)
+{
+	EndSkillCollision();
+}
+
+void UCSkillCollision_Shape::OnNiagaraSystemFinished(UNiagaraComponent* PSystem)
+{
+	EndSkillCollision();
+}
+
+
+void UCSkillCollision_Shape::Execute_Scaling(const FVector& InVector)
+{
+	if (CollisionData.CollisionType == ESkillCollisionType::Capsule || CollisionData.CollisionType == ESkillCollisionType::Sphere)
+		Capsule->SetCapsuleSize(InVector.X, InVector.Y);
+	else if (CollisionData.CollisionType == ESkillCollisionType::Box)
+		Box->SetBoxExtent(InVector);
+}
+
+// 레이저타입은 시전위치에서부터 점점 X축이 길어진다. 
+void UCSkillCollision_Shape::Execute_Laser(const FVector& InVector)
+{
+	CheckNull(Entity);
+
+
+	if (CollisionData.CollisionType == ESkillCollisionType::Capsule || CollisionData.CollisionType == ESkillCollisionType::Sphere)
+	{
+		// 한 면은 캐릭터 기준으로 고정시키고, 나머지 면은 앞으로 나가도록 설정
+		FVector up = Capsule->GetUpVector();
+		FVector startLocation = Entity->GetActorLocation();
+		//X 값으로만 계산 캡슐은 중심으로 움직이므로 전반 나눔
+		FVector endLocation = startLocation + up * (InVector.X * 0.5f);
+
+		// 레이저 타입은 값의 타입이 반대 
+		Capsule->SetCapsuleSize(InVector.Y, InVector.X);
+		Capsule->SetWorldLocation(endLocation);
+	}
+	else if (CollisionData.CollisionType == ESkillCollisionType::Box)
+	{
+		// 한 면은 캐릭터 기준으로 고정시키고, 나머지 면은 앞으로 나가도록 설정
+		FVector forward = Entity->GetActorForwardVector();
+		FVector startLocation = Entity->GetActorLocation();
+		//X 값으로만 계산 
+		FVector endLocation = startLocation + forward * InVector.X;
+
+		Box->SetBoxExtent(InVector);
+		Box->SetWorldLocation(endLocation);
+	}
+}
+
+void UCSkillCollision_Shape::EndSkillCollision()
+{
+	bActivate = false;
+
+	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	Capsule->DestroyComponent();
+	Box->DestroyComponent();
+	LastList.Empty();
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+}
+
 
 void UCSkillCollision_Shape::DrawDebugCollisionLine()
 {
-	CheckFalse(bDrawDebug);
-	CheckNull(OwnerCharacter);
-
-	FVector start = GetComponentLocation();
-	switch (CollisionData.CollisionType)
-	{
-	case ESkillCollisionType::Sphere:
-		DrawDebugSphere(OwnerCharacter->GetWorld(), start, CollisionRadius, 12, FColor::Red, false, 1.0f);
-		break;
-	case ESkillCollisionType::Box:
-		///DrawDebugBox(OwnerCharacter->GetWorld(), )
-		break;
-	case ESkillCollisionType::Capsule:
-
-		break;
-	}
 }
-
