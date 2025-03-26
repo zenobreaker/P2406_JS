@@ -4,24 +4,42 @@
 #include "GameInstances/CSkillManager.h"
 #include "GameInstances/CBattleManager.h"
 #include "GameInstances/CPatternConditionManager.h"
+#include "GameInstances/CSpawnManager.h"
 
 UCGameInstance::UCGameInstance()
 {
 	SkillManager = CreateDefaultSubobject<UCSkillManager>(TEXT("SkillManager"));
 	BattleManager = CreateDefaultSubobject <UCBattleManager>(L"BattleManager");
-	PatternCondition = CreateDefaultSubobject<UCPatternConditionManager>(L"PatternCondition");
+	//PatternCondition = CreateDefaultSubobject<UCPatternConditionManager>(L"PatternCondition");
+	//SpawnManager = CreateDefaultSubobject<UCSpawnManager>(L"SpawnManager"); 
 }
 
 void UCGameInstance::Init()
 {
 	Super::Init();
-	if(SkillManager != nullptr)
+
+	FHelpers::GetAssetAsync<UCPatternConditionManager>(&PatternCondition, "",
+		[this]()
+		{
+			if (!!PatternCondition)
+				PatternCondition->InitConditionData();
+		});
+
+	
+	if (SpawnManagerClass == nullptr)
 	{
-
-		 // 여기서 뭘 할까? 
+		FHelpers::GetAssetAsync<UCSpawnManager>(&SpawnManager, "/Script/Engine.Blueprint'/Game/Managers/BP_CSpawnManager.BP_CSpawnManager'",
+			[this]()
+			{
+				if (!!SpawnManager)
+					SpawnManager->BeginPlay();
+			});
 	}
-
-
-	PatternCondition->InitConditionData();
+	else
+	{
+		SpawnManager = NewObject<UCSpawnManager>(this, SpawnManagerClass);
+		if(SpawnManager != nullptr)
+			SpawnManager->BeginPlay();
+	}
 }
 

@@ -27,10 +27,12 @@ class P2406_JS_API ACBaseCharacter
 
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Character ID")
+	uint32 UID = UINT32_MAX;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Team")
 	uint8 TeamID = 2;
 
-protected:
 	UPROPERTY(EditAnywhere, Category = "Group")
 	int32 GroupID = 0;
 
@@ -59,10 +61,12 @@ protected:
 	class UAnimMontage* DeadMontage;
 
 public:
+	FORCEINLINE uint32 GetUID() const { return UID; }
 	FORCEINLINE uint8 GetTeamID() const { return TeamID; }
 	FORCEINLINE EEntityGrade GetGrade() const { return Grade; }
 	FORCEINLINE int32 GetGroupID() const { return GroupID; }
 	FORCEINLINE void SetGroupID(int32 InGroupID) { GroupID = InGroupID; }
+
 public:
 	FORCEINLINE bool GetCanAct() const { return bCanAct; }
 	FORCEINLINE bool GetExecutable() const { return bExecutable; }

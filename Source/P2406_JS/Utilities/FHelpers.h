@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/StreamableManager.h"
+#include "Engine/AssetManager.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
@@ -111,7 +113,7 @@ public:
 		}
 
 		InActor->SetRootComponent(*OutComponent);
-	} 
+	}
 
 	template<typename TValueType>
 	static void CreateActorComponent(AActor* InActor, TValueType** OutComponent, FName InName)
@@ -142,8 +144,43 @@ public:
 	static void GetAsset(TValueType** OutObject, FString InPath)
 	{
 		ConstructorHelpers::FObjectFinder<TValueType> asset(*InPath);
-		if(asset.Succeeded())
+		if (asset.Succeeded())
 			*OutObject = asset.Object;
+	}
+
+
+	template<typename TValueType>
+	static void GetAssetAsync(TValueType** OutObject, FString InPath, TFunction<void()> OnLoadedCallback = nullptr)
+	{
+
+		// 경로가 비어 있으면 기본 객체 생성 후 콜백 실행 
+		if (InPath.IsEmpty())
+		{
+			*OutObject = NewObject<TValueType>();
+			if (OnLoadedCallback)
+				OnLoadedCallback();
+			return; 
+		}
+
+
+		TSoftObjectPtr<TValueType> softAsset(InPath);
+
+		if (softAsset.IsValid())
+		{
+			*OutObject = softAsset.Get();
+			return;
+		}
+
+		FStreamableManager& streamable = UAssetManager::GetStreamableManager();
+		streamable.RequestAsyncLoad(softAsset.ToSoftObjectPath(), [OutObject, softAsset, OnLoadedCallback]() mutable
+			{
+				if (softAsset.IsValid())
+				{
+					*OutObject = softAsset.Get();
+					if (OnLoadedCallback)
+						OnLoadedCallback();
+				}
+			});
 	}
 
 	template<typename TValueType>
@@ -167,10 +204,10 @@ public:
 			if (!!actor && actor->IsA<TFindType>())
 				return Cast<TFindType>(actor);
 		}
-//
-//#ifdef DEBUG
-//		ensure 
-//#endif
+		//
+		//#ifdef DEBUG
+		//		ensure 
+		//#endif
 
 		return nullptr;
 	}

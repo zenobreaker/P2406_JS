@@ -5,7 +5,7 @@
 #include "CGameInstance.generated.h"
 
 
-UCLASS()
+UCLASS(BlueprintType)
 class P2406_JS_API UCGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
@@ -25,4 +25,10 @@ public:
 
 	UPROPERTY()
 	class UCPatternConditionManager* PatternCondition;
+
+	UPROPERTY(EditAnywhere, Category = "SpawnManager")
+	TSubclassOf<class UCSpawnManager> SpawnManagerClass;
+
+private:
+	class UCSpawnManager* SpawnManager; 
 };

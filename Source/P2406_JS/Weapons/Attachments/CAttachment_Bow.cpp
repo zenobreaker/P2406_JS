@@ -35,10 +35,11 @@ void ACAttachment_Bow::BeginPlay()
 
 	AttachTo("Holster_Bow");
 
-	SkeletalMesh->SetVisibility(false);
-
 	PoseableMesh->SetSkinnedAssetAndUpdate(SkeletalMesh->GetSkeletalMeshAsset());
 	PoseableMesh->CopyPoseFromSkeletalComponent(SkeletalMesh);
+	
+	SkeletalMesh->SetVisibility(false);
+	PoseableMesh->SetVisibility(false);
 }
 
 void ACAttachment_Bow::Tick(float DeltaTime)
@@ -62,6 +63,9 @@ void ACAttachment_Bow::OnBeginEquip_Implementation()
 
 	controller->PlayerCameraManager->ViewPitchMin = ViewPitchRange.X;
 	controller->PlayerCameraManager->ViewPitchMax = ViewPitchRange.Y;
+	
+	SkeletalMesh->SetVisibility(true);
+	PoseableMesh->SetVisibility(true);
 }
 
 void ACAttachment_Bow::OnUnequip_Implementation()
