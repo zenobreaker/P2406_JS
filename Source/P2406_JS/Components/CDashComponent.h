@@ -34,6 +34,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Trail")
 	int32 TrailCount = 50;
 
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bDrawDebug = false; 
 
 public:
 	

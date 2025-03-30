@@ -138,6 +138,9 @@ public:
 	void VisibleBossGauge();
 
 	UFUNCTION()
+	void SetUpBossUI(class ACBoss_AI* Boss);
+
+	UFUNCTION()
 	void HideBossGauge();
 	
 	UFUNCTION()

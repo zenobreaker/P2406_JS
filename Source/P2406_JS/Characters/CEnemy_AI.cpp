@@ -75,6 +75,7 @@ void ACEnemy_AI::BeginPlay()
 		REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, EnemyWidget, UCUserWidget_Enemy::UpdateGuardGauge);
 	}
 
+	GetController()->Possess(this);
 	SetRegisterToBattleManager();
 }
 

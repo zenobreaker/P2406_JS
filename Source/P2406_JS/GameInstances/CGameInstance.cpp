@@ -4,7 +4,7 @@
 #include "GameInstances/CSkillManager.h"
 #include "GameInstances/CBattleManager.h"
 #include "GameInstances/CPatternConditionManager.h"
-#include "GameInstances/CSpawnManager.h"
+#include "GameInstances/CGameManager.h"
 
 UCGameInstance::UCGameInstance()
 {
@@ -25,21 +25,32 @@ void UCGameInstance::Init()
 				PatternCondition->InitConditionData();
 		});
 
-	
-	if (SpawnManagerClass == nullptr)
+
+	if (!!SkillManagerClass )
 	{
-		FHelpers::GetAssetAsync<UCSpawnManager>(&SpawnManager, "/Script/Engine.Blueprint'/Game/Managers/BP_CSpawnManager.BP_CSpawnManager'",
+		SkillManager = NewObject<UCSkillManager>(this, SkillManagerClass);
+	}
+
+	if (!!BattleManagerClass)
+	{
+		BattleManager = NewObject<UCBattleManager>(this, BattleManagerClass);
+	}
+
+	
+	if (GameManagerClass == nullptr)
+	{
+		FHelpers::GetAssetAsync<UCGameManager>(&GameManager, "/Script/Engine.Blueprint'/Game/Managers/BP_CGameManager.BP_CGameManager'",
 			[this]()
 			{
-				if (!!SpawnManager)
-					SpawnManager->BeginPlay();
+				if (!!GameManager)
+					GameManager->BeginPlay();
 			});
 	}
 	else
 	{
-		SpawnManager = NewObject<UCSpawnManager>(this, SpawnManagerClass);
-		if(SpawnManager != nullptr)
-			SpawnManager->BeginPlay();
+		GameManager = NewObject<UCGameManager>(this, GameManagerClass);
+		if(GameManager!= nullptr)
+			GameManager->BeginPlay();
 	}
 }
 

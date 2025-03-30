@@ -7,7 +7,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateCooldown, int32, InSkillID, float, InDeltaTime);
 
-UCLASS()
+UCLASS(Blueprintable)
 class P2406_JS_API UCSkillManager : public UObject
 {
 	GENERATED_BODY()

@@ -115,6 +115,10 @@ void ACEnemy::Damaged()
 	//	DamageData.Power = 0.0f;
 	//}
 
+	if (HealthPoint->IsDead())
+		return;
+
+
 	//Change Color
 	{
 		Change_Color(FLinearColor::Red);
@@ -310,14 +314,15 @@ void ACEnemy::Dead()
 {
 	Super::Dead();
 
-	FLog::Log(" No Collsioion");
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	PlayAnimMontage(DeadMontage);
 }
 
 void ACEnemy::End_Dead()
 {
+	FLog::Log(" No Collsioion");
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	Destroy();
 }
 

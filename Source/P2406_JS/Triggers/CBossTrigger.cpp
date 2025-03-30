@@ -5,6 +5,8 @@
 #include "Characters/CPlayer.h"
 #include "Characters/CBoss_AI.h"
 #include "Components/CHealthPointComponent.h"
+#include "GameInstances/CGameInstance.h"
+#include "GameInstances/CGameManager.h"
 
 ACBossTrigger::ACBossTrigger()
 {
@@ -68,6 +70,12 @@ void ACBossTrigger::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AAc
 	}
 
 	player->VisibleBossGauge();
+
+	UCGameInstance* instance = Cast<UCGameInstance>(GetGameInstance());
+	CheckNull(instance); 
+	CheckNull(instance->GameManager);
+
+	instance->GameManager->OnStartBossStage();
 }
 
 void ACBossTrigger::OnTriggerExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

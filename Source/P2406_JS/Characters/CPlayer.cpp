@@ -7,6 +7,7 @@
 
 #include "Characters/CBaseCharacter.h"
 #include "Characters/CGhostTrail.h"
+#include "Characters/CBoss_AI.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -27,6 +28,8 @@
 
 #include "Widgets/CUserWidget_Player.h"
 #include "Widgets/CUserWidget_SkillHUD.h"
+#include "GameInstances/CGameInstance.h"
+#include "GameInstances/CGameManager.h"
 
 ACPlayer::ACPlayer()
 {
@@ -218,6 +221,11 @@ void ACPlayer::BeginPlay()
 			gameMode->SubscribeToSkillEvents(SkillHUD);
 	}
 
+	UCGameInstance* instance = Cast<UCGameInstance>(GetGameInstance());
+	CheckNull(instance); 
+	CheckNull(instance->GameManager);
+
+	REGISTER_EVENT_WITH_REPLACE(instance->GameManager, OnBossSpawned_GM, this, ACPlayer::SetUpBossUI);
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -577,6 +585,20 @@ void ACPlayer::VisibleBossGauge()
 	CheckNull(UserInterface); 
 
 	UserInterface->UpdateBossGaugeVisibility(true);
+}
+
+void ACPlayer::SetUpBossUI(ACBoss_AI* Boss)
+{
+	CheckNull(Boss);
+
+	UCHealthPointComponent* health = FHelpers::GetComponent<UCHealthPointComponent>(Boss);
+	if (health == nullptr)
+		return ;
+
+	REGISTER_EVENT_WITH_REPLACE(health, OnHealthPointChanged, this, ACPlayer::UpdateBossGauge);
+	REGISTER_EVENT_WITH_REPLACE(Boss, OnCharacterDead, this, ACPlayer::HideBossGauge);
+	UpdateBossGauge(health->GetHealth(), health->GetMaxHealth());
+	VisibleBossGauge();
 }
 
 void ACPlayer::HideBossGauge()

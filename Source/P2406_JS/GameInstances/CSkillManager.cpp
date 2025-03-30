@@ -3,6 +3,10 @@
 
 void UCSkillManager::UpdateAllCooldown(float InDeltaTime)
 {
+	CheckFalse(CooldownTable.Num() > 0);
+	if (CooldownTable.IsEmpty())
+		return; 
+
 	for (auto& skill : CooldownTable)
 	{
 		UpdateCooldown(skill.Key, InDeltaTime);

@@ -127,6 +127,8 @@ bool UCAIBehaviorComponent::GetStrafe()
 
 void UCAIBehaviorComponent::SetLastPhase(int32 InPhase)
 {
+	CheckNull(Blackboard);
+
 	Blackboard->SetValueAsInt(LastPhaseKey, InPhase);
 }
 

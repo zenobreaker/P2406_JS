@@ -4,7 +4,7 @@
 #include "UObject/NoExportTypes.h"
 #include "CBattleManager.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class P2406_JS_API UCBattleManager : public UObject
 {
 	GENERATED_BODY()

@@ -282,7 +282,7 @@ FVector UCDashComponent::GetGroundNormal()
 
 	GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECC_Visibility, params);
 
-	if (hitResult.IsValidBlockingHit())
+	if (hitResult.IsValidBlockingHit() && bDrawDebug == false)
 	{
 		return hitResult.Normal;
 	}

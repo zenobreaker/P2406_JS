@@ -17,18 +17,20 @@ public:
 	virtual void Init() override;
 
 public:
-	UPROPERTY()
-	class UCSkillManager* SkillManager;
+	UPROPERTY(EditAnywhere, Category = "SkillManager")
+	TSubclassOf<class UCSkillManager> SkillManagerClass;
 
-	UPROPERTY()
-	class UCBattleManager* BattleManager;
+	UPROPERTY(EditAnywhere, Category = "BattleManager")
+	TSubclassOf<class UCBattleManager> BattleManagerClass;
 
 	UPROPERTY()
 	class UCPatternConditionManager* PatternCondition;
 
-	UPROPERTY(EditAnywhere, Category = "SpawnManager")
-	TSubclassOf<class UCSpawnManager> SpawnManagerClass;
+	UPROPERTY(EditAnywhere, Category = "GameManager")
+	TSubclassOf<class UCGameManager> GameManagerClass;
 
-private:
-	class UCSpawnManager* SpawnManager; 
+public:
+	class UCSkillManager* SkillManager;
+	class UCBattleManager* BattleManager;
+	class UCGameManager* GameManager;
 };
