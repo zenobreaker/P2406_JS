@@ -120,6 +120,10 @@ void UCDamageHandler::HandleLaunch(FHitData& InHitData, ACharacter* InAttacker, 
 	FLog::Log("Current Launch: " + FString::SanitizeFloat(InHitData.Launch));
 	FLog::Log("Damage Handler Launch : " + launchVelocity.ToString());
 
+	FRotator targetRotator = UKismetMathLibrary::FindLookAtRotation(start, target);
+	targetRotator.Pitch = 0;
+	OwnerCharacter->SetActorRotation(targetRotator);
+
 	OwnerCharacter->LaunchCharacter(launchVelocity, false, true);
 }
 
