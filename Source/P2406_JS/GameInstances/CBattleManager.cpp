@@ -28,6 +28,12 @@ void UCBattleManager::RegistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 
 void UCBattleManager::UnregistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 {
+	if (!this || !IsValid(this))
+		return; 
+
+	if (&Mutex == nullptr)
+		return;
+
 	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (GroupAITable.Contains(InGroupID))
 	{

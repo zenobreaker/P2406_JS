@@ -1,6 +1,9 @@
 #include "GameInstances/CStageManager.h"
 #include "Global.h"
+#include "GameFramework/PlayerStart.h"
+#include "GameFramework/Character.h"
 #include "GameInstances/CSpawnManager.h"
+#include "Characters/CPlayer.h"
 
 UCStageManager::UCStageManager()
 {
@@ -95,6 +98,37 @@ void UCStageManager::OnWaveCompleted()
 void UCStageManager::OnBossCompleted()
 {
 	FLog::Log("Boss Clear");
+
+	// 캐릭터를 다시 원위치로 돌려준다. 
+	APlayerStart* PlayerStart = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass()));
+	if (PlayerStart)
+	{
+		FVector StartLocation = PlayerStart->GetActorLocation();
+		FRotator StartRotation = PlayerStart->GetActorRotation();
+
+		
+		ACPlayer * player = Cast<ACPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		CheckNull(player); 
+
+		player->SetActorLocation(StartLocation);
+		player->SetActorRotation(StartRotation);
+
+		return;
+	}
+
+	//TArray<AActor*> PlayerStarts;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+
+	//for (AActor* Actor : PlayerStarts)
+	//{
+	//	APlayerStart* PlayerStart = Cast<APlayerStart>(Actor);
+	//	if (PlayerStart && PlayerStart->ActorHasTag("BossReturnPoint"))
+	//	{
+	//		FVector StartLocation = PlayerStart->GetActorLocation();
+	//		FRotator StartRotation = PlayerStart->GetActorRotation();
+	//		break;
+	//	}
+	//}
 
 }
 

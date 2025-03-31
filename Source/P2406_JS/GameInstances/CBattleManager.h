@@ -2,7 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "HAL/CriticalSection.h" // 추가!
 #include "CBattleManager.generated.h"
+
 
 UCLASS(Blueprintable)
 class P2406_JS_API UCBattleManager : public UObject
@@ -58,6 +60,7 @@ private:
 	FCriticalSection Mutex; // 멀티스레드 보호
 	// 특정한 그룹 모음
 	TMap<int32, TArray<class ACEnemy_AI*>> GroupAITable;
+
 
 public:
 	TMap<AActor*, int32> TargetToTokenCount; // 각 타겟에 대해 현재 할당된 토큰 수
