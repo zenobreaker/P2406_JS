@@ -4,6 +4,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/CStateComponent.h"
+#include "Components/CStatComponent.h"
 #include "Components/CMovementComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Characters/IDamagable.h"
@@ -23,7 +24,16 @@ void FDoActionData::DoAction(ACharacter* InOwner, /*bool IsImmedate,*/ FName InS
 
 	
 	if (!!Montage)
-		InOwner->PlayAnimMontage(Montage, PlayRate, InSectionName);
+	{
+		float attackSpeedMulitplier = 1.0f;
+		UCStatComponent* stat = FHelpers::GetComponent<UCStatComponent>(InOwner);
+		if (!!stat)
+		{
+			attackSpeedMulitplier += stat->GetStatValue(ECharStatType::AttackSpeed) - 1.0f;
+		}
+
+		InOwner->PlayAnimMontage(Montage, PlayRate * attackSpeedMulitplier, InSectionName);
+	}
 
 
 	//if (!!GhostTrailClass)
@@ -71,6 +81,23 @@ void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, AActor
 	FActionDamageEvent e;
 	e.bFirstHit = bFirstHit;
 	e.HitData = this;
+
+	float initialPower = e.HitData->Power;
+	UCStatComponent* attackStat = FHelpers::GetComponent<UCStatComponent>(InAttacker);
+	if (!!attackStat)
+	{
+		 initialPower += attackStat->GetStatValue(ECharStatType::Attack);
+	
+		 bool bIsCritical = FMath::FRand() < attackStat->GetStatValue(ECharStatType::CriticalRate);
+		 if (bIsCritical)
+		 {
+			 float CritMultiplier = FMath::CeilToFloat(attackStat->GetStatValue(ECharStatType::CriticalDamage));
+			 initialPower *= CritMultiplier;
+			//FLog::Log("Final Power: " + FString::SanitizeFloat(initialPower));
+		 }
+	
+		 e.HitData->Power = initialPower;
+	}
 
 	IIDamagable* damagable = Cast<IIDamagable>(InOther);
 	if(damagable != nullptr)

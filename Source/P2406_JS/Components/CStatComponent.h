@@ -33,7 +33,7 @@ private:
 	float BuffedCriticalRate = .0f;
 
 	UPROPERTY(EditAnywhere, Category = "Stat")
-	float BaseCriticalDamage = 15.0f;
+	float BaseCriticalDamage = 1.5f;
 	UPROPERTY(EditAnywhere, Category = "Stat")
 	float BuffedCriticalDamage = 0.f;
 

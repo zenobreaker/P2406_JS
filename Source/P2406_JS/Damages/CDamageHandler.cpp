@@ -41,12 +41,6 @@ float UCDamageHandler::CalcFinalDamage(const FHitData& InHitData, AActor* InAtta
 {
 	float power = InHitData.Power; 
 
-	UCStatComponent* attackStat = FHelpers::GetComponent<UCStatComponent>(InAttacker); 
-	if (!!attackStat)
-	{
-		power += attackStat->GetStatValue(ECharStatType::Attack);
-	}
-
 	UCStatComponent* receiveStat = FHelpers::GetComponent<UCStatComponent>(InReceiver); 
 	if (!!receiveStat)
 	{

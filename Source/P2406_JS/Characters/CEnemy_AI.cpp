@@ -224,13 +224,13 @@ void ACEnemy_AI::Dead()
 	//State->SetDeadMode();
 	Behavior->SetDeadMode();
 
-	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	CheckNull(instance);
+	//UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	//CheckNull(instance);
 
-	UCBattleManager* battleManager = instance->BattleManager;
-	CheckNull(battleManager);
+	//UCBattleManager* battleManager = instance->BattleManager;
+	//CheckNull(battleManager);
 
-	battleManager->UnregistGroup(GroupID, this);
+	//battleManager->UnregistGroup(GroupID, this);
 }
 
 void ACEnemy_AI::End_Damaged()
