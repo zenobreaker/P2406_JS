@@ -11,24 +11,24 @@ void UCBuffManager::BeginPlay()
 {
 	BuffDatabase.Empty(); 
 
-	BuffDatabase.Add(FStatBuff(ECharStatType::Attack, 10.0f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Attack, 25.0f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Attack, 50.0f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::AttackSpeed, 0.1f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::AttackSpeed, 0.15f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::AttackSpeed, 0.2f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Defense, 5.0f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Defense, 10.0f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Defense, 20.0f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::CriticalRate, 0.15f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::CriticalRate, 0.20f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::CriticalRate, 0.30f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::CriticalDamage, 0.1f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::CriticalDamage, 0.15f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::CriticalDamage, 0.20f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Speed, 0.1f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Speed, 0.2f));
-	BuffDatabase.Add(FStatBuff(ECharStatType::Speed, 0.3f));
+	BuffDatabase.Add(FStatBuff("Buff_AttackUp_1",ECharStatType::Attack, 10.0f));
+	BuffDatabase.Add(FStatBuff("Buff_AttackUp_2",ECharStatType::Attack, 25.0f));
+	BuffDatabase.Add(FStatBuff("Buff_AttackUp_3",ECharStatType::Attack, 50.0f));
+	BuffDatabase.Add(FStatBuff("Buff_AttackSpeedUp_1",ECharStatType::AttackSpeed, 0.1f));
+	BuffDatabase.Add(FStatBuff("Buff_AttackSpeedUp_2",ECharStatType::AttackSpeed, 0.15f));
+	BuffDatabase.Add(FStatBuff("Buff_AttackSpeedUp_3",ECharStatType::AttackSpeed, 0.2f));
+	BuffDatabase.Add(FStatBuff("Buff_DefenseUp_1",ECharStatType::Defense, 5.0f));
+	BuffDatabase.Add(FStatBuff("Buff_DefenseUp_2",ECharStatType::Defense, 10.0f));
+	BuffDatabase.Add(FStatBuff("Buff_DefenseUp_3",ECharStatType::Defense, 20.0f));
+	BuffDatabase.Add(FStatBuff("Buff_CritRateUp_1",ECharStatType::CriticalRate, 0.15f));
+	BuffDatabase.Add(FStatBuff("Buff_CritRateUp_2",ECharStatType::CriticalRate, 0.20f));
+	BuffDatabase.Add(FStatBuff("Buff_CritRateUp_3",ECharStatType::CriticalRate, 0.30f));
+	BuffDatabase.Add(FStatBuff("Buff_CritDmg_1",ECharStatType::CriticalDamage, 0.1f));
+	BuffDatabase.Add(FStatBuff("Buff_CritDmg_2",ECharStatType::CriticalDamage, 0.15f));
+	BuffDatabase.Add(FStatBuff("Buff_CritDmg_3",ECharStatType::CriticalDamage, 0.20f));
+	BuffDatabase.Add(FStatBuff("Buff_SpeedUp_1",ECharStatType::Speed, 0.1f));
+	BuffDatabase.Add(FStatBuff("Buff_SpeedUp_2",ECharStatType::Speed, 0.2f));
+	BuffDatabase.Add(FStatBuff("Buff_SpeedUp_3",ECharStatType::Speed, 0.3f));
 }
 
 void UCBuffManager::CreatRandomBuffList(int32 InCount, TArray<FStatBuff>& InBuffs)

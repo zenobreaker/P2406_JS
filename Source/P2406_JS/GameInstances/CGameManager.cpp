@@ -159,7 +159,8 @@ void UCGameManager::OnShowBuffList()
 void UCGameManager::SendSelctedBuffFlow()
 {	
 	CheckNull(BuffManager);
-	UCGameInstance* instance = Cast <UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(GetWorld());
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	CheckNull(instance);
 	CheckNull(instance->BuffUIManager); 
 

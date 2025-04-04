@@ -45,9 +45,10 @@ void UCUserWidget_BuffSelctionSlot::Unhovered()
 {
 }
 
-void UCUserWidget_BuffSelctionSlot::SetBuff_Implementation(const FStatBuff& InBuff)
+void UCUserWidget_BuffSelctionSlot::SetBuff_Implementation(const FStatBuff& InBuff
+	, const FStatBuffUIData& InUIData)
 {
-	
+	 
 }
 
 void UCUserWidget_BuffSelctionSlot::Selected_Implementation()

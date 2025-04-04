@@ -28,7 +28,7 @@ void UCGameInstance::Init()
 		});
 
 
-	if (!!SkillManagerClass )
+	if (!!SkillManagerClass)
 	{
 		SkillManager = NewObject<UCSkillManager>(this, SkillManagerClass);
 	}
@@ -38,7 +38,20 @@ void UCGameInstance::Init()
 		BattleManager = NewObject<UCBattleManager>(this, BattleManagerClass);
 	}
 
-	
+
+	if (!!BuffUIManagerClass)
+	{
+		BuffUIManager = NewObject<UCBuffUIManager>(this, BuffUIManagerClass);
+		if (!!BuffUIManager)
+		{
+			UCBuffUIManager* buffUIManager = BuffUIManagerClass->GetDefaultObject<UCBuffUIManager>();
+			CheckNull(buffUIManager);
+
+			BuffUIManager->SetBuffHUDClass(buffUIManager->GetBuffHUDClass().Get());
+			BuffUIManager->BeginPlay(GetWorld());
+		}
+	}
+
 	if (GameManagerClass == nullptr)
 	{
 		FHelpers::GetAssetAsync<UCGameManager>(&GameManager, "/Script/Engine.Blueprint'/Game/Managers/BP_CGameManager.BP_CGameManager'",
@@ -51,25 +64,14 @@ void UCGameInstance::Init()
 	else
 	{
 		GameManager = NewObject<UCGameManager>(this, GameManagerClass);
-		if(GameManager!= nullptr)
+		if (GameManager != nullptr)
 			GameManager->BeginPlay();
 	}
 
-	if (!!BuffUIManagerClass)
+	if (BuffUIManager != nullptr && GameManager != nullptr)
 	{
-		BuffUIManager = NewObject<UCBuffUIManager>(this, BuffUIManagerClass);
-		if (!!BuffUIManager)
-		{
-			UCBuffUIManager* buffUIManager = BuffUIManagerClass->GetDefaultObject<UCBuffUIManager>();
-			CheckNull(buffUIManager);
-
-			BuffUIManager->SetBuffHUDClass(buffUIManager->GetBuffHUDClass().Get());
-			BuffUIManager->BeginPlay(GetWorld());
-			REGISTER_EVENT_WITH_REPLACE(BuffUIManager, OnShowedUIBuffList, GameManager, UCGameManager::OnShowBuffList);
-			REGISTER_EVENT_WITH_REPLACE(BuffUIManager, OnHidedUIBuffList, GameManager, UCGameManager::OnHideBuffList);
-
-		}
+		REGISTER_EVENT_WITH_REPLACE(BuffUIManager, OnShowedUIBuffList, GameManager, UCGameManager::OnShowBuffList);
+		REGISTER_EVENT_WITH_REPLACE(BuffUIManager, OnHidedUIBuffList, GameManager, UCGameManager::OnHideBuffList);
 	}
-
 }
 

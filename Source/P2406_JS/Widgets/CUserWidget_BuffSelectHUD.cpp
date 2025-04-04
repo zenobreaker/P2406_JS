@@ -21,16 +21,22 @@ void UCUserWidget_BuffSelectHUD::AddChild(UWidget* InSlot)
 	slot->SetColumn(ColumnCount++);
 }
 
-void UCUserWidget_BuffSelectHUD::SetupBuffs(const TArray<struct FStatBuff>& InBuffs)
+void UCUserWidget_BuffSelectHUD::SetupBuffs(const TArray<FStatBuff>& InBuffs,
+	const TArray<FStatBuffUIData>& InUiDatas)
 {
 	CheckNull(BuffSlotClass);
+	CheckFalse(InBuffs.Num() > 0);
 
-	for (const FStatBuff& buff : InBuffs)
+	for (int32 i = 0; i < InBuffs.Num(); i++)
 	{
 		UCUserWidget_BuffSelctionSlot* buffslot = CreateWidget<UCUserWidget_BuffSelctionSlot>(this, BuffSlotClass);
 		if (buffslot == nullptr)
 			continue;
-		buffslot->SetBuff(buff);
+		if(InUiDatas.IsValidIndex(i) == true)
+			buffslot->SetBuff(InBuffs[i], InUiDatas[i]);
+		else 
+			buffslot->SetBuff(InBuffs[i], FStatBuffUIData());
+
 		AddChild(buffslot);
 	}
 }
@@ -47,7 +53,7 @@ void UCUserWidget_BuffSelectHUD::ShowBuffHUD()
 void UCUserWidget_BuffSelectHUD::HideBuffHUD()
 {
 	if (SelectedBuffSlot == nullptr)
-		return; 
+		return;
 
 	this->SetVisibility(ESlateVisibility::Hidden);
 

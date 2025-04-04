@@ -32,7 +32,7 @@ void FStatBuff::SetBuffName()
 			break;
 	}
 	name = name + " " + mid;
-	BuffName = FName(*name);
+	//BuffName = FName(*name);
 }
 
 void FStatBuff::SetBuffDesc()
@@ -69,5 +69,5 @@ void FStatBuff::SetBuffDesc()
 	else
 		last = TEXT("감소");
 
-	BuffDesc = first + " " + value + last;
+	//BuffDesc = first + " " + value + last;
 }

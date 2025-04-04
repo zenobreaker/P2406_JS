@@ -6,11 +6,18 @@
 void UCBuffUIManager::BeginPlay(UWorld* InWorld)
 {
 	CheckNull(InWorld); 
-	CheckNull(BuffSelectHUDClass);
+	CheckNull(StatBuffUITable); 
+	
+	TArray<FStatBuffUIData*> rows;
+	StatBuffUITable->GetAllRows<FStatBuffUIData>("", rows);
 
+	for (const FStatBuffUIData* data : rows)
+	{
+		UIDatas.Add(data->BuffID ,*data);
+	}
 }
 
-void UCBuffUIManager::ShowBuffSelection(const TArray<struct FStatBuff>& Buffs)
+void UCBuffUIManager::ShowBuffSelection(const TArray<FStatBuff>& Buffs)
 {
 	if (BuffSelectHUD == nullptr && BuffSelectHUDClass != nullptr)
 	{
@@ -27,7 +34,9 @@ void UCBuffUIManager::ShowBuffSelection(const TArray<struct FStatBuff>& Buffs)
 	
 	CheckNull(BuffSelectHUD);
 
-	BuffSelectHUD->SetupBuffs(Buffs); 
+	TArray<FStatBuffUIData> uiDatas;
+	GetBuffUiDatas(Buffs, uiDatas);
+	BuffSelectHUD->SetupBuffs(Buffs, uiDatas);
 	BuffSelectHUD->ShowBuffHUD();
 }
 
@@ -46,6 +55,19 @@ FStatBuff UCBuffUIManager::GetSelectedStatBuff()
 	UCUserWidget_BuffSelctionSlot* slot = BuffSelectHUD->GetSelectedBuffSlot();
 
 	return slot->GetStatBuff();
+}
+
+void UCBuffUIManager::GetBuffUiDatas(const TArray<FStatBuff>& InBuffs,
+	TArray<FStatBuffUIData>& OutUiDatas)
+{
+	CheckFalse(UIDatas.Num() > 0);
+	OutUiDatas.Reset();
+	
+	for (const FStatBuff& buff : InBuffs)
+	{
+		if (UIDatas.Contains(buff.BuffID) == true)
+			OutUiDatas.Add(UIDatas[buff.BuffID]);
+	}
 }
 
 void UCBuffUIManager::OnShowUIBuffList()

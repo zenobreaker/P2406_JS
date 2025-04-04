@@ -31,8 +31,8 @@ protected:
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "UserInterface")
-	void SetBuff(const struct FStatBuff& InBuff);
-	virtual void SetBuff_Implementation(const struct FStatBuff& InBuff);
+	void SetBuff(const struct FStatBuff& InBuff, const struct FStatBuffUIData& InUIData);
+	virtual void SetBuff_Implementation(const struct FStatBuff& InBuff,  const struct FStatBuffUIData& InUIData);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "UserInterface")
 	void Selected(); 

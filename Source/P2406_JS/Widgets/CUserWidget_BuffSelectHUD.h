@@ -31,7 +31,7 @@ protected:
 	void AddChild(class UWidget* InSlot);
 
 public: 
-	void SetupBuffs(const TArray<struct FStatBuff>& InBuffs);
+	void SetupBuffs(const TArray<struct FStatBuff>& InBuffs, const TArray<struct FStatBuffUIData>& InUiDatas);
 	
 
 	UFUNCTION(BlueprintCallable)

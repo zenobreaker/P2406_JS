@@ -18,6 +18,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UCUserWidget_BuffSelectHUD> BuffSelectHUDClass;
 
+	UPROPERTY(EditAnywhere)
+	UDataTable* StatBuffUITable;
+
 public:
 	FORCEINLINE TSubclassOf<class UCUserWidget_BuffSelectHUD> GetBuffHUDClass() { return BuffSelectHUDClass; }
 	FORCEINLINE void SetBuffHUDClass(TSubclassOf<class UCUserWidget_BuffSelectHUD> InClass) { BuffSelectHUDClass = InClass; }
@@ -29,6 +32,9 @@ public:
 	void HideBuffSelection();
 
 	struct FStatBuff GetSelectedStatBuff();
+
+private:
+	void GetBuffUiDatas(const TArray<struct FStatBuff>& InBuffs, TArray<struct FStatBuffUIData>& OutUiDatas);
 
 private:
 	UFUNCTION()
@@ -43,4 +49,7 @@ public:
 
 private:
 	class UCUserWidget_BuffSelectHUD* BuffSelectHUD;
+
+private:
+	TMap<FName,struct FStatBuffUIData> UIDatas;
 };
