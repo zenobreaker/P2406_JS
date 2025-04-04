@@ -1,11 +1,16 @@
 #include "GameInstances/CGameManager.h"
 #include "Global.h"
-#include "GameInstances/CStageManager.h"
+
 #include "Characters/CBoss_AI.h"
+#include "Characters/CPlayer.h"
+#include "GameInstances/CGameInstance.h"
+#include "GameInstances/CStageManager.h"
+#include "GameInstances/CBuffManager.h"
+#include "GameInstances/CBuffUIManager.h"
 
 UCGameManager::UCGameManager()
 {
-	CurrentState = EGameState::Max; 
+	CurrentState = EGameFlowState::Max; 
 }
 
 void UCGameManager::BeginPlay()
@@ -22,16 +27,22 @@ void UCGameManager::BeginPlay()
 		}
 	}
 
+	if (!!BuffManagerClass)
+	{
+		BuffManager = NewObject<UCBuffManager>(this, BuffManagerClass);
+		if (!!BuffManager)
+			BuffManager->BeginPlay();
+	}
 }
 
 void UCGameManager::StartGame()
 {
 	CheckTrue(bIsGameJoin);
 
-	SetGameState(EGameState::Start);
+	SetGameState(EGameFlowState::Start);
 }
 
-void UCGameManager::SetGameState(EGameState InState)
+void UCGameManager::SetGameState(EGameFlowState InState)
 {
 	CurrentState = InState;
 	HandleState();
@@ -44,37 +55,52 @@ void UCGameManager::HandleState()
 
 	switch (CurrentState)
 	{
-	case EGameState::Start:
+	case EGameFlowState::Start:
 		bIsGameJoin = true; 
-		SetGameState(EGameState::CombatPreparation);
+		SetGameState(EGameFlowState::BuffSelect);
 		break;
-	case EGameState::BuffSelect:
+	case EGameFlowState::BuffSelect:
+		HandleBuffSelect();
 		break;
-	case EGameState::CombatPreparation:
+	case EGameFlowState::CombatPreparation:
 		HandleCombatPerparation();
 		break;
-	case EGameState::Combat:
+	case EGameFlowState::Combat:
 		break;
-	case EGameState::BossPreparation:
+	case EGameFlowState::BossPreparation:
 		HandleBossPreparation();
 		break;
-	case EGameState::BossBattle:
+	case EGameFlowState::BossBattle:
 		HandleBossBattle();
 		break;
-	case EGameState::End:
+	case EGameFlowState::End:
 		break;
-	case EGameState::Max:
+	case EGameFlowState::Max:
 		break;
 	default:
 		break;
 	}
 }
 
+void UCGameManager::HandleBuffSelect()
+{
+	CheckNull(BuffManager); 
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance); 
+	CheckNull(instance->BuffUIManager);
+
+	FLog::Log(" Buff Select ");
+
+	BuffManager->CreatRandomBuffList(3, Buffs);
+
+	instance->BuffUIManager->ShowBuffSelection(Buffs);
+}
+
 void UCGameManager::HandleCombatPerparation()
 {
 	CheckNull(StageManager);
 
-	SetGameState(EGameState::Combat);
+	SetGameState(EGameFlowState::Combat);
 	bCommbatComplete = false; 
 	StageManager->StartStageSelectedStage(); 
 }
@@ -94,11 +120,10 @@ void UCGameManager::HandleBossBattle()
 }
 
 
-
 void UCGameManager::OnStageCleared()
 {
 	bCommbatComplete = true; 
-	SetGameState(EGameState::BossPreparation);
+	SetGameState(EGameFlowState::BossPreparation);
 }
 
 void UCGameManager::OnStartBossStage()
@@ -106,16 +131,59 @@ void UCGameManager::OnStartBossStage()
 	if (bCommbatComplete == false)
 		return; 
 
-	SetGameState(EGameState::BossBattle);
+	SetGameState(EGameFlowState::BossBattle);
 }
 
 void UCGameManager::OnBossStageCleared()
 {
-	SetGameState(EGameState::End);
+	SetGameState(EGameFlowState::End);
 }
 
 void UCGameManager::OnBossSpawned(ACBoss_AI* Boss)
 {
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnBossSpawned_GM, Boss);
+}
+
+void UCGameManager::OnShowBuffList()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->SetInputMode(FInputModeGameAndUI());
+	}
+}
+
+
+
+void UCGameManager::SendSelctedBuffFlow()
+{	
+	CheckNull(BuffManager);
+	UCGameInstance* instance = Cast <UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(instance);
+	CheckNull(instance->BuffUIManager); 
+
+	// 1. 버프 UI 매니저로부터 선택한 버프 가져오기 
+	FStatBuff statBuff =  instance->BuffUIManager->GetSelectedStatBuff();
+
+	//2. 버프 매니저한테 버프 적용하라고 전달 
+	ACPlayer* player = Cast<ACPlayer>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	BuffManager->ApplyBuffsToPlayer(player, statBuff);
+}
+
+
+
+void UCGameManager::OnHideBuffList()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		PlayerController->bShowMouseCursor = false;
+		PlayerController->SetInputMode(FInputModeGameOnly());
+	}
+
+	SendSelctedBuffFlow();
+
+	SetGameState(EGameFlowState::CombatPreparation);
 }
 

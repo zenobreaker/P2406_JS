@@ -56,6 +56,9 @@ public:
 	void BeginPlay() override;
 	void OnComponentCreated() override; 
 
+private: 
+	float CalcFinalDamage(const FHitData& InHitData, class AActor* InAttacker, class AActor* InReceiver);
+
 public:
 	void ApplyDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 	void ApplyDamage(struct FDamageData& InDamageData);

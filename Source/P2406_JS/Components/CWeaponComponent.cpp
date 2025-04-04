@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "CStateComponent.h"
 #include "CSkillComponent.h"
+#include "CStatComponent.h"
 #include "GameFramework/Character.h"
 //#include "GameFramework/CharacterMovementComponent.h"
 

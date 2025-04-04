@@ -29,8 +29,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "GameManager")
 	TSubclassOf<class UCGameManager> GameManagerClass;
 
+	UPROPERTY(EditAnywhere, Category = "Buff")
+	TSubclassOf<class UCBuffUIManager> BuffUIManagerClass;
+
 public:
 	class UCSkillManager* SkillManager;
 	class UCBattleManager* BattleManager;
 	class UCGameManager* GameManager;
+	class UCBuffUIManager* BuffUIManager; 
+
 };

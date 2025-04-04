@@ -313,7 +313,6 @@ void ACEnemy::Landed(const FHitResult& Hit)
 void ACEnemy::Dead()
 {
 	Super::Dead();
-
 	
 	PlayAnimMontage(DeadMontage);
 }

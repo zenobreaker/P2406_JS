@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Buffs/CBuffStructures.h"
 #include "CGameManager.generated.h"
 
 UENUM(BlueprintType)
-enum class EGameState
+enum class EGameFlowState
 {
 	Start, 
 	BuffSelect,
@@ -25,8 +26,11 @@ class P2406_JS_API UCGameManager : public UObject
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category ="Manager")
 	TSubclassOf<class UCStageManager> StageManagerClass;
+
+	UPROPERTY(EditAnywhere, Category ="Manager")
+	TSubclassOf<class UCBuffManager> BuffManagerClass; 
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool bDrawDebug = false; 
@@ -37,14 +41,18 @@ public:
 public:
 	void BeginPlay();
 	void StartGame();
-	void SetGameState(EGameState InState); 
+	void SetGameState(EGameFlowState InState);
 
 private: 
 	void HandleState();
 
+	void HandleBuffSelect();
 	void HandleCombatPerparation();
 	void HandleBossPreparation(); 
 	void HandleBossBattle();
+
+private: 
+	void SendSelctedBuffFlow();
 
 public:
 	UFUNCTION()
@@ -59,15 +67,23 @@ public:
 	UFUNCTION()
 	void OnBossSpawned(class ACBoss_AI* Boss);
 
+	UFUNCTION()
+	void OnShowBuffList();
+
+	UFUNCTION()
+	void OnHideBuffList();
+
 public:
 	FOnBossSpawned_GM OnBossSpawned_GM;
 
 private:
 	class UCStageManager* StageManager;
+	class UCBuffManager* BuffManager;
 
 private:
-	EGameState CurrentState = EGameState::Max;
+	EGameFlowState CurrentState = EGameFlowState::Max;
 
 	bool bIsGameJoin = false; 
 	bool bCommbatComplete = false; 
+	TArray<struct FStatBuff> Buffs;
 };

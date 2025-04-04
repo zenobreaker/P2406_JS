@@ -6,6 +6,7 @@
 #include "Components/CAirborneComponent.h"
 #include "Components/CConditionComponent.h"
 #include "Components/CHealthPointComponent.h"
+#include "Components/CStatComponent.h"
 
 UCDamageHandler::UCDamageHandler()
 {
@@ -36,6 +37,25 @@ void UCDamageHandler::OnComponentCreated()
 	RegisterComponent();
 }
 
+float UCDamageHandler::CalcFinalDamage(const FHitData& InHitData, AActor* InAttacker, AActor* InReceiver)
+{
+	float power = InHitData.Power; 
+
+	UCStatComponent* attackStat = FHelpers::GetComponent<UCStatComponent>(InAttacker); 
+	if (!!attackStat)
+	{
+		power += attackStat->GetStatValue(ECharStatType::Attack);
+	}
+
+	UCStatComponent* receiveStat = FHelpers::GetComponent<UCStatComponent>(InReceiver); 
+	if (!!receiveStat)
+	{
+		float defense = receiveStat->GetStatValue(ECharStatType::Defense); 
+		power = FMath::Max(power - defense, 1.0f); 
+	}
+
+	return power;
+}
 
 void UCDamageHandler::ApplyDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -59,8 +79,10 @@ void UCDamageHandler::ApplyDamage(FDamageData& InDamageData)
 	
 	FHitData* hitData = InDamageData.Event->HitData;
 
+	float finalDamage = CalcFinalDamage(*hitData, InDamageData.Attacker, OwnerCharacter);
+
 	// 체력 감소 
-	HealthPoint->Damage(hitData->Power);
+	HealthPoint->Damage(finalDamage);
 
 	// 히트 이펙트 및 사운드 처리 
 	HandleHitEffect(*hitData, InDamageData.Event->bFirstHit);

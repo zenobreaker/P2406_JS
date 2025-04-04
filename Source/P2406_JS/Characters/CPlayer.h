@@ -96,6 +96,12 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCGuardComponent* Guard;
 
+	UPROPERTY(VisibleAnywhere)
+	class UCStatComponent* Stat;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCBuffComponent* Buff;
+
 public:
 	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue; }
 	FORCEINLINE bool GetCanInput() { return bCanInput; }
@@ -195,6 +201,9 @@ private:
 	void OnDecreaseTimeScale();
 
 	void AdjustTimeScale(float InTimeScaleData);
+
+	void OnActivateBuffHUD();
+	void OffBuffHUD();
 
 public:
 	// IIAirborne을(를) 통해 상속됨

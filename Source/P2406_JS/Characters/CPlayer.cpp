@@ -23,11 +23,14 @@
 #include "Components/CAttackTraceComponent.h"
 #include "Components/CGuardComponent.h"
 #include "Components/CZoomComponent.h"
+#include "Components/CStatComponent.h"
+#include "Components/CBuffComponent.h"
 
 #include "Weapons/CWeaponStructures.h"
 
 #include "Widgets/CUserWidget_Player.h"
 #include "Widgets/CUserWidget_SkillHUD.h"
+#include "Widgets/CUserWidget_BuffSelectHUD.h"
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CGameManager.h"
 
@@ -81,6 +84,8 @@ void ACPlayer::CreateActorComponent()
 	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "A_Trace");
 	FHelpers::CreateActorComponent<UCZoomComponent>(this, &Zoom, "Zoom");
 	FHelpers::CreateActorComponent<UCAirborneComponent>(this, &Airborne, "Airborne");
+	FHelpers::CreateActorComponent<UCStatComponent>(this, &Stat, "Stat");
+	FHelpers::CreateActorComponent<UCBuffComponent>(this, &Buff, "Buff");
 
 	if (!!Grapple)
 	{
@@ -221,6 +226,7 @@ void ACPlayer::BeginPlay()
 			gameMode->SubscribeToSkillEvents(SkillHUD);
 	}
 
+
 	UCGameInstance* instance = Cast<UCGameInstance>(GetGameInstance());
 	CheckNull(instance); 
 	CheckNull(instance->GameManager);
@@ -310,6 +316,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Toggle_EnemyUI", IE_Pressed, gameMode,
 		&ACGameMode::ToggleEnemyUI);
+
+	PlayerInputComponent->BindAction("Open_BuffHUD", IE_Pressed, this,
+		&ACPlayer::OnActivateBuffHUD);
 
 }
 
@@ -871,6 +880,16 @@ void ACPlayer::AdjustTimeScale(float InTimeScaleData)
 		FColor::Orange);
 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), newTimeScale);
+}
+
+void ACPlayer::OnActivateBuffHUD()
+{
+
+}
+
+void ACPlayer::OffBuffHUD()
+{
+	
 }
 
 

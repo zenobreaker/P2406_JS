@@ -64,7 +64,7 @@ void ACAttachment_Bow::OnBeginEquip_Implementation()
 	controller->PlayerCameraManager->ViewPitchMin = ViewPitchRange.X;
 	controller->PlayerCameraManager->ViewPitchMax = ViewPitchRange.Y;
 	
-	SkeletalMesh->SetVisibility(true);
+	SkeletalMesh->SetVisibility(false);
 	PoseableMesh->SetVisibility(true);
 }
 

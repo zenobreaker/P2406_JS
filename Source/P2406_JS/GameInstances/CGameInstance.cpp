@@ -5,6 +5,8 @@
 #include "GameInstances/CBattleManager.h"
 #include "GameInstances/CPatternConditionManager.h"
 #include "GameInstances/CGameManager.h"
+#include "GameInstances/CBuffUIManager.h"
+#include "Widgets/CUserWidget_BuffSelectHUD.h"
 
 UCGameInstance::UCGameInstance()
 {
@@ -52,5 +54,22 @@ void UCGameInstance::Init()
 		if(GameManager!= nullptr)
 			GameManager->BeginPlay();
 	}
+
+	if (!!BuffUIManagerClass)
+	{
+		BuffUIManager = NewObject<UCBuffUIManager>(this, BuffUIManagerClass);
+		if (!!BuffUIManager)
+		{
+			UCBuffUIManager* buffUIManager = BuffUIManagerClass->GetDefaultObject<UCBuffUIManager>();
+			CheckNull(buffUIManager);
+
+			BuffUIManager->SetBuffHUDClass(buffUIManager->GetBuffHUDClass().Get());
+			BuffUIManager->BeginPlay(GetWorld());
+			REGISTER_EVENT_WITH_REPLACE(BuffUIManager, OnShowedUIBuffList, GameManager, UCGameManager::OnShowBuffList);
+			REGISTER_EVENT_WITH_REPLACE(BuffUIManager, OnHidedUIBuffList, GameManager, UCGameManager::OnHideBuffList);
+
+		}
+	}
+
 }
 

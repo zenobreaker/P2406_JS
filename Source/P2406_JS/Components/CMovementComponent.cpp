@@ -3,6 +3,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Components/CStatComponent.h"
+
 //#define LOG_UCMovementComponent
 
 UCMovementComponent::UCMovementComponent()
@@ -84,7 +86,14 @@ void UCMovementComponent::OnWalk()
 
 void UCMovementComponent::SetSpeed(ESpeedType InType)
 {
-	OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = Speed[(int32)InType];
+	float additiveSpeed = 1.0f; 
+	UCStatComponent* stat = FHelpers::GetComponent<UCStatComponent>(OwnerCharacter); 
+	if(stat!= nullptr)
+	{
+		additiveSpeed = stat->GetStatValue(ECharStatType::Speed);
+	}
+
+	OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = Speed[(int32)InType] + (Speed[(int32)InType] * additiveSpeed);
 }
 
 void UCMovementComponent::OnMoveForward(float InAxis)
