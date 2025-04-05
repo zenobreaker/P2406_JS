@@ -15,7 +15,6 @@ UCBattleManager::UCBattleManager()
 // 타겟을 비롯하여 그룹을 생성
 void UCBattleManager::RegistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 {
-	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (!GroupAITable.Contains(InGroupID))
 		GroupAITable.Add(InGroupID, TArray<ACEnemy_AI*>());
 
@@ -31,10 +30,6 @@ void UCBattleManager::UnregistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 	if (!this || !IsValid(this))
 		return; 
 
-	if (&Mutex == nullptr)
-		return;
-
-	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	if (GroupAITable.Contains(InGroupID))
 	{
 		TArray<ACEnemy_AI*>& ais = GroupAITable[InGroupID];
@@ -120,7 +115,9 @@ void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 	CheckNull(InTarget);
 	CheckNull(InAttacker);
 
-	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
+	if (IsValid(this) == false)
+		return; 
+
 	if (!TargetToAttackers.Contains(InTarget))
 	{
 		// 타겟에게 죽으면 해제하도록이벤트 추가 
@@ -147,8 +144,6 @@ void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 
 void UCBattleManager::UnregistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 {
-	FScopeLock Lock(&Mutex); // 멀티스레드 동기화
-
 	UnregistAttacker(InTarget, InAttacker);
 }
 
@@ -188,20 +183,20 @@ void UCBattleManager::UnregistAttacker(AActor* InaTarget, ACEnemy_AI* InAttacker
 }
 
 // 타겟 등록 제거 
-void UCBattleManager::UnregistTarget(ACharacter* InTarget)
+void UCBattleManager::UnregistTarget(ACharacter* InInstigator)
 {
-	CheckNull(InTarget);
+	CheckNull(InInstigator);
 
 	// 이 대상이 등록되어 있지 않다면?
-	if (!TargetToAttackers.Contains(InTarget))
+	if (!TargetToAttackers.Contains(InInstigator))
 	{
 		return;
 	}
 
 	//TODO: 이제 이 Target 키값을 가진 Value 들에게 나 죽었으니까 너네 다 꺼져 선언
 
-	TargetToTokenCount.Remove(InTarget);
-	TargetToAttackers.Remove(InTarget);
+	TargetToTokenCount.Remove(InInstigator);
+	TargetToAttackers.Remove(InInstigator);
 }
 
 
@@ -229,7 +224,6 @@ void UCBattleManager::SetTokenTarget(AActor* InTarget)
 
 bool UCBattleManager::IsContainFromAttackers(AActor* InTarget, class ACEnemy_AI* InAttacker) const
 {
-	//FScopeLock Lock(&Mutex); // 멀티스레드 동기화
 	CheckNullResult(InTarget, false);
 	CheckNullResult(InAttacker, false);
 

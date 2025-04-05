@@ -11,6 +11,8 @@
 UCGameManager::UCGameManager()
 {
 	CurrentState = EGameFlowState::Max; 
+
+	BuffManagerClass = UCBuffManager::StaticClass();
 }
 
 void UCGameManager::BeginPlay()
@@ -19,7 +21,7 @@ void UCGameManager::BeginPlay()
 	if (!!StageManagerClass)
 	{
 		StageManager = NewObject<UCStageManager>(this, StageManagerClass);
-		if (!!StageManager)
+		if (IsValid(StageManager))
 		{
 			StageManager->BeginPlay();
 			REGISTER_EVENT_WITH_REPLACE(StageManager, OnStageCleared, this, UCGameManager::OnStageCleared);
@@ -30,7 +32,7 @@ void UCGameManager::BeginPlay()
 	if (!!BuffManagerClass)
 	{
 		BuffManager = NewObject<UCBuffManager>(this, BuffManagerClass);
-		if (!!BuffManager)
+		if (IsValid(BuffManager))
 			BuffManager->BeginPlay();
 	}
 }
@@ -85,6 +87,7 @@ void UCGameManager::HandleState()
 void UCGameManager::HandleBuffSelect()
 {
 	CheckNull(BuffManager); 
+	CheckNull(GetWorld());
 	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	CheckNull(instance); 
 	CheckNull(instance->BuffUIManager);

@@ -9,6 +9,10 @@ class P2406_JS_API UCUserWidget_Enemy : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public: 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category =  "Hp")
+	float HPDecreaseSpeed = 0.0f; 
+
 public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateHealth(float InHealth, float InMaxHealth);
@@ -27,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateGuardGauge(float InValue, float InMaxValue);
+
+private: 
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 };

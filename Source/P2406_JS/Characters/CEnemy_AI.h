@@ -27,10 +27,6 @@ protected:
 	float MaxGuardHealth = 50.0f; 
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Label")
-	float MaxLabelDistance = 1000.0f; 
-
-private:
 	UPROPERTY(VisibleAnywhere)
 	class UCWeaponComponent* Weapon; 
 
@@ -45,9 +41,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UCAIBehaviorComponent* Behavior;
 
-private:
-	UPROPERTY(VisibleAnywhere)
-	class UWidgetComponent* LabelWidget;
 
 public:
 	FORCEINLINE int32 GetAIID() const { return AIID; }
@@ -58,29 +51,12 @@ public:
 
 protected:
 	virtual void BeginPlay() override; 
-
-
 	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-public:
-	virtual void Tick(float DeltaTime) override; 
-
 
 protected:
 	void Launch(const FHitData& InHitData, const bool bIsGuarding = false) override;
 
-protected:
-	UFUNCTION()
-	virtual void OnHealthPointChanged(float InHealth, float InMaxHealth);
-
 	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
-
-public:
-	UFUNCTION()
-	void OnToggleEnemyUI(bool InToggle);
-
-private:
-	void Tick_LabelRenderScale();
 
 protected:
 	void Damaged() override; 

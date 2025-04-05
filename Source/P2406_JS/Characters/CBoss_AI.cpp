@@ -1,6 +1,7 @@
 #include "Characters/CBoss_AI.h"
 #include "Global.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/WidgetComponent.h"
 
 #include "Characters/CEnemy_AI.h"
 #include "Components/CAIBehaviorComponent.h"
@@ -16,7 +17,6 @@ ACBoss_AI::ACBoss_AI()
 void ACBoss_AI::BeginPlay()
 {
 	Super::BeginPlay();
-
 	if (bSuperArmor && !!Condition)
 	{
 		Condition->AddSuperArmorCondition();
@@ -27,6 +27,8 @@ void ACBoss_AI::BeginPlay()
 	
 	if (!!Behavior)
 		REGISTER_EVENT_WITH_REPLACE(Behavior, OnRotated, this, ACBoss_AI::OnRotated);
+	
+	LabelWidget->SetVisibility(false);
 }
 
 void ACBoss_AI::Damaged()

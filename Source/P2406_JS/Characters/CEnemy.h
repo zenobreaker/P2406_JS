@@ -13,7 +13,7 @@
 
 
 UCLASS()
-class P2406_JS_API ACEnemy 
+class P2406_JS_API ACEnemy
 	: public ACBaseCharacter
 	, public IIStatable
 	, public IIDamagable
@@ -27,6 +27,10 @@ class P2406_JS_API ACEnemy
 private:
 	UPROPERTY(EditAnywhere, Category = "Color")
 	FLinearColor OriginColor = FLinearColor::White;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Label")
+	float MaxLabelDistance = 1000.0f; 
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -43,6 +47,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Damage")
 	class UCDamageHandler* DamageHandler;
 
+protected:
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* LabelWidget;
+
+
 public:
 	ACEnemy();
 
@@ -51,10 +60,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override; 
 
 private:
 	void Change_Color(const FLinearColor& InColor);
-
 
 private:
 	UFUNCTION()
@@ -62,10 +71,17 @@ private:
 
 protected:
 	UFUNCTION()
+	virtual void OnHealthPointChanged(float InHealth, float InMaxHealth);
+
+	UFUNCTION()
 	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType);
-	
+
 	UFUNCTION()
 	void OnConditionTypeChanged(EConditionState InPrevCondition, EConditionState InNewCondition);
+
+public:
+	UFUNCTION()
+	void OnToggleEnemyUI(bool InToggle);
 
 protected:
 	virtual void Damaged();
@@ -78,6 +94,8 @@ public:
 private:
 	void Landed(const FHitResult& Hit) override;
 
+	void Tick_LabelRenderScale();
+
 protected:
 	virtual void Dead() override;
 
@@ -85,7 +103,7 @@ public:
 	void End_Dead() override;
 	void End_Downed() override;
 
-public: 
+public:
 	// IIAirborne을(를) 통해 상속됨
 	void OnAirborneConditionActivated() override;
 	void OnAirborneConditionDeactivated() override;
@@ -93,11 +111,11 @@ public:
 
 	void StartDownTimer();
 	virtual void OnDownConditionActivated() override;
-	virtual void OnDownConditionDeactivated() override; 
+	virtual void OnDownConditionDeactivated() override;
 
 private:
 	FTimerHandle ChangeColor_TimerHandle;
-	FTimerHandle ChangeConditionHandle; 
-	
+	FTimerHandle ChangeConditionHandle;
+
 };
 

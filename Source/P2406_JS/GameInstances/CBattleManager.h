@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "HAL/CriticalSection.h" // 추가!
 #include "CBattleManager.generated.h"
 
 
@@ -37,7 +36,7 @@ public:
 	void UnregistAttacker(class AActor* InaTarget, class ACEnemy_AI* InAttacker);
 
 	UFUNCTION()
-	void UnregistTarget(class ACharacter* InTarget);
+	void UnregistTarget(class ACharacter* InInstigator);
 
 
 private:
@@ -57,7 +56,6 @@ public:
 
 private:
 	TMap<class AActor*, TArray<class ACEnemy_AI*>> TargetToAttackers; // 타겟별 공격자 리스트
-	FCriticalSection Mutex; // 멀티스레드 보호
 	// 특정한 그룹 모음
 	TMap<int32, TArray<class ACEnemy_AI*>> GroupAITable;
 

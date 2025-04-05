@@ -3,8 +3,9 @@
 #include "CAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/CAirborneComponent.h"
 #include "Components/CConditionComponent.h"
 #include "Components/CHealthPointComponent.h"
@@ -12,6 +13,7 @@
 #include "Damages/CDamageHandler.h"
 #include "Weapons/CWeaponStructures.h"
 
+#include "Widgets/CUserWidget_Enemy.h"
 
 ACEnemy::ACEnemy()
 {
@@ -41,7 +43,20 @@ ACEnemy::ACEnemy()
 	FHelpers::GetAsset<UAnimMontage>(&AirborneDamagedMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Damage/Airborne_Fall.Airborne_Fall'");
 	FHelpers::GetAsset<UAnimMontage>(&DeadMontage, "/Script/Engine.AnimMontage'/Game/Characters/Montages/Enemy_DeadFall_Montage.Enemy_DeadFall_Montage'");
 	
-	
+
+	//Widget
+	TSubclassOf<UCUserWidget_Enemy> labelClass;
+	FHelpers::GetClass(&labelClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/WB_Enemy.WB_Enemy_C'");
+
+
+	FHelpers::CreateComponent<UWidgetComponent>(this, &LabelWidget, "Label", GetMesh());
+
+	LabelWidget->SetWidgetClass(labelClass);
+	LabelWidget->SetRelativeLocation(FVector(0, 0, 130));
+	LabelWidget->SetDrawAtDesiredSize(true);
+	//LabelWidget->SetDrawSize(FVector2D(100, 60));
+	LabelWidget->SetWidgetSpace(EWidgetSpace::World);
+	LabelWidget->SetTwoSided(true);
 }
 
 
@@ -61,6 +76,37 @@ void ACEnemy::BeginPlay()
 
 	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
 
+	if (!!LabelWidget)
+	{
+		LabelWidget->InitWidget();
+		LabelWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		LabelWidget->CastShadow = false;
+
+		UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
+
+		enemyLabel->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
+		enemyLabel->UpdateName(GetName());
+		enemyLabel->UpdateControllerName(GetController()->GetName());
+	}
+
+}
+
+void ACEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime); 
+
+	CheckNull(LabelWidget);
+	FTransform transform = LabelWidget->GetComponentTransform();
+
+	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	FVector cameraLocation = cameraManager->GetTransformComponent()->GetComponentLocation();
+
+	FRotator rotator = UKismetMathLibrary::FindLookAtRotation(transform.GetLocation(), cameraLocation);
+	rotator.Pitch = 0; // 위아래 회전 제거해서 안정감 있게
+	rotator.Roll = 0;
+	LabelWidget->SetWorldRotation(rotator);
+
+	//Tick_LabelRenderScale();
 }
 
 void ACEnemy::Change_Color(const FLinearColor& InColor)
@@ -93,6 +139,13 @@ void ACEnemy::RestoreColor()
 	Change_Color(OriginColor);
 }
 
+void ACEnemy::OnHealthPointChanged(float InHealth, float InMaxHealth)
+{
+	CheckNull(LabelWidget);
+	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
+	enemyLabel->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
+}
+
 void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 {
 	switch (InNewType)
@@ -105,6 +158,13 @@ void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 void ACEnemy::OnConditionTypeChanged(EConditionState InPrevCondition, EConditionState InNewCondition)
 {
 
+}
+
+void ACEnemy::OnToggleEnemyUI(bool InToggle)
+{
+	CheckNull(LabelWidget);
+
+	LabelWidget->SetVisibility(InToggle);
 }
 
 void ACEnemy::Damaged()
@@ -310,10 +370,58 @@ void ACEnemy::Landed(const FHitResult& Hit)
 		StartDownTimer();
 }
 
+void ACEnemy::Tick_LabelRenderScale()
+{
+	CheckNull(LabelWidget);
+	UCUserWidget_Enemy* label = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
+	CheckNull(label);
+	CheckNull(GetController());
+
+	float MinLabelDistance = 100.f;
+	float MinSizeRate = 0.5f;
+	float MaxSizeRate = 1.0f;
+
+	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	FVector cameraLocation = cameraManager->GetCameraLocation();
+	FVector targetLocation = GetController()->GetTargetLocation();
+
+	float distance = FVector::Distance(cameraLocation, targetLocation);
+	float clampedDistance = FMath::Clamp(distance, MinLabelDistance, MaxLabelDistance);
+	//float sizeRate = 1.0f - (distance / MaxLabelDistance);
+	float alpha = (clampedDistance - MinLabelDistance) / (MaxLabelDistance - MinLabelDistance); // 0~1
+	float sizeRate = FMath::Lerp(MaxSizeRate, MinSizeRate, alpha);  // 거리가 멀어질수록 작게
+
+	if (distance > MaxLabelDistance)
+	{
+		FLog::Print(" is too far ", 273535);
+		label->SetVisibility(ESlateVisibility::Collapsed);
+		return;
+	}
+
+	// 거리 너무 가까우면 최소 비율 유지 
+	if (distance < MinLabelDistance)
+	{
+		sizeRate = MinSizeRate;
+	}
+	else
+	{
+		// 최소 크기 비율보다 작아지는 경우 보정
+		sizeRate = FMath::Max(sizeRate, MinSizeRate);
+	}
+
+	label->SetVisibility(ESlateVisibility::Visible);
+	label->SetRenderScale(FVector2D(sizeRate, sizeRate));
+}
+
 void ACEnemy::Dead()
 {
 	Super::Dead();
 	
+	// 이게 있으면 충돌됨 
+	if (!!LabelWidget)
+		LabelWidget->DestroyComponent();
+
 	PlayAnimMontage(DeadMontage);
 }
 
