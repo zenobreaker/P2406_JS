@@ -103,6 +103,8 @@ void UCWeaponAsset::WA_BeginPlay(ACharacter* InOwner, UCWeaponData** OutWeaponDa
 		for (int32 i = 0; i < ActiveSkillAssets.Num(); i++)
 		{
 			UCActiveSkill* activeSkill = nullptr;
+			if (ActiveSkillAssets[i] == nullptr)
+				continue; 
 			ActiveSkillAssets[i]->SkillAsset_BeginPlay(InOwner, &activeSkill);
 
 			if (!!activeSkill)

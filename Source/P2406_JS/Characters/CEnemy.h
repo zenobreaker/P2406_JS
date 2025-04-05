@@ -48,7 +48,10 @@ protected:
 	class UCDamageHandler* DamageHandler;
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Label")
+	bool bDrawDebug = false;
+
+	UPROPERTY(VisibleAnywhere, Category = "Label")
 	class UWidgetComponent* LabelWidget;
 
 

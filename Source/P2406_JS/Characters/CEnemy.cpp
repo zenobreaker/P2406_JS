@@ -84,6 +84,7 @@ void ACEnemy::BeginPlay()
 
 		UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
 
+		enemyLabel->SetVisibility(ESlateVisibility::Hidden);
 		enemyLabel->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
 		enemyLabel->UpdateName(GetName());
 		enemyLabel->UpdateControllerName(GetController()->GetName());
@@ -143,6 +144,9 @@ void ACEnemy::OnHealthPointChanged(float InHealth, float InMaxHealth)
 {
 	CheckNull(LabelWidget);
 	UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
+	
+	CheckNull(enemyLabel);
+	enemyLabel->SetVisibility(ESlateVisibility::Visible);
 	enemyLabel->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
 }
 
@@ -422,14 +426,17 @@ void ACEnemy::Dead()
 	if (!!LabelWidget)
 		LabelWidget->DestroyComponent();
 
-	PlayAnimMontage(DeadMontage);
+	if (DeadMontage != nullptr)
+		PlayAnimMontage(DeadMontage);
+	else
+		End_Dead(); 
 }
 
 void ACEnemy::End_Dead()
 {
 	FLog::Log(" No Collsioion");
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	DYNAMIC_EVENT_CALL(OnCharacterEndDead);
 	Destroy();
 }
 

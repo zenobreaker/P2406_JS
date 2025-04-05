@@ -49,7 +49,7 @@ public:
 
 private:
 	class UCUserWidget_BuffSelectHUD* BuffSelectHUD;
-
+	UWorld* World;
 private:
 	TMap<FName,struct FStatBuffUIData> UIDatas;
 };

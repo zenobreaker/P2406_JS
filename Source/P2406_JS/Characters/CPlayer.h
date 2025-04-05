@@ -131,6 +131,10 @@ private:
 	UFUNCTION()
 	void OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType);
 
+	UFUNCTION()
+	virtual void OnHealthPointChanged(float InHealth, float InMaxHealth);
+
+
 protected:
 	void Damaged();
 	virtual void Launch(const FHitData& InHitData, const bool bIsGuarding = false);
@@ -139,6 +143,9 @@ protected:
 public:
 	void End_Damaged() override;
 	void End_Downed() override;
+
+	void OnVisibilityUI();
+	void OnHiddenUI();
 	
 public:
 	void VisibleBossGauge();

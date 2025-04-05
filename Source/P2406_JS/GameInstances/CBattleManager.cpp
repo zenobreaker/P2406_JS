@@ -118,7 +118,7 @@ void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 	if (IsValid(this) == false)
 		return; 
 
-	if (!TargetToAttackers.Contains(InTarget))
+	if (TargetToAttackers.Contains(InTarget) == false)
 	{
 		// 타겟에게 죽으면 해제하도록이벤트 추가 
 		ACBaseCharacter* character = Cast<ACBaseCharacter>(InTarget);

@@ -27,7 +27,7 @@ public:
 	UCStageManager();
 
 public:
-	void BeginPlay(); 
+	void BeginPlay(class UWorld* InWorld); 
 
 public: 
 	FStageInfo* GetStageInfo(int32 InStageID);
@@ -54,6 +54,7 @@ public:
 
 private:
 	class UCSpawnManager* SpawnManager;
+	class UWorld* World;
 
 private:
 	int32 CurrentStageID;

@@ -11,8 +11,10 @@ UCStageManager::UCStageManager()
 	CurrentWaveIndex = -1; 
 }
 
-void UCStageManager::BeginPlay()
+void UCStageManager::BeginPlay(UWorld* InWorld)
 {
+	World = InWorld;
+
 	CurrentStageID = 1;
 	if (SpawnManagerClass)
 	{
@@ -98,16 +100,17 @@ void UCStageManager::OnWaveCompleted()
 void UCStageManager::OnBossCompleted()
 {
 	FLog::Log("Boss Clear");
+	CheckNull(World);
 
 	// 캐릭터를 다시 원위치로 돌려준다. 
-	APlayerStart* PlayerStart = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass()));
+	APlayerStart* PlayerStart = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(World, APlayerStart::StaticClass()));
 	if (PlayerStart)
 	{
 		FVector StartLocation = PlayerStart->GetActorLocation();
 		FRotator StartRotation = PlayerStart->GetActorRotation();
 
 		
-		ACPlayer * player = Cast<ACPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		ACPlayer * player = Cast<ACPlayer>(UGameplayStatics::GetPlayerCharacter(World, 0));
 		CheckNull(player); 
 
 		player->SetActorLocation(StartLocation);

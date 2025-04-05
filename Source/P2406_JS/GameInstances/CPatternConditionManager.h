@@ -53,7 +53,7 @@ private:
 	float Value;
 };
 
-UCLASS()
+UCLASS(Blueprintable)
 class P2406_JS_API UCPatternConditionManager : public UObject
 {
 	GENERATED_BODY()

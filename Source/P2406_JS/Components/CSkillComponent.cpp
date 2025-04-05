@@ -59,9 +59,9 @@ void UCSkillComponent::ExecuteSkill(int32 InSlot)
 	CheckNull(SkillManager);
 	CheckTrue((ESkillSlot)InSlot >= ESkillSlot::Max);
 	CheckTrue(SkillSlotTable.IsEmpty());
+	CheckFalse(SkillSlotTable.Contains((ESkillSlot)InSlot));
 	CheckTrue(SkillSlotTable[(ESkillSlot)InSlot] == nullptr);
 	CheckTrue(bIsSkillAction);
-	CheckFalse(SkillSlotTable.Contains((ESkillSlot)InSlot));
 
 	// 해당 스킬의 상태를 체크하여 쿨다운이나 실행 여부 확인
 	UCActiveSkill* skill = SkillSlotTable.FindRef((ESkillSlot)InSlot);

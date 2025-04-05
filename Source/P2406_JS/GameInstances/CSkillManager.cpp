@@ -7,9 +7,11 @@ void UCSkillManager::UpdateAllCooldown(float InDeltaTime)
 	if (CooldownTable.IsEmpty())
 		return; 
 
-	for (auto& skill : CooldownTable)
+	TArray<int32> SkillIDs;
+	CooldownTable.GetKeys(SkillIDs);
+	for (const int32& skillID : SkillIDs)
 	{
-		UpdateCooldown(skill.Key, InDeltaTime);
+		UpdateCooldown(skillID, InDeltaTime);
 	}
 }
 

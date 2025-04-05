@@ -31,10 +31,17 @@ public:
     float TraceRadius = 50.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trace")
+    float AirTraceRadius = 150.0f; 
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trace")
+    float ATRInAirRatio = 1.5f;  // AirTraceRadius = ATR
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trace")
     FName StartSocketName = "TraceStart";
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trace")
     FName EndSocketName = "TraceEnd";
+
 
 public:	
 	UCAttackTraceComponent();

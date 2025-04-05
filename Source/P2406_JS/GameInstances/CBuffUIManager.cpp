@@ -7,7 +7,7 @@ void UCBuffUIManager::BeginPlay(UWorld* InWorld)
 {
 	CheckNull(InWorld); 
 	CheckNull(StatBuffUITable); 
-	
+	World = InWorld; 
 	TArray<FStatBuffUIData*> rows;
 	StatBuffUITable->GetAllRows<FStatBuffUIData>("", rows);
 
@@ -19,9 +19,11 @@ void UCBuffUIManager::BeginPlay(UWorld* InWorld)
 
 void UCBuffUIManager::ShowBuffSelection(const TArray<FStatBuff>& Buffs)
 {
+	CheckNull(World);
+
 	if (BuffSelectHUD == nullptr && BuffSelectHUDClass != nullptr)
 	{
-		BuffSelectHUD = CreateWidget<UCUserWidget_BuffSelectHUD>(GetWorld()->GetFirstPlayerController(), BuffSelectHUDClass);
+		BuffSelectHUD = CreateWidget<UCUserWidget_BuffSelectHUD>(World->GetFirstPlayerController(), BuffSelectHUDClass);
 		if (!!BuffSelectHUD)
 		{
 			REGISTER_EVENT_WITH_REPLACE(BuffSelectHUD, OnShow_UI_BuffList, this, UCBuffUIManager::OnShowUIBuffList);

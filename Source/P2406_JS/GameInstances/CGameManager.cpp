@@ -1,6 +1,10 @@
 #include "GameInstances/CGameManager.h"
 #include "Global.h"
 
+#include "LevelSequencePlayer.h"
+#include "LevelSequenceActor.h"
+#include "CineCameraActor.h"
+
 #include "Characters/CBoss_AI.h"
 #include "Characters/CPlayer.h"
 #include "GameInstances/CGameInstance.h"
@@ -19,22 +23,41 @@ void UCGameManager::BeginPlay(UWorld* InWorld)
 {
 	MyWorld = InWorld;
 	bIsGameJoin = false; 
-	if (!!StageManagerClass)
+	if (StageManagerClass != nullptr)
 	{
 		StageManager = NewObject<UCStageManager>(this, StageManagerClass);
 		if (IsValid(StageManager))
 		{
-			StageManager->BeginPlay();
+			StageManager->BeginPlay(InWorld);
 			REGISTER_EVENT_WITH_REPLACE(StageManager, OnStageCleared, this, UCGameManager::OnStageCleared);
 			REGISTER_EVENT_WITH_REPLACE(StageManager, OnBossSpawned_Stage, this, UCGameManager::OnBossSpawned);
 		}
 	}
 
-	if (!!BuffManagerClass)
+	if (BuffManagerClass != nullptr)
 	{
 		BuffManager = NewObject<UCBuffManager>(this, BuffManagerClass);
 		if (IsValid(BuffManager))
 			BuffManager->BeginPlay();
+	}
+
+	ULevelSequence* levelSequence = nullptr;
+	levelSequence = LoadObject<ULevelSequence>(nullptr, L"/Script/LevelSequence.LevelSequence'/Game/SQ1.SQ1'");
+	if (levelSequence != nullptr)
+	{
+		FMovieSceneSequencePlaybackSettings PlaybackSettings;
+		PlaybackSettings.bAutoPlay = false; // 시작하자마자 재생
+
+		ALevelSequenceActor* outActor;
+		SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
+			InWorld,
+			levelSequence,
+			PlaybackSettings,
+			outActor
+		);
+
+		if(SequencePlayer != nullptr)
+			SequencePlayer->OnFinished.AddDynamic(this, &UCGameManager::OnCinematicFinished);
 	}
 }
 
@@ -59,8 +82,9 @@ void UCGameManager::HandleState()
 	switch (CurrentState)
 	{
 	case EGameFlowState::Start:
-		bIsGameJoin = true; 
-		SetGameState(EGameFlowState::BuffSelect);
+
+		//SetGameState(EGameFlowState::BuffSelect);
+		HandleStartGeme();
 		break;
 	case EGameFlowState::BuffSelect:
 		HandleBuffSelect();
@@ -83,6 +107,33 @@ void UCGameManager::HandleState()
 	default:
 		break;
 	}
+}
+
+void UCGameManager::HandleStartGeme()
+{
+	bIsGameJoin = true;
+
+	if (bIsFirstCinematic == true)
+	{
+		SetGameState(EGameFlowState::BuffSelect);
+
+		return;
+	}
+
+	if (SequencePlayer != nullptr)
+	{
+		ACPlayer* player = Cast<ACPlayer>(MyWorld->GetFirstPlayerController()->GetCharacter());
+		if (player != nullptr)
+			player->OnHiddenUI();
+
+
+		bIsFirstCinematic = true; 
+		SequencePlayer->Play(); 
+
+		return; 
+	}
+
+	SetGameState(EGameFlowState::BuffSelect);
 }
 
 void UCGameManager::HandleBuffSelect()
@@ -150,7 +201,7 @@ void UCGameManager::OnBossSpawned(ACBoss_AI* Boss)
 
 void UCGameManager::OnShowBuffList()
 {
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	APlayerController* PlayerController = MyWorld->GetFirstPlayerController();
 	if (PlayerController)
 	{
 		PlayerController->bShowMouseCursor = true;
@@ -163,8 +214,8 @@ void UCGameManager::OnShowBuffList()
 void UCGameManager::SendSelctedBuffFlow()
 {	
 	CheckNull(BuffManager);
-	CheckNull(GetWorld());
-	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(MyWorld);
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(MyWorld));
 	CheckNull(instance);
 	CheckNull(instance->BuffUIManager); 
 
@@ -172,7 +223,7 @@ void UCGameManager::SendSelctedBuffFlow()
 	FStatBuff statBuff =  instance->BuffUIManager->GetSelectedStatBuff();
 
 	//2. 버프 매니저한테 버프 적용하라고 전달 
-	ACPlayer* player = Cast<ACPlayer>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	ACPlayer* player = Cast<ACPlayer>(MyWorld->GetFirstPlayerController()->GetCharacter());
 	BuffManager->ApplyBuffsToPlayer(player, statBuff);
 }
 
@@ -180,7 +231,7 @@ void UCGameManager::SendSelctedBuffFlow()
 
 void UCGameManager::OnHideBuffList()
 {
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	APlayerController* PlayerController = MyWorld->GetFirstPlayerController();
 	if (PlayerController)
 	{
 		PlayerController->bShowMouseCursor = false;
@@ -190,5 +241,22 @@ void UCGameManager::OnHideBuffList()
 	SendSelctedBuffFlow();
 
 	SetGameState(EGameFlowState::CombatPreparation);
+}
+
+void UCGameManager::OnCinematicFinished()
+{
+	SetGameState(EGameFlowState::BuffSelect);
+
+	// 여기서 입력 가능하게 풀어준다
+	APlayerController* PC = UGameplayStatics::GetPlayerController(MyWorld, 0);
+	if (PC)
+	{
+		PC->SetCinematicMode(false, false, false, true, true);
+	}
+
+	ACPlayer* player = Cast<ACPlayer>(PC->GetCharacter());
+	if (player != nullptr)
+		player->OnVisibilityUI();
+
 }
 

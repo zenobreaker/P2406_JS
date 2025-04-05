@@ -37,7 +37,7 @@ void UCSpawnManager::BeginPlay()
 
 void UCSpawnManager::SpawnActorWithSpawnData(const FStageWaveInfo& WaveInfo)
 {
-	
+
 	int32 count = 0;
 	for (const FMonsterSpawnInfo& MonsterInfo : WaveInfo.Monsters)
 	{
@@ -47,21 +47,21 @@ void UCSpawnManager::SpawnActorWithSpawnData(const FStageWaveInfo& WaveInfo)
 			{
 				SpawnBossTable.Add(WaveInfo.StageID, TArray<FMonsterSpawnInfo>());
 			}
-			
+
 			SpawnBossTable[WaveInfo.StageID].Add(MonsterInfo);
-			continue; 
+			continue;
 		}
 
 		if (MonsterInfo.MonsterClass == nullptr)
-			continue; 
+			continue;
 
 		ACEnemy_AI* SpawnedMonster = GetWorld()->SpawnActor<ACEnemy_AI>(MonsterInfo.MonsterClass, MonsterInfo.SpawnLocation, MonsterInfo.SpawnRotation);
 		if (!!SpawnedMonster)
 		{
-			count++; 
+			count++;
 			EnemeyList.AddUnique(SpawnedMonster);
 			SpawnedMonster->OnCharacterDead.AddDynamic(this, &UCSpawnManager::OnEnemyDefeated);
-			
+
 		}
 	}
 
@@ -74,7 +74,7 @@ void UCSpawnManager::ClearEnemies()
 
 	for (ACEnemy_AI* ai : EnemeyList)
 	{
-		ai->Destroy(); 
+		ai->Destroy();
 	}
 
 	EnemeyList.Empty();
@@ -85,20 +85,21 @@ void UCSpawnManager::SpawnBoss(int32 InStageID)
 	CheckTrue(SpawnBossTable.IsEmpty());
 	CheckFalse(SpawnBossTable.Contains(InStageID));
 	CheckFalse(SpawnBossTable[InStageID].Num() > 0);
-	
-	int32 count = 0; 
+
+	int32 count = 0;
 	for (auto& boss : SpawnBossTable[InStageID])
 	{
 		ACBoss_AI* bossMonster = GetWorld()->SpawnActor<ACBoss_AI>(boss.MonsterClass, boss.SpawnLocation, boss.SpawnRotation);
 		if (!!bossMonster)
 		{
-			count++; 
+			count++;
 			BossList.AddUnique(bossMonster);
 			bossMonster->OnCharacterDead.AddDynamic(this, &UCSpawnManager::OnBossDefeatted);
+			bossMonster->OnCharacterEndDead.AddDynamic(this, &UCSpawnManager::OnBossDeathEventFinished);
 			OnBossSpawned(bossMonster);
 		}
 	}
-
+	RemainingBossDeaathEvent = count;
 	RemainingEnemies = count;
 }
 
@@ -116,15 +117,22 @@ void UCSpawnManager::OnEnemyDefeated()
 
 void UCSpawnManager::OnBossDefeatted()
 {
-	RemainingEnemies--; 
+	RemainingEnemies--;
 
-	if (RemainingEnemies <= 0)
-	{
-		DYNAMIC_EVENT_CALL(OnAllBossDefeated);
-	}
+
 }
 
 void UCSpawnManager::OnBossSpawned(ACBoss_AI* Boss)
 {
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnBossSpawned_Spawn, Boss);
+}
+
+void UCSpawnManager::OnBossDeathEventFinished()
+{
+	RemainingBossDeaathEvent--;
+
+	if (RemainingEnemies <= 0 && RemainingBossDeaathEvent <= 0)
+	{
+		DYNAMIC_EVENT_CALL(OnAllBossDefeated);
+	}
 }

@@ -64,7 +64,11 @@ void UCSkillCollision_Shape::BeginPlay()
 void UCSkillCollision_Shape::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	CheckFalse(bActivate);
-	CheckTrue(ElapsedTime >= SpawnLifeTime);
+	if (SpawnLifeTime >= -1.0f && ElapsedTime >= SpawnLifeTime)
+	{
+		DeactivateCollision();
+		return; 
+	}
 	CheckTrue(Type == EScaleType::Max);
 
 	float alpha = FMath::Clamp(ElapsedTime / Durataion, 0.0f, 1.0f);
@@ -88,22 +92,20 @@ void UCSkillCollision_Shape::ActivateCollision()
 	ElapsedTime = 0.0f;
 
 	bActivate = true;
-
-	if (bDrawDebug)
+	
+	if (CollisionData.CollisionType == ESkillCollisionType::Capsule || CollisionData.CollisionType == ESkillCollisionType::Sphere)
 	{
-		if (CollisionData.CollisionType == ESkillCollisionType::Capsule || CollisionData.CollisionType == ESkillCollisionType::Sphere)
-		{
-			Capsule->bHiddenInGame = false;
-			Capsule->SetVisibility(true);
-			Capsule->RegisterComponent();  // 컴포넌트 등록
-		}
-		else
-		{
-			Box->bHiddenInGame = false;
-			Box->SetVisibility(true);
-			Box->RegisterComponent();  // 컴포넌트 등록
-		}
+		Capsule->bHiddenInGame = false;
+		Capsule->SetVisibility(bDrawDebug);
+		Capsule->RegisterComponent();  // 컴포넌트 등록
 	}
+	else
+	{
+		Box->bHiddenInGame = false;
+		Box->SetVisibility(bDrawDebug);
+		Box->RegisterComponent();  // 컴포넌트 등록
+	}
+	
 
 	if (CollisionData.bRepeat)
 	{

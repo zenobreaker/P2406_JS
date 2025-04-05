@@ -46,6 +46,7 @@ public:
 private: 
 	void HandleState();
 
+	void HandleStartGeme();
 	void HandleBuffSelect();
 	void HandleCombatPerparation();
 	void HandleBossPreparation(); 
@@ -73,6 +74,9 @@ public:
 	UFUNCTION()
 	void OnHideBuffList();
 
+	UFUNCTION()
+	void OnCinematicFinished();
+
 public:
 	FOnBossSpawned_GM OnBossSpawned_GM;
 
@@ -80,10 +84,14 @@ private:
 	class UCStageManager* StageManager;
 	class UCBuffManager* BuffManager;
 	class UWorld* MyWorld;
+	class ULevelSequencePlayer* SequencePlayer;
+
 private:
 	EGameFlowState CurrentState = EGameFlowState::Max;
 
 	bool bIsGameJoin = false; 
 	bool bCommbatComplete = false; 
+	bool bIsFirstCinematic = false;
+	
 	TArray<struct FStatBuff> Buffs;
 };

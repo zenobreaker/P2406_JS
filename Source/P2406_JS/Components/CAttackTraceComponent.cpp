@@ -180,10 +180,8 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 	QueryParams.AddIgnoredActor(OwnerCharacter);
 	QueryParams.AddIgnoredActor(attachment);
 
-	float radius = 200.0f;
-
 	if (!!Player && Player->IsJumping())
-		radius = 250.0f;
+		AirTraceRadius = AirTraceRadius * ATRInAirRatio;
 
 	// 위치 갱신 
 	FVector startLocation = OwnerCharacter->GetActorLocation();
@@ -196,7 +194,7 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 		endLocation,
 		FQuat::Identity,
 		ECC_Pawn,  // 충돌 채널
-		FCollisionShape::MakeSphere(radius),
+		FCollisionShape::MakeSphere(AirTraceRadius),
 		QueryParams
 	);
 
@@ -205,7 +203,7 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 #ifdef  LOG_UCAttackTraceComponent
 	FColor color = bCheck ? FColor::Orange : FColor::Green;
 
-	DrawDebugSphere(GetWorld(), startLocation, radius, 10, color, false, 3);
+	DrawDebugSphere(GetWorld(), startLocation, AirTraceRadius, 10, color, false, 3);
 #endif //  LOG_UCAttackTraceComponent
 
 

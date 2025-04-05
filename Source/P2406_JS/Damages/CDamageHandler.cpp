@@ -10,6 +10,9 @@
 
 UCDamageHandler::UCDamageHandler()
 {
+	FHelpers::GetAsset<UFXSystemAsset>(&CriticalEffect, "/Script/Niagara.NiagaraSystem'/Game/Assets/FX/FxER_StylizedSlash/Niagara/Stylize/NS_sm05_Stylized_Slash_01_R.NS_sm05_Stylized_Slash_01_R'");
+	FHelpers::GetAsset<USoundWave>(&CriticalSound, "/Script/Engine.SoundWave'/Game/Assets/Sounds/Magic_Sci_Fi_Sword/WAV/Magic_Sword_Broken_01.Magic_Sword_Broken_01'");
+
 	DamageMontages.Emplace(EDamageAnimType::Normal);
 	DamageMontages.Emplace(EDamageAnimType::Strong);
 	DamageMontages.Emplace(EDamageAnimType::Down);
@@ -37,9 +40,9 @@ void UCDamageHandler::OnComponentCreated()
 	RegisterComponent();
 }
 
-float UCDamageHandler::CalcFinalDamage(const FHitData& InHitData, AActor* InAttacker, AActor* InReceiver)
+float UCDamageHandler::CalcFinalDamage(const float InDamage, const FHitData& InHitData, AActor* InAttacker, AActor* InReceiver)
 {
-	float power = InHitData.Power; 
+	float power = InDamage; 
 
 	UCStatComponent* receiveStat = FHelpers::GetComponent<UCStatComponent>(InReceiver); 
 	if (!!receiveStat)
@@ -73,13 +76,13 @@ void UCDamageHandler::ApplyDamage(FDamageData& InDamageData)
 	
 	FHitData* hitData = InDamageData.Event->HitData;
 
-	float finalDamage = CalcFinalDamage(*hitData, InDamageData.Attacker, OwnerCharacter);
+	float finalDamage = CalcFinalDamage(InDamageData.Power, *hitData, InDamageData.Attacker, OwnerCharacter);
 
 	// 체력 감소 
 	HealthPoint->Damage(finalDamage);
 
 	// 히트 이펙트 및 사운드 처리 
-	HandleHitEffect(*hitData, InDamageData.Event->bFirstHit);
+	HandleHitEffect(*hitData, InDamageData);
 
 	// 슈퍼아머 상태 확인
 	if (!!Condition && Condition->GetSuperArmorCondition() == true)
@@ -97,14 +100,29 @@ void UCDamageHandler::ApplyDamage(FDamageData& InDamageData)
 }
 
 
-void UCDamageHandler::HandleHitEffect(FHitData& InHitData, bool bFirstHit)
+void UCDamageHandler::HandleHitEffect(FHitData& InHitData, const FDamageData& InDamageData)
 {
 	CheckNull(GetOwner());
 
 	InHitData.PlaySoundWave(GetOwner());
 	InHitData.PlayEffect(GetOwner());
 
-	if (bFirstHit)
+	if (InDamageData.Event->bCriticalHit)
+	{
+		FVector location = GetOwner()->GetActorLocation();
+		FRotator rotator = GetOwner()->GetActorRotation();
+		rotator += EffectRotation;
+		location += rotator.RotateVector(EffectLocation);
+
+		FTransform transform;
+		transform.SetLocation(location);
+		transform.SetScale3D(EffectScale);
+
+		UGameplayStatics::SpawnSoundAtLocation(GetOwner()->GetWorld(), CriticalSound, location);
+		FHelpers::PlayEffect(GetOwner()->GetWorld(), CriticalEffect, transform);
+	}
+
+	if (InDamageData.Event->bFirstHit)
 	{
 		InHitData.PlayHitStop(GetOwner());
 		InHitData.PlayCameraShake(GetOwner());

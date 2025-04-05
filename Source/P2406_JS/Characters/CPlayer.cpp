@@ -186,6 +186,9 @@ void ACPlayer::BeginPlay()
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnBeginJumpDoAction, ATrace, UCAttackTraceComponent::OnJumpAttack);
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponEndedAction, ATrace, UCAttackTraceComponent::SetEndTrace);
 
+	REGISTER_EVENT_WITH_REPLACE(HealthPoint, OnHealthPointChanged, this, ACPlayer::OnHealthPointChanged);
+
+
 
 	// 일반 캐릭터 UI
 	if (!!UiClass)
@@ -197,6 +200,8 @@ void ACPlayer::BeginPlay()
 			//UserInterface->UpdateWeaponType(EWeaponType::Max);
 			UserInterface->UpdateCrossHairVisibility(false);
 			UserInterface->UpdateGuardGaugeVisibility(false);
+			if(HealthPoint != nullptr)
+				UserInterface->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
 
 			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardVisiable, UserInterface, UCUserWidget_Player::UpdateGuardGaugeVisibility);
 			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardGauge, UserInterface, UCUserWidget_Player::UpdateGuardGauge);
@@ -410,6 +415,12 @@ void ACPlayer::OnWeaponTypeChanged(EWeaponType InPrevType, EWeaponType InNewType
 	}*/
 }
 
+void ACPlayer::OnHealthPointChanged(float InHealth, float InMaxHealth)
+{
+	CheckNull(UserInterface);
+	UserInterface->UpdateHealth(InHealth, InMaxHealth);
+}
+
 void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 {
 	Super::Launch(InHitData, bIsGuarding);
@@ -587,6 +598,24 @@ void ACPlayer::End_Downed()
 
 	if (OnCharacterRaised.IsBound())
 		OnCharacterRaised.Broadcast();
+}
+
+void ACPlayer::OnVisibilityUI()
+{
+	if (UserInterface != nullptr)
+		UserInterface->SetVisibility(ESlateVisibility::Visible);
+
+	if(SkillHUD != nullptr)
+		SkillHUD->SetVisibility(ESlateVisibility::Visible);
+}
+
+void ACPlayer::OnHiddenUI()
+{
+	if (UserInterface != nullptr)
+		UserInterface->SetVisibility(ESlateVisibility::Hidden);
+
+	if (SkillHUD != nullptr)
+		SkillHUD->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ACPlayer::VisibleBossGauge()

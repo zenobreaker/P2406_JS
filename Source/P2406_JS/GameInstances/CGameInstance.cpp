@@ -10,36 +10,35 @@
 
 UCGameInstance::UCGameInstance()
 {
-	SkillManager = CreateDefaultSubobject<UCSkillManager>(TEXT("SkillManager"));
-	BattleManager = CreateDefaultSubobject <UCBattleManager>(L"BattleManager");
-	//PatternCondition = CreateDefaultSubobject<UCPatternConditionManager>(L"PatternCondition");
-	//SpawnManager = CreateDefaultSubobject<UCSpawnManager>(L"SpawnManager"); 
+	SkillManagerClass = UCSkillManager::StaticClass();
+	BattleManagerClass = UCBattleManager::StaticClass();
+	PatternConditionClass = UCPatternConditionManager::StaticClass();
 }
 
 void UCGameInstance::Init()
 {
 	Super::Init();
 
-	FHelpers::GetAssetAsync<UCPatternConditionManager>(&PatternCondition, "",
-		[this]()
-		{
-			if (!!PatternCondition)
-				PatternCondition->InitConditionData();
-		});
+	if (PatternConditionClass != nullptr)
+	{
+		PatternCondition = NewObject<UCPatternConditionManager>(this, PatternConditionClass);
+		if (PatternCondition != nullptr)
+			PatternCondition->InitConditionData();
+	}
 
 
-	if (!!SkillManagerClass)
+	if (SkillManagerClass != nullptr)
 	{
 		SkillManager = NewObject<UCSkillManager>(this, SkillManagerClass);
 	}
 
-	if (!!BattleManagerClass)
+	if (BattleManagerClass != nullptr)
 	{
 		BattleManager = NewObject<UCBattleManager>(this, BattleManagerClass);
 	}
 
 
-	if (!!BuffUIManagerClass)
+	if (BuffUIManagerClass != nullptr)
 	{
 		BuffUIManager = NewObject<UCBuffUIManager>(this, BuffUIManagerClass);
 		if (!!BuffUIManager)

@@ -82,7 +82,8 @@ void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, AActor
 	e.bFirstHit = bFirstHit;
 	e.HitData = this;
 
-	float initialPower = e.HitData->Power;
+	float initialPower = Power;
+	e.bCriticalHit = false;
 	UCStatComponent* attackStat = FHelpers::GetComponent<UCStatComponent>(InAttacker);
 	if (!!attackStat)
 	{
@@ -93,15 +94,16 @@ void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, AActor
 		 {
 			 float CritMultiplier = FMath::CeilToFloat(attackStat->GetStatValue(ECharStatType::CriticalDamage));
 			 initialPower *= CritMultiplier;
-			//FLog::Log("Final Power: " + FString::SanitizeFloat(initialPower));
+			 e.bCriticalHit = true; 
 		 }
-	
-		 e.HitData->Power = initialPower;
+		
+		 FLog::Log("Final Power: " + FString::SanitizeFloat(initialPower));
 	}
+
 
 	IIDamagable* damagable = Cast<IIDamagable>(InOther);
 	if(damagable != nullptr)
-		damagable->TakeDamage(Power, e, InAttacker->GetController(), InAttackCauser);
+		damagable->TakeDamage(initialPower, e, InAttacker->GetController(), InAttackCauser);
 }
 
 void FHitData::PlayHitStop(AActor* InActor)

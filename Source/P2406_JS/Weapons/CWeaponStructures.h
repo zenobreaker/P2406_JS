@@ -158,7 +158,7 @@ struct FActionDamageEvent : public FDamageEvent
 
 public:
 	bool bFirstHit;
-
+	bool bCriticalHit;
 	FHitData* HitData;
 };
 

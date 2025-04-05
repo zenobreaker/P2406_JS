@@ -40,6 +40,8 @@ public:
 
 	UFUNCTION()
 	void OnBossSpawned(class ACBoss_AI* Boss);
+	UFUNCTION()
+	void OnBossDeathEventFinished();
 
 public:
 	FOnAllEnemiesDefeated OnAllEnemiesDefeated; 
@@ -53,6 +55,7 @@ private:
 private:
 	int32 spawnCount;
 	int32 RemainingEnemies;
+	int32 RemainingBossDeaathEvent = 0;
 	TArray<class ACEnemy_AI*> EnemeyList;
 	TArray<class ACBoss_AI*> BossList; 
 };

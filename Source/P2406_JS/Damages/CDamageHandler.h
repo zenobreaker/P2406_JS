@@ -50,6 +50,22 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	TMap<EDamageAnimType, struct FDamageAnimData> DamageMontages;
 
+	UPROPERTY(EditAnywhere, Category = "Ciritical")
+	class USoundWave* CriticalSound;
+
+	UPROPERTY(EditAnywhere, Category = "Ciritical")
+	class UFXSystemAsset* CriticalEffect; 
+
+	UPROPERTY(EditAnywhere, Category = "Ciritical")
+	FVector EffectLocation = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Ciritical")
+	FRotator EffectRotation = FRotator::ZeroRotator;
+
+	UPROPERTY(EditAnywhere, Category = "Ciritical")
+	FVector EffectScale = FVector::OneVector;
+
+
 public:
 	UCDamageHandler();
 public:
@@ -57,14 +73,14 @@ public:
 	void OnComponentCreated() override; 
 
 private: 
-	float CalcFinalDamage(const FHitData& InHitData, class AActor* InAttacker, class AActor* InReceiver);
+	float CalcFinalDamage(const float InDamage, const FHitData& InHitData, class AActor* InAttacker, class AActor* InReceiver);
 
 public:
 	void ApplyDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 	void ApplyDamage(struct FDamageData& InDamageData);
 
 public:
-	void HandleHitEffect(struct FHitData& InHitData, bool bFirstHit = false);
+	void HandleHitEffect(struct FHitData& InHitData, const struct FDamageData& InDamageData);
 	void HandleLaunch(struct FHitData& InHitData, class ACharacter* InAttacker, const bool bIsGuarding = false);
 	void PlayDamageMontage(struct FHitData& InHitData); 
 
