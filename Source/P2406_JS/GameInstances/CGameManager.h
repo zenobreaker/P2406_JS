@@ -39,7 +39,7 @@ public:
 	UCGameManager();
 
 public:
-	void BeginPlay();
+	void BeginPlay(UWorld* InWorld);
 	void StartGame();
 	void SetGameState(EGameFlowState InState);
 
@@ -79,7 +79,7 @@ public:
 private:
 	class UCStageManager* StageManager;
 	class UCBuffManager* BuffManager;
-
+	class UWorld* MyWorld;
 private:
 	EGameFlowState CurrentState = EGameFlowState::Max;
 

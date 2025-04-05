@@ -58,14 +58,14 @@ void UCGameInstance::Init()
 			[this]()
 			{
 				if (!!GameManager)
-					GameManager->BeginPlay();
+					GameManager->BeginPlay(GetWorld());
 			});
 	}
 	else
 	{
 		GameManager = NewObject<UCGameManager>(this, GameManagerClass);
 		if (GameManager != nullptr)
-			GameManager->BeginPlay();
+			GameManager->BeginPlay(GetWorld());
 	}
 
 	if (BuffUIManager != nullptr && GameManager != nullptr)

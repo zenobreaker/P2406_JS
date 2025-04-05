@@ -15,8 +15,9 @@ UCGameManager::UCGameManager()
 	BuffManagerClass = UCBuffManager::StaticClass();
 }
 
-void UCGameManager::BeginPlay()
+void UCGameManager::BeginPlay(UWorld* InWorld)
 {
+	MyWorld = InWorld;
 	bIsGameJoin = false; 
 	if (!!StageManagerClass)
 	{
@@ -87,8 +88,8 @@ void UCGameManager::HandleState()
 void UCGameManager::HandleBuffSelect()
 {
 	CheckNull(BuffManager); 
-	CheckNull(GetWorld());
-	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	CheckNull(MyWorld);
+	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(MyWorld));
 	CheckNull(instance); 
 	CheckNull(instance->BuffUIManager);
 
