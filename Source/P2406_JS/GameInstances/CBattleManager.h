@@ -49,19 +49,19 @@ private:
 public:
 	bool IsContainFromAttackers(class AActor* InTarget, class ACEnemy_AI* InAttacker) const;
 
-	TArray<class ACEnemy_AI*> GetAttackers(AActor* InTarget) const;
+	TArray<TWeakObjectPtr<ACEnemy_AI>> GetAttackers(AActor* InTarget) const;
 
 	// 대상을 공격할 것이라고 알림하고 가능한지 여부를 반환
 	bool IsAttackableToTarget(class AActor* InTarget, class ACEnemy_AI* InAttacker);
 
 private:
-	TMap<class AActor*, TArray<class ACEnemy_AI*>> TargetToAttackers; // 타겟별 공격자 리스트
+	TMap<TWeakObjectPtr<AActor>, TArray<TWeakObjectPtr<ACEnemy_AI>>> TargetToAttackers; // 타겟별 공격자 리스트
 	// 특정한 그룹 모음
-	TMap<int32, TArray<class ACEnemy_AI*>> GroupAITable;
+	TMap<int32, TArray<TWeakObjectPtr<ACEnemy_AI>>> GroupAITable;
 
 
 public:
-	TMap<AActor*, int32> TargetToTokenCount; // 각 타겟에 대해 현재 할당된 토큰 수
+	TMap<TWeakObjectPtr<AActor>, int32> TargetToTokenCount; // 각 타겟에 대해 현재 할당된 토큰 수
 	const int32 MaxAttackersPerTarget = 1;	// 타겟에 대해 현재 최대 공격 가능 적 수	
 	static int32 MaxTokenValue;
 };

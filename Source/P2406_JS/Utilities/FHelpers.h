@@ -228,6 +228,25 @@ public:
 		return Cast<T>(InActor->GetComponentByClass(T::StaticClass()));
 	}
 
+	template<typename T, typename U>
+	static T* GetComponent(TWeakObjectPtr<U> InActor)
+	{
+		if (!InActor.IsValid())
+			return nullptr;
+		
+		return Cast<T>(InActor->GetComponentByClass(T::StaticClass()));
+	}
+
+	//template<typename T, typename U>
+	//static TWeakObjectPtr<T> GetComponent(* InActor)
+	//{
+	//	if (!IsValid(InActor))
+	//		return nullptr;
+
+	//	T* Component = Cast<T>(InActor->GetComponentByClass(T::StaticClass()));
+	//	return TWeakObjectPtr<T>(Component);
+	//}
+
 	template<typename T>
 	static T* GetComponent(AActor* InActor, const FString& InName)
 	{

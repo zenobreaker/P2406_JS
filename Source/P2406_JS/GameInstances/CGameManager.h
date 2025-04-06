@@ -35,6 +35,18 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool bDrawDebug = false; 
 
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bIsIntroSkip = false; 
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bIsBuffSkip = false; 
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bIsCombatSkip = false; 
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bIsBossSkip =  false; 
+
 public:
 	UCGameManager();
 

@@ -24,7 +24,7 @@ private:
 
 
 public:
-	void BeginPlay();
+	void BeginPlay(UWorld* InWorld);
 
 public:
 	void SpawnActorWithSpawnData(const struct FStageWaveInfo& WaveInfo);
@@ -51,7 +51,7 @@ public:
 private:
 	//TMap<uint32, TSubclassOf<class ACEnemy_AI>> SpawnEnemyTable;
 	TMap<int32, TArray<FMonsterSpawnInfo>> SpawnBossTable;
-
+	UWorld* World; 
 private:
 	int32 spawnCount;
 	int32 RemainingEnemies;

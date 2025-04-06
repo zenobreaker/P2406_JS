@@ -492,9 +492,11 @@ void ACEnemy::StartDownTimer()
 	if (!!State)
 		State->SetDownMode();
 
+	GetWorld()->GetTimerManager().ClearTimer(ChangeConditionHandle);
 	FTimerDelegate timerDelegate;
 	timerDelegate.BindLambda([this]()
 	{
+		GetWorld()->GetTimerManager().ClearTimer(ChangeConditionHandle);
 		if (!!Condition)
 			Condition->RemoveDownCondition();
 	});
@@ -517,7 +519,7 @@ void ACEnemy::OnDownConditionActivated()
 	}
 
 	StartDownTimer();
-	bCanAct = true;
+	bCanAct = false;
 
 	if (OnCharacterDowned.IsBound())
 		OnCharacterDowned.Broadcast();
@@ -526,12 +528,8 @@ void ACEnemy::OnDownConditionActivated()
 void ACEnemy::OnDownConditionDeactivated()
 {
 	// 다운 상태 풀어볼려했는데 그럴만한 여건이 안되면? 수행안함
-	if (GetCharacterMovement()->IsFalling())
-	{
-		// 착지될 때 시점에 맡긴ㄷㅏ.
-
+	if (Condition != nullptr && Condition->GetAirborneCondition() == true)
 		return;
-	}
 
 	UCapsuleComponent* capsule = GetCapsuleComponent();
 	if (capsule)

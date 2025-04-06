@@ -6,8 +6,9 @@
 #include "Characters/CBoss_AI.h"
 
 
-void UCSpawnManager::BeginPlay()
+void UCSpawnManager::BeginPlay(UWorld* InWorld)
 {
+	World = InWorld;
 	CheckFalse(SpawnEnemies.Num() > 0);
 
 	//for (TSubclassOf<ACEnemy_AI> EnemyClass : SpawnEnemies)
@@ -37,7 +38,7 @@ void UCSpawnManager::BeginPlay()
 
 void UCSpawnManager::SpawnActorWithSpawnData(const FStageWaveInfo& WaveInfo)
 {
-
+	CheckNull(World);
 	int32 count = 0;
 	for (const FMonsterSpawnInfo& MonsterInfo : WaveInfo.Monsters)
 	{
@@ -55,7 +56,7 @@ void UCSpawnManager::SpawnActorWithSpawnData(const FStageWaveInfo& WaveInfo)
 		if (MonsterInfo.MonsterClass == nullptr)
 			continue;
 
-		ACEnemy_AI* SpawnedMonster = GetWorld()->SpawnActor<ACEnemy_AI>(MonsterInfo.MonsterClass, MonsterInfo.SpawnLocation, MonsterInfo.SpawnRotation);
+		ACEnemy_AI* SpawnedMonster = World->SpawnActor<ACEnemy_AI>(MonsterInfo.MonsterClass, MonsterInfo.SpawnLocation, MonsterInfo.SpawnRotation);
 		if (!!SpawnedMonster)
 		{
 			count++;

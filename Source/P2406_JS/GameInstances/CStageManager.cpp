@@ -21,7 +21,7 @@ void UCStageManager::BeginPlay(UWorld* InWorld)
 		SpawnManager = NewObject<UCSpawnManager>(this, SpawnManagerClass);
 		if (SpawnManager)
 		{
-			SpawnManager->BeginPlay();
+			SpawnManager->BeginPlay(InWorld);
 			SpawnManager->OnAllEnemiesDefeated.AddDynamic(this, &UCStageManager::OnWaveCompleted);
 			SpawnManager->OnAllBossDefeated.AddDynamic(this, &UCStageManager::OnBossCompleted);
 		}

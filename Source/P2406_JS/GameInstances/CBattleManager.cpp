@@ -16,9 +16,9 @@ UCBattleManager::UCBattleManager()
 void UCBattleManager::RegistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 {
 	if (!GroupAITable.Contains(InGroupID))
-		GroupAITable.Add(InGroupID, TArray<ACEnemy_AI*>());
+		GroupAITable.Add(InGroupID, TArray <TWeakObjectPtr<ACEnemy_AI>>());
 
-	TArray<ACEnemy_AI*>& ais = GroupAITable[InGroupID];
+	TArray<TWeakObjectPtr<ACEnemy_AI>>& ais = GroupAITable[InGroupID];
 	if (!ais.Contains(InMember))
 	{
 		ais.Add(InMember);
@@ -28,11 +28,11 @@ void UCBattleManager::RegistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 void UCBattleManager::UnregistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 {
 	if (!this || !IsValid(this))
-		return; 
+		return;
 
 	if (GroupAITable.Contains(InGroupID))
 	{
-		TArray<ACEnemy_AI*>& ais = GroupAITable[InGroupID];
+		TArray<TWeakObjectPtr<ACEnemy_AI>>& ais = GroupAITable[InGroupID];
 		ais.Remove(InMember);
 
 		if (ais.Num() == 0)
@@ -43,14 +43,13 @@ void UCBattleManager::UnregistGroup(int32 InGroupID, ACEnemy_AI* InMember)
 ACharacter* UCBattleManager::GetBattleAttackerOfTarget(int32 InGroupID, ACEnemy_AI* InCaller)
 {
 	CheckNullResult(InCaller, nullptr);
-	if (!GroupAITable.Contains(InGroupID))
-		return nullptr;
-
+	CheckFalseResult(GroupAITable.Contains(InGroupID), nullptr);
+		
 	ACharacter* bestTarget = nullptr;
 	float closestDistance = FLT_MAX;
 
 	// 가장 첫 번째 놈 반환
-	for (ACEnemy_AI* ai : GroupAITable[InGroupID])
+	for (const TWeakObjectPtr<ACEnemy_AI>& ai : GroupAITable[InGroupID])
 	{
 		if (ai == nullptr)
 			continue;
@@ -58,7 +57,7 @@ ACharacter* UCBattleManager::GetBattleAttackerOfTarget(int32 InGroupID, ACEnemy_
 		if (ai == InCaller)
 			continue;
 
-		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent, ACEnemy_AI>(ai);
 		if (behavior == nullptr || behavior->GetTarget() == nullptr)
 			continue;
 
@@ -81,7 +80,7 @@ void UCBattleManager::RequestBattleParticipation(int32 InGroupID, ACEnemy_AI* In
 	if (!GroupAITable.Contains(InGroupID))
 		return;
 
-	for (ACEnemy_AI* ai : GroupAITable[InGroupID])
+	for (const TWeakObjectPtr<ACEnemy_AI>& ai : GroupAITable[InGroupID])
 	{
 		if (ai == InInitiator)
 			continue;
@@ -89,7 +88,7 @@ void UCBattleManager::RequestBattleParticipation(int32 InGroupID, ACEnemy_AI* In
 		if (ai == nullptr)
 			continue;
 
-		UCAIBehaviorComponent* behavior = FHelpers::GetComponent< UCAIBehaviorComponent>(ai);
+		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent, ACEnemy_AI>(ai);
 		if (behavior == nullptr)
 			continue;
 		auto* blackboard = behavior->GetBlackboard();
@@ -100,9 +99,9 @@ void UCBattleManager::RequestBattleParticipation(int32 InGroupID, ACEnemy_AI* In
 		if (bCheck == true)
 			continue;
 
-		auto* prevTarget = behavior->GetTarget(); 
+		auto* prevTarget = behavior->GetTarget();
 		if (prevTarget != nullptr)
-			continue; 
+			continue;
 
 		behavior->SetTarget(InTarget);
 		FLog::Log(ai->GetName() + " Participanet! ");
@@ -116,21 +115,21 @@ void UCBattleManager::RegistBattle(AActor* InTarget, ACEnemy_AI* InAttacker)
 	CheckNull(InAttacker);
 
 	if (IsValid(this) == false)
-		return; 
+		return;
 
 	if (TargetToAttackers.Contains(InTarget) == false)
 	{
 		// 타겟에게 죽으면 해제하도록이벤트 추가 
 		ACBaseCharacter* character = Cast<ACBaseCharacter>(InTarget);
-		if(character != nullptr)
+		if (character != nullptr)
 			REGISTER_EVENT_WITH_REPLACE(character, OnCharacterDead_One, this, UCBattleManager::UnregistTarget);
-		
+
 		SetTokenTarget(InTarget);
 
-		TargetToAttackers.Add(InTarget, TArray<ACEnemy_AI*>());
+		TargetToAttackers.Add(InTarget, TArray<TWeakObjectPtr<ACEnemy_AI>>());
 	}
 
-	TArray<ACEnemy_AI*>& attackers = TargetToAttackers[InTarget];
+	TArray<TWeakObjectPtr<ACEnemy_AI>>& attackers = TargetToAttackers[InTarget];
 	if (!attackers.Contains(InAttacker))
 	{
 		// 대상이 공격자인 경우 - 공격자가 죽으면 해제하도록 
@@ -155,7 +154,7 @@ void UCBattleManager::UnregistAttacker(ACharacter* InAttacker)
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(InAttacker);
 	CheckNull(ai);
 
-	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent, ACEnemy_AI>(ai);
 	CheckNull(behavior);
 
 	AActor* target = behavior->GetTarget();
@@ -185,6 +184,9 @@ void UCBattleManager::UnregistAttacker(AActor* InaTarget, ACEnemy_AI* InAttacker
 // 타겟 등록 제거 
 void UCBattleManager::UnregistTarget(ACharacter* InInstigator)
 {
+	if (InInstigator->IsPendingKill())
+		return; 
+
 	CheckNull(InInstigator);
 
 	// 이 대상이 등록되어 있지 않다면?
@@ -203,7 +205,7 @@ void UCBattleManager::UnregistTarget(ACharacter* InInstigator)
 void UCBattleManager::SetTokenAttacker(ACEnemy_AI* InAttacker)
 {
 	CheckNull(InAttacker);
-	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(InAttacker);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent, ACEnemy_AI>(InAttacker);
 	CheckNull(behavior);
 
 	int32 tokenValue = FMath::RandRange(0, MaxTokenValue);
@@ -228,52 +230,67 @@ bool UCBattleManager::IsContainFromAttackers(AActor* InTarget, class ACEnemy_AI*
 	CheckNullResult(InAttacker, false);
 
 	if (!TargetToAttackers.Contains(InTarget))
-		return false; 
-	
-	for (const ACEnemy_AI* ai : TargetToAttackers[InTarget])
+		return false;
+
+	for (const TWeakObjectPtr<ACEnemy_AI>& ai : TargetToAttackers[InTarget])
 	{
 		if (ai == nullptr)
 			continue;
 
 		if (ai == InAttacker)
-			return true; 
+			return true;
 	}
 
-	return false; 
+	return false;
 }
 
-TArray<class ACEnemy_AI*> UCBattleManager::GetAttackers(AActor* InTarget) const
+TArray<TWeakObjectPtr<ACEnemy_AI>> UCBattleManager::GetAttackers(AActor* InTarget) const
 {
 	if (TargetToAttackers.Contains(InTarget))
 		return TargetToAttackers[InTarget];
 
-	return TArray<ACEnemy_AI*>();
+	return TArray<TWeakObjectPtr<ACEnemy_AI>>();
 }
 
 bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttacker)
 {
+	if (!IsValid(InTarget))
+	{
+		FLog::Log("IsAttackableToTarget - InTarget is invalid!");
+		return false;
+	}
+
+	if (!IsValid(InAttacker))
+	{
+		FLog::Log("IsAttackableToTarget - InAttacker is invalid!");
+		return false;
+	}
+
+
 	// 등록되지 않은 타겟 
 	if (TargetToAttackers.Contains(InTarget) == false)
 	{
 		FLog::Log("IsAttackableToTarget - No Regist Target");
-		
+
 		// 대상이 테이블에 없기 때문에 false 처리하고 등록해놓는다. 
 		RegistBattle(InTarget, InAttacker);
 
 		return false;
 	}
 
-	// 이미 한 번에 공격할 수 있는 적의 인원수를 넘음 
-	if (TargetToAttackers[InTarget].Num() > MaxAttackersPerTarget)
+	TArray<TWeakObjectPtr<ACEnemy_AI>>& Attackers = TargetToAttackers[InTarget];
+	if (Attackers.Num() > MaxAttackersPerTarget)
 	{
-		// 근데 그 인원 수 중에 내가 이미 있다면 등록을 해제하고 다음 기회로 넘긴다.
-		for (ACEnemy_AI* attacker : TargetToAttackers[InTarget])
+		for (const TWeakObjectPtr<ACEnemy_AI>& attacker : Attackers)
 		{
+			if (!attacker.IsValid())
+				continue;
+
 			if (attacker == InAttacker)
 			{
 				UnregistAttacker(InTarget, InAttacker);
 				FLog::Log("IsAttackableToTarget - Previous Registed Attacker ");
-				return false; 
+				return false;
 			}
 		}
 
@@ -281,31 +298,7 @@ bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttac
 		return false;
 	}
 
-	bool bAttack = true;
-	/*for (ACEnemy_AI* attacker : TargetToAttackers[InTarget])
-	{
-		if (attacker == nullptr)
-		{
-			FLog::Log("IsAttackableToTarget - No Regist attacker");
-			return false;
-		}
-
-		UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(attacker);
-		if (behavior == nullptr)
-			continue; 
-		
-
-		if (behavior->IsActionMode())
-		{
-			FLog::Log("IsAttackableToTarget - ");
-			return false;
-		}
-
-		break;
-	}*/
-
-
-	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(InAttacker);
+	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent, ACEnemy_AI>(InAttacker);
 	if (behavior == nullptr)
 	{
 		FLog::Log("IsAttackableToTarget - Attacker is Invalid Behaivor ");
@@ -328,6 +321,6 @@ bool UCBattleManager::IsAttackableToTarget(AActor* InTarget, ACEnemy_AI* InAttac
 
 
 	FLog::Log("IsAttackableToTarget - Catch the Token!");
-	return bAttack;
+	return true;
 }
 

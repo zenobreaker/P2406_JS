@@ -112,6 +112,11 @@ void UCGameManager::HandleState()
 void UCGameManager::HandleStartGeme()
 {
 	bIsGameJoin = true;
+	if (bIsIntroSkip == true)
+	{
+		SetGameState(EGameFlowState::BuffSelect);
+		return; 
+	}
 
 	if (bIsFirstCinematic == true)
 	{
@@ -138,6 +143,12 @@ void UCGameManager::HandleStartGeme()
 
 void UCGameManager::HandleBuffSelect()
 {
+	if (bIsBuffSkip == true)
+	{
+		SetGameState(EGameFlowState::CombatPreparation);
+		return; 
+	}
+
 	CheckNull(BuffManager); 
 	CheckNull(MyWorld);
 	UCGameInstance* instance = Cast<UCGameInstance>(UGameplayStatics::GetGameInstance(MyWorld));
@@ -153,6 +164,12 @@ void UCGameManager::HandleBuffSelect()
 
 void UCGameManager::HandleCombatPerparation()
 {
+	if (bIsCombatSkip == true)
+	{
+		SetGameState(EGameFlowState::BossPreparation);
+		return; 
+	}
+
 	CheckNull(StageManager);
 
 	SetGameState(EGameFlowState::Combat);
@@ -162,6 +179,11 @@ void UCGameManager::HandleCombatPerparation()
 
 void UCGameManager::HandleBossPreparation()
 {
+	if (bIsBossSkip == true)
+	{
+		SetGameState(EGameFlowState::End);
+		return;
+	}
 	//CheckNull(StageManager); 
 
 	//StageManager->StartBossStage(); 
@@ -254,6 +276,7 @@ void UCGameManager::OnCinematicFinished()
 		PC->SetCinematicMode(false, false, false, true, true);
 	}
 
+	CheckNull(PC->GetCharacter());
 	ACPlayer* player = Cast<ACPlayer>(PC->GetCharacter());
 	if (player != nullptr)
 		player->OnVisibilityUI();
