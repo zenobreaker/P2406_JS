@@ -5,6 +5,7 @@
 
 #include "SkillContextMenu.h"
 #include "SkillStyle.h"
+#include "SkillToolbarButton.h"
 
 
 #define LOCTEXT_NAMESPACE "FSkillEditorModule"
@@ -19,10 +20,15 @@ void FSkillEditorModule::StartupModule()
 
 
 	FSkillStyle::Regist(); 
+
+	ToolBarButton = MakeShareable(new FSkillToolbarButton());
+	ToolBarButton->StartUp(); 
 }
 
 void FSkillEditorModule::ShutdownModule()
 {
+	if (ToolBarButton.IsValid())
+		ToolBarButton.Reset();
 
 	FSkillStyle::Unregist(); 
 

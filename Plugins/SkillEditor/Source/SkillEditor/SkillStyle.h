@@ -27,7 +27,7 @@ private:
 	TSharedPtr<class FSlateStyleSet> StyleSet;
 
 public:
-	FSlateIcon WeaponIcon;
+	FSlateIcon SkillIcon;
 
 	TSharedPtr<FSlateImageBrush> DoActionDataBorder;
 	TSharedPtr<FSlateImageBrush> DamagedDataBorder;

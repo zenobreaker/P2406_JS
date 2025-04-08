@@ -33,7 +33,7 @@ FSkillStyle::FSkillStyle()
 	path = FPaths::ProjectPluginsDir() / "SkillEditor" / "Resources";
 	StyleSet->SetContentRoot(path);
 
-	RegisterIcon("SkillIcon", path / "Skill_Icon.png", FVector2D(40, 40), WeaponIcon);
+	RegisterIcon("SkillIcon", path / "Skill_Icon.png", FVector2D(40, 40), SkillIcon);
 	FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
 
 
