@@ -27,6 +27,8 @@ public:
 	}
 };
 typedef TSharedPtr<FSkillRowData> FSkillRowDataPtr;
+
+
 //-----------------------------------------------------------------------------
 
 

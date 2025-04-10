@@ -31,7 +31,7 @@ uint32 FSkillContextMenu::GetCategories()
 
 void FSkillContextMenu::OpenAssetEditor(const TArray<UObject*>& InObjects, const EAssetTypeActivationOpenedMethod OpenedMethod, TSharedPtr<IToolkitHost> EditWithinLevelEditor)
 {
-	GLog->Logf(L"%d\n", OpenedMethod);
+	//GLog->Logf(L"%d\n", OpenedMethod);
 
 	//for (UObject* obj : InObjects)
 	//{

@@ -11,8 +11,8 @@ public:
 	void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 
 public:
-	static void OnResfreshChekBoxes() { bRefreshByCheckBoxes = true; }
-	static void OffResfreshChekBoxes() { bRefreshByCheckBoxes = false; }
+	static void OnResfreshByCheckBoxes() { bRefreshByCheckBoxes = true; }
+	static void OffResfreshByCheckBoxes() { bRefreshByCheckBoxes = false; }
 
 private:
 	static bool bRefreshByCheckBoxes; 

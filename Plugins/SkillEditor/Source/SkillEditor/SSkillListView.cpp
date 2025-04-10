@@ -164,13 +164,13 @@ void SSkillListView::ReadSkillAssetList()
 	RowDataPtrs.Empty(); 
 
 	TArray<UObject*> objects;
-	EngineUtils::FindOrLoadAssetsByPath("/Game/Skills/", objects, EngineUtils::ATL_Regular);
+	EngineUtils::FindOrLoadAssetsByPath("/Game/Weapon_Skills/", objects, EngineUtils::ATL_Regular);
 
 	int32 index = 0; 
 	for (UObject* obj : objects)
 	{
 		UCSkillAsset* skill = Cast<UCSkillAsset>(obj);
-		if (skill == nullptr ) return;
+		if (skill == nullptr ) continue;
 
 		FString name = skill->GetName(); 
 		if (SearchText.IsEmpty() == false)

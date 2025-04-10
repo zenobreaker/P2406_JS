@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Toolkits/AssetEditorToolkit.h"
+#include "SSkillListView.h"
 
 class SKILLEDITOR_API FSkillAssetEditor
 	: public FAssetEditorToolkit
@@ -27,10 +28,11 @@ public:
 	void RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager) override;
 
 private:
+	void OnListViewSelectedItem(FSkillRowDataPtr InRowDataPtr);
+
+private:
 	TSharedRef<SDockTab> Spawn_ListViewTab(const FSpawnTabArgs& InArgs);
 	TSharedRef<SDockTab> Spawn_DetailsTab(const FSpawnTabArgs& InArgs);
-
-
 
 private:
 	static const FName EditorName;

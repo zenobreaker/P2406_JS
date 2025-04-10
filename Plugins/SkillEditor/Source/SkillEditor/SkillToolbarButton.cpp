@@ -1,6 +1,7 @@
 #include "SkillToolbarButton.h"
 #include "LevelEditor.h"
 
+#include "SkillAssetEditor.h"
 #include "SkillStyle.h"
 #include "Skill//CSkillAsset.h"
 
@@ -51,6 +52,6 @@ void FSkillToolbarButton::OnAdd_Buttons(FToolBarBuilder& InBuilder)
 
 void FSkillToolbarButton::OnClicked_Skill()
 {
-	GLog->Log("OnClick _ Skill");
-	//FWeaponAssetEditor::OpenWindow();
+	//GLog->Log("OnClick _ Skill");
+	FSkillAssetEditor::OpenWindow();
 }

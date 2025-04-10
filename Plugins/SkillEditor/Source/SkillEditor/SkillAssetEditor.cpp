@@ -1,8 +1,10 @@
+
 #include "SkillAssetEditor.h"
 #include "EngineUtils.h"
 
 #include "SSkillListView.h"
 #include "SSkillDetails.h"
+#include "SSkillInfoData.h"
 
 #include "Skill/CSkillAsset.h"
 
@@ -18,7 +20,7 @@ TSharedPtr<FSkillAssetEditor> FSkillAssetEditor::Instance = nullptr;
 
 void FSkillAssetEditor::OpenWindow(FString InAssetName)
 {
-	/*if (Instance.IsValid())
+	if (Instance.IsValid())
 	{
 		if (Instance->ListView.IsValid())
 		{
@@ -40,7 +42,7 @@ void FSkillAssetEditor::OpenWindow(FString InAssetName)
 
 		Instance.Reset();
 		Instance = nullptr;
-	}*/
+	}
 
 	Instance = MakeShareable(new FSkillAssetEditor());
 	Instance->Open(InAssetName);
@@ -62,6 +64,36 @@ void FSkillAssetEditor::Open(FString InAssetName)
 	FPropertyEditorModule& propertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(PropertyEditorName);
 
 
+	{
+		FDetailsViewArgs args;
+		args.NameAreaSettings = FDetailsViewArgs::ENameAreaSettings::HideNameArea;
+		args.ViewIdentifier = "SkillAssetEditorDetails";
+		Details = propertyEditor.CreateDetailView(args);
+
+		FOnGetDetailCustomizationInstance instance; 
+		instance.BindStatic(SSkillDetails::MakeInstance);
+		Details->SetGenericLayoutDetailsDelegate(instance);
+	}
+
+	// Skill Info 
+	{
+		FString typeName = FSkillInfo::StaticStruct()->GetName();
+
+		FOnGetPropertyTypeCustomizationInstance instance; 
+		instance.BindStatic(SSkillInfoData::MakeInstance);
+		propertyEditor.RegisterCustomPropertyTypeLayout(FName(typeName), instance);
+	}
+
+
+	// Skill Flow - Property
+	{
+		FString typeName = FSkillFlowData::StaticStruct()->GetName();
+
+		FOnGetPropertyTypeCustomizationInstance instance;
+		//instance.BindStatic(&SSkillF)
+	}
+
+
 
 	UCSkillAsset* asset = nullptr;
 
@@ -73,7 +105,7 @@ void FSkillAssetEditor::Open(FString InAssetName)
 			->Split
 			(
 				FTabManager::NewSplitter()->SetOrientation(Orient_Horizontal)
-				->Split // °Ë»öÃ¢ 
+				->Split // ListView 
 				(
 					FTabManager::NewStack()
 					->SetSizeCoefficient(0.175)
@@ -90,9 +122,28 @@ void FSkillAssetEditor::Open(FString InAssetName)
 			)
 		);
 
+	ListView = SNew(SSkillListView)
+		.OnSelectedItem(this, &FSkillAssetEditor::OnListViewSelectedItem);
+
+	if (InAssetName.IsEmpty() == false)
+	{
+		FSkillRowDataPtr ptr = ListView->FindRowDataPtrByName(InAssetName);
+		FSkillRowDataPtr selectedPtr = ListView->GetSelectedRowDataPtr();
+
+		if (ptr == selectedPtr)
+			return; 
+
+		if (ptr.IsValid())
+			asset = ptr->Asset;
+	}
+
+	if (asset == nullptr)
+		asset = ListView->GetFirstRowDataPtr()->Asset;
+
 	asset = NewObject<UCSkillAsset>();
 	FAssetEditorToolkit::InitAssetEditor(EToolkitMode::Standalone, TSharedPtr<IToolkitHost>(), EditorName, layout, true, true, asset);
 
+	ListView->SetRowDataPtr(asset); 
 }
 
 bool FSkillAssetEditor::OnRequestClose(EAssetEditorCloseReason InCloseReason)
@@ -105,9 +156,7 @@ bool FSkillAssetEditor::OnRequestClose(EAssetEditorCloseReason InCloseReason)
 		if (FModuleManager::Get().IsModuleLoaded(PropertyEditorName))
 		{
 			FPropertyEditorModule& propertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(PropertyEditorName);
-			//propertyEditor.UnregisterCustomPropertyTypeLayout("EquipmentData");
-			//propertyEditor.UnregisterCustomPropertyTypeLayout("DoActionData");
-			//propertyEditor.UnregisterCustomPropertyTypeLayout("DamageData");
+			propertyEditor.UnregisterCustomPropertyTypeLayout("SkillFlow");
 
 			propertyEditor.UnregisterCustomClassLayout(FName(UCSkillAsset::StaticClass()->GetName()));
 		}
@@ -147,13 +196,25 @@ void FSkillAssetEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTab
 {
 	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 
-	//FOnSpawnTab listViewTab;
-	//listViewTab.BindSP(this, &FSkillAssetEditor::Spawn_ListViewTab);
-	//TabManager->RegisterTabSpawner(ListViewTabName, listViewTab);
+	FOnSpawnTab listViewTab;
+	listViewTab.BindSP(this, &FSkillAssetEditor::Spawn_ListViewTab);
+	TabManager->RegisterTabSpawner(ListViewTabName, listViewTab);
 
-	//FOnSpawnTab detailsTab;
-	//detailsTab.BindSP(this, &FSkillAssetEditor::Spawn_DetailsTab);
-	//TabManager->RegisterTabSpawner(DetailsTabName, detailsTab);
+	FOnSpawnTab detailsTab;
+	detailsTab.BindSP(this, &FSkillAssetEditor::Spawn_DetailsTab);
+	TabManager->RegisterTabSpawner(DetailsTabName, detailsTab);
+}
+
+void FSkillAssetEditor::OnListViewSelectedItem(FSkillRowDataPtr InRowDataPtr)
+{
+	if (InRowDataPtr.IsValid() == false)
+		return; 
+
+	if (GetEditingObject() != nullptr)
+		RemoveEditingObject(GetEditingObject());
+
+	AddEditingObject(InRowDataPtr->Asset);
+	Details->SetObject(InRowDataPtr->Asset);
 }
 
 
