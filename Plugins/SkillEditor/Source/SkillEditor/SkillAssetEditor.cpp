@@ -1,7 +1,8 @@
 #include "SkillAssetEditor.h"
 #include "EngineUtils.h"
 
-
+#include "SSkillListView.h"
+#include "SSkillDetails.h"
 
 #include "Skill/CSkillAsset.h"
 
@@ -17,29 +18,29 @@ TSharedPtr<FSkillAssetEditor> FSkillAssetEditor::Instance = nullptr;
 
 void FSkillAssetEditor::OpenWindow(FString InAssetName)
 {
-	//if (Instance.IsValid())
-	//{
-	//	if (Instance->ListView.IsValid())
-	//	{
-	//		//FWeaponRowDataPtr ptr = nullptr;
+	/*if (Instance.IsValid())
+	{
+		if (Instance->ListView.IsValid())
+		{
+			FSkillRowDataPtr ptr = nullptr;
 
-	//		if (InAssetName.IsEmpty() == false)
-	//			ptr = Instance->ListView->FindRowDataPtrByName(InAssetName);
+			if (InAssetName.IsEmpty() == false)
+				ptr = Instance->ListView->FindRowDataPtrByName(InAssetName);
 
-	//		if (ptr.IsValid() == false)
-	//			ptr = Instance->ListView->GetFirstRowDataPtr();
+			if (ptr.IsValid() == false)
+				ptr = Instance->ListView->GetFirstRowDataPtr();
 
-	//		Instance->ListView->SetRowDataPtr(ptr->Asset);
+			Instance->ListView->SetRowDataPtr(ptr->Asset);
 
-	//		return;
-	//	}
+			return;
+		}
 
 
-	//	Instance->CloseWindow(EAssetEditorCloseReason::AssetEditorHostClosed);
+		Instance->CloseWindow(EAssetEditorCloseReason::AssetEditorHostClosed);
 
-	//	Instance.Reset();
-	//	Instance = nullptr;
-	//}
+		Instance.Reset();
+		Instance = nullptr;
+	}*/
 
 	Instance = MakeShareable(new FSkillAssetEditor());
 	Instance->Open(InAssetName);
@@ -64,7 +65,34 @@ void FSkillAssetEditor::Open(FString InAssetName)
 
 	UCSkillAsset* asset = nullptr;
 
-	
+
+	TSharedRef<FTabManager::FLayout> layout = FTabManager::NewLayout("SkillAssetEditor_Layout")
+		->AddArea
+		(
+			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
+			->Split
+			(
+				FTabManager::NewSplitter()->SetOrientation(Orient_Horizontal)
+				->Split // °Ë»öÃ¢ 
+				(
+					FTabManager::NewStack()
+					->SetSizeCoefficient(0.175)
+					->AddTab(ListViewTabName, ETabState::OpenedTab)
+					->SetHideTabWell(true)
+				)
+				->Split	// Details
+				(
+					FTabManager::NewStack()
+					->SetSizeCoefficient(0.725f)
+					->AddTab(DetailsTabName, ETabState::OpenedTab)
+					->SetHideTabWell(true)
+				)
+			)
+		);
+
+	asset = NewObject<UCSkillAsset>();
+	FAssetEditorToolkit::InitAssetEditor(EToolkitMode::Standalone, TSharedPtr<IToolkitHost>(), EditorName, layout, true, true, asset);
+
 }
 
 bool FSkillAssetEditor::OnRequestClose(EAssetEditorCloseReason InCloseReason)
@@ -112,63 +140,35 @@ FText FSkillAssetEditor::GetBaseToolkitName() const
 
 FString FSkillAssetEditor::GetWorldCentricTabPrefix() const
 {
-	return  EditorName.ToString();
+	return EditorName.ToString();
 }
 
 void FSkillAssetEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
 	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 
-	FOnSpawnTab listViewTab;
-	listViewTab.BindSP(this, &FSkillAssetEditor::Spawn_ListViewTab);
-	TabManager->RegisterTabSpawner(ListViewTabName, listViewTab);
+	//FOnSpawnTab listViewTab;
+	//listViewTab.BindSP(this, &FSkillAssetEditor::Spawn_ListViewTab);
+	//TabManager->RegisterTabSpawner(ListViewTabName, listViewTab);
 
-	FOnSpawnTab detailsTab;
-	detailsTab.BindSP(this, &FSkillAssetEditor::Spawn_DetailsTab);
-	TabManager->RegisterTabSpawner(DetailsTabName, detailsTab);
+	//FOnSpawnTab detailsTab;
+	//detailsTab.BindSP(this, &FSkillAssetEditor::Spawn_DetailsTab);
+	//TabManager->RegisterTabSpawner(DetailsTabName, detailsTab);
 }
 
 
 TSharedRef<SDockTab> FSkillAssetEditor::Spawn_ListViewTab(const FSpawnTabArgs& InArgs)
 {
-	//return SNew(SDockTab)
-	//[
-	//	SNew(SBox)
-	//	[
-	//		SNew(SButton)
-	//		[
-	//			SNew(STextBlock)
-	//			.Text(FText::FromString("Test"))
-	//		]
-	//	]
-	//];
+	return SNew(SDockTab)
+		[
+			//SNew(SSkillListView)
+			ListView.ToSharedRef()
+		];
 
-	//return SNew(SDockTab)
-	//	[
-	//		//SNew(SWeaponListView)
-	//		ListView.ToSharedRef()
-	//	];
-
-	return SNew(SDockTab);
 }
 
 TSharedRef<SDockTab> FSkillAssetEditor::Spawn_DetailsTab(const FSpawnTabArgs& InArgs)
 {
-	//TSharedPtr<SBox> box;
-	//SAssignNew(box, SBox)
-	//[
-	//	SNew(SButton)
-	//	[
-	//		SNew(STextBlock)
-	//		.Text(FText::FromString("Test3"))
-	//	]
-	//];	
-
-	//return SNew(SDockTab)
-	//[
-	//	box.ToSharedRef()
-	//];
-
 	return SNew(SDockTab)
 		[
 			Details.ToSharedRef()

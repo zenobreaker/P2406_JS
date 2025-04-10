@@ -1,4 +1,6 @@
 #include "SkillContextMenu.h"
+#include "SkillAssetEditor.h"
+
 #include "Skill/CSkillAsset.h"
 
 
@@ -40,6 +42,6 @@ void FSkillContextMenu::OpenAssetEditor(const TArray<UObject*>& InObjects, const
 	if (InObjects.Num() < 1)
 		return;
 
-	//FWeaponAssetEditor::OpenWindow(InObjects[0]->GetName());
+	FSkillAssetEditor::OpenWindow(InObjects[0]->GetName());
 }
 

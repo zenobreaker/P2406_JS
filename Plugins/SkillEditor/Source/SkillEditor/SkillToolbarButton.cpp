@@ -2,7 +2,7 @@
 #include "LevelEditor.h"
 
 #include "SkillStyle.h"
-//#include "SkillAsset"
+#include "Skill//CSkillAsset.h"
 
 FSkillToolbarButton::FSkillToolbarButton()
 	: TCommands("ToolBar_Button", FText(), NAME_None, FAppStyle::GetAppStyleSetName())
