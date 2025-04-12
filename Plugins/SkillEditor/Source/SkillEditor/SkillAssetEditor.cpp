@@ -5,6 +5,9 @@
 #include "SSkillListView.h"
 #include "SSkillDetails.h"
 #include "SSkillInfoData.h"
+#include "SSkillFlowData.h"
+#include "SSkillPhaseData.h"
+
 
 #include "Skill/CSkillAsset.h"
 
@@ -75,6 +78,24 @@ void FSkillAssetEditor::Open(FString InAssetName)
 		Details->SetGenericLayoutDetailsDelegate(instance);
 	}
 
+	// Skill Flow - Property
+	{
+		FString typeName = FSkillFlowData::StaticStruct()->GetName();
+
+		FOnGetPropertyTypeCustomizationInstance instance;
+		instance.BindStatic(SSkillFlowData::MakeInstance);
+		propertyEditor.RegisterCustomPropertyTypeLayout(FName(typeName), instance);
+	}
+
+	// Skill Phase - Property
+	{
+		FString typeName = FSkillPhaseData::StaticStruct()->GetName();
+
+		FOnGetPropertyTypeCustomizationInstance instance;
+		instance.BindStatic(SSkillPhaseData::MakeInstance);
+		propertyEditor.RegisterCustomPropertyTypeLayout(FName(typeName), instance);
+	}
+
 	// Skill Info 
 	{
 		FString typeName = FSkillInfo::StaticStruct()->GetName();
@@ -83,16 +104,6 @@ void FSkillAssetEditor::Open(FString InAssetName)
 		instance.BindStatic(SSkillInfoData::MakeInstance);
 		propertyEditor.RegisterCustomPropertyTypeLayout(FName(typeName), instance);
 	}
-
-
-	// Skill Flow - Property
-	{
-		FString typeName = FSkillFlowData::StaticStruct()->GetName();
-
-		FOnGetPropertyTypeCustomizationInstance instance;
-		//instance.BindStatic(&SSkillF)
-	}
-
 
 
 	UCSkillAsset* asset = nullptr;
@@ -140,7 +151,7 @@ void FSkillAssetEditor::Open(FString InAssetName)
 	if (asset == nullptr)
 		asset = ListView->GetFirstRowDataPtr()->Asset;
 
-	asset = NewObject<UCSkillAsset>();
+	
 	FAssetEditorToolkit::InitAssetEditor(EToolkitMode::Standalone, TSharedPtr<IToolkitHost>(), EditorName, layout, true, true, asset);
 
 	ListView->SetRowDataPtr(asset); 
@@ -156,9 +167,11 @@ bool FSkillAssetEditor::OnRequestClose(EAssetEditorCloseReason InCloseReason)
 		if (FModuleManager::Get().IsModuleLoaded(PropertyEditorName))
 		{
 			FPropertyEditorModule& propertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(PropertyEditorName);
-			propertyEditor.UnregisterCustomPropertyTypeLayout("SkillFlow");
 
 			propertyEditor.UnregisterCustomClassLayout(FName(UCSkillAsset::StaticClass()->GetName()));
+			propertyEditor.UnregisterCustomClassLayout(FName(FSkillInfo::StaticStruct()->GetName()));
+			propertyEditor.UnregisterCustomClassLayout(FName(FSkillFlowData::StaticStruct()->GetName()));
+			propertyEditor.UnregisterCustomClassLayout(FName(FSkillPhaseData::StaticStruct()->GetName()));
 		}
 	}
 

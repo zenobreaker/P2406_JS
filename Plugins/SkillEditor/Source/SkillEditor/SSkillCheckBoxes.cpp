@@ -5,7 +5,11 @@
 #include "Widgets/Layout/SUniformGridPanel.h"
 
 #include "SSkillDetails.h"
-
+#if WITH_EDITOR
+#include "Weapons/CWeaponStructures.h"
+#include "Skill/CSkillStructures.h"
+#include "Skill/CSkillEntity.h"
+#endif
 
 void SSkillCheckBoxes::AddProperties(TSharedPtr<IPropertyHandle> InHandle)
 {
@@ -32,7 +36,7 @@ bool SSkillCheckBoxes::CanDraw(TSharedPtr<class IPropertyHandle> InHandle, int32
 	return b;
 }
 
-TSharedPtr<SWidget> SSkillCheckBoxes::DrawHeader()
+TSharedRef<SWidget> SSkillCheckBoxes::DrawHeader()
 {
 	TSharedPtr<SUniformGridPanel> panel;
 	SAssignNew(panel, SUniformGridPanel);
@@ -95,7 +99,7 @@ void SSkillCheckBoxes::CheckDefaultValue(int32 InIndex, float InDefaultValue)
 {
 	float value = 0.0f;
 	InternalDatas[InIndex].Handle->GetValue(value);
-
+	
 	if (InDefaultValue != value)
 		InternalDatas[InIndex].bChecked = true;
 }
@@ -127,6 +131,15 @@ void SSkillCheckBoxes::CheckDefaultValue(int32 InIndex, const FVector& InDefault
 		InternalDatas[InIndex].bChecked = true;
 }
 
+void SSkillCheckBoxes::CheckDefaultValue(int32 InIndex, const FRotator& InDefaultValue)
+{
+	FRotator value = FRotator::ZeroRotator;
+	InternalDatas[InIndex].Handle->GetValue(value);
+
+	if (InDefaultValue != value)
+		InternalDatas[InIndex].bChecked = true;
+}
+
 void SSkillCheckBoxes::CheckDefaultValue(int32 InIndex, const FString& InDefaultValue)
 {
 	FString value = FString();
@@ -134,6 +147,43 @@ void SSkillCheckBoxes::CheckDefaultValue(int32 InIndex, const FString& InDefault
 
 	if (InDefaultValue != value)
 		InternalDatas[InIndex].bChecked = true;
+}
+
+void SSkillCheckBoxes::CheckDefaultDoActionData(int32 InIndex, const FDoActionData& InDefautVale)
+{
+	FDoActionData value = FDoActionData();
+	
+	bool bCheck = false; 
+	if (value.Montage != InDefautVale.Montage)
+		bCheck = true;
+	if (value.PlayRate != InDefautVale.PlayRate)
+		bCheck = true; 
+	if (value.bCanMove != InDefautVale.bCanMove)
+		bCheck = true; 
+	if (value.bFixedCamera != InDefautVale.bFixedCamera)
+		bCheck = true; 
+
+	if (bCheck == true)
+		InternalDatas[InIndex].bChecked = true;
+}
+
+void SSkillCheckBoxes::CheckDefaultSkillEntityData(int32 InIndex, const FSkillEntityData& InDefaultValue)
+{
+
+	bool bCheck = false;
+	if (InDefaultValue.SkillEntity != nullptr)
+		bCheck = true; 
+	if (InDefaultValue.SpawnLocation != FVector::ZeroVector)
+		bCheck = true;
+	if(InDefaultValue.SpawnRotation != FRotator::ZeroRotator)
+		bCheck = true;
+	if (InDefaultValue.SpawnScale != FVector::ZeroVector)
+		bCheck = true; 
+	if (InDefaultValue.SkillCollisionDatas.Num() > 0)
+		bCheck = true; 
+
+	if (bCheck == true)
+		InternalDatas[InIndex].bChecked = true; 
 }
 
 void SSkillCheckBoxes::OnCheckStateChanged(ECheckBoxState InState, int32 InIndex)

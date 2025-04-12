@@ -27,28 +27,15 @@ void SSkillInfoData::CustomizeHeader(TSharedRef<IPropertyHandle> InPropertyHandl
 	CheckBoxes->SetUtilities(InCustomizationUtils.GetPropertyUtilities());
 
 	InHeaderRow
-	.NameContent()
-	[
-		SNew(STextBlock)
-		.Text(FText::FromString("Header"))
-	]
-	.ValueContent()
-	[
-		SNew(STextBlock)
-		.Text(FText::FromString("Value"))
-	];
-
-
-	//InHeaderRow
-	//	.NameContent()
-	//	[
-	//		InPropertyHandle->CreatePropertyNameWidget()
-	//	];
-	//	.ValueContent()
-	//	[
-	//		//CheckBoxes->DrawHeader()
-	//		SNew(STextBlock).Text("dd")
-	//	];
+		.NameContent()
+		[
+			InPropertyHandle->CreatePropertyNameWidget()
+		]
+		.ValueContent()
+		[
+			CheckBoxes->DrawHeader()
+			//InPropertyHandle->CreatePropertyValueWidget()
+		];
 }
 
 void SSkillInfoData::CustomizeChildren(TSharedRef<IPropertyHandle> InPropertyHandle, IDetailChildrenBuilder& InChildBuilder, IPropertyTypeCustomizationUtils& InCustomizationUtils)

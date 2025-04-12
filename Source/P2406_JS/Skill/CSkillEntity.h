@@ -68,7 +68,7 @@ protected:
 	int32 Index;
 
 protected:
-	TMap<FName, TArray<UCSkillCollisionComponent*>> CollisionTable;
+	TMap<FName, TArray<class UCSkillCollisionComponent*>> CollisionTable;
 
 private:
 	TArray<AActor*> DamagedList;

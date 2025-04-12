@@ -4,10 +4,15 @@
 #include "IDetailPropertyRow.h"
 
 #include "SSkillInfoData.h"
+#include "SSkillFlowData.h"
+#include "SSkillPhaseData.h"
 #include "SSkillCheckBoxes.h"
+
+
+#include "P2406_JS/Skill/CSkillStructures.h"
 #include "Skill/CSkillAsset.h"
 
-bool SSkillDetails::bRefreshByCheckBoxes = false; 
+bool SSkillDetails::bRefreshByCheckBoxes = false;
 
 TSharedRef<IDetailCustomization> SSkillDetails::MakeInstance()
 {
@@ -17,7 +22,7 @@ TSharedRef<IDetailCustomization> SSkillDetails::MakeInstance()
 void SSkillDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 {
 
-	UClass* type = UCSkillAsset::StaticClass(); 
+	UClass* type = UCSkillAsset::StaticClass();
 
 	//Type Setting 
 	{
@@ -34,7 +39,7 @@ void SSkillDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 	// Info Data
 	{
 		IDetailCategoryBuilder& category = DetailBuilder.EditCategory("SkillInfoData", FText::FromString(" - Info Settings"));
-		
+
 		IDetailPropertyRow& row = category.AddProperty("SkillInfo", type);
 		row.ShouldAutoExpand(true);
 
@@ -57,14 +62,16 @@ void SSkillDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 			checkBoxes->CheckDefaultValue(index++, data.Cost);
 		}
 	}
-
-
-	// Flow Data 
+	
+	// Flow 
 	{
 		IDetailCategoryBuilder& category = DetailBuilder.EditCategory("SkillFlowData", FText::FromString(" - Flow Settings"));
-		category.AddProperty("SkillFlow", type);
-
+		IDetailPropertyRow& row = category.AddProperty("FlowData", type);
+		//row.ShouldAutoExpand();
+		
+		TSharedPtr<IPropertyHandle> handle = row.GetPropertyHandle();
 	}
+
 }
 
 void SSkillDetails::AddTestCategory(IDetailLayoutBuilder& DetailBuilder)

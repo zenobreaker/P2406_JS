@@ -3,7 +3,7 @@
 #include "Gameframework/Character.h"
 
 #include "Weapons/CWeaponStructures.h" 
-#include "Skill/CSkillEntity.h"
+
 #include "Skill/CSkillCollisionComponent.h"
 #include "Skill/Entities/CSkillEntity_Attachment.h"
 
@@ -73,6 +73,8 @@ void FSkillPhaseData::Phase_PlayCameraShake(ACharacter* InCharacter)
 	cameraManager->StartCameraShake(CameraShake);
 }
 
+//-----------------------------------------------------------------------------
+
 ACSkillEntity* FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
 {
 	CheckNullResult(InCharacter, nullptr);
@@ -80,7 +82,21 @@ ACSkillEntity* FSkillPhaseData::Phase_SpawnSkillEntity(ACharacter* InCharacter)
 	return SkillEntityData.SpawnSkillEntity(InCharacter, Effect);
 }
 
-//-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------
+
+
+FSkillEntityData::FSkillEntityData()
+{
+	SkillEntity = ACSkillEntity::StaticClass();
+
+	SpawnLocation = FVector::ZeroVector;
+	SpawnRotation = FRotator::ZeroRotator;
+	SpawnScale = FVector(1.0f, 1.0f, 1.0f);
+
+	SkillCollisionDatas = TArray<FSkillCollisionData>();
+}
+
 
 ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter, UFXSystemAsset* InEffect)
 {
@@ -101,7 +117,7 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter, UFXSy
 		+ InCharacter->GetActorUpVector() * SpawnLocation.Z;
 
 	FRotator spawnRotation = InCharacter->GetActorRotation();
-	
+
 	FTransform transform;
 	transform.SetRotation(FQuat(spawnRotation));
 	transform.SetLocation(spawnLocation);
@@ -124,11 +140,6 @@ ACSkillEntity* FSkillEntityData::SpawnSkillEntity(ACharacter* InCharacter, UFXSy
 	UGameplayStatics::FinishSpawningActor(skillEntity, transform);
 
 	return skillEntity;
-}
-
-FSkillEntityData::FSkillEntityData()
-{
-	SkillEntity = ACSkillEntity::StaticClass();
 }
 
 //----------------------------------------------------------------------------------

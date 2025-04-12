@@ -10,6 +10,9 @@
 #include "CSkillStructures.generated.h"
 
 
+struct FSkillPhaseData;
+struct FSkillEntityData;
+
 USTRUCT(BlueprintType)
 struct FSkillEffectInfo
 {
@@ -125,7 +128,7 @@ struct FSkillEntityData
 public:
 	// 생성할 클래스
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class ACSkillEntity> SkillEntity;
+	TSubclassOf<class ACSkillEntity> SkillEntity = nullptr;
 
 	/** 스폰할 위치 (기본값: 캐릭터 위치) */
 	UPROPERTY(EditAnywhere)
@@ -139,19 +142,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector SpawnScale = FVector(1.0f, 1.0f, 1.0f);
 
-	//// 충돌판정 스킬 딜레이 값 이 값이 지나야 충돌판정이 생성되게함
-	//UPROPERTY(EditAnywhere, Category = "Skill Collsion")
-	//float CollisionCreateDelay = 0.0f;
-
 	// 이 콜리전의 판정 정보
 	UPROPERTY(EditAnywhere, Category = "Skill Collsion")
-	TArray<FSkillCollisionData> SkillCollisionDatas;
+	TArray<struct FSkillCollisionData> SkillCollisionDatas;
 
 public:
 	FSkillEntityData();
-
+	
 	ACSkillEntity* SpawnSkillEntity(class ACharacter* InCharacter, UFXSystemAsset* InEffect = nullptr);
 };
+
+
 
 /// <summary>
 /// 각 스킬 페이즈별 실행할 정보 구조체  
@@ -187,11 +188,20 @@ public:
 	TSubclassOf<class UCameraShakeBase> CameraShake;
 
 	UPROPERTY(EditAnywhere, Category = "Skill Entity")
-	FSkillEntityData SkillEntityData;
+	FSkillEntityData SkillEntityData = FSkillEntityData();
 
 
 public:
-	FSkillPhaseData() = default;
+	FSkillPhaseData()
+		: PhaseType(ESkillPhase::Max)
+		, Effect(nullptr)
+		, EffectLocation(FVector::ZeroVector)
+		, EffectRotation(FRotator::ZeroRotator)
+		, EffectScale(FVector(1.0f, 1.0f, 1.0f))
+		, Sound(nullptr)
+		, CameraShake(nullptr)
+		, SkillEntityData()  // FSkillEntityData도 기본 생성자를 명시적으로 호출
+	{}
 
 public:
 	ACSkillEntity* ExecutePhase(class ACharacter* InCharacter, FName InSectionName = NAME_None);

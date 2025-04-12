@@ -13,7 +13,7 @@ public:
 	static bool CanDraw(TSharedPtr<class IPropertyHandle> InHandle, int32 InCount);
 
 public:
-	TSharedPtr<SWidget> DrawHeader(); 
+	TSharedRef<SWidget> DrawHeader();
 	void DrawProperties(TSharedRef<IPropertyHandle> InPropertyHandle, IDetailChildrenBuilder* InChildBuilder);
 
 public:
@@ -22,7 +22,11 @@ public:
 	void CheckDefaultValue(int32 InIndex, int32 InDefaultValue);
 	void CheckDefaultValue(int32 InIndex, bool InDefaultValue);
 	void CheckDefaultValue(int32 InIndex, const FVector& InDefaultValue);
+	void CheckDefaultValue(int32 InIndex, const FRotator& InDefaultValue);
 	void CheckDefaultValue(int32 InIndex, const FString& InDefaultValue);
+
+	void CheckDefaultDoActionData(int32 InIndex, const struct FDoActionData& InDefautVale);
+	void CheckDefaultSkillEntityData(int32 InIndex, const struct FSkillEntityData& InDefaultValue);
 
 
 private:

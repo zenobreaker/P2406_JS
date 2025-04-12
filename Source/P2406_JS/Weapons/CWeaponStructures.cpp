@@ -76,6 +76,11 @@ void FDoActionData::AnimationPlayback(ACharacter* InOwner, float InValue)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+FHitData::FHitData()
+{
+
+}
+
 void FHitData::SendDamage(ACharacter* InAttacker, AActor* InAttackCauser, AActor* InOther, bool bFirstHit)
 {
 	FActionDamageEvent e;

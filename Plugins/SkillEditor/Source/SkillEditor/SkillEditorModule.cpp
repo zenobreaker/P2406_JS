@@ -6,6 +6,9 @@
 #include "SkillContextMenu.h"
 #include "SkillStyle.h"
 #include "SkillToolbarButton.h"
+#include "SSkillPhaseData.h"
+#include "SSkillFlowData.h"
+
 
 
 #define LOCTEXT_NAMESPACE "FSkillEditorModule"
@@ -17,6 +20,8 @@ void FSkillEditorModule::StartupModule()
 
 	ContextMenu = MakeShareable(new FSkillContextMenu(categoryType));
 	assetTools.RegisterAssetTypeActions(ContextMenu.ToSharedRef());
+
+	
 
 
 	FSkillStyle::Regist(); 
@@ -37,6 +42,7 @@ void FSkillEditorModule::ShutdownModule()
 		IAssetTools& assetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 		assetTools.UnregisterAssetTypeActions(ContextMenu.ToSharedRef());
 	}
+
 
 	if (ContextMenu.IsValid())
 		ContextMenu.Reset();

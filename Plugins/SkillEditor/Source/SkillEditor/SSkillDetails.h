@@ -3,6 +3,10 @@
 #include "CoreMinimal.h"
 #include "IDetailCustomization.h"
 
+
+struct FSkillPhaseData;
+struct FSkillEntityData;
+
 class SKILLEDITOR_API SSkillDetails
 	: public IDetailCustomization
 {
