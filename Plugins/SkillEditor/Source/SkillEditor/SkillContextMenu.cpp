@@ -29,6 +29,22 @@ uint32 FSkillContextMenu::GetCategories()
 	return Category;
 }
 
+const FSlateBrush* FSkillContextMenu::GetThumbnailBrush(const FAssetData& InAssetData, const FName InClassName) const
+{
+	if (InClassName == TEXT("CSkillAsset"))
+	{
+		UCSkillAsset* skillAsset = Cast<UCSkillAsset>(InAssetData.GetAsset());
+		if (skillAsset && skillAsset->SkillInfo.SkillIcon)
+		{
+			FSlateBrush* brush = new FSlateBrush();
+			brush->SetResourceObject(skillAsset->SkillInfo.SkillIcon);
+			return brush;
+		}
+	}
+	
+	return nullptr;
+}
+
 void FSkillContextMenu::OpenAssetEditor(const TArray<UObject*>& InObjects, const EAssetTypeActivationOpenedMethod OpenedMethod, TSharedPtr<IToolkitHost> EditWithinLevelEditor)
 {
 	//GLog->Logf(L"%d\n", OpenedMethod);
