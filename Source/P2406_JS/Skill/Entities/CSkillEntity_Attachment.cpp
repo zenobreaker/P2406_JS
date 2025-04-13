@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Skill/CSkillCollisionComponent.h"
+#include <Skill\Collisions\CSkillCollision_Shape.h>
 
 
 void ACSkillEntity_Attachment::BeginPlay()
@@ -12,6 +13,17 @@ void ACSkillEntity_Attachment::BeginPlay()
     // 엔티티를 특정한 메쉬에 붙인다.
 	FHelpers::AttachTo(this, OwnerCharacter->GetMesh(), OwnerCharacter->GetMesh()->GetBoneName(0), EAttachmentRule::SnapToTarget);
 }
+
+void ACSkillEntity_Attachment::Tick(float DeltaSeconds)
+{
+
+	
+	CheckNull(OwnerCharacter);
+	USkeletalMeshComponent* skeletal = FHelpers::GetComponent<USkeletalMeshComponent>(OwnerCharacter);
+	CheckNull(skeletal);
+
+}
+
 
 void ACSkillEntity_Attachment::SetSkillEntityData(TArray<FSkillCollisionData>& InDatas)
 {
@@ -61,3 +73,15 @@ void ACSkillEntity_Attachment::SetSkillEntityData(TArray<FSkillCollisionData>& I
 
 	//Super::SetSkillEntityData(InDatas);
 }
+
+void ACSkillEntity_Attachment::UpdateSCC(FName InName, UCSkillCollisionComponent* InSCC)
+{
+	CheckNull(InSCC); 
+
+	UCSkillCollision_Shape* shape   = Cast<UCSkillCollision_Shape>(InSCC);
+	CheckNull(shape);
+
+	shape->SetUpdated(true);
+	shape->SetTargetName(InName);
+}
+

@@ -20,7 +20,13 @@ public:
 	FORCEINLINE TArray<FName> GetSocketNames() { return SocketNames; }
 
 public:
-	virtual void BeginPlay() override;;
-
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	void SetSkillEntityData(TArray<FSkillCollisionData>& InDatas) override;
+
+	virtual void UpdateSCC(FName InName, class UCSkillCollisionComponent* InSCC) override;
+
+private:
+	bool bIsActivated = false;
+	TMap<FName, bool> ActivatedNames;
 };

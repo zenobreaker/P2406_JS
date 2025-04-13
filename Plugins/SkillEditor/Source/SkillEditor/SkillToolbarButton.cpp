@@ -47,7 +47,7 @@ void FSkillToolbarButton::RegisterCommands()
 void FSkillToolbarButton::OnAdd_Buttons(FToolBarBuilder& InBuilder)
 {
 	InBuilder.AddSeparator();
-	InBuilder.AddToolBarButton(SkillInfo, NAME_None, FText(), FText::FromString("Managed Weapon Assets"), FSkillStyle::Get()->SkillIcon);
+	InBuilder.AddToolBarButton(SkillInfo, NAME_None, FText(), FText::FromString("Managed Skill Assets"), FSkillStyle::Get()->SkillIcon);
 }
 
 void FSkillToolbarButton::OnClicked_Skill()

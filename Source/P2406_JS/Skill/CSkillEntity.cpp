@@ -120,6 +120,8 @@ void ACSkillEntity::ActivateCollisionSequence(FName InName)
 			float nextDelay = scc->GetCollisionData().NextDelay;
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, timerDelegate, nextDelay, false);
 		}
+
+		UpdateSCC(InName, scc);
 	}
 }
 

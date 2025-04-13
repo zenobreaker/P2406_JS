@@ -164,7 +164,7 @@ void SSkillListView::ReadSkillAssetList()
 	RowDataPtrs.Empty(); 
 
 	TArray<UObject*> objects;
-	EngineUtils::FindOrLoadAssetsByPath("/Game/Weapon_Skills/", objects, EngineUtils::ATL_Regular);
+	EngineUtils::FindOrLoadAssetsByPath("/Game/", objects, EngineUtils::ATL_Regular);
 
 	int32 index = 0; 
 	for (UObject* obj : objects)

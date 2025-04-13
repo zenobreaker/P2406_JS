@@ -36,6 +36,10 @@ public:
 	UCSkillCollision_Shape();
 
 public:
+	FORCEINLINE void SetUpdated(bool InValue) { bUpdated = InValue; }
+	FORCEINLINE void SetTargetName(FName InName) { TargetName = InName; }
+
+public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -81,4 +85,6 @@ private:
 
 private:
 	float ElapsedTime; 
+	FName TargetName = "Default";
+	bool bUpdated = false; 
 };

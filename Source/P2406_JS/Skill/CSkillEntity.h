@@ -54,8 +54,8 @@ public:
 	virtual void ActivateCollision(FName InName = "Default");
 	// 충돌 종료
 	virtual void DeactivateCollision(FName InName = "Default");
-
-
+	virtual void UpdateSCC(FName InName, class UCSkillCollisionComponent* InSCC) {}
+	
 public:
 	// IAttackInterface을(를) 통해 상속됨
 	AActor* GetDamageSource() const override;

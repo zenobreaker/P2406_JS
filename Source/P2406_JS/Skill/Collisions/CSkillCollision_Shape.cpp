@@ -81,7 +81,21 @@ void UCSkillCollision_Shape::TickComponent(float DeltaTime, ELevelTick TickType,
 		Execute_Laser(currentScale);
 
 	ElapsedTime += DeltaTime;
-	FLog::Print("Scaling : " + currentScale.ToString() + " " + FString::SanitizeFloat(ElapsedTime), 7535);
+	//FLog::Print("Scaling : " + currentScale.ToString() + " " + FString::SanitizeFloat(ElapsedTime), 7535);
+
+	
+	CheckFalse(bUpdated);
+
+	USkeletalMeshComponent* skeletal = FHelpers::GetComponent<USkeletalMeshComponent>(OwnerCharacter);
+	CheckNull(skeletal);
+
+	if (TargetName.IsEqual("Default"))
+		return; 
+	FTransform transform = skeletal->GetSocketTransform(TargetName);
+	Capsule->SetWorldLocationAndRotation(transform.GetLocation(),
+		transform.GetRotation());
+	Box->SetWorldLocationAndRotation(transform.GetLocation(),
+		transform.GetRotation());
 }
 
 void UCSkillCollision_Shape::ActivateCollision()
