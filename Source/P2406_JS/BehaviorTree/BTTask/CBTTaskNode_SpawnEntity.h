@@ -15,6 +15,12 @@ private:
 	TSubclassOf<AActor> EntityClass; 
 
 	UPROPERTY(EditAnywhere, Category = "Entity")
+	float MinRadius = 300.0f; 
+
+	UPROPERTY(EditAnywhere, Category = "Entity")
+	float RandomRadius = 1500.0f; 
+
+	UPROPERTY(EditAnywhere, Category = "Entity")
 	FVector SpawnLocation; 
 
 	UPROPERTY(EditAnywhere, Category = "Entity")

@@ -35,6 +35,9 @@ float ACAttachment_Destructible::TakeDamage(float Damage, FDamageEvent const& Da
 
 	CheckNullResult(DamageHandler, Damage);
 
+	if (bDamagable == false)
+		return Damage;
+
 	DamageHandler->ApplyDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	if (!!HealthPoint && HealthPoint->IsDead())

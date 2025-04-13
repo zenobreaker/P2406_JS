@@ -33,10 +33,15 @@ public:
 	TSubclassOf<class UCBuffUIManager> BuffUIManagerClass;
 
 public:
+	UPROPERTY();
 	class UCPatternConditionManager* PatternCondition;
+	UPROPERTY();
 	class UCSkillManager* SkillManager;
+	UPROPERTY();
 	class UCBattleManager* BattleManager;
+	UPROPERTY();
 	class UCGameManager* GameManager;
+	UPROPERTY();
 	class UCBuffUIManager* BuffUIManager; 
 
 };

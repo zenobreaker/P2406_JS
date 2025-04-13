@@ -25,6 +25,9 @@ public:
 	ACAttachment_Destructible(); 
 
 public:
+	FORCEINLINE void SetDamagable(bool InValue) { bDamagable = InValue; }
+
+public:
 	void BeginPlay() override;
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -34,4 +37,6 @@ public:
 public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
+private:
+	bool bDamagable = true; 
 };

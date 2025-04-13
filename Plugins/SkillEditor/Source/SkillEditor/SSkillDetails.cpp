@@ -53,13 +53,16 @@ void SSkillDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 			FSkillInfo data;
 
 			int32 index = 0;
-			checkBoxes->CheckDefaultValue(index++, (int32)data.WeaponType);
-			checkBoxes->CheckDefaultValue(index++, data.SkillID);
-			checkBoxes->CheckDefaultObject(index++, data.SkillIcon);
-			checkBoxes->CheckDefaultValue(index++, data.SkillName);
-			checkBoxes->CheckDefaultValue(index++, data.CastingTime);
-			checkBoxes->CheckDefaultValue(index++, data.CoolDown);
-			checkBoxes->CheckDefaultValue(index++, data.Cost);
+			if (checkBoxes.IsValid())
+			{
+				checkBoxes->CheckDefaultValue(index++, (int32)data.WeaponType);
+				checkBoxes->CheckDefaultValue(index++, data.SkillID);
+				checkBoxes->CheckDefaultObject(index++, data.SkillIcon);
+				checkBoxes->CheckDefaultValue(index++, data.SkillName);
+				checkBoxes->CheckDefaultValue(index++, data.CastingTime);
+				checkBoxes->CheckDefaultValue(index++, data.CoolDown);
+				checkBoxes->CheckDefaultValue(index++, data.Cost);
+			}
 		}
 	}
 	

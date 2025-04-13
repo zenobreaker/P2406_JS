@@ -25,6 +25,7 @@ public:
 public:
 	// 스킬 델리게이트 
 	FOnUpdateCooldown OnUpdateCooldown;
+	FCriticalSection Mutex;
 
 private:
 	TMap<int32, float> CooldownTable;

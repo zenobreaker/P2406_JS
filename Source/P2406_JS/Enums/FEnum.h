@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 
@@ -61,7 +61,7 @@ enum class EConditionState : uint8
     CONDITION_AIRBORNE = 1 << 3 UMETA(DisplayName = "Airborne"),
     CONDITION_SUPERARMOR = 1 << 4 UMETA(DisplayName = "Superaromor"),
     CONDITION_INVICIBLE = 1 << 5 UMETA(DisplayName = "Invicible"),
-    // ÇÊ¿ä »óÅÂ Ãß°¡
+    // í•„ìš” ìƒíƒœ ì¶”ê°€
 };
 
 
@@ -101,9 +101,9 @@ enum class ESkillPhase : uint8
 	Finished,
 
 	ExtraPhase		= 10,
-	Begin_Charging,			// Ãß°¡: ÃæÀü Áß
+	Begin_Charging,			// ì¶”ê°€: ì¶©ì „ ì¤‘
 	End_Charging,
-	WaitingForInput ,	// Ãß°¡: ÀÔ·Â ´ë±â Áß
+	WaitingForInput ,	// ì¶”ê°€: ìž…ë ¥ ëŒ€ê¸° ì¤‘
 
 	Max = Finished + 1,
 };

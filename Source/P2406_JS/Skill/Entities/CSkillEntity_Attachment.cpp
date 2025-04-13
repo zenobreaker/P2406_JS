@@ -3,7 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Skill/CSkillCollisionComponent.h"
-#include <Skill\Collisions\CSkillCollision_Shape.h>
+#include "Skill/Collisions/CSkillCollision_Shape.h"
 
 
 void ACSkillEntity_Attachment::BeginPlay()

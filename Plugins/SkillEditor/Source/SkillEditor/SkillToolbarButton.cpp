@@ -3,7 +3,7 @@
 
 #include "SkillAssetEditor.h"
 #include "SkillStyle.h"
-#include "Skill//CSkillAsset.h"
+#include "Skill/CSkillAsset.h"
 
 FSkillToolbarButton::FSkillToolbarButton()
 	: TCommands("ToolBar_Button", FText(), NAME_None, FAppStyle::GetAppStyleSetName())

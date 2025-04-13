@@ -44,11 +44,14 @@ float UCDamageHandler::CalcFinalDamage(const float InDamage, const FHitData& InH
 {
 	float power = InDamage; 
 
-	UCStatComponent* receiveStat = FHelpers::GetComponent<UCStatComponent>(InReceiver); 
-	if (!!receiveStat)
+	if (InReceiver != nullptr)
 	{
-		float defense = receiveStat->GetStatValue(ECharStatType::Defense); 
-		power = FMath::Max(power - defense, 1.0f); 
+		UCStatComponent* receiveStat = FHelpers::GetComponent<UCStatComponent>(InReceiver);
+		if (receiveStat != nullptr)
+		{
+			float defense = receiveStat->GetStatValue(ECharStatType::Defense);
+			power = FMath::Max(power - defense, 1.0f);
+		}
 	}
 
 	return power;

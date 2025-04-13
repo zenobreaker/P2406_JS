@@ -6,6 +6,7 @@
 #include "Characters/CBoss_AI.h"
 #include "Characters/CAIController.h"
 #include "Weapons/CAttachment.h"
+#include "Weapons/Attachments/CAttachment_Destructible.h"
 
 
 UCAnimNotify_Pickup::UCAnimNotify_Pickup()
@@ -39,5 +40,9 @@ void UCAnimNotify_Pickup::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 		CheckNull(pickup);
 
 		FHelpers::AttachTo(pickup, boss->GetMesh(), "Right_Trunk", EAttachmentRule::SnapToTarget);
+		ACAttachment_Destructible* destructible = Cast<ACAttachment_Destructible>(pickup);
+		CheckNull(destructible); 
+		
+		destructible->SetDamagable(false);
 	}
 }

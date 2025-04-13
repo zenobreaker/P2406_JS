@@ -247,11 +247,18 @@ void UCSkillCollision_Shape::EndSkillCollision()
 {
 	bActivate = false;
 
-	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (Capsule != nullptr)
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Capsule->DestroyComponent();
+	}
 
-	Capsule->DestroyComponent();
-	Box->DestroyComponent();
+	if (Box != nullptr)
+	{
+		Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Box->DestroyComponent();
+	}
+
 	LastList.Empty();
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
