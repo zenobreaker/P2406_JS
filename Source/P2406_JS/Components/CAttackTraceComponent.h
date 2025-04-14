@@ -26,6 +26,9 @@ class P2406_JS_API UCAttackTraceComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trace")
+    bool bDrawDebug = false; 
+
 	  // 트레이스 설정
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trace")
     float TraceRadius = 50.0f;

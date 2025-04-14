@@ -11,7 +11,7 @@
 #include "Weapons/CAttachment.h"
 
 
-//#define  LOG_UCAttackTraceComponent
+
 
 UCAttackTraceComponent::UCAttackTraceComponent()
 {
@@ -79,14 +79,17 @@ void UCAttackTraceComponent::TickComponent(float DeltaTime,
 	);
 
 
-#ifdef  LOG_UCAttackTraceComponent
-	FColor color = bCheck ? FColor::Red : FColor::Blue;
+#ifdef WITH_EDITOR
+	if (bDrawDebug)
+	{
+		FColor color = bCheck ? FColor::Red : FColor::Blue;
 
-	DrawDebugLine(GetWorld(), startLocation, endLocation, color, false, 1);
-	DrawDebugCapsule(GetWorld(),
-		(endLocation + startLocation) * 0.5f,
-		CapsuleHalfHeight,
-		CapsuleRadius, quat, color, false, 1);
+		DrawDebugLine(GetWorld(), startLocation, endLocation, color, false, 1);
+		DrawDebugCapsule(GetWorld(),
+			(endLocation + startLocation) * 0.5f,
+			CapsuleHalfHeight,
+			CapsuleRadius, quat, color, false, 1);
+	}
 #endif //  LOG_UCAttackTraceComponent
 
 
@@ -200,10 +203,14 @@ bool UCAttackTraceComponent::HandleAirborneTrace()
 
 
 
-#ifdef  LOG_UCAttackTraceComponent
-	FColor color = bCheck ? FColor::Orange : FColor::Green;
+#ifdef WITH_EDITOR
 
-	DrawDebugSphere(GetWorld(), startLocation, AirTraceRadius, 10, color, false, 3);
+	if (bDrawDebug)
+	{
+		FColor color = bCheck ? FColor::Orange : FColor::Green;
+
+		DrawDebugSphere(GetWorld(), startLocation, AirTraceRadius, 10, color, false, 3);
+	}
 #endif //  LOG_UCAttackTraceComponent
 
 
