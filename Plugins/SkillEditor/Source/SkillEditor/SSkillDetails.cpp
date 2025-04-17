@@ -8,7 +8,6 @@
 #include "SSkillPhaseData.h"
 #include "SSkillCheckBoxes.h"
 
-
 #include "P2406_JS/Skill/CSkillStructures.h"
 #include "Skill/CSkillAsset.h"
 
@@ -70,9 +69,6 @@ void SSkillDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 	{
 		IDetailCategoryBuilder& category = DetailBuilder.EditCategory("SkillFlowData", FText::FromString(" - Flow Settings"));
 		IDetailPropertyRow& row = category.AddProperty("FlowData", type);
-		//row.ShouldAutoExpand();
-		
-		TSharedPtr<IPropertyHandle> handle = row.GetPropertyHandle();
 	}
 
 }

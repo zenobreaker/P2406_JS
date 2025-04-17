@@ -7,7 +7,8 @@
 #include "SSkillInfoData.h"
 #include "SSkillFlowData.h"
 #include "SSkillPhaseData.h"
-
+#include "SSkillCollisionDatas.h"
+#include "SSkillEffect.h"
 
 #include "Skill/CSkillAsset.h"
 
@@ -77,6 +78,26 @@ void FSkillAssetEditor::Open(FString InAssetName)
 		instance.BindStatic(SSkillDetails::MakeInstance);
 		Details->SetGenericLayoutDetailsDelegate(instance);
 	}
+
+
+	//// Skill Effect - Property
+	//{
+	//	FString typeName = FSkillEffectInfo::StaticStruct()->GetName();
+
+	//	FOnGetPropertyTypeCustomizationInstance instance;
+	//	instance.BindStatic(SSkillEffect::MakeInstance);
+	//	propertyEditor.RegisterCustomPropertyTypeLayout(FName(typeName), instance);
+	//}
+
+	// Skill Collision data - Property 
+	{
+		FString typeName = FSkillCollisionData::StaticStruct()->GetName();
+
+		FOnGetPropertyTypeCustomizationInstance instance;
+		instance.BindStatic(SSkillCollisionDatas::MakeInstance);
+		propertyEditor.RegisterCustomPropertyTypeLayout(FName(typeName), instance);
+	}
+
 
 	// Skill Flow - Property
 	{
@@ -172,6 +193,8 @@ bool FSkillAssetEditor::OnRequestClose(EAssetEditorCloseReason InCloseReason)
 			propertyEditor.UnregisterCustomClassLayout(FName(FSkillInfo::StaticStruct()->GetName()));
 			propertyEditor.UnregisterCustomClassLayout(FName(FSkillFlowData::StaticStruct()->GetName()));
 			propertyEditor.UnregisterCustomClassLayout(FName(FSkillPhaseData::StaticStruct()->GetName()));
+			propertyEditor.UnregisterCustomClassLayout(FName(FSkillCollisionData::StaticStruct()->GetName()));
+			propertyEditor.UnregisterCustomClassLayout(FName(FSkillEffectInfo::StaticStruct()->GetName()));
 		}
 	}
 

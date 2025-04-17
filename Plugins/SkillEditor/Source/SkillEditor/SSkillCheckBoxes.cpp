@@ -5,6 +5,8 @@
 #include "Widgets/Layout/SUniformGridPanel.h"
 
 #include "SSkillDetails.h"
+#include "SSkillCollisionDatas.h"
+
 #if WITH_EDITOR
 #include "Weapons/CWeaponStructures.h"
 #include "Skill/CSkillStructures.h"
@@ -70,9 +72,6 @@ void SSkillCheckBoxes::DrawProperties(TSharedRef<IPropertyHandle> InPropertyHand
 		TSharedPtr<IPropertyHandle> child = InPropertyHandle->GetChildHandle(i);
 		IDetailPropertyRow& row = InChildBuilder->AddProperty(child.ToSharedRef());
 
-		FText value;
-		child->GetValueAsDisplayText(value);
-
 		row.CustomWidget()
 			.NameContent()
 			[
@@ -85,6 +84,7 @@ void SSkillCheckBoxes::DrawProperties(TSharedRef<IPropertyHandle> InPropertyHand
 			];
 	}
 }
+
 
 void SSkillCheckBoxes::CheckDefaultObject(int32 InIndex, UObject* InDefaultValue)
 {
@@ -191,10 +191,12 @@ void SSkillCheckBoxes::OnCheckStateChanged(ECheckBoxState InState, int32 InIndex
 	InternalDatas[InIndex].bChecked = !InternalDatas[InIndex].bChecked;
 
 	SSkillDetails::OnResfreshByCheckBoxes();
+	SSkillCollisionDatas::OnResfreshByCheckBoxes();
 	{
 		Utilities->ForceRefresh();
 	}
 	SSkillDetails::OffResfreshByCheckBoxes();
+	SSkillCollisionDatas::OffResfreshByCheckBoxes();
 }
 
 void SSkillCheckBoxes::SetUtilities(TSharedPtr<class IPropertyUtilities> InUtilities)
