@@ -90,8 +90,8 @@ public:
 	/*UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACGhostTrail> GhostTrailClass;*/
 
-//private:
-//	class ACGhostTrail* GhostTrail;
+	//private:
+	//	class ACGhostTrail* GhostTrail;
 
 public:
 	void DoAction(class ACharacter* InOwner, /*bool IsImmedate = false, */FName InSectionName = NAME_None);
@@ -107,13 +107,13 @@ struct FHitData
 
 public:
 	UPROPERTY(EditAnywhere)
-	class UAnimMontage* Montage;
+	class UAnimMontage* Montage = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float PlayRate = 1;
 
 	UPROPERTY(EditAnywhere)
-	float Power =0.0f;
+	float Power = 0.0f;
 
 	UPROPERTY(EditAnywhere)
 	float Launch = 100;
@@ -122,16 +122,16 @@ public:
 	float Airial = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	float StopTime =0.0f;
+	float StopTime = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	bool bDown = false; 
+	bool bDown = false;
 
 	UPROPERTY(EditAnywhere)
 	class USoundWave* Sound = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	class UFXSystemAsset* Effect = nullptr; 
+	class UFXSystemAsset* Effect = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	FVector EffectLocation = FVector::ZeroVector;
@@ -140,11 +140,11 @@ public:
 	FVector EffectScale = FVector::OneVector;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UCameraShakeBase> CameraShake = nullptr; 
+	TSubclassOf<class UCameraShakeBase> CameraShake = nullptr;
 
 
 public:
-	FHitData();
+	FHitData() {};
 
 public:
 	void SendDamage(class ACharacter* InAttacker, AActor* InAttackCauser, class AActor* InOther, bool bFirstHit = false);
@@ -160,9 +160,9 @@ struct FActionDamageEvent : public FDamageEvent
 	GENERATED_BODY()
 
 public:
-	bool bFirstHit;
-	bool bCriticalHit;
-	FHitData* HitData;
+	bool bFirstHit = false;
+	bool bCriticalHit = false;
+	FHitData* HitData = nullptr;
 };
 
 

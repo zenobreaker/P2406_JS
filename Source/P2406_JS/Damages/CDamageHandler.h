@@ -34,10 +34,11 @@ struct FDamageData
 	GENERATED_BODY()
 
 public:
-	float Power;
-	class ACharacter* Attacker;
-	class AActor* Causer;
+	float Power = 0.0f;
+	class ACharacter* Attacker = nullptr;
+	class AActor* Causer = nullptr;
 
+public:
 	struct FActionDamageEvent* Event;
 };
 

@@ -43,7 +43,6 @@ void FSkillEditorModule::ShutdownModule()
 		assetTools.UnregisterAssetTypeActions(ContextMenu.ToSharedRef());
 	}
 
-
 	if (ContextMenu.IsValid())
 		ContextMenu.Reset();
 }

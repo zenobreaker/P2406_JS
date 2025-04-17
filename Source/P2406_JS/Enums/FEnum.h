@@ -101,9 +101,11 @@ enum class ESkillPhase : uint8
 	Finished,
 
 	ExtraPhase		= 10,
-	Begin_Charging,			// 추가: 충전 중
+	// 추가: 충전 중
+	Begin_Charging,			
 	End_Charging,
-	WaitingForInput ,	// 추가: 입력 대기 중
+	// 추가: 입력 대기 중
+	WaitingForInput ,	
 
 	Max = Finished + 1,
 };
