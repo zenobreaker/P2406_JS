@@ -1070,4 +1070,9 @@ void ACPlayer::Test_Invicible()
 	}
 }
 
+void ACPlayer::OnSpectoringCamear()
+{
+
+}
+
 

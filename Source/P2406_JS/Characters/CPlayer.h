@@ -230,6 +230,11 @@ public:
 
 	void Test_Invicible();
 
+	void OnSpectoringCamear(); 
+
+private:
+	class APawn* SpectorCamPawn;
+	class APawn* OriginalPawn;
 
 private:
 	class UCUserWidget_Player* UserInterface;

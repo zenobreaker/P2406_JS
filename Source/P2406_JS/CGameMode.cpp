@@ -6,11 +6,14 @@
 #include "Widgets/CUserWidget_SkillHUD.h"
 
 #include "Characters/CEnemy_AI.h"
+#include "Characters/CPlayerController.h"
 #include "Components/CConditionComponent.h"
 
 ACGameMode::ACGameMode()
 {
 	FHelpers::GetClass<APawn>(&DefaultPawnClass, "/Script/Engine.Blueprint'/Game/Player/BP_CPlayer2.BP_CPlayer2_C'");
+	PlayerControllerClass = ACPlayerController::StaticClass(); 
+
 
 	PrimaryActorTick.bCanEverTick = true;
 }

@@ -120,6 +120,8 @@ void UCMovementComponent::OnMoveRight(float InAxis)
 	InputDirection.Y = direction.Y * InAxis;
 }
 
+
+
 void UCMovementComponent::OnHorizontalLook(float InAxis)
 {
 	CheckTrue(bFixedCamera);
