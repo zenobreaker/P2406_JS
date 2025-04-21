@@ -24,6 +24,5 @@ void UCBTService_WaitPattern::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 	CheckNull(behavior); 
 
 	CheckFalse(behavior->IsWaitMode());
-	// TODO: 이거 나중에 해요 
 
 }

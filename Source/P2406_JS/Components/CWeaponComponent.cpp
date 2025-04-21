@@ -374,9 +374,7 @@ void UCWeaponComponent::Handle_EndDoAction()
 	DYNAMIC_EVENT_CALL(OnEndedDoAction);
 }
 
-/// <summary>
-/// 
-/// </summary>
+
 //----------------------------------------------------------------------------------------
 void UCWeaponComponent::ExecuteSkill(const int32 InIndex)
 {

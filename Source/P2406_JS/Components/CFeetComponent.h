@@ -35,6 +35,10 @@ class P2406_JS_API UCFeetComponent : public UActorComponent
 private:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	TEnumAsByte<EDrawDebugTrace::Type> DrawDebug;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bEnableDebug = false; 
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	float TraceDistance = 50.0f;

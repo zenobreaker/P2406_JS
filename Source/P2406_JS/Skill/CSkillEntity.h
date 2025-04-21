@@ -9,10 +9,8 @@
 
 
 
-/// <summary>
 /// 맵의 배치되는 스킬 오브젝트 
 /// 스킬의 속성, 충돌관리하는 CollisionComponent를 관리
-/// </summary>
 UCLASS()
 class P2406_JS_API ACSkillEntity
 	: public AActor

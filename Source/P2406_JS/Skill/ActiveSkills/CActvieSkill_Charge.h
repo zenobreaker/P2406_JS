@@ -1,13 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Skill/CActiveSkill.h"
 #include "Skill/Skill_Interface/ChargableSkill.h"
 #include "CActvieSkill_Charge.generated.h"
 
-/// <summary>
-/// ÀÔ·ÂÇÏ´Â ½Ã°£¿¡ µû¶ó ¸ğ¼ÇÀÌ ´Ş¸®ÇÏ´Â ½ºÅ³ 
-/// </summary>
+/// ì…ë ¥í•˜ëŠ” ì‹œê°„ì— ë”°ë¼ ëª¨ì…˜ì´ ë‹¬ë¦¬í•˜ëŠ” ìŠ¤í‚¬ 
 UCLASS()
 class P2406_JS_API UCActvieSkill_Charge
 	: public UCActiveSkill
@@ -26,7 +24,7 @@ protected:
 	float MaxChargeTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge Info")
-	float MinChargeTime = 0.15f; // ÃÖ¼Ò ÃæÀü ÀÎÁ¤ ½Ã°£ 
+	float MinChargeTime = 0.15f; // ìµœì†Œ ì¶©ì „ ì¸ì • ì‹œê°„ 
 
 public:
 	virtual void Tick(float InDeltaTime) override;
@@ -42,13 +40,13 @@ protected:
 	virtual void Begin_Charging() {};
 	virtual void End_Charging() {};
 
-	// IChargableSkillÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// IChargableSkillì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	virtual void StartCharing() override;
 	virtual void ReleaseCharge() override;
 
 protected:
 	bool bIsInput = false; 
 	bool bIsExecuteInput = false;
-	// ÀÔ·Â ¹ŞÀº ½Ã°£ 
+	// ì…ë ¥ ë°›ì€ ì‹œê°„ 
 	float ChargeTime = 0.0f;
 };

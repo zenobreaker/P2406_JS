@@ -16,7 +16,6 @@ ACAttachment_Bow::ACAttachment_Bow()
 
 	USkeletalMesh* mesh = nullptr;
 	FHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Characters/Weapons/ElvenBow/SK_ElvenBow.SK_ElvenBow'");
-	//TODO: 필요없는 소스 지웠는데 여기서 에러나서 일단 방어코드 처리
 	if (!!mesh)
 	{
 		SkeletalMesh->SetSkeletalMesh(mesh);

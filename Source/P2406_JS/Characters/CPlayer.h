@@ -228,6 +228,8 @@ public:
 	void StartGuard() override;
 	void StopGuard() override;
 
+	void Test_Invicible();
+
 
 private:
 	class UCUserWidget_Player* UserInterface;

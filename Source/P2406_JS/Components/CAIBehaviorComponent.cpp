@@ -303,7 +303,6 @@ void UCAIBehaviorComponent::ChangeType(EAIStateType InType)
 
 	PrevType = GetType();
 
-	//TODO: 임시 코드 
 	if (PrevType == EAIStateType::Dead)
 		return;
 

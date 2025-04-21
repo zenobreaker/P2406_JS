@@ -67,9 +67,8 @@ public:
 };
 
 
-/// <summary>
-/// 스킬 충돌체  데미지 등 관련
-/// </summary>
+
+// 스킬 충돌체  데미지 등 관련
 USTRUCT(BlueprintType)
 struct FSkillCollisionData
 {
@@ -117,9 +116,7 @@ public:
 	void Play_SkillEffect(AActor* InActor);
 };
 
-/// <summary>
-/// 스킬 충돌체 관리자(Skill Entity) 생성 정보 구조체
-/// </summary>
+// 스킬 충돌체 관리자(Skill Entity) 생성 정보 구조체
 USTRUCT(BlueprintType)
 struct FSkillEntityData
 {
@@ -154,9 +151,7 @@ public:
 
 
 
-/// <summary>
-/// 각 스킬 페이즈별 실행할 정보 구조체  
-/// </summary>
+// 각 스킬 페이즈별 실행할 정보 구조체  
 USTRUCT(BlueprintType)
 struct FSkillPhaseData
 {
@@ -213,9 +208,7 @@ public:
 	ACSkillEntity* Phase_SpawnSkillEntity(class ACharacter* InCharacter);
 };
 
-///<summary>
-/// 각 스킬 페이즈별 실행할 정보 구조체 
-///</summary>
+// 각 스킬 페이즈별 실행할 정보 구조체 
 USTRUCT(BlueprintType)
 struct FSkillFlowData
 {

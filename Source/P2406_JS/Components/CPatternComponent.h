@@ -72,10 +72,6 @@ public:
 
 	void ExecutePattern();
 	void DecidePattern();
-
-	//TODO: 패턴을 수행하기 위한 조건을 반환하는 함수가 필요해
-	// 1. 추격 2. 뭐 대기 .. 
-
 public:
 	void Begin_Pattern();
 	void End_Pattern();

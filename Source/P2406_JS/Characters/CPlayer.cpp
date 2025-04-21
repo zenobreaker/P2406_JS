@@ -284,7 +284,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	if (!!Zoom)
 		PlayerInputComponent->BindAxis("Zoom", Zoom, &UCZoomComponent::SetValue);
 
-	//TODO: 일단무식한 방법으로 처리함 나중에 개념 충족하면 여기 수정하기 
+
 	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Pressed, this,
 		&ACPlayer::OnSkill1);
 	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Released, this,
@@ -325,6 +325,8 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Open_BuffHUD", IE_Pressed, this,
 		&ACPlayer::OnActivateBuffHUD);
 
+	PlayerInputComponent->BindAction("Test_Invi", IE_Pressed, this,
+		&ACPlayer::Test_Invicible);
 }
 
 float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -335,6 +337,14 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
 	DamageData.Causer = DamageCauser;
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
+
+	// Invicible Check 
+	{
+		if (Condition != nullptr && Condition->GetInvicibleCondition())
+		{
+			return Damage; 
+		}
+	}
 
 	//Guard Check
 	{
@@ -1042,6 +1052,22 @@ void ACPlayer::StartGuard()
 void ACPlayer::StopGuard()
 {
 	CheckNull(Guard);
+}
+
+void ACPlayer::Test_Invicible()
+{
+	CheckNull(Condition); 
+
+	if (Condition->GetInvicibleCondition() == true)
+	{
+		Condition->RemoveInvicibleCondition();
+		FLog::Log("Remove Invi");
+	}
+	else
+	{
+		Condition->AddInvicibleCondition();
+		FLog::Log("Add Invi");
+	}
 }
 
 

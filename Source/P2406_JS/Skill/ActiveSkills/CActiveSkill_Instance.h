@@ -4,9 +4,7 @@
 #include "Skill/CActiveSkill.h"
 #include "CActiveSkill_Instance.generated.h"
 
-/// <summary>
 /// 일반적으로 스킬 기능을 수행하는 클래스 
-/// </summary>
 UCLASS()
 class P2406_JS_API UCActiveSkill_Instance : public UCActiveSkill
 {

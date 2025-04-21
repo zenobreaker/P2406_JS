@@ -40,7 +40,6 @@ void UCBTTaskNode_ExecutePattern::TickTask(UBehaviorTreeComponent& OwnerComp, ui
 	CheckNull(controller); 
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
 	CheckNull(pattern);
-	//TODO: 패턴 종료된 값 확인
 
 	if(pattern->IsExecutePattern() == false)
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

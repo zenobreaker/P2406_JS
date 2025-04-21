@@ -202,42 +202,6 @@ void ACEnemy::Damaged()
 		}
 	}
 
-	//if (!!DamageData.Event && !!DamageData.Event->HitData )
-	//{
-	//	FHitData* hitData = DamageData.Event->HitData;
-
-
-	//	// 히트 및 효과 처리 
-	//	{
-	//		hitData->PlaySoundWave(this);
-	//		hitData->PlayEffect(this);
-	//	}
-
-	//	if (DamageData.Event->bFirstHit)
-	//	{
-	//		hitData->PlayHitStop(this);
-	//		hitData->PlayCameraShake(this);
-	//	}
-
-	//	if (!!Condition && Condition->GetSuperArmorCondition() == false)
-	//	{
-	//		Play_DamageMontage(*hitData);
-
-	//		if (HealthPoint->IsDead() == false)
-	//		{
-	//			Launch(*hitData);
-	//		}
-	//	}
-
-	//	//TODO: 상태 관련한 데이터를 따로 구성해야 할까?
-	//	//TODO: 상태 변화에 대한 정보를 받는 처리를 따로 호출할 수 있도록 해야하지않을까?
-	//	if (!!Condition)
-	//	{
-	//		if (hitData->bDown)
-	//			Condition->AddDownCondition();
-	//	}
-	//}
-
 	if (HealthPoint->IsDead())
 	{
 		State->SetDeadMode();

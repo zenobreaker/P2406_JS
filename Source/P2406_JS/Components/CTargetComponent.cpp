@@ -92,10 +92,10 @@ void UCTargetComponent::Start()
 
 void UCTargetComponent::End()
 {
-	Target = nullptr;
-
 	if (!!TargetUi)
 		TargetUi->DestroyComponent();
+
+	Target = nullptr;
 }
 
 void UCTargetComponent::Change(ACharacter* InCandidate)
@@ -118,6 +118,9 @@ void UCTargetComponent::Change(ACharacter* InCandidate)
 		{
 			TargetUi->AttachToComponent(InCandidate->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 			TargetUi->RegisterComponent();
+			FTransform transform;
+			transform.SetLocation(FVector(0, 0, 50));
+			TargetUi->SetRelativeTransform(transform);
 
 			TargetUi->SetWidgetClass(TargetUiClass);
 			TargetUi->SetWidgetSpace(EWidgetSpace::Screen);

@@ -73,7 +73,6 @@ void ACGhostTrail::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
 
-//TODO: 오브젝트 풀링을 한다면 이 함수는 따로 처리해야함
 void ACGhostTrail::DestroyTrail()
 {
 	// 서브 메쉬들 있으면 삭제

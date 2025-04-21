@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Skill/CSkillEntity.h"
 #include "CSkillEntity_Attachment.generated.h"
 
 
-// OwnerÀÇ Æ¯Á¤ ¼ÒÄÏ¿¡ ÁöÁ¤µÈ Äİ¸®ÀüÀ» ºÙÀÎ´Ù. 
+// Ownerì˜ íŠ¹ì • ì†Œì¼“ì— ì§€ì •ëœ ì½œë¦¬ì „ì„ ë¶™ì¸ë‹¤. 
 UCLASS(BlueprintType)
 class P2406_JS_API ACSkillEntity_Attachment : public ACSkillEntity
 {

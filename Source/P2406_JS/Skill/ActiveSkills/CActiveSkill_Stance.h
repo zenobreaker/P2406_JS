@@ -1,13 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Skill/CActiveSkill.h"
 #include "Skill/Skill_Interface/InputableSkill.h"
 #include "CActiveSkill_Stance.generated.h"
 
-/// <summary>
-///  ÀÌ ½ºÅ³Àº Æ¯Á¤ ÀÔ·ÂÀÌ µÉ ¶§ ±îÁö Æ¯Á¤ µ¥ÀÌÅÍ »óÅÂ¿¡¼­ ´ë±â ÇÏ´Â Æ¯Â¡À» °¡Áø´Ù.
-/// </summary>
+//  ì´ ìŠ¤í‚¬ì€ íŠ¹ì • ì…ë ¥ì´ ë  ë•Œ ê¹Œì§€ íŠ¹ì • ë°ì´í„° ìƒíƒœì—ì„œ ëŒ€ê¸° í•˜ëŠ” íŠ¹ì§•ì„ ê°€ì§„ë‹¤.
 UCLASS()
 class P2406_JS_API UCActiveSkill_Stance 
 	: public UCActiveSkill
@@ -20,10 +18,10 @@ public:
 	virtual void BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillFlowData InFlowData) override;
 
 protected:
-	// ÀÔ·Â ¹ŞÀ» Å° ¼¼ÆÃ 
+	// ì…ë ¥ ë°›ì„ í‚¤ ì„¸íŒ… 
 	void SetInputKey(FKey InTargetKey); 
 
-	// Æ¯Á¤ Å° ÀÔ·Â 
+	// íŠ¹ì • í‚¤ ì…ë ¥ 
 	virtual void Input_AnyKey(); 
 	
 protected:
@@ -42,10 +40,10 @@ protected:
 	bool CheckReleasedSetKey(); 
 
 protected:
-	// ÀÌ ½ºÅ³ÀÌ ¼¼ÆÃµÈ Å°º¸µå Å°ÄÚµå 
+	// ì´ ìŠ¤í‚¬ì´ ì„¸íŒ…ëœ í‚¤ë³´ë“œ í‚¤ì½”ë“œ 
 	TMap<FKey, bool> InputKeyTable;
 
-	// ¼¼ÆÃÇÑ Å°°¡ ´­·ÈÀ½ 
+	// ì„¸íŒ…í•œ í‚¤ê°€ ëˆŒë ¸ìŒ 
 	bool bCanInput = false; 
 
 

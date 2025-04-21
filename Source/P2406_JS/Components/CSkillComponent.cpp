@@ -192,7 +192,6 @@ void UCSkillComponent::SetSkillList(const TArray<UCActiveSkill*>& InActiveSkills
 	// 스킬 슬롯 한 번 정리 
 	SetEmptySkillList();
 
-	//TODO: 사용할 스킬 정보만 어케 따로 정리하는 내용이 필요하다 무기별로 사용가능 스킬은 여럿이 될 수 있으므로 
 	int cnt = 0;
 	for (UCActiveSkill* activeSkill : InActiveSkills)
 	{

@@ -5,9 +5,7 @@
 #include "CActiveSkill_JudgementBlade.generated.h"
 
 
-/// <summary>
-/// 기를 모은 후에 검을 휘둘러 주변 공간을 베는 기술  
-/// </summary>
+// 기를 모은 후에 검을 휘둘러 주변 공간을 베는 기술  
 UCLASS()
 class P2406_JS_API UCActiveSkill_JudgementBlade : public UCActiveSkill_Instance
 {

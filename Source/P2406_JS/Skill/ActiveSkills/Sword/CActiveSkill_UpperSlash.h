@@ -6,10 +6,8 @@
 #include "CActiveSkill_UpperSlash.generated.h"
 
 
-/// <summary>
-/// 이 스킬은 홀딩 기능이 내장되어 있다.
-/// 짧게 누르면 빠르게 올려베고 어느 정도 충전하면 빠르게 전방으로 날아가 높이 벤다
-/// </summary>
+// 이 스킬은 홀딩 기능이 내장되어 있다.
+// 짧게 누르면 빠르게 올려베고 어느 정도 충전하면 빠르게 전방으로 날아가 높이 벤다
 UCLASS()
 class P2406_JS_API UCActiveSkill_UpperSlash
 	: public UCActvieSkill_Charge

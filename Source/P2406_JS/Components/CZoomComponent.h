@@ -1,13 +1,13 @@
-#pragma once
+Ôªø#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CZoomComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Additional), meta=(BlueprintSpawnableComponent, DisplayName = "¡‹ ƒƒ∆˜≥Õ∆Æ"))
+UCLASS( ClassGroup=(Additional), meta=(BlueprintSpawnableComponent, DisplayName = "Ï§å Ïª¥Ìè¨ÎÑåÌä∏"))
 class P2406_JS_API UCZoomComponent : public UActorComponent
-{
+{ 
 	GENERATED_BODY()
 
 private:

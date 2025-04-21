@@ -1,10 +1,10 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Skill/CActiveSkill.h"
 #include "CActiveSkill_Pattern.generated.h"
 
-// AI ÆÐÅÏ¿ë ½ºÅ³ 
+// AI íŒ¨í„´ìš© ìŠ¤í‚¬ 
 UCLASS()
 class P2406_JS_API UCActiveSkill_Pattern : public UCActiveSkill
 {

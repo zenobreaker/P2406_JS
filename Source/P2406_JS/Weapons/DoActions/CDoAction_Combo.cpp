@@ -66,7 +66,7 @@ void UCDoAction_Combo::OnAttachmentEndCollision()
 			FRotator controlRotation = controller->GetControlRotation();
 			FRotator target = FRotator(controlRotation.Pitch, rotator.Yaw, controlRotation.Roll);
 
-			controller->SetControlRotation(target);
+			//controller->SetControlRotation(target);
 		}
 	}
 

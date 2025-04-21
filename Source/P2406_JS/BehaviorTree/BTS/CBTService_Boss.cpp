@@ -54,7 +54,7 @@ void UCBTService_Boss::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	bCheck |= Blackboard->GetValueAsBool("bCanAct") == false;
 	bCheck |= CachedAI->GetCanAct() == false;
 
-	// TODO: 상태이상은 일단 배제
+	
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
 	bCheck &= target == nullptr;

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
@@ -19,9 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillEnded);
 DECLARE_DELEGATE(FSkillAction);
 
 
-/// <summary>
-/// ½ÇÁ¦·Î Ä³¸¯ÅÍ°¡ ¼ÒÁöÇÏ¿© »ç¿ëÇÒ ½ºÅ³ Á¤º¸
-/// </summary>
+// ì‹¤ì œë¡œ ìºë¦­í„°ê°€ ì†Œì§€í•˜ì—¬ ì‚¬ìš©í•  ìŠ¤í‚¬ ì •ë³´
 UCLASS(Abstract, Blueprintable, BlueprintType)
 class P2406_JS_API UCActiveSkill : public UObject
 {
@@ -115,7 +113,7 @@ protected:
 	struct FSkillPhase
 	{
 		TArray<FSkillPhaseData> PhaseDatas;
-		TFunction<void()> PhaseFunction = nullptr; // ½ÇÇàÇÒ ÆäÀÌÁî ÇÔ¼ö
+		TFunction<void()> PhaseFunction = nullptr; // ì‹¤í–‰í•  í˜ì´ì¦ˆ í•¨ìˆ˜
 
 		FSkillPhase() = default;
 		FSkillPhase(const TArray<FSkillPhaseData>& InDatas,
@@ -125,7 +123,7 @@ protected:
 		}
 
 	};
-	// ÇØ´ç ÆäÀÌÁî¿¡¼­ Ã³¸®µÉ ³»¿ë ¹× ´ÙÀ½ ÆäÀÌÁî·Î º¸³»µç°¡ÀÇ Á¶°Ç 
+	// í•´ë‹¹ í˜ì´ì¦ˆì—ì„œ ì²˜ë¦¬ë  ë‚´ìš© ë° ë‹¤ìŒ í˜ì´ì¦ˆë¡œ ë³´ë‚´ë“ ê°€ì˜ ì¡°ê±´ 
 	TMap<ESkillPhase, FSkillPhase> SkillPhaseTable;
 	TMap<ESkillPhase, TArray<FSkillPhaseData>> PhaseDataTable;
 

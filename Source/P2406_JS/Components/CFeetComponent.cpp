@@ -25,6 +25,9 @@ void UCFeetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (bEnableDebug == true)
+		return;
+
 
 	float leftDistance;
 	FRotator leftRotation;

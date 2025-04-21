@@ -374,6 +374,12 @@ void UCSwordSkill_DragonFall::OnLanded()
 	{
 		RunSkillPhaseData(ESkillPhase::End_Skill);
 		OnActivated_Collision();
+
+		// 땅에 닿는 순간 바로 멈춤
+		OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
+		// 또는
+		// OwnerCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+
 	}
 	
 	// 착지되면 강제로 스킬 종료 

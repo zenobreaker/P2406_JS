@@ -195,7 +195,6 @@ void UCBattleManager::UnregistTarget(ACharacter* InInstigator)
 		return;
 	}
 
-	//TODO: 이제 이 Target 키값을 가진 Value 들에게 나 죽었으니까 너네 다 꺼져 선언
 
 	TargetToTokenCount.Remove(InInstigator);
 	TargetToAttackers.Remove(InInstigator);
