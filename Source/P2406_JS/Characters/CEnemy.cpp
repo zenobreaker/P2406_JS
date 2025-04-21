@@ -103,7 +103,7 @@ void ACEnemy::Tick(float DeltaTime)
 	FVector cameraLocation = cameraManager->GetTransformComponent()->GetComponentLocation();
 
 	FRotator rotator = UKismetMathLibrary::FindLookAtRotation(transform.GetLocation(), cameraLocation);
-	rotator.Pitch = 0; // 위아래 회전 제거해서 안정감 있게
+	//rotator.Pitch = 0; // 위아래 회전 제거해서 안정감 있게
 	rotator.Roll = 0;
 	LabelWidget->SetWorldRotation(rotator);
 
