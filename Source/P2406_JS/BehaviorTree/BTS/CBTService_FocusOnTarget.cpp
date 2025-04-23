@@ -6,6 +6,7 @@
 
 #include "Components/CAIBehaviorComponent.h"
 #include "Components/CMovementComponent.h"
+#include "Components/CConditionComponent.h"
 
 UCBTService_FocusOnTarget::UCBTService_FocusOnTarget()
 {
@@ -22,7 +23,8 @@ void UCBTService_FocusOnTarget::OnSearchStart(FBehaviorTreeSearchData& SearchDat
 	{
 		CachedAI = Cast<ACEnemy_AI>(CachedController->GetPawn());
 		CheckNull(CachedAI);
-
+		
+		Condition = FHelpers::GetComponent<UCConditionComponent>(CachedAI);
 		CachedBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(CachedAI);
 	}
 }
@@ -31,27 +33,36 @@ void UCBTService_FocusOnTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	if (!!CachedBehavior && !!CachedController)
+	if (CachedBehavior == nullptr || CachedController == nullptr)
 	{
-		// Å¸°Ù °Ë»ç 
-		ACharacter* target = nullptr;
-		target = CachedBehavior->GetTarget();
-		if (target != nullptr)
-		{
-			UCAIBehaviorComponent* otherHavior = FHelpers::GetComponent<UCAIBehaviorComponent>(target);
-			if (!!otherHavior)
-			{
-				if (otherHavior->IsDeadMode())
-				{
-					CachedController->ClearFocus(EAIFocusPriority::Gameplay);
-
-					return;
-				}
-			}
-
-			CachedController->SetFocus(target);
-		}
+		return;
 	}
+
+	if (Condition != nullptr && (Condition->GetDownCondition() || Condition->GetAirborneCondition()))
+	{
+		CachedController->ClearFocus(EAIFocusPriority::Gameplay);
+		return; 
+	}
+
+	// Å¸°Ù °Ë»ç 
+	ACharacter* target = nullptr;
+	target = CachedBehavior->GetTarget();
+	if (target != nullptr)
+	{
+		UCAIBehaviorComponent* otherHavior = FHelpers::GetComponent<UCAIBehaviorComponent>(target);
+		if (!!otherHavior)
+		{
+			if (otherHavior->IsDeadMode())
+			{
+				CachedController->ClearFocus(EAIFocusPriority::Gameplay);
+
+				return;
+			}
+		}
+
+		CachedController->SetFocus(target);
+	}
+
 }
 
 void UCBTService_FocusOnTarget::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

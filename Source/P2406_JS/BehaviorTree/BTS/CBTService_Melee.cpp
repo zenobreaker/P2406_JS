@@ -34,6 +34,7 @@ void UCBTService_Melee::OnSearchStart(FBehaviorTreeSearchData& SearchData)
 		CachedBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(CachedAI);
 		CachedState = FHelpers::GetComponent<UCStateComponent>(CachedAI);
 		CachedGuardable = Cast<IIGuardable>(CachedAI);
+		Condition = FHelpers::GetComponent<UCConditionComponent>(CachedAI);
 
 		Blackboard = SearchData.OwnerComp.GetBlackboardComponent();
 	}

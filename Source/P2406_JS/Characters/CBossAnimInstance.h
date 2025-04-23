@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Characters/CBoss_AI.h"
+#include "Components/CFeetComponent.h"
 #include "CBossAnimInstance.generated.h"
 
 
@@ -28,6 +29,20 @@ protected:
 	float RotateSpeed;
 
 
+protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	bool bUseFootIK;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	FFeetData FeetData;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	float LeftIKValue = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	float RightIKValue = 1.0f;
+
+
 public:
 	void NativeBeginPlay() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -37,9 +52,14 @@ private:
 	void OnBossStateChanged(EBossState InType);
 
 private:
-	class ACharacter* OwnerCharacter;
-	class UCConditionComponent* Condition;
+	void ChangeFeet(); 
+	float GetIKValue(float InValue1, float InValue2); 
 
+private:
+	class ACharacter* OwnerCharacter;
+	class UCStateComponent* State; 
+	class UCConditionComponent* Condition;
+	class UCFeetComponent* Feet; 
 private:
 	FRotator PrevRotation;
 };

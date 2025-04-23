@@ -54,7 +54,7 @@ protected:
 	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
-	void Launch(const FHitData& InHitData, const bool bIsGuarding = false) override;
+	void Launch(const struct FHitData& InHitData, const bool bIsGuarding = false) override;
 
 	virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
 

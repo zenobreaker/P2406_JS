@@ -52,6 +52,7 @@ private:
 	class ACEnemy_AI* CachedAI = nullptr;
 	class UCAIBehaviorComponent* CachedBehavior = nullptr;
 	class UCStateComponent* CachedState = nullptr;
+	class UCConditionComponent* Condition= nullptr;
 	class IIGuardable* CachedGuardable = nullptr;
 	class UBlackboardComponent* Blackboard = nullptr;
 

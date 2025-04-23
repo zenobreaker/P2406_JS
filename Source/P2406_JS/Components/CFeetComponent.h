@@ -37,7 +37,10 @@ private:
 	TEnumAsByte<EDrawDebugTrace::Type> DrawDebug;
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
-	bool bEnableDebug = false; 
+	bool bEnableDebug = false;
+
+	UPROPERTY(EditAnywhere, Category = "Inverse")
+	bool bInverse = false;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Trace")
@@ -49,6 +52,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	float InterpSpeed = 50.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	float BoneZOffset = 0.0f;
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Bone")
 	FName LeftBoneName = "Foot_L";
@@ -56,18 +62,23 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Bone")
 	FName RightBoneName = "Foot_R";
 
+private:
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	bool bUseIKTrace = true;
+
 public:
 	FORCEINLINE const FFeetData& GetData() { return Data; }
+	FORCEINLINE const float& GetOffsetDistance() { return OffsetDistance; }
+	FORCEINLINE void SetIKTrace(bool InValue) { bUseIKTrace = InValue; }
 
 public:
 	UCFeetComponent();
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 
 private:
 	void Trace(FName InName, float& OutDistance, FRotator& OutRotation);

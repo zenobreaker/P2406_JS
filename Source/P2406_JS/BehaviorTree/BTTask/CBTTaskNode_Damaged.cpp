@@ -5,7 +5,9 @@
 #include "Components/CStateComponent.h"
 #include "Components/CWeaponComponent.h"
 #include "Components/CAIBehaviorComponent.h"
+#include "Components/CConditionComponent.h"
 #include "Weapons/CEquipment.h"
+
 
 UCBTTaskNode_Damaged::UCBTTaskNode_Damaged()
 {
@@ -34,6 +36,7 @@ void UCBTTaskNode_Damaged::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(controller->GetPawn());
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(ai);
+	UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(ai);
 	if (state->IsDamagedMode() == false)
 	{
 		// 다시 이전 타겟으로 돌림 .
@@ -41,7 +44,8 @@ void UCBTTaskNode_Damaged::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		if (!!behavior)
 		{
 			ACharacter* target = behavior->GetTarget();
-			if (!!target)
+			if (!!target && condition != nullptr && (condition->GetAirborneCondition() == false &&
+				condition->GetDownCondition() == false ))
 			{
 				controller->SetFocus(target);
 			}

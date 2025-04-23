@@ -25,4 +25,5 @@ private:
 	class ACAIController * CachedController = nullptr;
 	class ACEnemy_AI  * CachedAI = nullptr;
 	class UCAIBehaviorComponent* CachedBehavior = nullptr;
+	class UCConditionComponent* Condition = nullptr;
 };

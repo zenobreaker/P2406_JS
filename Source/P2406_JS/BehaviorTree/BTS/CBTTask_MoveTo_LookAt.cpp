@@ -6,6 +6,7 @@
 #include "Characters/CEnemy_AI.h"
 
 #include "Components/CAIBehaviorComponent.h"
+#include "Components/CConditionComponent.h"
 
 UCBTTask_MoveTo_LookAt::UCBTTask_MoveTo_LookAt()
 {
@@ -24,6 +25,8 @@ EBTNodeResult::Type UCBTTask_MoveTo_LookAt::ExecuteTask(UBehaviorTreeComponent& 
 	ACEnemy_AI* ai = Cast<ACEnemy_AI>(aiController->GetPawn());
 	CheckNullResult(ai, EBTNodeResult::Failed);
 
+	UCConditionComponent* component = FHelpers::GetComponent<UCConditionComponent>(ai);
+
 	UCAIBehaviorComponent* behavior = FHelpers::GetComponent<UCAIBehaviorComponent>(ai);
 	CheckNullResult(behavior, EBTNodeResult::Failed);
 
@@ -38,6 +41,13 @@ EBTNodeResult::Type UCBTTask_MoveTo_LookAt::ExecuteTask(UBehaviorTreeComponent& 
 		UCAIBehaviorComponent* otherBehavior = FHelpers::GetComponent<UCAIBehaviorComponent>(target);
 		if (!!otherBehavior)
 			bCheck &= otherBehavior->IsDeadMode() == false;
+	}
+
+	if (component != nullptr && (component->GetDownCondition() || component->GetAirborneCondition()))
+	{
+		aiController->ClearFocus(EAIFocusPriority::Gameplay);
+
+		return Result;
 	}
 
 	if (bCheck)

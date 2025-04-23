@@ -48,6 +48,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
 	FFeetData FeetData;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	float LeftIKValue = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Feet")
+	float RightIKValue = 1.0f;
+
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
@@ -102,6 +109,8 @@ private:
 	void ChangeGuardState();
 
 	void ChangeFeet();
+
+	float GetIKValue(float InValue1, float InValue2);
 
 	void ChangeFallingAttack();
 private:

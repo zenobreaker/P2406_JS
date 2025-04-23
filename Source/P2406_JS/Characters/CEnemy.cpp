@@ -10,6 +10,7 @@
 #include "Components/CConditionComponent.h"
 #include "Components/CHealthPointComponent.h"
 #include "Components/CMovementComponent.h"
+#include "Components/CFeetComponent.h"
 #include "Damages/CDamageHandler.h"
 #include "Weapons/CWeaponStructures.h"
 
@@ -80,6 +81,7 @@ void ACEnemy::BeginPlay()
 	{
 		LabelWidget->InitWidget();
 		LabelWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		LabelWidget->SetWidgetSpace(EWidgetSpace::Screen);
 		LabelWidget->CastShadow = false;
 
 		UCUserWidget_Enemy* enemyLabel = Cast<UCUserWidget_Enemy>(LabelWidget->GetUserWidgetObject());
@@ -107,7 +109,7 @@ void ACEnemy::Tick(float DeltaTime)
 	rotator.Roll = 0;
 	LabelWidget->SetWorldRotation(rotator);
 
-	//Tick_LabelRenderScale();
+	Tick_LabelRenderScale();
 }
 
 void ACEnemy::Change_Color(const FLinearColor& InColor)
@@ -352,7 +354,7 @@ void ACEnemy::Tick_LabelRenderScale()
 	APlayerCameraManager* cameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 
 	FVector cameraLocation = cameraManager->GetCameraLocation();
-	FVector targetLocation = GetController()->GetTargetLocation();
+	FVector targetLocation = GetActorLocation();
 
 	float distance = FVector::Distance(cameraLocation, targetLocation);
 	float clampedDistance = FMath::Clamp(distance, MinLabelDistance, MaxLabelDistance);
@@ -378,7 +380,6 @@ void ACEnemy::Tick_LabelRenderScale()
 		sizeRate = FMath::Max(sizeRate, MinSizeRate);
 	}
 
-	label->SetVisibility(ESlateVisibility::Visible);
 	label->SetRenderScale(FVector2D(sizeRate, sizeRate));
 }
 
@@ -408,6 +409,14 @@ void ACEnemy::End_Downed()
 {
 	State->SetIdleMode();
 	bCanAct = true;
+
+	UCFeetComponent* feet= FHelpers::GetComponent<UCFeetComponent>(this);
+	if (feet != nullptr)
+	{
+		feet->SetIKTrace(true);
+	}
+
+
 	if (OnCharacterRaised.IsBound())
 		OnCharacterRaised.Broadcast();
 }
@@ -484,6 +493,11 @@ void ACEnemy::OnDownConditionActivated()
 
 	StartDownTimer();
 	bCanAct = false;
+	UCFeetComponent* feet = FHelpers::GetComponent<UCFeetComponent>(this);
+	if (feet != nullptr)
+	{
+		feet->SetIKTrace(false);
+	}
 
 	if (OnCharacterDowned.IsBound())
 		OnCharacterDowned.Broadcast();

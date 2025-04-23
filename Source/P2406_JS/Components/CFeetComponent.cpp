@@ -25,7 +25,7 @@ void UCFeetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bEnableDebug == true)
+	if (bUseIKTrace == false)
 		return;
 
 
@@ -41,15 +41,29 @@ void UCFeetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 
 	float pelvisDistance = FMath::Min(leftDistance, rightDistance);
-	Data.PelvisDistance.Z = UKismetMathLibrary::FInterpTo(Data.PelvisDistance.Z, pelvisDistance, DeltaTime, InterpSpeed);
 
-	Data.LeftDistance.X = UKismetMathLibrary::FInterpTo(Data.LeftDistance.X, (leftDistance - pelvisDistance), DeltaTime, InterpSpeed);
-	Data.RightDistance.X = UKismetMathLibrary::FInterpTo(Data.RightDistance.X, -(rightDistance - pelvisDistance), DeltaTime, InterpSpeed);
+	float resultPelvsDistance = UKismetMathLibrary::FInterpTo(Data.PelvisDistance.Z, pelvisDistance, DeltaTime, InterpSpeed);
+	float resultLeftDistance = UKismetMathLibrary::FInterpTo(Data.LeftDistance.X, (leftDistance - pelvisDistance - BoneZOffset), DeltaTime, InterpSpeed);
+	float resultRightDistance = UKismetMathLibrary::FInterpTo(Data.RightDistance.X, -(rightDistance - pelvisDistance + BoneZOffset), DeltaTime, InterpSpeed);
 
-#ifdef LOG_UCFeetComponent
-	FLog::Print(Data.LeftDistance, 9990);
-	FLog::Print(Data.RightDistance, 9991);
-	FLog::Print(Data.PelvisDistance, 9992);
+	if (bInverse == true)
+	{
+		resultPelvsDistance = -resultPelvsDistance;
+		resultLeftDistance = -resultLeftDistance;
+		resultRightDistance = -resultRightDistance;
+	}
+
+	Data.PelvisDistance.Z = resultPelvsDistance;
+	Data.LeftDistance.X = resultLeftDistance; 
+	Data.RightDistance.X = resultRightDistance;
+
+#ifdef WITH_EDITOR
+	if (bEnableDebug)
+	{
+		FLog::Print("LeftDistance : " + Data.LeftDistance.ToString(), 9990);
+		FLog::Print("RightDistanec : " + Data.RightDistance.ToString(), 9991);
+		FLog::Print("Pelvis Distance : " + Data.PelvisDistance.ToString(), 9992);
+	}
 #endif
 }
 
@@ -67,7 +81,6 @@ void UCFeetComponent::Trace(FName InName, float& OutDistance, FRotator& OutRotat
 
 	TArray<AActor*> ignores;
 	ignores.Add(OwnerCharacter);
-
 	FHitResult hitResult;
 	UKismetSystemLibrary::LineTraceSingle(
 		GetWorld(),
@@ -84,6 +97,15 @@ void UCFeetComponent::Trace(FName InName, float& OutDistance, FRotator& OutRotat
 	OutRotation = FRotator::ZeroRotator;
 
 	CheckFalse(hitResult.bBlockingHit);
+
+#ifdef WITH_EDITOR
+	if (bEnableDebug)
+	{
+		FLog::Print("BoneLocation Z : " + location.ToString(), 9994, 10, FColor::Green);
+		FLog::Print("TraceHit Z : " + FString::SanitizeFloat(hitResult.ImpactPoint.Z), 9993,10, FColor::Green);
+		FLog::Print("Delta : " + FString::SanitizeFloat(location.Z - hitResult.ImpactPoint.Z) , 9995,10, FColor::Green);
+	}
+#endif
 
 
 	float length = (hitResult.ImpactPoint - hitResult.TraceEnd).Size();

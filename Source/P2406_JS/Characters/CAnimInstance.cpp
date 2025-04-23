@@ -133,6 +133,9 @@ void UCAnimInstance::ChangeFeet()
 	bUseFootIK = false;
 	if (!!Feet)
 	{
+		if (State->IsActionMode() || Condition->GetAirborneCondition() || Condition->GetDownCondition())
+			return; 
+
 		bUseFootIK = true;
 
 		if (!!Parkour)
@@ -145,9 +148,39 @@ void UCAnimInstance::ChangeFeet()
 
 
 		if (bUseFootIK)
+		{
 			FeetData = Feet->GetData();
+			float offsetDistance = Feet->GetOffsetDistance();
+			float leftDistance = FeetData.LeftDistance.X;
+			float rightDistance = FeetData.RightDistance.X;
+
+			if (FMath::IsNearlyZero(offsetDistance))
+				offsetDistance = 1.0f;
+
+			LeftIKValue = GetIKValue(leftDistance, offsetDistance);
+			RightIKValue = GetIKValue(rightDistance, offsetDistance);
+
+			//if (bPlayer == false)
+			//{
+			//	FLog::Print("Left IK VALUE : " + FString::SanitizeFloat(LeftIKValue), 92525);
+			//	FLog::Print("Right IK VALUE : " + FString::SanitizeFloat(RightIKValue), 92526);
+			//}
+		}
 
 	}
+}
+
+float UCAnimInstance::GetIKValue(float InValue1, float InValue2)
+{
+	if (FMath::IsNearlyZero(InValue1, 0.01f))
+		return 1.0f;
+
+	if (FMath::IsNearlyZero(InValue2, 0.01f))
+		return 1.0f;
+
+	float retrunValue = FMath::Abs(InValue1) / FMath::Abs(InValue2);
+	retrunValue = FMath::Clamp(retrunValue, 0.0f, 1.0f);
+	return retrunValue;
 }
 
 void UCAnimInstance::ChangeFallingAttack()
