@@ -16,7 +16,7 @@ void UCPatternDecider::BeginPlay()
 
 EPatternDecision UCPatternDecider::EvaluatePattern() const
 {
-	if (FMath::RandRange(0, 1) <= KeepPatternRatio)
+	if (FMath::RandRange(0.0f, 1.0f) <= KeepPatternRatio)
 		return EPatternDecision::KeepPattern;
 
 	//TODO :  여러 조건에 한하여 패턴 변경이나 취소 

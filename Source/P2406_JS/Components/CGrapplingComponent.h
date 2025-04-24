@@ -59,6 +59,7 @@ private:
 
 private:
 	class ACharacter* OwnerCharacter;
+	class UCableComponent* Cable; 
 
 private:
 	FVector TargetLocation;

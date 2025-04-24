@@ -92,7 +92,7 @@ void UCPatternComponent::ExecutePattern()
 
 	bExecutePattern = true;
 
-	//FLog::Print("Execute Pattern : " + CurrentSkill->GetName());
+	FLog::Print("Execute Pattern : " + CurrentSkill->GetName());
 	CurrentSkill->ExecuteSkill();
 
 	UCStateComponent* state = FHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
@@ -153,7 +153,7 @@ void UCPatternComponent::DecidePattern()
 	if (PatternInfos.Contains(SelectedPatternID))
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, PatternInfos[SelectedPatternID].ActionRange);
 
-	//FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
+	FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
 }
 
 

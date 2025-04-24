@@ -39,7 +39,7 @@ EBTNodeResult::Type UCBTTaskNode_SpawnEntity::ExecuteTask(UBehaviorTreeComponent
 		}
 	}
 
-	FRotator rotator = UKismetMathLibrary::FindLookAtRotation(point.Location, boss->GetActorLocation());
+	FRotator rotator = UKismetMathLibrary::FindLookAtRotation(boss->GetActorLocation(), point.Location);
 	rotator.Pitch = -90;
 
 	FTransform SpawnTransform(rotator, point.Location);

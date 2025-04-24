@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "CableComponent.h"
 
 UCGrapplingComponent::UCGrapplingComponent()
 {
@@ -14,6 +15,11 @@ void UCGrapplingComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+
+	if (OwnerCharacter != nullptr)
+	{
+		Cable = FHelpers::GetComponent<UCableComponent>(OwnerCharacter); 
+	}
 }
 
 void UCGrapplingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

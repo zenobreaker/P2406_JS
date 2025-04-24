@@ -25,7 +25,6 @@ EBTNodeResult::Type UCBTTaskNode_DecidePattern::ExecuteTask(UBehaviorTreeCompone
 
 	bool bCheck = true;
 	bCheck &= pattern->GetDecidePattern() == false;
-	bCheck &= pattern->IsExecutePattern() == false;
 	if (bCheck)
 	{
 		pattern->DecidePattern();

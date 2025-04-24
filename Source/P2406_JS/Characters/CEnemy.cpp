@@ -387,6 +387,12 @@ void ACEnemy::Dead()
 {
 	Super::Dead();
 	
+	UCFeetComponent* feet = FHelpers::GetComponent<UCFeetComponent>(this);
+	if (feet != nullptr)
+	{
+		feet->SetIKTrace(false);
+	}
+
 	// 이게 있으면 충돌됨 
 	if (!!LabelWidget)
 		LabelWidget->DestroyComponent();
