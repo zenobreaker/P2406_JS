@@ -44,13 +44,6 @@ void UCBTService_PhaseService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 	int32 currentPhase = CachedBehavior->GetCurrentPhase();
 	int32 lastPhase = CachedBehavior->GetLastPhase();
 
-	if (currentPhase > lastPhase)
-	{
-		//CachedBehavior->SetLastPhase(currentPhase);
-		
-		return; 
-	}
-
 	CachedAI->CheckPhaseTransition();
 
 }

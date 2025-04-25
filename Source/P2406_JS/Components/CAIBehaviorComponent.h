@@ -49,10 +49,13 @@ private:
 	FName EqsLocationKey = "EqsLocation";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
-	FName PatternDecideKey = "PatternDecide";
+	FName PatternDecideKey = "bPatternDecide";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName PatternExecuteKey = "bPatternExecute";
+
+	UPROPERTY(EditAnywhere, Category = "Key")
+	FName DecidePatternNumber = "CurrentPattern";
 
 	UPROPERTY(EditAnywhere, Category = "Key")
 	FName ActionRangeKey = "ActionRange";
@@ -108,7 +111,7 @@ public:
 
 	bool GetPatternExecute();
 	void SetPatternExecute(bool InValue);
-
+	void SetDecidePatternNumber(int32 InValue);
 	float GetActionRange();
 	void SetActionRange(float InActionRange);
 
@@ -163,6 +166,9 @@ public:
 
 	UFUNCTION()
 	void OnDecidedPattern_Range(float InValue);
+
+	UFUNCTION()
+	void OnDecidedPattern_ID(int32 InID);
 
 	UFUNCTION()
 	void OnPhaseChanged(int32 InPhase);

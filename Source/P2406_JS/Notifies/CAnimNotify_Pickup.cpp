@@ -44,5 +44,6 @@ void UCAnimNotify_Pickup::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 		CheckNull(destructible); 
 		
 		destructible->SetDamagable(false);
+		REGISTER_EVENT_WITH_REPLACE(boss, OnCharacterDead, destructible, ACAttachment::OnDestroy);
 	}
 }

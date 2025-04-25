@@ -128,8 +128,8 @@ void UCPatternComponent::DecidePattern()
 			}
 		}
 
-		if (bCanExecute  == false && PatternDecider->EvaluatePattern() == EPatternDecision::KeepPattern)
-			bCanExecute = true; 
+		//if (bCanExecute  == false && PatternDecider->EvaluatePattern() == EPatternDecision::KeepPattern)
+		//	bCanExecute = true; 
 
 		if (bCanExecute)
 		{
@@ -145,6 +145,9 @@ void UCPatternComponent::DecidePattern()
 
 	bDecided = true;
 	SelectedPatternID = selectedIds.HeapTop();
+	
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_ID, SelectedPatternID);
 
 	// 현재 동작할 패턴 스킬 할당.
 	if (PatternInfos.Contains(SelectedPatternID))
@@ -154,6 +157,18 @@ void UCPatternComponent::DecidePattern()
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, PatternInfos[SelectedPatternID].ActionRange);
 
 	FLog::Print("Decide Pattern : " + FString::FromInt(SelectedPatternID));
+}
+
+void UCPatternComponent::CancelPattern()
+{
+	bDecided = false; 
+	SelectedPatternID = -1; 
+	bExecutePattern = false;
+	CurrentSkill = nullptr;
+
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern, bDecided);
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_ID, SelectedPatternID);
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnDecidedPattern_Range, 0);
 }
 
 

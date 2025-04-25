@@ -41,7 +41,7 @@ void UCBTTaskNode_ExecutePattern::TickTask(UBehaviorTreeComponent& OwnerComp, ui
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(controller->GetPawn());
 	CheckNull(pattern);
 
-	if(pattern->IsExecutePattern() == false)
+	if (pattern->IsExecutePattern() == false)
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
 

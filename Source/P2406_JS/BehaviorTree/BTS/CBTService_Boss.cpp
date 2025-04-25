@@ -54,44 +54,16 @@ void UCBTService_Boss::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 	bCheck |= Blackboard->GetValueAsBool("bCanAct") == false;
 	bCheck |= CachedAI->GetCanAct() == false;
 
-	
 	ACharacter* target = nullptr;
 	target = CachedBehavior->GetTarget();
-	bCheck &= target == nullptr;
-	if (bCheck)
-	{
-		// 보스라서.. 그만.. 
-		CachedBehavior->SetNoneMode();
-		//SetFocus(nullptr);
+	
+	bool isExecutePattern = CachedPattern->IsExecutePattern();
+	CachedBehavior->SetPatternExecute(isExecutePattern);
 
-		return;
-	}
+	bool isDecidedPattern = CachedPattern->GetDecidePattern(); 
+	CachedBehavior->SetPatternDecide(isDecidedPattern);
+	CheckFalse(isDecidedPattern);
 
-	// 패턴이 수행 중이면 실행 안함
-	bool bPatternExecute = CachedPattern->IsExecutePattern();
-	if (bPatternExecute == true)
-		return;
-
-	bool bDecidedPattern = CachedPattern->GetDecidePattern();
-	if(bDecidedPattern == false)
-	{	
-		// 패턴 결정 해놓음 
-		//CachedPattern->DecidePattern();
-		
-		// 다음 프레임에서 사거리랑 계산하기 위해서 
-		CachedBehavior->SetWaitMode();
-
-		return;
-	}
-
-	ActionRange = CachedBehavior->GetActionRange();
-	float distance = CachedAI->GetDistanceTo(target);
-	if (distance <= ActionRange)
-	{
-		CachedBehavior->SetActionMode();
-
-		return;
-	}
-
-	CachedBehavior->SetApproachMode();
+	int32 patternNumber = CachedPattern->GetDecidePatternNumber();
+	CachedBehavior->SetDecidePatternNumber(patternNumber);
 }

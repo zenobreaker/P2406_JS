@@ -7,6 +7,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDecidedPattern, bool, InValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDecidedPattern_Range, float, InValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDecidedPattern_ID, int32, InValue);
 
 USTRUCT(BlueprintType)
 struct FPatternInfo
@@ -58,6 +59,7 @@ private:
 
 public:
 	FORCEINLINE bool GetDecidePattern() const { return bDecided; }
+	FORCEINLINE int32 GetDecidePatternNumber() const { return SelectedPatternID; }
 	FORCEINLINE bool IsExecutePattern() const { return bExecutePattern; }
 	FORCEINLINE int32 GetSelectedPatternID() const { return SelectedPatternID; }
 	FORCEINLINE class UCActiveSkill* GetCurrentActiveSkill() { return CurrentSkill; }
@@ -72,6 +74,8 @@ public:
 
 	void ExecutePattern();
 	void DecidePattern();
+	void CancelPattern(); 
+
 public:
 	void Begin_Pattern();
 	void End_Pattern();
@@ -89,6 +93,7 @@ private:
 public:
 	FDecidedPattern OnDecidedPattern;
 	FDecidedPattern_Range OnDecidedPattern_Range;
+	FOnDecidedPattern_ID OnDecidedPattern_ID;
 
 private:
 	class ACharacter* OwnerCharacter;

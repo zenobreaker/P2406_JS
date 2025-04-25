@@ -118,7 +118,10 @@ void ACAttachment::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponen
 void ACAttachment::OnDestroy()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	
+	SetActorHiddenInGame(true);
 	Destroy();
+	//ConditionalBeginDestroy();
 }
 
 bool ACAttachment::CanAttack() const

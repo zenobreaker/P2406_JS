@@ -24,7 +24,6 @@ EBTNodeResult::Type UCBTTaskNode_RotateToTarget::ExecuteTask(UBehaviorTreeCompon
 	CheckNullResult(behavior, EBTNodeResult::Failed);
 
 	Target = behavior->GetTarget();
-	FLog::Print("rmsid sks qudtlsdla rotorRldi ", 9241);
 
 	return EBTNodeResult::InProgress;
 }

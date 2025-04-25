@@ -42,6 +42,7 @@ void UCAIBehaviorComponent::BeginPlay()
 	UCPatternComponent* pattern = FHelpers::GetComponent<UCPatternComponent>(CachedAI);
 	REGISTER_EVENT_WITH_REPLACE(pattern, OnDecidedPattern, this, UCAIBehaviorComponent::OnDecidedPattern);
 	REGISTER_EVENT_WITH_REPLACE(pattern, OnDecidedPattern_Range, this, UCAIBehaviorComponent::OnDecidedPattern_Range);
+	REGISTER_EVENT_WITH_REPLACE(pattern, OnDecidedPattern_ID, this, UCAIBehaviorComponent::OnDecidedPattern_ID);
 
 	if(!!Blackboard)
 		Blackboard->SetValueAsBool("bCanAct", true);
@@ -103,6 +104,11 @@ bool UCAIBehaviorComponent::GetPatternExecute()
 void UCAIBehaviorComponent::SetPatternExecute(bool InValue)
 {
 	Blackboard->SetValueAsBool(PatternExecuteKey, InValue);
+}
+
+void UCAIBehaviorComponent::SetDecidePatternNumber(int32 InValue)
+{
+	Blackboard->SetValueAsInt(DecidePatternNumber, InValue);
 }
 
 float UCAIBehaviorComponent::GetActionRange()
@@ -426,6 +432,11 @@ void UCAIBehaviorComponent::OnDecidedPattern(bool InValue)
 void UCAIBehaviorComponent::OnDecidedPattern_Range(float InValue)
 {
 	Blackboard->SetValueAsFloat(ActionRangeKey, InValue);
+}
+
+void UCAIBehaviorComponent::OnDecidedPattern_ID(int32 InID)
+{
+	SetDecidePatternNumber(InID);
 }
 
 void UCAIBehaviorComponent::OnPhaseChanged(int32 InPhase)
