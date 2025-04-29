@@ -72,7 +72,8 @@ void ACAttachment_Bow::OnUnequip_Implementation()
 	Super::OnUnequip_Implementation();
 
 	AttachTo("Holster_Bow");
-
+	SkeletalMesh->SetVisibility(false);
+	PoseableMesh->SetVisibility(false);
 
 	APlayerController* controller = OwnerCharacter->GetController<APlayerController>();
 	CheckNull(controller);
