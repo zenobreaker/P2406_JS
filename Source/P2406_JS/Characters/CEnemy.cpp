@@ -390,6 +390,7 @@ void ACEnemy::Dead()
 	UCFeetComponent* feet = FHelpers::GetComponent<UCFeetComponent>(this);
 	if (feet != nullptr)
 	{
+		FLog::Log(" No Feet ");
 		feet->SetIKTrace(false);
 	}
 
@@ -405,7 +406,6 @@ void ACEnemy::Dead()
 
 void ACEnemy::End_Dead()
 {
-	FLog::Log(" No Collsioion");
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DYNAMIC_EVENT_CALL(OnCharacterEndDead);
 	Destroy();
@@ -419,6 +419,7 @@ void ACEnemy::End_Downed()
 	UCFeetComponent* feet= FHelpers::GetComponent<UCFeetComponent>(this);
 	if (feet != nullptr)
 	{
+		FLog::Log(" Yes Feet ");
 		feet->SetIKTrace(true);
 	}
 
