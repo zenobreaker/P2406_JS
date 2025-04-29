@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SWeaponListView.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
 

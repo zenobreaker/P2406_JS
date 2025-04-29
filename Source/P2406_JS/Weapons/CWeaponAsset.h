@@ -50,4 +50,8 @@ public:
 	UCWeaponAsset();
 
 	void WA_BeginPlay(class ACharacter* InOwner, class UCWeaponData** OutWeaponData);
+
+#if WITH_EDITOR
+	void PostEditChangeChainProperty(struct FPropertyChangedChainEvent& PropertyChangedEvent) override;
+#endif
 };

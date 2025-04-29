@@ -59,6 +59,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 private:
+
 	TSharedRef<ITableRow> OnGenerateRow(FWeaponRowDataPtr InRow, const TSharedRef<STableViewBase>& InTable);
 
 private:

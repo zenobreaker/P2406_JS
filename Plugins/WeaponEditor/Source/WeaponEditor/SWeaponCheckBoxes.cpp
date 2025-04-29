@@ -16,9 +16,9 @@ void SWeaponCheckBoxes::AddProperties(TSharedPtr<IPropertyHandle> InHandle)
 	{
 		TSharedPtr<IPropertyHandle> child = InHandle->GetChildHandle(i);
 
-		if (child->GetProperty()->GetFName().IsEqual(FName("EffectLocation")) ||
-			child->GetProperty()->GetFName().IsEqual(FName("EffectScale")))
-			continue;
+		//if (child->GetProperty()->GetFName().IsEqual(FName("EffectLocation")) ||
+		//	child->GetProperty()->GetFName().IsEqual(FName("EffectScale")))
+		//	continue;
 
 		InternalDatas.Add(FInternalData(child));
 	}
@@ -74,12 +74,18 @@ void SWeaponCheckBoxes::DrawProperties(TSharedRef<IPropertyHandle> InPropertyHan
 {
 	for (int32 i = 0; i < InternalDatas.Num(); i++)
 	{
+		if (InternalDatas[i].bChecked == false)
+			continue;
+
 		TSharedPtr<IPropertyHandle> child = InPropertyHandle->GetChildHandle(i);
 		FName propertyName = child->GetProperty()->GetFName(); 
 
-		if (InternalDatas[i].bChecked == false)
-			continue;
 		IDetailPropertyRow& row = InChildBuilder->AddProperty(child.ToSharedRef());
+
+		FText value;
+		child->GetValueAsDisplayText(value);
+
+
 		row.CustomWidget()
 			.NameContent()
 			[
@@ -91,27 +97,27 @@ void SWeaponCheckBoxes::DrawProperties(TSharedRef<IPropertyHandle> InPropertyHan
 				child->CreatePropertyValueWidget()
 			];
 
-		if (propertyName.IsEqual("Effect") && bDrawComplete == false)
-		{
-			
-			UObject* fx;
-			if (child->GetValue(fx) != FPropertyAccess::Success || fx == nullptr)
-				continue; 
+		//if (propertyName.IsEqual("Effect") && bDrawComplete == false)
+		//{
+		//	
+		//	UObject* fx;
+		//	if (child->GetValue(fx) != FPropertyAccess::Success || fx == nullptr)
+		//		continue; 
 
-			const UStruct* OwnerStruct = child->GetProperty()->GetOwnerStruct();
-			if (OwnerStruct && OwnerStruct->GetFName() == TEXT("HitData"))
-			{
-				TSharedPtr<IPropertyHandle> EffectLocationHandle = InPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FHitData, EffectLocation));
-				TSharedPtr<IPropertyHandle> EffectScaleHandle = InPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FHitData, EffectScale));
+		//	const UStruct* OwnerStruct = child->GetProperty()->GetOwnerStruct();
+		//	if (OwnerStruct && OwnerStruct->GetFName() == TEXT("HitData"))
+		//	{
+		//		TSharedPtr<IPropertyHandle> EffectLocationHandle = InPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FHitData, EffectLocation));
+		//		TSharedPtr<IPropertyHandle> EffectScaleHandle = InPropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FHitData, EffectScale));
 
-				if (EffectLocationHandle.IsValid() && EffectScaleHandle.IsValid())
-				{
-					InChildBuilder->AddProperty(EffectLocationHandle.ToSharedRef());
-					InChildBuilder->AddProperty(EffectScaleHandle.ToSharedRef());
-					bDrawComplete = true; // 플래그 올려서 다음엔 안 그리게
-				}
-			}
-		}
+		//		if (EffectLocationHandle.IsValid() && EffectScaleHandle.IsValid())
+		//		{
+		//			InChildBuilder->AddProperty(EffectLocationHandle.ToSharedRef());
+		//			InChildBuilder->AddProperty(EffectScaleHandle.ToSharedRef());
+		//			bDrawComplete = true; // 플래그 올려서 다음엔 안 그리게
+		//		}
+		//	}
+		//}
 
 	}
 }

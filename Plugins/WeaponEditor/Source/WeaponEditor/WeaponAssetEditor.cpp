@@ -2,7 +2,7 @@
 #include "EngineUtils.h"
 
 
-#include "SWeaponListView.h"
+
 #include "SWeaponDetails.h"
 #include "SWeaponEquipmentData.h"
 #include "SWeaponDoActionDatas.h"

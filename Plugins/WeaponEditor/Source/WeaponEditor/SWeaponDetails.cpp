@@ -144,6 +144,8 @@ void SWeaponDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 		IDetailCategoryBuilder& category = DetailBuilder.EditCategory("SkillSetting", FText::FromString(" - Skill Settings"));
 		IDetailPropertyRow& row = category.AddProperty("ActiveSkillAssets", type);
 	}
+
+	DetailBuilder.ForceRefreshDetails();
 }
 
 void SWeaponDetails::AddTestCategory(IDetailLayoutBuilder& DetailBuilder)
