@@ -319,6 +319,9 @@ void UCWeaponComponent::Handle_DoAction(bool InHeavyValue)
 		return;
 	}
 
+	if (InHeavyValue)
+		return; 
+
 	// Plane 
 	GetDoAction()->DoAction();
 	DYNAMIC_EVENT_CALL(OnBeginDoAction);

@@ -1,7 +1,10 @@
 #include "Components/CStatComponent.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "Components/CBuffComponent.h"
+#include "Components/CMovementComponent.h"
 
 
 UCStatComponent::UCStatComponent()
@@ -16,6 +19,7 @@ void UCStatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner()); 
+	ApplyStatusInfo();
 }
 
 void UCStatComponent::ApplyBuff(const FStatBuff& InStatBuff)
@@ -48,6 +52,8 @@ void UCStatComponent::ApplyBuff(ECharStatType  StatType, float InValue)
 			BuffedCriticalDamage += InValue;
 			break;
 	}
+
+	ApplyStatusInfo(); 
 }
 
 void UCStatComponent::RemoveBuff(const FStatBuff& InStatBuff)
@@ -77,7 +83,9 @@ void UCStatComponent::RemoveBuff(ECharStatType  StatType, float InValue)
 		case ECharStatType::CriticalDamage:
 			BuffedCriticalDamage -= InValue;
 			break;
-	}
+	}	
+
+	ApplyStatusInfo();
 }
 
 float UCStatComponent::GetStatValue(ECharStatType  StatType) const
@@ -95,4 +103,41 @@ float UCStatComponent::GetStatValue(ECharStatType  StatType) const
 	}
 
 	return 0.f;
+}
+
+void UCStatComponent::ApplyStatusInfo()
+{
+	StatusInfo.Attack = BaseAttack + BuffedAttack;
+	StatusInfo.Defense = BaseDefense + BuffedDefense;
+	StatusInfo.AttackSpeed= BaseAttackSpeed + BuffedAttackSpeed;
+	StatusInfo.CriticalRate = BaseCriticalRate + BuffedCriticalRate;
+	StatusInfo.CriticalDamage = BaseCriticalDamage + BuffedCriticalDamage;
+
+	if (OwnerCharacter != nullptr)
+	{
+		UCMovementComponent* movement = FHelpers::GetComponent<UCMovementComponent>(OwnerCharacter);
+		if (movement != nullptr)
+		{
+			float value = movement->GetWalkSpeed() * BuffedSpeed;
+			StatusInfo.Speed = movement->GetWalkSpeed() + value;
+		}
+	}
+
+
+	StatusInfo.BuffedAttack = BuffedAttack;
+	StatusInfo.BuffedDefense = BuffedDefense;
+	StatusInfo.BuffedAttackSpeed = BuffedAttackSpeed;
+	StatusInfo.BuffedCriticalRate = BuffedCriticalRate;
+	StatusInfo.BuffedCriticalDamage = BuffedCriticalDamage;
+
+	if (OwnerCharacter != nullptr)
+		StatusInfo.BuffedSpeed = BuffedSpeed;
+
+
+	DYNAMIC_EVENT_CALL(OnUpdatedStatusData);
+}
+
+FStatusData UCStatComponent::GetStatusInfo()
+{
+	return StatusInfo;
 }

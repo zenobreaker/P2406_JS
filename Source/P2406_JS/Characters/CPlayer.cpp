@@ -323,7 +323,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		&ACGameMode::ToggleEnemyUI);
 
 	PlayerInputComponent->BindAction("Open_BuffHUD", IE_Pressed, this,
-		&ACPlayer::OnActivateBuffHUD);
+		&ACPlayer::OnSwitchInfoHUD);
 
 	PlayerInputComponent->BindAction("Test_Invi", IE_Pressed, this,
 		&ACPlayer::Test_Invicible);
@@ -921,14 +921,28 @@ void ACPlayer::AdjustTimeScale(float InTimeScaleData)
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), newTimeScale);
 }
 
-void ACPlayer::OnActivateBuffHUD()
+void ACPlayer::OnSwitchInfoHUD()
 {
+	CheckNull(UserInterface);
+	APlayerController* pc = GetController<APlayerController>(); 
+	CheckNull(pc);
 
-}
+	FLog::Log("OnSwitchInfoHUD");
 
-void ACPlayer::OffBuffHUD()
-{
-	
+	bOnHUD = !bOnHUD;
+
+	if (bOnHUD)
+	{
+		pc->bShowMouseCursor = true; 
+		pc->SetInputMode(FInputModeGameAndUI());
+	}
+	else
+	{
+		pc->bShowMouseCursor = false;
+		pc->SetInputMode(FInputModeGameOnly());
+	}
+
+	UserInterface->VisibleInfo(bOnHUD, this);
 }
 
 

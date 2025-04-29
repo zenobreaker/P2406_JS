@@ -37,4 +37,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void UpdateHealth(float InValue, float InMaxValue);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void VisibleInfo(bool InToggle, class ACharacter* InOwner);
 };

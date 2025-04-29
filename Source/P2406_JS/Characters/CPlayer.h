@@ -209,8 +209,7 @@ private:
 
 	void AdjustTimeScale(float InTimeScaleData);
 
-	void OnActivateBuffHUD();
-	void OffBuffHUD();
+	void OnSwitchInfoHUD();
 
 public:
 	// IIAirborne을(를) 통해 상속됨
@@ -249,6 +248,7 @@ private:
 
 private:
 	bool bCanInput = true;
+	bool bOnHUD = false; 
 
 public:
 	bool* bCountering;

@@ -42,12 +42,20 @@ void UCBuffManager::CreatRandomBuffList(int32 InCount, TArray<FStatBuff>& InBuff
 	TArray<FStatBuff> TempBuffs = BuffDatabase;
 
 	// 2. Fisher-Yates Shuffle을 부분적으로 수행
-	int32 MaxCount = FMath::Min(InCount, TempBuffs.Num());
+	int32 MaxCount = FMath::Min(InCount, BuffDatabase.Num());
 	for (int32 i = 0; i < MaxCount; i++)
 	{
 		int32 RandomIdx = FMath::RandRange(i, TempBuffs.Num() - 1);
 		TempBuffs.Swap(i, RandomIdx);
-		InBuffs.Add(TempBuffs[i]);
+		if (TempBuffs.IsValidIndex(i)) // 유효한 인덱스인지 확인
+		{
+			InBuffs.Add(TempBuffs[i]);
+		}
+		else
+		{
+			// 로그를 남겨서 디버깅할 수 있게
+			UE_LOG(LogTemp, Warning, TEXT("Invalid index at %d"), i);
+		}
 	}
 }
 
