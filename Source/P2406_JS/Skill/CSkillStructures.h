@@ -147,6 +147,7 @@ public:
 	FSkillEntityData();
 	
 	ACSkillEntity* SpawnSkillEntity(class ACharacter* InCharacter, UFXSystemAsset* InEffect = nullptr);
+	void SetSkillCollisionWithEntity(class ACharacter* InCharacter, class ACSkillEntity* InEntity);
 };
 
 
@@ -199,7 +200,9 @@ public:
 	{}
 
 public:
-	ACSkillEntity* ExecutePhase(class ACharacter* InCharacter, FName InSectionName = NAME_None);
+	//ACSkillEntity* ExecutePhase(class ACharacter* InCharacter, FName InSectionName = NAME_None);
+	void ExecutePhase(class ACharacter* InCharacter, FName InSectionName = NAME_None);
+
 	void Phase_AnimationPlayback(class ACharacter* InCharacter, float InValue);
 	void Phase_DoAction(class ACharacter* InCharacter, FName InSectionName = NAME_None);
 	void Phase_PlaySoundWave(class ACharacter* InCharacter);

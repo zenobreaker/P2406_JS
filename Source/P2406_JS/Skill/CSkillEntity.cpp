@@ -31,7 +31,11 @@ void ACSkillEntity::BeginPlay()
 
 void ACSkillEntity::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-
+	Super::EndPlay(EndPlayReason);
+	
+#if WITH_EDITOR
+	FLog::Log(GetName() + "End");
+#endif
 }
 
 int32 ACSkillEntity::GetDamagedCount()

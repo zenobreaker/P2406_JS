@@ -134,7 +134,7 @@ void UCStatComponent::ApplyStatusInfo()
 		StatusInfo.BuffedSpeed = BuffedSpeed;
 
 
-	DYNAMIC_EVENT_CALL(OnUpdatedStatusData);
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnUpdatedStatusData, OwnerCharacter);
 }
 
 FStatusData UCStatComponent::GetStatusInfo()

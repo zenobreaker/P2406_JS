@@ -133,7 +133,8 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 	if (CurrentState == UpperSlashState::UpperSlash)
 	{
 		FLog::Log("Begin Skill - UpperSlash");
-		entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
+		entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].Phase_SpawnSkillEntity(OwnerCharacter);
+		SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::UpperSlash].ExecutePhase(OwnerCharacter);
 	}
 	else
 	{
@@ -148,8 +149,8 @@ void UCActiveSkill_UpperSlash::Begin_Skill()
 
 			OwnerCharacter->GetCharacterMovement()->GravityScale = 0.0f;
 
-
-			entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].ExecutePhase(OwnerCharacter);
+			entity = SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].Phase_SpawnSkillEntity(OwnerCharacter);
+			SkillPhaseTable[ESkillPhase::Begin_Skill].PhaseDatas[(int32)UpperSlashState::GaleShash].ExecutePhase(OwnerCharacter);
 		}
 	}
 

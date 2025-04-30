@@ -18,8 +18,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillExecuted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrentSkillEnded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedChargeVisiable, bool, bInVisible);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdatedChargeGauge, float, InValue, float, InMaxValue);
-
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillInputRequested, FKey, InKey);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillInputHide);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class P2406_JS_API UCSkillComponent : public UActorComponent
@@ -89,6 +89,8 @@ public:
 	FOnCurrentSkillEnded OnCurrentSkillEnded;
 	FOnUpdatedChargeVisiable OnUpdatedChargeVisiable;
 	FOnUpdatedChargeGauge OnUpdatedChargeGauge;
+	FOnSkillInputRequested OnSkillInputRequested;
+	FOnSkillInputHide OnSkillInputHide;
 
 private:
 	bool bIsSkillAction;

@@ -69,9 +69,13 @@ public:
 
 protected:
 	virtual ESkillPhase GetNextFlowPhase(ESkillPhase InPhase);
-	virtual void ExecutePhase(ESkillPhase InPhase);
+	virtual void ExecutePhase(ESkillPhase InPhase);	
+	void SpawnSkillEntity(ESkillPhase InPhase, class ACharacter* InCharacter =nullptr, int32 InIndex = 0);
 	void RunSkillPhaseData(ESkillPhase InPhase,
 		int32 InIndex = 0, class ACharacter* InCharacter = nullptr);
+
+
+
 public:
 	void OnChangeNextSkillPhase();
 	void OnChangeNextSkillPhase(ESkillPhase InPhase);

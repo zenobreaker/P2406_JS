@@ -208,6 +208,8 @@ void ACPlayer::BeginPlay()
 
 			REGISTER_EVENT_WITH_REPLACE(Skill, OnUpdatedChargeVisiable, UserInterface, UCUserWidget_Player::UpdateChargeGaugeVisibility);
 			REGISTER_EVENT_WITH_REPLACE(Skill, OnUpdatedChargeGauge, UserInterface, UCUserWidget_Player::UpdateChargeGauge);
+			REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillInputRequested, UserInterface, UCUserWidget_Player::ShowInputPrompt);
+			REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillInputHide, UserInterface, UCUserWidget_Player::HideInputPrompt);
 		}
 	}
 

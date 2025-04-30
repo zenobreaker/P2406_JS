@@ -1,4 +1,4 @@
-#include "Skill/ActiveSkills/Sword/CSwordSkill_DragonFall.h"
+ï»¿#include "Skill/ActiveSkills/Sword/CSwordSkill_DragonFall.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -6,9 +6,12 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Curves/CurveVector.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Characters/CBaseCharacter.h"
 #include "Components/CZoomComponent.h"
+#include "Components/CSkillComponent.h"
+#include "Skill/Entities/CSkillEntity_Decal.h"
 
 #define LOG_UCSwordSkill_DragonFall
 
@@ -24,15 +27,15 @@ void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillF
 
 	CurrDFFlow = DrangonFallFlow::None;
 
-	// ÂøÁö ÀÌº¥Æ® ¿¬°á
+	// ì°©ì§€ ì´ë²¤íŠ¸ ì—°ê²°
 	{
 		Base = Cast<ACBaseCharacter>(InOwner);
 	}
 
-	// ÀÔ·Â Å° ¼³Á¤
+	// ì…ë ¥ í‚¤ ì„¤ì •
 	SetInputKey(EKeys::LeftMouseButton);
 
-	// ÄÄÆ÷³ÍÆ®
+	// ì»´í¬ë„ŒíŠ¸
 	{
 		SpringArm = FHelpers::GetComponent<USpringArmComponent>(InOwner);
 		Camera = FHelpers::GetComponent<UCameraComponent>(InOwner);
@@ -41,7 +44,7 @@ void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillF
 		SetOriginCameraData();
 	}
 
-	// »ó½Â ±¸°£ Å¸ÀÓ¶óÀÎ
+	// ìƒìŠ¹ êµ¬ê°„ íƒ€ì„ë¼ì¸
 	{
 		FOnTimelineVector timeline;
 		timeline.BindUFunction(this, "OnSoaring");
@@ -51,9 +54,10 @@ void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillF
 		finished.BindUFunction(this, "OnTimelimeFinished");
 		SoarTimelineData.Timeline.SetTimelineFinishedFunc(finished);
 		SoarTimelineData.Timeline.SetPlayRate(SoarSpeed);
+		SoarTimelineData.bTimelineFinished = false; 
 	}
 
-	// Ä«¸Ş¶ó¿ë Å¸ÀÓ¶óÀÎ
+	// ì¹´ë©”ë¼ìš© íƒ€ì„ë¼ì¸
 	{
 
 		float min = 0.0f, max = 0.0f;
@@ -63,7 +67,7 @@ void UCSwordSkill_DragonFall::BeginPlay_ActiveSkill(ACharacter* InOwner, FSkillF
 		Curve->FloatCurves[2].GetTimeRange(min3, max3);
 		max = FMath::Max(max1, FMath::Max(max2, max3));
 
-		// Ä«¸Ş¶ó Å¸ÀÓ¶óÀÎÀÌ ³¡³ª¸é ´ÙÀ½ ºĞ±â·Î º¸³¾°ÅÀÓ 
+		// ì¹´ë©”ë¼ íƒ€ì„ë¼ì¸ì´ ëë‚˜ë©´ ë‹¤ìŒ ë¶„ê¸°ë¡œ ë³´ë‚¼ê±°ì„ 
 		FOnTimelineVector timeline;
 		timeline.BindUFunction(this, "OnCameraZoomInOut");
 
@@ -79,7 +83,7 @@ void UCSwordSkill_DragonFall::Tick(float InDeltaTime)
 {
 	Super::Tick(InDeltaTime);
 
-	// ÀÔ·ÂÆäÀÌÁî¸é ÀÔ·ÂÈ®ÀÎ
+	// ì…ë ¥í˜ì´ì¦ˆë©´ ì…ë ¥í™•ì¸
 	if (CurrentPhase == ESkillPhase::WaitingForInput && bCanInput == false)
 	{
 		if (CheckPressedSetKey() == true)
@@ -126,7 +130,7 @@ ESkillPhase UCSwordSkill_DragonFall::GetNextFlowPhase(ESkillPhase InPhase)
 			return  ESkillPhase::End_Casting;
 		case ESkillPhase::End_Casting:
 			return  ESkillPhase::WaitingForInput;
-			// ÀÔ·Â ÆäÀÌÁî Ãß°¡ 
+			// ì…ë ¥ í˜ì´ì¦ˆ ì¶”ê°€ 
 		case ESkillPhase::WaitingForInput:
 			return ESkillPhase::Begin_Skill;
 
@@ -143,18 +147,18 @@ void UCSwordSkill_DragonFall::DefineSkillPhases()
 {
 	Super::DefineSkillPhases();
 
-	// ±âÁ¸ ½ºÅ³ ÇÃ·Î¿ì¿¡¼­ Ãß°¡¸¸ÇÔ 
+	// ê¸°ì¡´ ìŠ¤í‚¬ í”Œë¡œìš°ì—ì„œ ì¶”ê°€ë§Œí•¨ 
 	AssignSkillPhase(ESkillPhase::Start,
 		[this]() { Start_Skill(); });
 
-	// ÀÔ·Â ÆäÀÌÁî Ãß°¡ 
+	// ì…ë ¥ í˜ì´ì¦ˆ ì¶”ê°€ 
 	AssignSkillPhase(ESkillPhase::WaitingForInput,
 		[this]() { Input_AnyKey(); });
 }
 
 void UCSwordSkill_DragonFall::OnPressedKey()
 {
-	//  ÁöÁ¤ÇÑ Å°°¡ ÀÔ·ÂµÇ¾úÀ¸¹Ç·Î ´ÙÀ½ ÆäÀÌÁî 
+	//  ì§€ì •í•œ í‚¤ê°€ ì…ë ¥ë˜ì—ˆìœ¼ë¯€ë¡œ ë‹¤ìŒ í˜ì´ì¦ˆ 
 	OnChangeNextSkillPhase();
 }
 
@@ -165,15 +169,18 @@ void UCSwordSkill_DragonFall::OnReleasedKey()
 
 void UCSwordSkill_DragonFall::Create_Collision()
 {
-	RunSkillPhaseData(ESkillPhase::End_Skill);
+	FLog::Log("Create Collision");
+	//RunSkillPhaseData(ESkillPhase::End_Skill);
+	if(SkillEntity != nullptr)
+		SkillEntity->SetActorLocation(OwnerCharacter->GetActorLocation());
 }
 
 
 void UCSwordSkill_DragonFall::Start_Skill()
 {
-	// Å¸ÀÌ¸Ó ÇÚµé ÃÊ±âÈ­ 
+	// íƒ€ì´ë¨¸ í•¸ë“¤ ì´ˆê¸°í™” 
 	{
-		// ÇØ´ç Å¸ÀÌ¸Ó ÇÚµé ±â´É Á¦°Å 
+		// í•´ë‹¹ íƒ€ì´ë¨¸ í•¸ë“¤ ê¸°ëŠ¥ ì œê±° 
 		OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SoarTimelineData.Handle);
 		OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(CameraTimelineData.Handle);
 
@@ -184,7 +191,7 @@ void UCSwordSkill_DragonFall::Start_Skill()
 		CameraTimelineData.bTimelineFinished = false; 
 	}
 
-	// ÀÚÁÖ ¾²ÀÌ´Â °ÍÀÌ ¾Æ´Ï´Ï±î ÀÌº¥Æ®¸¦ ´Ù½Ã »ı¼º 
+	// ìì£¼ ì“°ì´ëŠ” ê²ƒì´ ì•„ë‹ˆë‹ˆê¹Œ ì´ë²¤íŠ¸ë¥¼ ë‹¤ì‹œ ìƒì„± 
 	REGISTER_EVENT_WITH_REPLACE(Base, OnCharacterLanded, this, UCSwordSkill_DragonFall::OnLanded);
 
 
@@ -203,20 +210,28 @@ void UCSwordSkill_DragonFall::Begin_Casting()
 
 	//SkillPhaseTable[ESkillPhase::Begin_Casting].PhaseDatas[0].ExecutePhase(OwnerCharacter);
 
-	// Ä«¸Ş¶ó ÀÏÁ¤°Å¸®·Î ¾Õ´ç±â±â 
-	// Ä«¸Ş¶ó Å¸ÀÓ¶óÀÎÀÌ ¼öÇàµÇ°í ³ª¸é ´ÙÀ½ ºĞ±â·Î ÀÌµ¿½ÃÅ°´Â ÇÔ¼ö°¡ È£ÃâµÈ´Ù.
+	// ìºë¦­í„° ì¹´ë©”ë¼ ë°©í–¥ìœ¼ë¡œ íšŒì „
+	{
+		FRotator rot = OwnerCharacter->GetControlRotation(); 
+		FRotator yawOnlyRot = FRotator(0, rot.Yaw, 0);
+
+		OwnerCharacter->SetActorRotation(yawOnlyRot);
+	}
+
+	// ì¹´ë©”ë¼ ì¼ì •ê±°ë¦¬ë¡œ ì•ë‹¹ê¸°ê¸° 
+	// ì¹´ë©”ë¼ íƒ€ì„ë¼ì¸ì´ ìˆ˜í–‰ë˜ê³  ë‚˜ë©´ ë‹¤ìŒ ë¶„ê¸°ë¡œ ì´ë™ì‹œí‚¤ëŠ” í•¨ìˆ˜ê°€ í˜¸ì¶œëœë‹¤.
 	SetCameraData();
 }
 
 
-// Ä³¸¯ÅÍ°¡ »ó½ÂÇÏ°í ³­ ÈÄ 
+// ìºë¦­í„°ê°€ ìƒìŠ¹í•˜ê³  ë‚œ í›„ 
 void UCSwordSkill_DragonFall::End_Casting()
 {
 	Super::End_Casting();
 
-	// Ä³¸¯ÅÍ¸¦ »ó½Â½ÃÅ²´Ù. 
+	// ìºë¦­í„°ë¥¼ ìƒìŠ¹ì‹œí‚¨ë‹¤. 
 	RunSkillPhaseData(ESkillPhase::End_Casting);
-	// Å¸ÀÓ¶óÀÎ ¼öÇà 
+	// íƒ€ì„ë¼ì¸ ìˆ˜í–‰ 
 	if (SoarTimelineData.Timeline.IsPlaying() == false)
 	{
 		SoarTimelineData.Timeline.PlayFromStart();
@@ -229,8 +244,37 @@ void UCSwordSkill_DragonFall::Input_AnyKey()
 #ifdef  LOG_UCSwordSkill_DragonFall
 	FLog::Log("DF - Input AnyKey Phase");
 #endif
-	// ºÎ¸ğ ³»¿ë È£Ãâ 
+	// ë¶€ëª¨ ë‚´ìš© í˜¸ì¶œ 
 	Super::Input_AnyKey();
+
+	// ìŠ¤í‚¬ì»´í¬ë„ŒíŠ¸ ê°€ì ¸ì™€ì„œ ë¸ë¦¬ê²Œì´íŠ¸ í˜¸ì¶œ 
+	CheckNull(OwnerCharacter); 
+
+	UCSkillComponent* skillComp = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+	CheckNull(skillComp); 
+
+	DYNAMIC_EVENT_CALL_ONE_PARAM(skillComp->OnSkillInputRequested, EKeys::LeftMouseButton);
+
+
+	// ì—”í‹°í‹° ìƒì„± 
+	SpawnSkillEntity(ESkillPhase::WaitingForInput, OwnerCharacter);
+	// ë°ì¹¼í˜•ì´ë¼ë©´ ë°ì¹¼ì„ í‚´
+	RunSkillPhaseData(ESkillPhase::WaitingForInput);
+	{
+		CheckNull(SkillEntity);
+		ACSkillEntity_Decal* decalEntity = Cast<ACSkillEntity_Decal>(SkillEntity);
+		CheckNull(decalEntity);
+
+		decalEntity->SetVisibleDecal(true);
+		TWeakObjectPtr<ACSkillEntity_Decal> weakDecal = decalEntity;
+
+		OnFinishDragonFall.Unbind();
+		OnFinishDragonFall.BindLambda([weakDecal]()
+			{
+				if(weakDecal.IsValid())
+					weakDecal->SetVisibleDecal(false);
+			});
+	}
 }
 
 void UCSwordSkill_DragonFall::Begin_Skill()
@@ -241,9 +285,21 @@ void UCSwordSkill_DragonFall::Begin_Skill()
 	FLog::Log("DF - Begin Skill Phase");
 #endif
 
+
+	if (OwnerCharacter != nullptr)
+	{
+		UCSkillComponent* skillComp = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+		CheckNull(skillComp);
+
+		DYNAMIC_EVENT_CALL(skillComp->OnSkillInputHide);
+	}
+
 	OnSkillDoAction();
 
-	RunSkillPhaseData(ESkillPhase::Begin_Skill);
+
+	// ë°ì¹¼ í•´ì œ
+	OnFinishDragonFall.ExecuteIfBound();
+
 }
 
 void UCSwordSkill_DragonFall::End_Skill()
@@ -260,17 +316,18 @@ void UCSwordSkill_DragonFall::End_Skill()
 		return;
 	}
 
-	// Ä«¸Ş¶ó ¸®¼Â 
+	// ì¹´ë©”ë¼ ë¦¬ì…‹ 
 	ResetCameraData();
 
 	bEndSkillCall = true; 
 	
-	// ±×³É ÂøÁö..
-	// ÀÌÆåÆ®¶û »ç¿îµå »©°í Àç»ı 
+	// ê·¸ëƒ¥ ì°©ì§€..
+	// ì´í™íŠ¸ë‘ ì‚¬ìš´ë“œ ë¹¼ê³  ì¬ìƒ 
 	//RunSkillPhaseData(ESkillPhase::End_Skill);
 	//SkillPhaseTable[ESkillPhase::End_Skill].PhaseDatas[0].Phase_DoAction(OwnerCharacter);
 
 	OnChangeNextSkillPhase();
+
 }
 
 void UCSwordSkill_DragonFall::Finish_Skill()
@@ -279,6 +336,14 @@ void UCSwordSkill_DragonFall::Finish_Skill()
 	
 	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(SoarTimelineData.Handle);
 	OwnerCharacter->GetWorld()->GetTimerManager().ClearTimer(CameraTimelineData.Handle);
+
+	if (OwnerCharacter != nullptr)
+	{
+		UCSkillComponent* skillComp = FHelpers::GetComponent<UCSkillComponent>(OwnerCharacter);
+		CheckNull(skillComp);
+
+		DYNAMIC_EVENT_CALL(skillComp->OnSkillInputHide);
+	}
 
 	RestoreGravity();
 	ReleaseKey();
@@ -289,7 +354,12 @@ void UCSwordSkill_DragonFall::Finish_Skill()
 
 void UCSwordSkill_DragonFall::OnSkillDoAction()
 {
-	// ÀÔ·ÂµÇ¾î Áø Ä«¸Ş¶ó ¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ »çÃâÇÑ´Ù.
+
+	CollsionEnabledType = OwnerCharacter->GetCapsuleComponent()->GetCollisionEnabled();
+	OwnerCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	OwnerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	// ì…ë ¥ë˜ì–´ ì§„ ì¹´ë©”ë¼ ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ ì‚¬ì¶œí•œë‹¤.
 	OnDescent();
 }
 
@@ -298,7 +368,7 @@ void UCSwordSkill_DragonFall::RestoreGravity()
 {
 	if (OwnerCharacter)
 	{
-		OwnerCharacter->GetCharacterMovement()->GravityScale = 1.0f; // Áß·Â º¹±¸
+		OwnerCharacter->GetCharacterMovement()->GravityScale = 1.0f; // ì¤‘ë ¥ ë³µêµ¬
 	}
 }
 
@@ -306,15 +376,31 @@ void UCSwordSkill_DragonFall::OnDescent()
 {
 	CheckNull(OwnerCharacter);
 
-	// ÀúÀåÇØ³õÀº Ä«¸Ş¶óÀÇ Àü¹æº¤ÅÍ·Î ³¯¾Æ°£´Ù. 
-	FVector forward = Camera->GetForwardVector(); // ¶Ç´Â CameraRotator.GetForwardVector();
-	forward.Normalize();
+	CheckNull(SkillEntity);
 	
-	// Ä«¸Ş¶ó ¸®¼Â 
+	FVector location;
+	FRotator rotation;
+	ACSkillEntity_Decal* decalEntity = Cast<ACSkillEntity_Decal>(SkillEntity);
+	if (decalEntity != nullptr)
+	{
+		decalEntity->GetCapturedLocationAndRotation(location, rotation);
+	}
+
+
+	FVector currLoc = OwnerCharacter->GetActorLocation();
+
+	FVector direction = location - currLoc;
+	direction.Normalize();
+
+	// ì €ì¥í•´ë†“ì€ ì¹´ë©”ë¼ì˜ ì „ë°©ë²¡í„°ë¡œ ë‚ ì•„ê°„ë‹¤. 
+	//FVector forward = Camera->GetForwardVector(); // ë˜ëŠ” CameraRotator.GetForwardVector();
+	//forward.Normalize();
+	
+	// ì¹´ë©”ë¼ ë¦¬ì…‹ 
 	ResetCameraData();
 
-	// Ä³¸¯ÅÍ ¹ß»ç 
-	OwnerCharacter->LaunchCharacter(forward * DescentSpeed, true, true);
+	// ìºë¦­í„° ë°œì‚¬ 
+	OwnerCharacter->LaunchCharacter(direction * DescentSpeed, true, true);
 }
 
 
@@ -329,7 +415,7 @@ void UCSwordSkill_DragonFall::OnSoaring(FVector Output)
 	if (CurrentPhase == ESkillPhase::End_Casting)
 	{
 		float playRate = SoarTimelineData.Timeline.GetPlayRate();
-		// Å¸ÀÓ¶óÀÎ ¼öÇàÇÏ¸é¼­ ÁöÁ¤ÇÑ ¾Ö´Ï¸ŞÀÌ¼Ç µ¿ÀÛ 
+		// íƒ€ì„ë¼ì¸ ìˆ˜í–‰í•˜ë©´ì„œ ì§€ì •í•œ ì• ë‹ˆë©”ì´ì…˜ ë™ì‘ 
 		SkillPhaseTable[ESkillPhase::End_Casting]
 			.PhaseDatas[0].Phase_AnimationPlayback(OwnerCharacter, playRate);
 	}
@@ -341,11 +427,12 @@ void UCSwordSkill_DragonFall::OnTimelimeFinished()
 	FLog::Log("DF - TimelineFinish");
 #endif
 
-	// ÀÔ·Â ÆäÀÌÁî·Î ´Ù ¿Ã¶úÀ¸¸é  -> ÀÔ·ÂÆäÀÌÁî·Î °¥°ÅÀÓ 
+	// ì…ë ¥ í˜ì´ì¦ˆë¡œ ë‹¤ ì˜¬ëìœ¼ë©´  -> ì…ë ¥í˜ì´ì¦ˆë¡œ ê°ˆê±°ì„ 
 	OnChangeNextSkillPhase();
 
-	// Áß·Â ¾ø¾Ö±â
+	// ì¤‘ë ¥ ì—†ì• ê¸°
 	OwnerCharacter->GetCharacterMovement()->GravityScale = 0.0f;
+	OwnerCharacter->GetMovementComponent()->StopMovementImmediately();
 	if (OwnerCharacter->GetWorld()->GetTimerManager().IsTimerActive(SoarTimelineData.Handle) == false)
 	{
 		OwnerCharacter->GetWorld()->GetTimerManager().SetTimer
@@ -369,21 +456,33 @@ void UCSwordSkill_DragonFall::OnLanded()
 		return; 
 
 
-	// Ãæ°İÆÄ »ı¼º - ÀÔ·ÂÇßÀ» ¶§¸¸ (Á¤È®È÷´Â ¸ğ¼ÇÀÌ ¼öÇàµÇ°í ³ª¼­Áö¸¸..)
+	// ì¶©ê²©íŒŒ ìƒì„± - ì…ë ¥í–ˆì„ ë•Œë§Œ (ì •í™•íˆëŠ” ëª¨ì…˜ì´ ìˆ˜í–‰ë˜ê³  ë‚˜ì„œì§€ë§Œ..)
 	if (bCanInput == true)
 	{
+		FLog::Log("Create OnLanded");
+		SpawnSkillEntity(ESkillPhase::End_Skill, OwnerCharacter);
 		RunSkillPhaseData(ESkillPhase::End_Skill);
+		if(SkillEntity != nullptr)
+			SkillEntity->SetActorLocation(OwnerCharacter->GetActorLocation());
+		
 		OnActivated_Collision();
 
-		// ¶¥¿¡ ´ê´Â ¼ø°£ ¹Ù·Î ¸ØÃã
+		// ë•…ì— ë‹¿ëŠ” ìˆœê°„ ë°”ë¡œ ë©ˆì¶¤
 		OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
-		// ¶Ç´Â
+		// ë˜ëŠ”
 		// OwnerCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
 	}
+
+	// ë°ì¹¼ í•´ì œ
+	OnFinishDragonFall.ExecuteIfBound();
+
+	// ì¶©ëŒíŒì • ë˜ëŒë¦¬ê¸°
+	OwnerCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	OwnerCharacter->GetCapsuleComponent()->SetCollisionEnabled(CollsionEnabledType);
 	
-	// ÂøÁöµÇ¸é °­Á¦·Î ½ºÅ³ Á¾·á 
-	// Notify ¿¡°Ô ¸Ã±ä´Ù... 
+	// ì°©ì§€ë˜ë©´ ê°•ì œë¡œ ìŠ¤í‚¬ ì¢…ë£Œ 
+	// Notify ì—ê²Œ ë§¡ê¸´ë‹¤... 
 	ExecutePhase(ESkillPhase::End_Skill);
 }
 
@@ -411,7 +510,7 @@ void UCSwordSkill_DragonFall::SetOriginCameraData()
 	CheckNull(SpringArm);
 	CheckNull(Camera);
 
-	// ÇöÀç °ª ÀúÀå 
+	// í˜„ì¬ ê°’ ì €ì¥ 
 	OriginData.TargetArmLength = SpringArm->TargetArmLength;
 	OriginData.SocketOffset = SpringArm->SocketOffset;
 	OriginData.bEnableCameraLag = SpringArm->bEnableCameraLag;
@@ -423,13 +522,13 @@ void UCSwordSkill_DragonFall::SetCameraData()
 	CheckNull(SpringArm);
 	CheckNull(Camera);
 
-	// ÁÜ ²ô±â 
+	// ì¤Œ ë„ê¸° 
 	if (Zoom != nullptr)
 	{
 		Zoom->SetZoomOff();
 	}
 
-	// ÇöÀç °ª ÀúÀå 
+	// í˜„ì¬ ê°’ ì €ì¥ 
 	OriginData.TargetArmLength = SpringArm->TargetArmLength;
 	OriginData.SocketOffset = SpringArm->SocketOffset;
 	OriginData.bEnableCameraLag = SpringArm->bEnableCameraLag;
@@ -449,7 +548,7 @@ void UCSwordSkill_DragonFall::ResetCameraData()
 	CheckNull(SpringArm);
 	CheckNull(Camera);
 
-	// ÁÜ ÄÑ±â 
+	// ì¤Œ ì¼œê¸° 
 	if (Zoom != nullptr)
 	{
 		Zoom->SetZoomOn();

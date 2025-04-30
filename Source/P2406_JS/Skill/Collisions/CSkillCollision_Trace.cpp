@@ -52,11 +52,15 @@ void UCSkillCollision_Trace::CheckCollision()
 	TArray<FOverlapResult> hitResults;  // 변수명 수정
 	FVector start = GetComponentLocation();
 
-	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
+
+	float radius = CollisionData.CapsuleRadius <= -1.0f ? CollisionRadius : CollisionData.CapsuleRadius;
+		
+
+	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(radius);
 	switch (CollisionData.CollisionType)
 	{
 	case ESkillCollisionType::Sphere:
-		CollisionShape = FCollisionShape::MakeSphere(CollisionRadius);
+		CollisionShape = FCollisionShape::MakeSphere(radius);
 		break;
 	case ESkillCollisionType::Box:
 		CollisionShape = FCollisionShape::MakeBox(CollisionData.BoxExtent);
@@ -64,7 +68,7 @@ void UCSkillCollision_Trace::CheckCollision()
 	case ESkillCollisionType::Capsule:
 		CollisionShape = FCollisionShape::MakeCapsule
 		(
-			CollisionData.CapsuleRadius,
+			radius,
 			CollisionData.CapsuleHalfHeight
 		);
 		break;
@@ -121,11 +125,14 @@ void UCSkillCollision_Trace::DrawDebugCollisionLine()
 	CheckFalse(bDrawDebug);
 	CheckNull(OwnerCharacter);
 
+	float radius = CollisionData.CapsuleRadius <= -1.0f ? CollisionRadius : CollisionData.CapsuleRadius;
+
+
 	FVector start = GetComponentLocation();
 	switch (CollisionData.CollisionType)
 	{
 	case ESkillCollisionType::Sphere:
-		DrawDebugSphere(OwnerCharacter->GetWorld(), start, CollisionRadius, 12, FColor::Red, false, 1.0f);
+		DrawDebugSphere(OwnerCharacter->GetWorld(), start, radius, 12, FColor::Red, false, 1.0f);
 		break;
 	case ESkillCollisionType::Box:
 		///DrawDebugBox(OwnerCharacter->GetWorld(), )

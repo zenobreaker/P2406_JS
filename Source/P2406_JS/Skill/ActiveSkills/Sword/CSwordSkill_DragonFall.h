@@ -5,6 +5,8 @@
 #include "Components/TimelineComponent.h"
 #include "CSwordSkill_DragonFall.generated.h"
 
+DECLARE_DELEGATE(FOnFinishDragonFall);
+
 USTRUCT()
 struct FDFAimData
 {
@@ -114,7 +116,9 @@ private:
 
 
 private:
+	FOnFinishDragonFall OnFinishDragonFall;
 
+private:
 	float DescentSpeed = 10000.0f;
 	float lmitCameraPitch = 80.0f;
 	float originCameraPtich = 0.0f;
@@ -145,6 +149,7 @@ private:
 	bool bEndSkillCall = false; //TODO : 하드 코딩의 표본 임시로 막는 거니 방법을 생각 해야한다.
 
 private:
+	ECollisionEnabled::Type CollsionEnabledType;
 	DrangonFallFlow CurrDFFlow;
 	FDFAimData OriginData;
 

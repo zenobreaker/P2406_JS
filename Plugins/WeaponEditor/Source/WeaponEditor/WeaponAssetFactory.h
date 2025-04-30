@@ -1,5 +1,6 @@
 #pragma once
 
+#if WITH_EDITOR
 #include "CoreMinimal.h"
 #include "Factories/Factory.h"
 #include "WeaponAssetFactory.generated.h"
@@ -20,3 +21,4 @@ public:
 		UObject* Context, 
 		FFeedbackContext* Warn, FName CallingContext) override;
 };
+#endif 

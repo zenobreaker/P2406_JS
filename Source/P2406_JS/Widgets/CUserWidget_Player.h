@@ -40,4 +40,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void VisibleInfo(bool InToggle, class ACharacter* InOwner);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void ShowInputPrompt(FKey InKey);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void HideInputPrompt();
 };

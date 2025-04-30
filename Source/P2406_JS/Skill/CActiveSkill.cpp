@@ -218,6 +218,11 @@ void UCActiveSkill::ExecutePhase(ESkillPhase InPhase)
 	}
 }
 
+void UCActiveSkill::SpawnSkillEntity(ESkillPhase InPhase, ACharacter* InCharacter, int32 InIndex)
+{
+	if (SkillPhaseTable[InPhase].PhaseDatas.Num() > 0)
+		SkillEntity = SkillPhaseTable[InPhase].PhaseDatas[InIndex].Phase_SpawnSkillEntity(InCharacter);
+}
 
 /// <summary>
 /// 아래처럼 데이터를 전달한다. 캐릭터 데이터가 없으면 자동으로 스킬 생성시에 만든 주체자로 
@@ -231,7 +236,7 @@ void UCActiveSkill::RunSkillPhaseData(ESkillPhase InPhase, int32 InIndex, AChara
 
 	// 기본적으로 0번 인덱스가 데이터가 있다는 가정하의 진행해야함
 	if (SkillPhaseTable[InPhase].PhaseDatas.Num() > 0)
-		SkillEntity = SkillPhaseTable[InPhase].PhaseDatas[InIndex].ExecutePhase(InCharacter);
+		SkillPhaseTable[InPhase].PhaseDatas[InIndex].ExecutePhase(InCharacter);
 }
 
 // Skill Move Phases 

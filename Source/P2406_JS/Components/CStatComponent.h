@@ -5,7 +5,7 @@
 #include "Buffs/CBuffStructures.h"
 #include "CStatComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdatedStatusData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatedStatusData, class ACharacter*, InOwner);
 
 USTRUCT(BlueprintType)
 struct FStatusData 
