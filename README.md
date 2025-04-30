@@ -1,6 +1,6 @@
 # P2406_JS
  
-[![Video Label](https://img.youtube.com/vi/WL6sUDBy110/0.jpg)](https://youtu.be/WL6sUDBy110)
+[![Video Label](https://img.youtube.com/vi/OlcyzOfpHmI/0.jpg)](https://youtu.be/OlcyzOfpHmI)
 <br>사진을 누르면 해당 영상을 확인하실 수 있습니다. </br>
 
 
