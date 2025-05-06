@@ -20,35 +20,36 @@ Unreal 5.3
 ## 구현 목록 
 <br> </br>
 ### Skill Systesm
-![Image](https://github.com/user-attachments/assets/12bbecce-796b-4db2-aeb0-b5eb5b2e2492)
-![Image](https://github.com/user-attachments/assets/ced7ccb5-1d99-4e46-8cb4-6b8afbe419f1)
+![Image](https://github.com/user-attachments/assets/9cb19c34-1fc8-4bd5-a327-a312e67ee888)
+![Image](https://github.com/user-attachments/assets/ae5cade1-9981-48f3-ae4a-da8c75c1ad32)
+![Image](https://github.com/user-attachments/assets/b278eb7f-9bfe-4a35-a154-d1b72c280d9c)
 <br> Skill 기능 설계 및 개발  </br> 
 
 ### Game Flow Management
-![Image](https://github.com/user-attachments/assets/4b79f635-e4e8-4e3d-be1f-fc0c03428b47)
+![Image](https://github.com/user-attachments/assets/2358e13c-a249-4cdd-8c66-2ce0c94913a9)
+![Image](https://github.com/user-attachments/assets/6b82899a-2921-40f4-bbd0-f26277640b48)
 <br>게임 진행 관리 설계 </br>
 
 ### Buff System
-![Image](https://github.com/user-attachments/assets/6a36aa2a-12ee-4898-af8c-b6b07b9d76fd)
+![Image](https://github.com/user-attachments/assets/fb789037-b1bd-4e09-967b-4e6e347c8d1a)
 <br>Buff System 구현 </br>
 
-### Boss 
-![Image](https://github.com/user-attachments/assets/dfc88337-db35-4c15-b0db-5fdb4dc125eb)
-<br>Boss Pattern </br>
-
 ### AI
-![Image](https://github.com/user-attachments/assets/85231afb-8bad-4232-af3b-9958f92f5f4e)
+![Image](https://github.com/user-attachments/assets/7de58220-6a60-44da-83c5-ac984e50b523)
+<br>Pattern </br>
+
+![Image](https://github.com/user-attachments/assets/7f393cdc-0617-469d-a6c1-0e4b298d282c)
 <br> AI - BattleManger를 이용한 단체 설계 </br>
 
 ### 충돌 판정 개선
-![Image](https://github.com/user-attachments/assets/2156236f-b9cb-49c1-aaa1-bbdaf0fb0ffc)
+![Image](https://github.com/user-attachments/assets/01f4c041-3b7d-4612-b99e-b0e141f012a5)
 <br>  </br> 
 
-### 상태이상 처리 
-![Image](https://github.com/user-attachments/assets/1a06cffd-6e60-4a30-bdb6-446e9591874b)
-<br>  <br>
 
-### Dash & Evade
-![Image](https://github.com/user-attachments/assets/fbe90bff-d074-4efb-af58-45565edc79f3)
+### 상태 이상 처리
+![Image](https://github.com/user-attachments/assets/ab36eac0-43ba-4e3b-b2cd-7fa2b1517f1b)
+<br>  </br> 
+
+<br>  <br>
 <br><br> 
 
