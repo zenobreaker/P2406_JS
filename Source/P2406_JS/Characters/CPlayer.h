@@ -85,9 +85,6 @@ private:
 	class UCParkourComponent* Parkour;
 
 	UPROPERTY(VisibleAnywhere)
-	class UCZoomComponent* Zoom;
-
-	UPROPERTY(VisibleAnywhere)
 	class UCGrapplingComponent* Grapple;
 
 	UPROPERTY(VisibleAnywhere)
@@ -101,6 +98,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCBuffComponent* Buff;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCZoomComponent* ZoomC;
 
 public:
 	FORCEINLINE void SetCanInput(bool bValue) { bCanInput = bValue; }

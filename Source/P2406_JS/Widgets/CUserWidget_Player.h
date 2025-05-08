@@ -46,4 +46,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
 	void HideInputPrompt();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UserInterface")
+	void UpdateGrapplingCrossHairVisibility(bool bInVisible);
+
 };

@@ -37,8 +37,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool bDrawDebug = false; 
 
-public:
-	
 
 public:
 	UCDashComponent();

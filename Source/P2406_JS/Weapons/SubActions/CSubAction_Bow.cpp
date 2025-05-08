@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "Components/CStateComponent.h"
+#include "Components/CZoomComponent.h"
 #include "Weapons/Attachments/CAttachment_Bow.h"
 
 #include "Curves/CurveVector.h"
@@ -64,6 +65,12 @@ void UCSubAction_Bow::Pressed()
 	//Camera->FieldOfView = 45;
 
 	Timeline.PlayFromStart();
+
+	CheckNull(Owner); 
+	UCZoomComponent* Zoom = FHelpers::GetComponent<UCZoomComponent>(Owner); 
+	CheckNull(Zoom); 
+
+	Zoom->SetZoomOff();
 }
 
 
@@ -76,6 +83,7 @@ void UCSubAction_Bow::Released()
 
 	State->OffSubActionMode();
 	
+	Timeline.ReverseFromEnd();
 	SpringArm->TargetArmLength = OriginData.TargetArmLength;
 	SpringArm->SocketOffset = OriginData.SocketOffset;
 	SpringArm->bEnableCameraLag = OriginData.bEnableCameraLag;
@@ -83,7 +91,12 @@ void UCSubAction_Bow::Released()
 
 	//Camera->FieldOfView = 90;
 
-	Timeline.ReverseFromEnd();
+
+	CheckNull(Owner);
+	UCZoomComponent* Zoom = FHelpers::GetComponent<UCZoomComponent>(Owner);
+	CheckNull(Zoom);
+
+	Zoom->SetZoomOn();
 }
 
 

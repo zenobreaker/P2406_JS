@@ -82,7 +82,7 @@ void ACPlayer::CreateActorComponent()
 	FHelpers::CreateActorComponent<UCSkillComponent>(this, &Skill, "Skill");
 	FHelpers::CreateActorComponent<UCConditionComponent>(this, &Condition, "Condition");
 	FHelpers::CreateActorComponent<UCAttackTraceComponent>(this, &ATrace, "A_Trace");
-	FHelpers::CreateActorComponent<UCZoomComponent>(this, &Zoom, "Zoom");
+	FHelpers::CreateActorComponent<UCZoomComponent>(this, &ZoomC, "Zoom");
 	FHelpers::CreateActorComponent<UCAirborneComponent>(this, &Airborne, "Airborne");
 	FHelpers::CreateActorComponent<UCStatComponent>(this, &Stat, "Stat");
 	FHelpers::CreateActorComponent<UCBuffComponent>(this, &Buff, "Buff");
@@ -210,6 +210,8 @@ void ACPlayer::BeginPlay()
 			REGISTER_EVENT_WITH_REPLACE(Skill, OnUpdatedChargeGauge, UserInterface, UCUserWidget_Player::UpdateChargeGauge);
 			REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillInputRequested, UserInterface, UCUserWidget_Player::ShowInputPrompt);
 			REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillInputHide, UserInterface, UCUserWidget_Player::HideInputPrompt);
+
+			REGISTER_EVENT_WITH_REPLACE(Grapple, OnGrapplingZoomMode, UserInterface, UCUserWidget_Player::UpdateGrapplingCrossHairVisibility);
 		}
 	}
 
@@ -283,8 +285,12 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Target_Right", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveRight);
 
 
-	if (!!Zoom)
-		PlayerInputComponent->BindAxis("Zoom", Zoom, &UCZoomComponent::SetValue);
+	if (ZoomC != nullptr)
+	{
+		PlayerInputComponent->BindAxis("Zoom", ZoomC, &UCZoomComponent::SetValue);
+		PlayerInputComponent->BindAction("Zoom_Aim", EInputEvent::IE_Pressed, ZoomC, &UCZoomComponent::Pressed);
+		PlayerInputComponent->BindAction("Zoom_Aim", EInputEvent::IE_Released, ZoomC, &UCZoomComponent::Released);
+	}
 
 
 	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Pressed, this,
@@ -892,8 +898,8 @@ void ACPlayer::FindComponent()
 	if (Parkour == nullptr)
 		Parkour = FHelpers::GetComponent<UCParkourComponent>(this);
 
-	if (Zoom == nullptr)
-		Zoom = FHelpers::GetComponent<UCZoomComponent>(this);
+	if (ZoomC == nullptr)
+		ZoomC = FHelpers::GetComponent<UCZoomComponent>(this);
 }
 
 

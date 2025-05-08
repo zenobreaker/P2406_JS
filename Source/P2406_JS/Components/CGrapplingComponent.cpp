@@ -1,8 +1,10 @@
-#include "Components/CGrapplingComponent.h"
+ï»¿#include "Components/CGrapplingComponent.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CableComponent.h"
+
+#include "Components/CZoomComponent.h"
 
 UCGrapplingComponent::UCGrapplingComponent()
 {
@@ -18,7 +20,8 @@ void UCGrapplingComponent::BeginPlay()
 
 	if (OwnerCharacter != nullptr)
 	{
-		Cable = FHelpers::GetComponent<UCableComponent>(OwnerCharacter); 
+		Cable = FHelpers::GetComponent<UCableComponent>(OwnerCharacter);
+		Zoom = FHelpers::GetComponent<UCZoomComponent>(OwnerCharacter);
 	}
 }
 
@@ -28,6 +31,20 @@ void UCGrapplingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	Grapple_1(DeltaTime);
 	//Grapple_2(DeltaTime);
+
+	if (Cable != nullptr)
+	{
+		FVector start = OwnerCharacter->GetActorLocation();
+
+		Cable->SetWorldLocation(start);
+
+		// ëì ì€ ê³ ì •ëœ íƒ€ê²Ÿ ìœ„ì¹˜
+		FVector desireLoc = TargetLocation + FVector(0, 0, +34);
+		FVector LocalEndLocation = Cable->GetComponentTransform().InverseTransformPosition(desireLoc);
+		Cable->EndLocation = LocalEndLocation;
+	}
+
+	TryGrapplingTarget();
 }
 
 void UCGrapplingComponent::OnGrapple()
@@ -54,6 +71,19 @@ void UCGrapplingComponent::PullTowardsTarget()
 	OwnerCharacter->LaunchCharacter(Direction * PullSpeed, true, true);
 }
 
+void UCGrapplingComponent::TryGrapplingTarget()
+{
+	CheckNull(Zoom);
+	
+	if (Zoom->GetGrapplingZoomMode() == true)
+	{
+		DYNAMIC_EVENT_CALL_ONE_PARAM(OnGrapplingZoomMode, true);
+
+		return; 
+	}
+	DYNAMIC_EVENT_CALL_ONE_PARAM(OnGrapplingZoomMode, false);
+}
+
 void UCGrapplingComponent::OnGrappling_Pressed()
 {
 	CheckNull(OwnerCharacter);
@@ -67,13 +97,13 @@ void UCGrapplingComponent::OnGrappling_Released()
 {
 	CheckNull(OwnerCharacter);
 	//CheckTrue(bIsGrappling);
-	
+
 	bIsGrappling = false;
 }
 
 void UCGrapplingComponent::ResetGrapple()
 {
- 	bIsGrappling = false;
+	bIsGrappling = false;
 	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
@@ -93,13 +123,13 @@ void UCGrapplingComponent::SetTarget()
 
 	FHitResult HitResult;
 	FVector Start = OwnerCharacter->GetActorLocation();
-	FVector End = Start + (CamraRotation.Vector() * MaxLineDistance);  // ¿øÇÏ´Â °Å¸®·Î Æ®·¹ÀÌ½º
+	FVector End = Start + (CamraRotation.Vector() * MaxLineDistance);  // ì›í•˜ëŠ” ê±°ë¦¬ë¡œ íŠ¸ë ˆì´ìŠ¤
 	FCollisionQueryParams CollisionParams;
 
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 	{
 		TargetLocation = HitResult.Location;
-		// ¿©±â¼­ Å¸°Ù À§Ä¡¸¦ ¼³Á¤
+		// ì—¬ê¸°ì„œ íƒ€ê²Ÿ ìœ„ì¹˜ë¥¼ ì„¤ì •
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 5.0f);
 	}
 	else
@@ -111,13 +141,37 @@ void UCGrapplingComponent::SetTarget()
 	}
 }
 
+void UCGrapplingComponent::InstallrapplingRope()
+{
+	CheckNull(OwnerCharacter);
+	CheckNull(Cable);
+
+
+	Cable->AttachEndTo = FComponentReference();
+
+	Cable->bAttachEnd = false; // ëì  ì—°ê²° ë¹„í™œì„±í™”
+	//Cable->EndLocation = TargetLocation;// ê·¸ë˜í”Œë§ í›… ì„¤ì¹˜ 
+
+	FVector LocalEndLocation = Cable->GetComponentTransform().InverseTransformPosition(TargetLocation);
+	Cable->EndLocation = LocalEndLocation;
+	Cable->SetHiddenInGame(false);
+}
+
+void UCGrapplingComponent::UninstallrapplingRope()
+{
+	CheckNull(Cable);
+
+
+	Cable->SetHiddenInGame(true);
+}
+
 void UCGrapplingComponent::Begin_DoGrappling()
 {
 	CheckNull(OwnerCharacter);
 	CheckNull(OwnerCharacter->GetCharacterMovement());
 
 
-	// ÇØ´ç ¹æÇâÀ¸·Î Ä³¸¯ÅÍ È¸ÀüÇÏ±â 
+	// í•´ë‹¹ ë°©í–¥ìœ¼ë¡œ ìºë¦­í„° íšŒì „í•˜ê¸° 
 	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 	FRotator TargetRotator = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
 
@@ -125,6 +179,8 @@ void UCGrapplingComponent::Begin_DoGrappling()
 	OwnerCharacter->StopAnimMontage(GrapplingMontage);
 
 	bIsGrappling = true;
+
+	InstallrapplingRope(); 
 }
 
 void UCGrapplingComponent::End_DoGrappling()
@@ -135,25 +191,26 @@ void UCGrapplingComponent::End_DoGrappling()
 	{
 		OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection(FName("Grappling_End"), GrapplingMontage);
 	}
-}
 
+	UninstallrapplingRope();
+}
 
 
 void UCGrapplingComponent::Grapple_1(float InDetaTime)
 {
 	CheckFalse(bIsGrappling);
 
-	// ÀÌ±â´ÉÀº °øÁß ´ë½Ã¿¡ °¡±õ´Ù 
+	// ì´ê¸°ëŠ¥ì€ ê³µì¤‘ ëŒ€ì‹œì— ê°€ê¹ë‹¤ 
 	if (bGrappleEnd == false)
 	{
-		// ¸ñÇ¥ ÁöÁ¡±îÁö ³²Àº °Å¸®
+		// ëª©í‘œ ì§€ì ê¹Œì§€ ë‚¨ì€ ê±°ë¦¬
 		FVector CurrentLocation = OwnerCharacter->GetActorLocation();
-		FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal(); // ¹æÇâ º¤ÅÍ
-		FVector NewLocation = CurrentLocation + (Direction * PullSpeed* InDetaTime); // ¼Óµµ * ½Ã°£ = °Å¸®
+		FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal(); // ë°©í–¥ ë²¡í„°
+		FVector NewLocation = CurrentLocation + (Direction * PullSpeed * InDetaTime); // ì†ë„ * ì‹œê°„ = ê±°ë¦¬
 
 		OwnerCharacter->SetActorLocation(NewLocation);
 
-		// ¸ñÇ¥ ÁöÁ¡¿¡ µµ´ŞÇß´ÂÁö È®ÀÎ
+		// ëª©í‘œ ì§€ì ì— ë„ë‹¬í–ˆëŠ”ì§€ í™•ì¸
 		if (FVector::Dist(NewLocation, TargetLocation) < DistanceThreshold)
 		{
 			End_DoGrappling();
@@ -165,16 +222,16 @@ void UCGrapplingComponent::Grapple_2(float InDetaTime)
 {
 	CheckFalse(bIsGrappling);
 
-	//TODO: ÃµÃµÈ÷ °¡´Ù°¡ µµÁß¿¡ Áß´ÜÇÏ°Å³ª ¹öÆ° ¶¼¸é °Å±â¼­ ¸ØÃß°ÔÇÏ¸éµÉµí 
+	//TODO: ì²œì²œíˆ ê°€ë‹¤ê°€ ë„ì¤‘ì— ì¤‘ë‹¨í•˜ê±°ë‚˜ ë²„íŠ¼ ë–¼ë©´ ê±°ê¸°ì„œ ë©ˆì¶”ê²Œí•˜ë©´ë ë“¯ 
 	if (bGrappleEnd == false)
 	{
 		FVector NewLocation = FMath::Lerp(OwnerCharacter->GetActorLocation(), TargetLocation, PullSpeed);
 		OwnerCharacter->SetActorLocation(NewLocation);
 
-		// ¸ñÇ¥ ÁöÁ¡¿¡ µµ´ŞÇß´ÂÁö È®ÀÎ
+		// ëª©í‘œ ì§€ì ì— ë„ë‹¬í–ˆëŠ”ì§€ í™•ì¸
 		if (FVector::Dist(OwnerCharacter->GetActorLocation(), TargetLocation) < DistanceThreshold)
 		{
-			// ±×·¡ÇÃ¸µ ¿Ï·á Ã³¸® ·ÎÁ÷
+			// ê·¸ë˜í”Œë§ ì™„ë£Œ ì²˜ë¦¬ ë¡œì§
 			//bIsGrappling = false;
 			bGrappleEnd = true;
 		}

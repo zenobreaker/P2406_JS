@@ -5,6 +5,8 @@
 #include "CGrapplingComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGrapplingZoomMode, bool, InVisibility);
+
 UCLASS()
 class P2406_JS_API UCGrapplingComponent : public UActorComponent
 {
@@ -24,6 +26,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Grappling")
 	float PlayRate = 1.0f; 
 
+
 public:
 	FORCEINLINE bool GetGrappling() { return bIsGrappling; }
 
@@ -40,6 +43,8 @@ public:
 	
 	virtual void PullTowardsTarget();
 
+	void TryGrapplingTarget(); 
+
 public:
 	void OnGrappling_Pressed();
 	void OnGrappling_Released();
@@ -49,18 +54,24 @@ public:
 
 	void SetTarget();
 public:
+	void InstallrapplingRope(); 
+	void UninstallrapplingRope(); 
+
 	void Begin_DoGrappling();
 	void End_DoGrappling();
+
 
 private:
 	void Grapple_1(float InDetaTime);
 	void Grapple_2(float InDetaTime);
 
+public:
+	FOnGrapplingZoomMode OnGrapplingZoomMode;
 
 private:
 	class ACharacter* OwnerCharacter;
 	class UCableComponent* Cable; 
-
+	class UCZoomComponent* Zoom; 
 private:
 	FVector TargetLocation;
 
@@ -68,6 +79,5 @@ private:
 	float DistanceThreshold = 100.0f;
 	bool bIsGrappling = false;
 	bool bGrappleEnd = false;
-	//FVector GrapPoint;
 
 };

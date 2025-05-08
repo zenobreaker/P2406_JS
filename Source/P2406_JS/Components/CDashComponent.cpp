@@ -10,7 +10,7 @@
 #include "Components/CStateComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CWeaponComponent.h"
-#include <Components/SphereComponent.h>
+#include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 
 #include "Weapons/CEquipment.h"

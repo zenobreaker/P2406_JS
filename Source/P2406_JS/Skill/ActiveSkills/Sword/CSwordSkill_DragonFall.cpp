@@ -501,7 +501,9 @@ void UCSwordSkill_DragonFall::OnCameraZoomInOut(FVector Output)
 {
 	CheckNull(Camera);
 
+#ifdef WITH_EDITOR
 	FLog::Print(FString::SanitizeFloat(Output.Y), 25270, 5.0f, FColor::Orange);
+#endif
 	Camera->FieldOfView = Output.Y;
 }
 
@@ -529,10 +531,7 @@ void UCSwordSkill_DragonFall::SetCameraData()
 	}
 
 	// 현재 값 저장 
-	OriginData.TargetArmLength = SpringArm->TargetArmLength;
-	OriginData.SocketOffset = SpringArm->SocketOffset;
-	OriginData.bEnableCameraLag = SpringArm->bEnableCameraLag;
-	OriginData.CameraLocation = Camera->GetRelativeLocation();
+	SetOriginCameraData();
 	
 	SpringArm->TargetArmLength = AimData.TargetArmLength;
 	SpringArm->SocketOffset = AimData.SocketOffset;

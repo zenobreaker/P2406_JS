@@ -130,7 +130,7 @@ float ACEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContro
 	DamageData.Power = Damage;
 	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
 	DamageData.Causer = DamageCauser;
-	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
+	DamageData.Event = ( b*)&DamageEvent;
 
 	State->SetDamagedMode();
 
