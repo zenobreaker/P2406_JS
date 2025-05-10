@@ -132,6 +132,31 @@ void UCTargetComponent::Change(ACharacter* InCandidate)
 	Target = InCandidate;
 }
 
+AActor* UCTargetComponent::GetNearlyFrontAngleActor(const TArray<FHitResult>& InHitResult)
+{
+	float angle = -2.0f; 
+	AActor* candidate = nullptr; 
+
+	for (int i = 0; i < InHitResult.Num(); i++)
+	{
+		FVector targetLocation = InHitResult[i].GetActor()->GetActorLocation(); 
+		FVector direction = targetLocation - OwnerCharacter->GetActorLocation(); 
+		direction.Normalize(); 
+
+		FRotator rotator = OwnerCharacter->GetControlRotation(); 
+		FVector forward = FQuat(rotator).GetForwardVector(); 
+		float dot = FVector::DotProduct(direction, forward); 
+
+		if (dot >= angle)
+		{
+			angle = dot; 
+			candidate = InHitResult[i].GetActor(); 
+		}
+	}
+
+	return candidate;
+}
+
 ACharacter* UCTargetComponent::GetNearlyFrontAngle(const TArray<FHitResult>& InHitResults)
 {
 	float angle = -2.0f;

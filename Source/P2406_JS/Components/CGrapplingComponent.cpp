@@ -3,12 +3,17 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CableComponent.h"
+#include "Components/WidgetComponent.h"
 
 #include "Components/CZoomComponent.h"
+#include "Components/CTargetComponent.h"
+
 
 UCGrapplingComponent::UCGrapplingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	FHelpers::GetClass<UUserWidget>(&TargetUiClass, "/Script/UMGEditor.WidgetBlueprint'/Game/Widgets/GrapplingTargetCrossHair.GrapplingTargetCrossHair_C'");
 }
 
 
@@ -21,6 +26,7 @@ void UCGrapplingComponent::BeginPlay()
 	if (OwnerCharacter != nullptr)
 	{
 		Cable = FHelpers::GetComponent<UCableComponent>(OwnerCharacter);
+		Target = FHelpers::GetComponent<UCTargetComponent>(OwnerCharacter);
 		Zoom = FHelpers::GetComponent<UCZoomComponent>(OwnerCharacter);
 	}
 }
@@ -74,14 +80,83 @@ void UCGrapplingComponent::PullTowardsTarget()
 void UCGrapplingComponent::TryGrapplingTarget()
 {
 	CheckNull(Zoom);
-	
+
 	if (Zoom->GetGrapplingZoomMode() == true)
 	{
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnGrapplingZoomMode, true);
+		bGrapplingZoomMode = true;
+		SearchGrapplingAbleTarget();
 
-		return; 
+		return;
 	}
+
 	DYNAMIC_EVENT_CALL_ONE_PARAM(OnGrapplingZoomMode, false);
+	bGrapplingZoomMode = false;
+
+	if (TargetUi != nullptr)
+		TargetUi->SetVisibility(false); 
+}
+
+void UCGrapplingComponent::SearchGrapplingAbleTarget()
+{
+	CheckFalse(bGrapplingZoomMode);
+
+	// 타겟 컴포넌트로부터 미리 타겟한 대상이 있는가 
+	CheckNull(Target);
+
+	AActor* target = Target->GetTarget();
+	// 이미 타겟한게 있다면 여기에 동일하게 조준
+	if (target != nullptr)
+	{
+		DrawGrapplingTargetUI(target);
+		return;
+	}
+
+	FVector location = OwnerCharacter->GetActorLocation();
+
+	TArray<AActor*> ignores;
+	ignores.Add(OwnerCharacter);
+
+	// 없다면 계산해서 가져온다. 
+	TArray<FHitResult> hitResults;
+	UKismetSystemLibrary::SphereTraceMultiByProfile(GetWorld(), location,
+		location, TraceDistance, 
+		"Targeting", false, ignores, 
+		DrawDebug, hitResults, true);
+
+	AActor* candidate = Target->GetNearlyFrontAngleActor(hitResults);
+	CheckNull(candidate); 
+	FLog::Print("Target On", 1);
+	DrawGrapplingTargetUI(candidate);
+}
+
+void UCGrapplingComponent::DrawGrapplingTargetUI(AActor* InTarget)
+{
+	CheckNull(InTarget);
+	CheckNull(TargetUiClass); 
+
+	FLog::Print("Target Draw", 2);
+
+	// 사전에 UI가 있었다면 그 대상을 제거 
+	if (GrappleTarget == nullptr || GrappleTarget != InTarget)
+		GrappleTarget = InTarget;
+	else if (GrappleTarget == InTarget)
+		return;
+
+	if(TargetUi != nullptr)
+		TargetUi->DestroyComponent();
+
+	FLog::Print("Target Draw UI ", 2);
+	TargetUi = NewObject<UWidgetComponent>(this); 
+	TargetUi->AttachToComponent(InTarget->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	TargetUi->RegisterComponent();
+	FTransform transform;
+	transform.SetLocation(FVector(0, 0, 50));
+	TargetUi->SetRelativeTransform(transform);
+	TargetUi->SetWidgetClass(TargetUiClass);
+	TargetUi->SetWidgetSpace(EWidgetSpace::Screen);
+	TargetUi->SetDrawSize(FVector2D(100, 100)); // 적절한 크기 설정
+	TargetUi->SetVisibility(true);
 }
 
 void UCGrapplingComponent::OnGrappling_Pressed()
@@ -180,7 +255,7 @@ void UCGrapplingComponent::Begin_DoGrappling()
 
 	bIsGrappling = true;
 
-	InstallrapplingRope(); 
+	InstallrapplingRope();
 }
 
 void UCGrapplingComponent::End_DoGrappling()

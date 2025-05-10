@@ -36,6 +36,7 @@ public:
 
 public:
 	FORCEINLINE bool GetTargetMode() { return Target == nullptr; }
+	FORCEINLINE ACharacter* GetTarget() { return Target;  }
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,6 +54,8 @@ private:
 	void Change(class ACharacter* InCandidate);
 	void Move(bool bRight);
 
+public:
+	AActor* GetNearlyFrontAngleActor(const TArray<FHitResult>& InHitResult);
 private:
 	class ACharacter* GetNearlyFrontAngle(const TArray<FHitResult>& InHitResults);
 

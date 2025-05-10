@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "CGrapplingComponent.generated.h"
 
 
@@ -26,6 +27,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Grappling")
 	float PlayRate = 1.0f; 
 
+	UPROPERTY(EditAnywhere, Category = "Grappling")
+	TSubclassOf<class UUserWidget> TargetUiClass; 
+
+	UPROPERTY(EditAnywhere, Category = "Grappling")
+	float TraceDistance = 1000.0f; 
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	TEnumAsByte<EDrawDebugTrace::Type> DrawDebug;
 
 public:
 	FORCEINLINE bool GetGrappling() { return bIsGrappling; }
@@ -44,6 +53,10 @@ public:
 	virtual void PullTowardsTarget();
 
 	void TryGrapplingTarget(); 
+
+private: 
+	void SearchGrapplingAbleTarget();
+	void DrawGrapplingTargetUI(AActor* InTarget);
 
 public:
 	void OnGrappling_Pressed();
@@ -72,6 +85,9 @@ private:
 	class ACharacter* OwnerCharacter;
 	class UCableComponent* Cable; 
 	class UCZoomComponent* Zoom; 
+	class UCTargetComponent* Target; 
+	class UWidgetComponent* TargetUi;
+
 private:
 	FVector TargetLocation;
 
@@ -79,5 +95,8 @@ private:
 	float DistanceThreshold = 100.0f;
 	bool bIsGrappling = false;
 	bool bGrappleEnd = false;
+	bool bGrapplingZoomMode = false; 
 
+private:
+	AActor* GrappleTarget;
 };

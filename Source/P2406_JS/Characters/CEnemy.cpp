@@ -130,7 +130,7 @@ float ACEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContro
 	DamageData.Power = Damage;
 	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
 	DamageData.Causer = DamageCauser;
-	DamageData.Event = ( b*)&DamageEvent;
+	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
 
 	State->SetDamagedMode();
 
@@ -364,7 +364,6 @@ void ACEnemy::Tick_LabelRenderScale()
 
 	if (distance > MaxLabelDistance)
 	{
-		FLog::Print(" is too far ", 273535);
 		label->SetVisibility(ESlateVisibility::Collapsed);
 		return;
 	}
