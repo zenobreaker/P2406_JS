@@ -43,10 +43,9 @@ void UCZoomComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	CheckNull(SpringArm);
-
 	CheckFalse(bZoomable);
-
 	CheckTrue(FMath::IsNearlyEqual(SpringArm->TargetArmLength, TargetArmLength, 1e-6f));
+
 	SpringArm->TargetArmLength = UKismetMathLibrary::FInterpTo(SpringArm->TargetArmLength, TargetArmLength, DeltaTime, InterpSpeed);
 }
 
@@ -56,7 +55,7 @@ void UCZoomComponent::SetValue(float InZoomValue)
 	TargetArmLength = FMath::Clamp(TargetArmLength, Range.X, Range.Y);
 }
 
-void UCZoomComponent::Pressed()
+void UCZoomComponent::OnZoomPressed()
 {
 	CheckNull(SpringArm);
 	CheckNull(Camera);
@@ -71,28 +70,27 @@ void UCZoomComponent::Pressed()
 
 	Timeline.PlayFromStart();
 
-	bGrapplingAiming = true; 
+	bGrapplingAiming = true;
 
 	SetZoomOff();
 }
 
-void UCZoomComponent::Released()
+void UCZoomComponent::OnZoomReleased()
 {
 	CheckNull(SpringArm);
 	CheckNull(Camera);
 
 	//Timeline.ReverseFromEnd();
-	
+
 	SpringArm->TargetArmLength = OriginData.TargetArmLength;
 	SpringArm->SocketOffset = OriginData.SocketOffset;
 	SpringArm->bEnableCameraLag = OriginData.bEnableCameraLag;
 	Camera->SetRelativeLocation(OriginData.CameraLocation);
 
-	bGrapplingAiming = false; 
+	bGrapplingAiming = false;
 
 	SetZoomOn();
 }
-
 
 void UCZoomComponent::OnZoomAiming(FVector Output)
 {

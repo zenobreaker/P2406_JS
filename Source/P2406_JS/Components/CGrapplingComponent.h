@@ -7,6 +7,22 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGrapplingZoomMode, bool, InVisibility);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGraplingPressed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGraplingReleased);
+
+UENUM()
+enum class EGrapplingMode 
+{
+	Grappling, Hook, Max 
+};
+
+
+UENUM()
+enum class EGrapplingState
+{
+	Aim, Begin, Action, End, Max 
+};
+
 
 UCLASS()
 class P2406_JS_API UCGrapplingComponent : public UActorComponent
@@ -25,6 +41,9 @@ private:
 	UAnimMontage* GrapplingMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Grappling")
+	UAnimMontage* HookMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Grappling")
 	float PlayRate = 1.0f; 
 
 	UPROPERTY(EditAnywhere, Category = "Grappling")
@@ -37,7 +56,7 @@ private:
 	TEnumAsByte<EDrawDebugTrace::Type> DrawDebug;
 
 public:
-	FORCEINLINE bool GetGrappling() { return bIsGrappling; }
+	FORCEINLINE bool GetGrappling() { return GrapplingState == EGrapplingState::Action; }
 
 private:
 	UCGrapplingComponent();
@@ -48,38 +67,54 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	virtual void OnGrapple();
-	
 	virtual void PullTowardsTarget();
 
 	void TryGrapplingTarget(); 
 
-private: 
+	void Pressed(); 
+	void Released(); 
+
+private:
+	void PullTargetToSelf(AActor* InTarget);
+
+private:
 	void SearchGrapplingAbleTarget();
 	void DrawGrapplingTargetUI(AActor* InTarget);
 
 public:
-	void OnGrappling_Pressed();
-	void OnGrappling_Released();
-
 	void ResetGrapple();
 	void InterruptGrapple();
 
 	void SetTarget();
+
 public:
-	void InstallrapplingRope(); 
-	void UninstallrapplingRope(); 
+	void InstallGrapplingRope();
+	void UninstallrapplingRope();
+
+public:
+	void DoAction(); 
+	void DoAction_Grappling();
+	void DoAction_Hook();
+
+	void Begin_Grappling(); 
+	void End_Grappling(); 
 
 	void Begin_DoGrappling();
 	void End_DoGrappling();
 
+	void Begin_Hooking(); 
+	void End_Hooking(); 
 
 private:
-	void Grapple_1(float InDetaTime);
+	void PerformGrapple(float InDeltaTime); 
+	void Grapple(AActor* InTarget, float InDetaTime);
 	void Grapple_2(float InDetaTime);
 
 public:
 	FOnGrapplingZoomMode OnGrapplingZoomMode;
+	FOnGraplingPressed OnGraplingPressed;
+	FOnGraplingReleased OnGraplingReleased;
+
 
 private:
 	class ACharacter* OwnerCharacter;
@@ -93,9 +128,11 @@ private:
 
 	float MaxLineDistance = 1600.0f;
 	float DistanceThreshold = 100.0f;
-	bool bIsGrappling = false;
-	bool bGrappleEnd = false;
 	bool bGrapplingZoomMode = false; 
+
+private:
+	EGrapplingMode GrapMode; 
+	EGrapplingState GrapplingState;
 
 private:
 	AActor* GrappleTarget;

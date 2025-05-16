@@ -14,6 +14,17 @@
 #include "GenericTeamAgentInterface.h"
 #include "CPlayer.generated.h"
 
+
+UENUM()
+enum class EInputState
+{
+	Combat,
+	Grapple,
+	Max,
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputStateChange, EInputState, InState);
+
 UCLASS()
 class P2406_JS_API ACPlayer
 	: public ACBaseCharacter
@@ -134,6 +145,8 @@ private:
 	UFUNCTION()
 	virtual void OnHealthPointChanged(float InHealth, float InMaxHealth);
 
+public:
+	void OnInputStateChanged(EInputState InState);
 
 protected:
 	void Damaged();
@@ -146,7 +159,7 @@ public:
 
 	void OnVisibilityUI();
 	void OnHiddenUI();
-	
+
 public:
 	void VisibleBossGauge();
 
@@ -155,7 +168,7 @@ public:
 
 	UFUNCTION()
 	void HideBossGauge();
-	
+
 	UFUNCTION()
 	void UpdateBossGauge(float InValue, float MaxValue);
 
@@ -165,6 +178,10 @@ private:
 
 public:
 	void End_Backstep() override;
+
+
+private:
+	void OnAction();
 
 private:
 	void OnSubAction();
@@ -201,7 +218,7 @@ public:
 	void Landed(const FHitResult& Hit) override;
 
 private:
-	void FindComponent(); 
+	void FindComponent();
 
 private:
 	void OnIncreaseTimeScale();
@@ -229,7 +246,11 @@ public:
 
 	void Test_Invicible();
 
-	void OnSpectoringCamear(); 
+	void OnSpectoringCamear();
+
+
+public:
+	FOnInputStateChange OnInputStateChange;
 
 private:
 	class APawn* SpectorCamPawn;
@@ -242,13 +263,16 @@ private:
 	FTimerHandle ChangeConditionHandle;
 
 private:
+	EInputState inputState;
+
+private:
 	bool bEquipped;
 	bool bEquipping;
 
 
 private:
 	bool bCanInput = true;
-	bool bOnHUD = false; 
+	bool bOnHUD = false;
 
 public:
 	bool* bCountering;

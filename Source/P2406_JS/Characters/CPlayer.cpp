@@ -1,4 +1,4 @@
-#include "Characters/CPlayer.h"
+ï»¿#include "Characters/CPlayer.h"
 #include "Global.h"
 #include "CAnimInstance.h"
 #include "CGameMode.h"
@@ -92,7 +92,7 @@ void ACPlayer::CreateActorComponent()
 		Grapple->PrimaryComponentTick.bCanEverTick = true;
 	}
 
-	// Guard ÀÎÅÍÆäÀÌ½º¸¦ ±¸ÇöÇß´Ù¸é ÄÄÆ÷³ÍÆ®°¡ ÀÚµ¿À¸·Î ºÎÂøµÈ´Ù.
+	// Guard ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í–ˆë‹¤ë©´ ì»´í¬ë„ŒíŠ¸ê°€ ìë™ìœ¼ë¡œ ë¶€ì°©ëœë‹¤.
 	if (IIGuardable::Execute_HasGuard(this))
 	{
 		FHelpers::CreateActorComponent<UCGuardComponent>(this, &Guard, "Guard");
@@ -102,7 +102,7 @@ void ACPlayer::CreateActorComponent()
 void ACPlayer::CreateArrowGroup()
 {
 
-	// ¾Ö·Î¿ì ÄÄÆ÷³ÍÆ® °¡Á®¿À±â 
+	// ì• ë¡œìš° ì»´í¬ë„ŒíŠ¸ ê°€ì ¸ì˜¤ê¸° 
 	FHelpers::CreateComponent<USceneComponent>(this, &ArrowGroup, "Arrows", GetCapsuleComponent());
 	for (int32 i = 0; i < (int32)EParkourArrowType::Max; i++)
 	{
@@ -166,8 +166,8 @@ void ACPlayer::BeginPlay()
 	}
 
 
-	ensure(Weapon != nullptr);  // WeaponÀÌ nullptrÀÌ¶ó¸é °æ°í Ãâ·Â
-	ensure(State != nullptr);  // State°¡ nullptrÀÌ¶ó¸é °æ°í Ãâ·Â
+	ensure(Weapon != nullptr);  // Weaponì´ nullptrì´ë¼ë©´ ê²½ê³  ì¶œë ¥
+	ensure(State != nullptr);  // Stateê°€ nullptrì´ë¼ë©´ ê²½ê³  ì¶œë ¥
 	ensure(ATrace != nullptr);
 
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
@@ -188,9 +188,11 @@ void ACPlayer::BeginPlay()
 
 	REGISTER_EVENT_WITH_REPLACE(HealthPoint, OnHealthPointChanged, this, ACPlayer::OnHealthPointChanged);
 
+	REGISTER_EVENT_WITH_REPLACE(Grapple, OnGraplingPressed, ZoomC, UCZoomComponent::OnZoomPressed);
+	REGISTER_EVENT_WITH_REPLACE(Grapple, OnGraplingReleased, ZoomC, UCZoomComponent::OnZoomReleased);
 
 
-	// ÀÏ¹İ Ä³¸¯ÅÍ UI
+	// ì¼ë°˜ ìºë¦­í„° UI
 	if (!!UiClass)
 	{
 		UserInterface = Cast<UCUserWidget_Player>(CreateWidget(GetController<APlayerController>(), UiClass));
@@ -226,10 +228,10 @@ void ACPlayer::BeginPlay()
 		if (!!SkillHUD)
 		{
 			SkillHUD->AddToViewport();
-			SkillHUD->OnSetSkillSlotsCleared();	// ÇÏÀ§ WidgetÀº È­¸é¿¡ ¹èÄ¡µÇ¾î¾ß È£ÃâµÊ
+			SkillHUD->OnSetSkillSlotsCleared();	// í•˜ìœ„ Widgetì€ í™”ë©´ì— ë°°ì¹˜ë˜ì–´ì•¼ í˜¸ì¶œë¨
 		}
 
-		// °ÔÀÓ¸ğµå¿¡ ÀÌº¥Æ® ±¸µ¶½ÃÅ°±â 
+		// ê²Œì„ëª¨ë“œì— ì´ë²¤íŠ¸ êµ¬ë…ì‹œí‚¤ê¸° 
 		ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>();
 		if (!!gameMode)
 			gameMode->SubscribeToSkillEvents(SkillHUD);
@@ -265,7 +267,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Bow", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetBowMode);
 	PlayerInputComponent->BindAction("Warp", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::SetWarpMode);
 
-	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction);
+	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, this, &ACPlayer::OnAction);
 	PlayerInputComponent->BindAction("Action_B", EInputEvent::IE_Pressed, Weapon, &UCWeaponComponent::DoAction_Heavy);
 
 	PlayerInputComponent->BindAction("SubAction", EInputEvent::IE_Pressed, this, &ACPlayer::OnSubAction);
@@ -285,12 +287,11 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Target_Right", EInputEvent::IE_Pressed, Target, &UCTargetComponent::MoveRight);
 
 
-	if (ZoomC != nullptr)
-	{
-		PlayerInputComponent->BindAxis("Zoom", ZoomC, &UCZoomComponent::SetValue);
-		PlayerInputComponent->BindAction("Zoom_Aim", EInputEvent::IE_Pressed, ZoomC, &UCZoomComponent::Pressed);
-		PlayerInputComponent->BindAction("Zoom_Aim", EInputEvent::IE_Released, ZoomC, &UCZoomComponent::Released);
-	}
+	
+	PlayerInputComponent->BindAxis("Zoom", ZoomC, &UCZoomComponent::SetValue);
+
+	PlayerInputComponent->BindAction("Zoom_Aim", EInputEvent::IE_Pressed, Grapple, &UCGrapplingComponent::Pressed);
+	PlayerInputComponent->BindAction("Zoom_Aim", EInputEvent::IE_Released, Grapple, &UCGrapplingComponent::Released);
 
 
 	PlayerInputComponent->BindAction("Skill1", EInputEvent::IE_Pressed, this,
@@ -314,7 +315,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		&ACPlayer::ReleaseSkill4);
 
 	//////////////////////////////////////////////////////////////////////////////
-	// Å¸ÀÓ ½ºÄÉÀÏ Á¶Á¤À» À§ÇÑ ¹ÙÀÎµù
+	// íƒ€ì„ ìŠ¤ì¼€ì¼ ì¡°ì •ì„ ìœ„í•œ ë°”ì¸ë”©
 	PlayerInputComponent->BindAction("Increase_TimeScale", IE_Pressed, this,
 		&ACPlayer::OnIncreaseTimeScale);
 
@@ -356,7 +357,7 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 
 	//Guard Check
 	{
-		// ¹«±â¿¡°Ô °¡µå ÆÇÁ¤ °®°í¿È 
+		// ë¬´ê¸°ì—ê²Œ ê°€ë“œ íŒì • ê°–ê³ ì˜´ 
 		bool isGuard = false;
 		if (!!Guard)
 			isGuard = Guard->CheckBlocking(DamageData.Attacker);
@@ -439,6 +440,14 @@ void ACPlayer::OnHealthPointChanged(float InHealth, float InMaxHealth)
 	UserInterface->UpdateHealth(InHealth, InMaxHealth);
 }
 
+void ACPlayer::OnInputStateChanged(EInputState InState)
+{
+	if (InState != inputState)
+		inputState = InState;
+	else
+		inputState = EInputState::Combat;
+}
+
 void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 {
 	Super::Launch(InHitData, bIsGuarding);
@@ -448,12 +457,12 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	FVector direction = target - start;
 	direction.Normalize();
 
-	// °øÁß¿¡ ¶ç¿ì±â
+	// ê³µì¤‘ì— ë„ìš°ê¸°
 	float dirZ = 0.0f;
 	if (!!Airborne)
 	{
 		//dirZ = InHitData.Airial;
-		// °øÁß¿¡ ¶ß¸é °ø°İÀÚ Ãæµ¹ ¹«½Ã
+		// ê³µì¤‘ì— ëœ¨ë©´ ê³µê²©ì ì¶©ëŒ ë¬´ì‹œ
 		if (InHitData.Airial > 0)
 		{
 			//GetCapsuleComponent()->IgnoreActorWhenMoving(DamageData.Attacker, true);
@@ -466,7 +475,7 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 			Condition->AddAirborneCondition();
 	}
 
-	// ±âº» ·±Ä¡ °ª 
+	// ê¸°ë³¸ ëŸ°ì¹˜ ê°’ 
 	float launchStrength = InHitData.Launch;
 	if (bIsGuarding)
 	{
@@ -489,14 +498,14 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 
 void ACPlayer::Damaged()
 {
-	// ÇÃ·¹ÀÌ¾î°¡ ´ë½¬ È¤Àº Evade ÀÏ´ë 
+	// í”Œë ˆì´ì–´ê°€ ëŒ€ì‰¬ í˜¹ì€ Evade ì¼ëŒ€ 
 	if (!!State)
 	{
 		FString v = State->IsDashMode() ? TEXT("True") : TEXT("False");
 		//FLog::Print("My Dash State => " + v);
 		if (State->IsDashMode() || State->IsEvadeMode())
 		{
-			// È¸ÇÇ ÀÌÆåÆ® 
+			// íšŒí”¼ ì´í™íŠ¸ 
 			PlayEvadeEffetc();
 			return;
 		}
@@ -563,19 +572,19 @@ void ACPlayer::Play_DamageMontage(const FHitData& hitData)
 
 		bool check = false;
 
-		// °øÁß »óÅÂÀÏ °æ¿ì 
+		// ê³µì¤‘ ìƒíƒœì¼ ê²½ìš° 
 		bool isAirborne = true;
 		isAirborne &= Airborne != nullptr && Airborne->GetIsAirborne() == true;
 
-		// Áö»ó¿¡ ´Ù¿îµÈ »óÅÂÀÎ  °æ¿ì  ( °øÁß X ¶¥ O)
+		// ì§€ìƒì— ë‹¤ìš´ëœ ìƒíƒœì¸  ê²½ìš°  ( ê³µì¤‘ X ë•… O)
 		bool isDowned = true;
 		isDowned &= Condition != nullptr && Condition->GetDownCondition() == true;
 
-		// ´Ù¿î »óÅÂµµ ¾Æ´Ï°í °øÁß »óÅÂµµ ¾Æ´Ï¸é Áö»ó¿¡ ¼­ÀÖ´Â »óÅÂ
+		// ë‹¤ìš´ ìƒíƒœë„ ì•„ë‹ˆê³  ê³µì¤‘ ìƒíƒœë„ ì•„ë‹ˆë©´ ì§€ìƒì— ì„œìˆëŠ” ìƒíƒœ
 		check = isAirborne == false && isDowned == false;
 		if (check == true)
 		{
-			// ±×·¯¸é ´Ù¿î ½ÃÀÛ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı
+			// ê·¸ëŸ¬ë©´ ë‹¤ìš´ ì‹œì‘ ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
 			if (hitData.bDown)
 				montage = DownBeginMontage;
 			else
@@ -586,7 +595,7 @@ void ACPlayer::Play_DamageMontage(const FHitData& hitData)
 		}
 		else if (isAirborne == true)
 		{
-			// °øÁß »óÅÂ¿¡¼­ ¸Â´Â ¾Ö´Ï¸ŞÀÌ¼Ç Ã³¸®
+			// ê³µì¤‘ ìƒíƒœì—ì„œ ë§ëŠ” ì• ë‹ˆë©”ì´ì…˜ ì²˜ë¦¬
 			montage = AirborneDamagedMontage;
 			playRate = 1.5f;
 		}
@@ -693,6 +702,15 @@ void ACPlayer::End_Backstep()
 	State->SetIdleMode();
 }
 
+void ACPlayer::OnAction()
+{
+	switch (inputState)
+	{
+		case EInputState::Combat: Weapon->DoAction(); break; 
+		case EInputState::Grapple: Grapple->DoAction(); break;
+	}
+}
+
 void ACPlayer::OnSubAction()
 {
 	CheckNull(Weapon);
@@ -772,7 +790,7 @@ void ACPlayer::OnGrapple()
 	CheckNull(Grapple);
 
 	//FLog::Print("Grapple!!");
-	Grapple->OnGrapple();
+	Grapple->DoAction();
 }
 
 void ACPlayer::InterruptGrapple()
@@ -795,12 +813,12 @@ void ACPlayer::PlayEvadeEffetc()
 	FVector effectLocation = GetActorLocation();
 	FRotator effectRotation = GetActorRotation();
 
-	// ÀÌÆåÆ® Àç»ı
+	// ì´í™íŠ¸ ì¬ìƒ
 	/*if (EvadeEffect)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EvadeEffect, effectLocation, effectRotation);*/
 
 
-		// »ç¿îµå Àç»ı (¿É¼Ç)
+		// ì‚¬ìš´ë“œ ì¬ìƒ (ì˜µì…˜)
 		/*if (EvadeSound)
 			UGameplayStatics::PlaySoundAtLocation(this, EvadeSound, effectLocation);*/
 
@@ -866,7 +884,7 @@ void ACPlayer::ReleaseSkill4()
 
 
 
-// Ä³¸¯ÅÍ°¡ ÂøÁöµÇ¾úÀ» ¶§ ÄİµÇ´Â ÇÔ¼ö 
+// ìºë¦­í„°ê°€ ì°©ì§€ë˜ì—ˆì„ ë•Œ ì½œë˜ëŠ” í•¨ìˆ˜ 
 void ACPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
@@ -975,8 +993,8 @@ void ACPlayer::StartDownTimer()
 	UCapsuleComponent* capsule = GetCapsuleComponent();
 	if (capsule)
 	{
-		//capsule->SetCapsuleHalfHeight(40.0f); // Å©±â Ãà¼Ò
-		//capsule->SetCapsuleRadius(20.0f); // ¹İÁö¸§ Ãà¼Ò
+		//capsule->SetCapsuleHalfHeight(40.0f); // í¬ê¸° ì¶•ì†Œ
+		//capsule->SetCapsuleRadius(20.0f); // ë°˜ì§€ë¦„ ì¶•ì†Œ
 	}
 
 	if (!!State)
@@ -998,7 +1016,7 @@ void ACPlayer::OnDownConditionActivated()
 	CheckTrue(HealthPoint->IsDead());
 
 
-	// °øÁß »óÅÂ¶ó¸é ´Ù¿î »óÅÂ¿¡ °üÇÑ ·ÎÁ÷À» ¹Ù·Î ÇÏÁö ¾Ê°í µ¨¸®°ÔÀÌÆ®¿¡ ¸Â°Ü³õ´Â´Ù.
+	// ê³µì¤‘ ìƒíƒœë¼ë©´ ë‹¤ìš´ ìƒíƒœì— ê´€í•œ ë¡œì§ì„ ë°”ë¡œ í•˜ì§€ ì•Šê³  ë¸ë¦¬ê²Œì´íŠ¸ì— ë§ê²¨ë†“ëŠ”ë‹¤.
 	if (Condition->GetAirborneCondition())
 	{
 		bShouldCountDownOnLand = true;
@@ -1018,10 +1036,10 @@ void ACPlayer::OnDownConditionActivated()
 
 void ACPlayer::OnDownConditionDeactivated()
 {
-	// ´Ù¿î »óÅÂ Ç®¾îº¼·ÁÇß´Âµ¥ ±×·²¸¸ÇÑ ¿©°ÇÀÌ ¾ÈµÇ¸é? ¼öÇà¾ÈÇÔ
+	// ë‹¤ìš´ ìƒíƒœ í’€ì–´ë³¼ë ¤í–ˆëŠ”ë° ê·¸ëŸ´ë§Œí•œ ì—¬ê±´ì´ ì•ˆë˜ë©´? ìˆ˜í–‰ì•ˆí•¨
 	if (GetCharacterMovement()->IsFalling())
 	{
-		// ÂøÁöµÉ ¶§ ½ÃÁ¡¿¡ ¸Ã±ä¤§¤¿.
+		// ì°©ì§€ë  ë•Œ ì‹œì ì— ë§¡ê¸´ã„·ã….
 
 		return;
 	}
@@ -1029,11 +1047,11 @@ void ACPlayer::OnDownConditionDeactivated()
 	UCapsuleComponent* capsule = GetCapsuleComponent();
 	if (capsule)
 	{
-		//capsule->SetCapsuleHalfHeight(88.0f); // ±âº» Å©±â·Î º¹±¸
-		//capsule->SetCapsuleRadius(34.0f); // ±âº» ¹İÁö¸§À¸·Î º¹±¸
+		//capsule->SetCapsuleHalfHeight(88.0f); // ê¸°ë³¸ í¬ê¸°ë¡œ ë³µêµ¬
+		//capsule->SetCapsuleRadius(34.0f); // ê¸°ë³¸ ë°˜ì§€ë¦„ìœ¼ë¡œ ë³µêµ¬
 	}
 
-	// ÀÏ¾î³ª´Â ¾Ö´Ô ÁøÇà - ÀÌ ¾Ö´Ï¸ŞÀÌ¼Ç¿¡¼­ »óÅÂ ¹Ù²Ş 
+	// ì¼ì–´ë‚˜ëŠ” ì• ë‹˜ ì§„í–‰ - ì´ ì• ë‹ˆë©”ì´ì…˜ì—ì„œ ìƒíƒœ ë°”ê¿ˆ 
 	bShouldCountDownOnLand = false;
 	if (RaiseMontage != nullptr)
 	{
@@ -1066,7 +1084,7 @@ bool ACPlayer::GetGuarding() const
 
 void ACPlayer::StartGuard()
 {
-	// °¡µå »óÅÂ¸¦ ÇÒ ¼ö ¾ø´Ù¸é È£ÃâÇØµµ ÀÇ¹Ì ¾ø°Ô 
+	// ê°€ë“œ ìƒíƒœë¥¼ í•  ìˆ˜ ì—†ë‹¤ë©´ í˜¸ì¶œí•´ë„ ì˜ë¯¸ ì—†ê²Œ 
 	CheckNull(Guard);
 	CheckFalse(Guard->GetCanGuard());
 }

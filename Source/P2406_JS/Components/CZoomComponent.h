@@ -67,9 +67,13 @@ public:
 
 public:
 	void SetValue(float InZoomValue); 
+	
+public:
+	UFUNCTION()
+	void OnZoomPressed();
 
-	void Pressed();
-	void Released(); 
+	UFUNCTION()
+	void OnZoomReleased();
 
 private:
 	UFUNCTION()
