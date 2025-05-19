@@ -8,7 +8,7 @@
 UENUM()
 enum class EAnimNotify_Flow : uint8
 {
-	Begin, End, Max,
+	Begin, Middle, End, Max,
 };
 
 UCLASS()

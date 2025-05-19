@@ -28,6 +28,9 @@ void UCAnimNotify_Grappling::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		case EAnimNotify_Flow::Begin:
 			Grappling->Begin_DoGrappling(); 
 			break;
+		case EAnimNotify_Flow::Middle:
+			Grappling->Check_GrapleMode();
+			break;
 		case EAnimNotify_Flow::End:
 			Grappling->End_DoGrappling();
 			break;

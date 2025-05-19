@@ -442,11 +442,9 @@ void ACPlayer::OnHealthPointChanged(float InHealth, float InMaxHealth)
 
 void ACPlayer::OnInputStateChanged(EInputState InState)
 {
-	if (InState != inputState)
-		inputState = InState;
-	else
-		inputState = EInputState::Combat;
+	inputState = InState;
 }
+
 
 void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 {

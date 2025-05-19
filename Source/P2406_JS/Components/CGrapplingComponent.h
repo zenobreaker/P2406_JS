@@ -38,6 +38,9 @@ private:
 	float PullSpeed = 1000.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Grappling")
+	float InterpSpeed = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Grappling")
 	UAnimMontage* GrapplingMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Grappling")
@@ -75,10 +78,8 @@ public:
 	void Released(); 
 
 private:
-	void PullTargetToSelf(AActor* InTarget);
-
-private:
 	void SearchGrapplingAbleTarget();
+	void SetModeWithTargeType(AActor* InTarget);
 	void DrawGrapplingTargetUI(AActor* InTarget);
 
 public:
@@ -102,12 +103,16 @@ public:
 	void Begin_DoGrappling();
 	void End_DoGrappling();
 
+	void Check_GrapleMode();
+	void Check_Grapping();
+	void Check_Hooking();
+
 	void Begin_Hooking(); 
 	void End_Hooking(); 
 
 private:
 	void PerformGrapple(float InDeltaTime); 
-	void Grapple(AActor* InTarget, float InDetaTime);
+	void Grapple(AActor* InTarget, float InDeltaTime);
 	void Grapple_2(float InDetaTime);
 
 public:
@@ -129,6 +134,7 @@ private:
 	float MaxLineDistance = 1600.0f;
 	float DistanceThreshold = 100.0f;
 	bool bGrapplingZoomMode = false; 
+	bool bIsGrappling = false; 
 
 private:
 	EGrapplingMode GrapMode; 
