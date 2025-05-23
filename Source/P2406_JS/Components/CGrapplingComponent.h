@@ -20,7 +20,7 @@ enum class EGrapplingMode
 UENUM()
 enum class EGrapplingState
 {
-	Aim, Begin, Action, End, Max 
+	Idle, Aiming, TargetLocked, Firing, Pulling, Finish, Max 
 };
 
 
@@ -59,7 +59,10 @@ private:
 	TEnumAsByte<EDrawDebugTrace::Type> DrawDebug;
 
 public:
-	FORCEINLINE bool GetGrappling() { return GrapplingState == EGrapplingState::Action; }
+	bool GetGrappling() const
+	{
+		 return GrapplingState == EGrapplingState::Firing || GrapplingState == EGrapplingState::Pulling;
+	}
 
 private:
 	UCGrapplingComponent();
@@ -94,11 +97,6 @@ public:
 
 public:
 	void DoAction(); 
-	void DoAction_Grappling();
-	void DoAction_Hook();
-
-	void Begin_Grappling(); 
-	void End_Grappling(); 
 
 	void Begin_DoGrappling();
 	void End_DoGrappling();
@@ -107,10 +105,8 @@ public:
 	void Check_Grapping();
 	void Check_Hooking();
 
-	void Begin_Hooking(); 
-	void End_Hooking(); 
-
 private:
+	void ProcessGrapple(AActor* InTarget);
 	void PerformGrapple(float InDeltaTime); 
 	void Grapple(AActor* InTarget, float InDeltaTime);
 	void Grapple_2(float InDetaTime);
@@ -135,6 +131,8 @@ private:
 	float DistanceThreshold = 100.0f;
 	bool bGrapplingZoomMode = false; 
 	bool bIsGrappling = false; 
+
+	bool bGrappleTargetSetComplete;
 
 private:
 	EGrapplingMode GrapMode; 

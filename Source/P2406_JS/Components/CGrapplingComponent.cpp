@@ -45,28 +45,19 @@ void UCGrapplingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	switch (GrapplingState)
 	{
-		case EGrapplingState::Aim:
+		case EGrapplingState::Idle:
+			break;
+		case EGrapplingState::Aiming:
 			SearchGrapplingAbleTarget();
 			break;
-		case EGrapplingState::Begin:
+		case EGrapplingState::TargetLocked:
 			break;
-		case EGrapplingState::Action:
+		case EGrapplingState::Firing:
+			break;
+		case EGrapplingState::Pulling:
 			PerformGrapple(DeltaTime);
-
-			if (Cable != nullptr)
-			{
-				FVector start = OwnerCharacter->GetActorLocation();
-
-				Cable->SetWorldLocation(start);
-
-				// 끝점은 고정된 타겟 위치
-				FVector desireLoc = TargetLocation + FVector(0, 0, +34);
-				FVector LocalEndLocation = Cable->GetComponentTransform().InverseTransformPosition(desireLoc);
-				Cable->EndLocation = LocalEndLocation;
-			}
-
 			break;
-		case EGrapplingState::End:
+		case EGrapplingState::Finish:
 			break;
 	}
 }
@@ -74,14 +65,20 @@ void UCGrapplingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 void UCGrapplingComponent::DoAction()
 {
 	FLog::Log("Grapple - DoAction");
+	GrapplingState = EGrapplingState::Firing;
 
 	switch (GrapMode)
 	{
 		case EGrapplingMode::Grappling:
-			DoAction_Grappling();
+			SetTarget();
+			OwnerCharacter->GetCharacterMovement()->Velocity.Zero();
+			OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
+			OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+			OwnerCharacter->PlayAnimMontage(GrapplingMontage, PlayRate);
 			break;
 		case EGrapplingMode::Hook:
-			DoAction_Hook();
+			// 동작 수행
+			OwnerCharacter->PlayAnimMontage(HookMontage, PlayRate);
 			break;
 	}
 }
@@ -101,7 +98,6 @@ void UCGrapplingComponent::TryGrapplingTarget()
 	{
 		DYNAMIC_EVENT_CALL_ONE_PARAM(OnGrapplingZoomMode, true);
 		bGrapplingZoomMode = true;
-
 
 		return;
 	}
@@ -123,7 +119,7 @@ void UCGrapplingComponent::Pressed()
 	player->OnInputStateChanged(EInputState::Grapple);
 
 	if (bIsGrappling == false)
-		GrapplingState = EGrapplingState::Aim;
+		GrapplingState = EGrapplingState::Aiming;
 }
 
 void UCGrapplingComponent::Released()
@@ -179,7 +175,6 @@ void UCGrapplingComponent::SetModeWithTargeType(AActor* InTarget)
 	ACharacter* character = Cast<ACharacter>(InTarget);
 	if (character != nullptr)
 	{
-
 		GrapMode = EGrapplingMode::Hook;
 		return;
 	}
@@ -225,9 +220,10 @@ void UCGrapplingComponent::ResetGrapple()
 	if (bIsGrappling || GrapplingState != EGrapplingState::Max)
 	{
 		DYNAMIC_EVENT_CALL(OnGraplingReleased); 
-		GrapplingState = EGrapplingState::Max;
+		GrapplingState = EGrapplingState::Finish;
 	}
 
+	bGrappleTargetSetComplete = false; 
 	GrappleTarget = nullptr;
 	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
@@ -239,7 +235,6 @@ void UCGrapplingComponent::InterruptGrapple()
 
 void UCGrapplingComponent::SetTarget()
 {
-
 	FVector CameraLocation;
 	FRotator CamraRotation;
 
@@ -271,17 +266,16 @@ void UCGrapplingComponent::InstallGrapplingRope()
 	CheckNull(OwnerCharacter);
 	CheckNull(Cable);
 	CheckNull(GrappleTarget)
-
+	
 	FLog::Log("Grapple - InstallGrapplingRope");
 	Cable->AttachEndTo = FComponentReference();
 
 	Cable->bAttachEnd = true; 
 	Cable->AttachEndTo.OtherActor = GrappleTarget;
 	Cable->AttachEndTo.ComponentProperty = NAME_None;
-	//Cable->EndLocation = FVector::ZeroVector;
 	Cable->SetHiddenInGame(false);
 
-	GrapplingState = EGrapplingState::Action;
+	ProcessGrapple(GrappleTarget);
 }
 
 void UCGrapplingComponent::UninstallrapplingRope()
@@ -295,88 +289,6 @@ void UCGrapplingComponent::UninstallrapplingRope()
 	Cable->SetHiddenInGame(true);
 }
 
-
-
-void UCGrapplingComponent::DoAction_Grappling()
-{
-	CheckNull(OwnerCharacter);
-
-	SetTarget();
-
-	OwnerCharacter->GetCharacterMovement()->Velocity.Zero();
-	OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
-	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
-
-	OwnerCharacter->PlayAnimMontage(GrapplingMontage, PlayRate);
-}
-
-void UCGrapplingComponent::DoAction_Hook()
-{
-	FLog::Log("Grapple - DoAction_Hook");
-	// TODO:: 로프 발사
-	// 1. 타겟팅된 대상이 있는가?
-	CheckNull(GrappleTarget);
-
-	// 2. 대상이 적인가?
-	ACBaseCharacter* bc = Cast<ACBaseCharacter>(GrappleTarget);
-
-	// 2-1. 적이라면 어떤 상태인가?
-	if (bc != nullptr)
-	{
-		UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(bc);
-		CheckNull(condition);
-		// 다운 상태라면 걔를 내앞으로 끌고 온다.
-		if (condition->GetDownCondition())
-		{
-			// 다운 상태 해제 시킴 
-			condition->RemoveDownCondition();
-			//TODO: 캐릭터가 아닌 오브젝트일때 
-			//FVector Origin, BoxExtent;
-			//Target->GetActorBounds(true, Origin, BoxExtent);
-
-			//float TargetRadius = FMath::Max(BoxExtent.X, BoxExtent.Y);  // 원형 대체
-
-			// 동작 수행
-			OwnerCharacter->PlayAnimMontage(HookMontage, PlayRate);
-		}
-		// 다운 상태가 아니라면 내가 날아감.
-		else
-		{
-
-		}
-	}
-
-}
-
-void UCGrapplingComponent::Begin_Grappling()
-{
-	GrapplingState = EGrapplingState::Begin;
-
-	bIsGrappling = true;
-	switch (GrapMode)
-	{
-		case EGrapplingMode::Grappling:
-			Begin_DoGrappling();
-			break;
-		case EGrapplingMode::Hook:
-			Begin_Hooking();
-			break;
-	}
-}
-
-void UCGrapplingComponent::End_Grappling()
-{
-	switch (GrapMode)
-	{
-		case EGrapplingMode::Grappling:
-			End_DoGrappling();
-			break;
-		case EGrapplingMode::Hook:
-			End_Hooking();
-			break;
-	}
-}
-
 void UCGrapplingComponent::Begin_DoGrappling()
 {
 	CheckNull(OwnerCharacter);
@@ -388,22 +300,19 @@ void UCGrapplingComponent::Begin_DoGrappling()
 	FRotator TargetRotator = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GrappleTarget->GetActorLocation());
 
 	OwnerCharacter->SetActorRotation(TargetRotator);
-	OwnerCharacter->StopAnimMontage(GrapplingMontage);
+	/*if(GrapMode == EGrapplingMode::Grappling)
+		OwnerCharacter->StopAnimMontage(GrapplingMontage);*/
 
+	// 로프 설치
 	InstallGrapplingRope();
 }
 
 void UCGrapplingComponent::End_DoGrappling()
 {
-	GrapplingState = EGrapplingState::End;
+	CheckNull(GrappleTarget);
+	CheckFalse(bGrappleTargetSetComplete);
 
-	ResetGrapple();
-	if (!!GrapplingMontage)
-	{
-		OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection(FName("Grappling_End"), GrapplingMontage);
-	}
-
-	UninstallrapplingRope();
+	GrapplingState = EGrapplingState::Pulling;
 }
 
 void UCGrapplingComponent::Check_GrapleMode()
@@ -429,18 +338,38 @@ void UCGrapplingComponent::Check_Hooking()
 
 }
 
-void UCGrapplingComponent::Begin_Hooking()
+void UCGrapplingComponent::ProcessGrapple(AActor* InTarget)
 {
-	InstallGrapplingRope();
-}
+	CheckNull(InTarget);
+	//TODO: 캐릭터가 아닌 오브젝트일때 
+	//FVector Origin, BoxExtent;
+	//Target->GetActorBounds(true, Origin, BoxExtent);
+	//float TargetRadius = FMath::Max(BoxExtent.X, BoxExtent.Y);  // 원형 대체
 
-void UCGrapplingComponent::End_Hooking()
-{
-	// 끌어 오기 시작 
-	//ResetGrapple();
-	//UninstallrapplingRope();
-}
 
+	// 대상이 적인가?
+	ACBaseCharacter* bc = Cast<ACBaseCharacter>(InTarget);
+
+	// 적이라면 어떤 상태인가?
+	if (bc != nullptr)
+	{
+		UCConditionComponent* condition = FHelpers::GetComponent<UCConditionComponent>(bc);
+		CheckNull(condition);
+		// 다운 상태라면 걔를 내앞으로 끌고 온다.
+		if (condition->GetDownCondition())
+		{
+			// 다운 상태 해제 시킴 
+			condition->RemoveDownCondition();
+		}
+		// 다운 상태가 아니라면 내가 날아감.
+		else
+		{
+
+		}
+	}
+
+	bGrappleTargetSetComplete = true; 
+}
 
 void UCGrapplingComponent::PerformGrapple(float InDeltaTime)
 {
@@ -465,7 +394,6 @@ void UCGrapplingComponent::Grapple(AActor* InTarget, float InDeltaTime)
 	FVector direction = FVector::ZeroVector;
 	FVector goalLocation = FVector::ZeroVector;
 
-
 	// 캡슐 사이 안전 거리 계산 
 	float myRadius, myHalfHegiht;
 	OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleSize(myRadius, myHalfHegiht);
@@ -478,7 +406,6 @@ void UCGrapplingComponent::Grapple(AActor* InTarget, float InDeltaTime)
 
 	// 충돌 방지 거리 
 	float safeDistance = myRadius + targetRadius + 30.0f;
-
 
 	// 목표 위치 설정 
 	if (GrapMode == EGrapplingMode::Grappling)
@@ -494,7 +421,12 @@ void UCGrapplingComponent::Grapple(AActor* InTarget, float InDeltaTime)
 		if (FVector::Dist(newLocation, goalLocation) <= DistanceThreshold)
 		{
 			FLog::Log("Grapple - Grapple Arrive");
-			End_DoGrappling();
+			ResetGrapple();
+			UninstallrapplingRope();
+			if (!!GrapplingMontage)
+			{
+				OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection(FName("Grappling_End"), GrapplingMontage);
+			}
 		}
 	}
 	// 적이 나한테 오는 경우 
@@ -508,7 +440,9 @@ void UCGrapplingComponent::Grapple(AActor* InTarget, float InDeltaTime)
 		if (FVector::Dist(newLocation, goalLocation) <= DistanceThreshold)
 		{
 			FLog::Log("Grapple - Grapple Arrive");
-			End_DoGrappling();
+			
+			ResetGrapple();
+			UninstallrapplingRope();
 		}
 	}
 
