@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -19,11 +19,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void ApplyBuff(const FStatBuff& NewBuff);  // ¹öÇÁ Ãß°¡
-	void RemoveBuff(const FStatBuff& InStatBuff); // Æ¯Á¤ ¹öÇÁ Á¦°Å
-	void RemoveBuff(const ECharStatType StatType, float Value); // Æ¯Á¤ ¹öÇÁ Á¦°Å
-	void RemoveExpiredBuffs(); // ¸¸·áµÈ ¹öÇÁ Á¤¸®
-	void ClearAllBuffs(); // ¸ğµç ¹öÇÁ »èÁ¦
+	void ApplyBuff(const FStatBuff& NewBuff);  // ë²„í”„ ì¶”ê°€
+	void RemoveBuff(const FStatBuff& InStatBuff); // íŠ¹ì • ë²„í”„ ì œê±°
+	void RemoveBuff(const ECharStatType StatType, float Value); // íŠ¹ì • ë²„í”„ ì œê±°
+	void RemoveExpiredBuffs(); // ë§Œë£Œëœ ë²„í”„ ì •ë¦¬
+	void ClearAllBuffs(); // ëª¨ë“  ë²„í”„ ì‚­ì œ
 
 public:
 	UFUNCTION()
@@ -31,7 +31,7 @@ public:
 
 private:
 	UPROPERTY()
-	TArray<FStatBuff> ActiveBuffs; // ÇöÀç Àû¿ëµÈ ¹öÇÁ ¸®½ºÆ®
+	TArray<FStatBuff> ActiveBuffs; // í˜„ì¬ ì ìš©ëœ ë²„í”„ ë¦¬ìŠ¤íŠ¸
 
 private:
 	class ACharacter* OwnerCharacter;
