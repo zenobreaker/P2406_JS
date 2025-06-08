@@ -50,11 +50,10 @@
 | **Skill Entity** | 월드 내에 생성되는 스킬 실체 | - 실제 월드에 배치되는 Actor- 위치, 이펙트, 타이머 등의 설정 포함- 충돌체(Skill Collision) 포함 |
 | **Skill Collision** | 충돌 판정 및 데미지 처리 | - 단일 타격 / 연속 타격 여부 설정 가능- 콜리전 범위, 팀 판정, 이펙트 트리거 처리 |
 
-![스킬 클래스 구조도](attachment:fcd7f266-381e-4c3f-a0ca-121c001faf39:image.png)
-
+<img src="https://github.com/user-attachments/assets/2f5ee903-c367-4445-8147-27fcbc812267" width = 600><br></br>
 스킬 클래스 구조도
 
-![스킬 시퀀스 ](attachment:ea1cffc0-d580-422e-9afd-98727275a39f:image.png)
+<img src="https://github.com/user-attachments/assets/cc080c1d-6599-4bdc-a0f0-5e6c8e197244" width=600><br></br>
 
 스킬 시퀀스 
 
@@ -108,8 +107,7 @@ Github:
 
 관련 페이지 링크 : [스킬 기능 수정(코드 첨부)](https://www.notion.so/1931775bd70a80598e72f81d0e06b644?pvs=21)  
 
-![프로퍼티 미노출 상태와 노출 상태 ](attachment:e607977a-34b9-43b6-8791-6f84df9dda9a:image.png)
-
+<img src="https://github.com/user-attachments/assets/269c865e-f4f3-45ee-be06-67583b667d8b" width=600)
 프로퍼티 미노출 상태와 노출 상태 
 
 ### 👁️‍🗨️ 결과 및 효과
@@ -177,7 +175,7 @@ Github:
 4. 확장성 강화
     - 새 기능 추가 시에도 기존 시스템에 부담 없이 삽입 가능
 
-![Manager 클래스 다이어 그램](attachment:519ded0c-1cc4-437a-9f12-06dad91d4b6f:image.png)
+<img src="https://github.com/user-attachments/assets/48de6369-11ed-4d87-b40c-818d75eb4a26" width = 500>
 
 Manager 클래스 다이어 그램
 
@@ -252,7 +250,7 @@ AI의 다양한 기믹을 추가하기 위해 Phase 개념을 도입하려 했�
 
 ### 🧩 해결 방안 및 구현 내용
 
-1. Blackborad 도입 
+1. Blackboard 도입 
     - AI Phase 관리를 Blackboard에 저장하여 중앙 집중적으로 관리
     - Phase 상태의 추적과 변경이 더 쉽고 유연해짐
 2. Behavior Tree 기반 설계
@@ -265,8 +263,8 @@ AI의 다양한 기믹을 추가하기 위해 Phase 개념을 도입하려 했�
 - 여러 TaskNode로 분할함으로써 흐름을 직관적으로 파악, 수정 가능
 - 외부화된 로직으로 코드 복잡도 감소 및 문제 발생 시 빠른 원인 파악 가능
 
-![로직 분할 전과 후
-](attachment:cad4652f-f89c-4d2d-bf55-67b75c89510e:image.png)
+<img src="https://github.com/user-attachments/assets/c64ac174-7152-4ae1-b578-a6d82163b3e5" width= 600>
+
 
 로직 분할 전과 후
 
@@ -330,7 +328,8 @@ Notion:
 - 그룹 단위 AI 행동 조율로 자연스럽고 다이나믹한 전투 연출 가능
 - 유지보수가 편리한 구조로, AI 추가 및 조정 시 부담 감소
 
-![BattleManager 시퀀스](attachment:75c6145a-9fc6-4f8e-958a-d6287744273a:image.png)
+<img src= "https://github.com/user-attachments/assets/e38586de-0066-4f0f-ac06-6046665a4d77" width =500>
+
 
 BattleManager 시퀀스
 
@@ -340,7 +339,7 @@ Github:
 
 [관련 Github1](https://github.com/zenobreaker/P2406_JS/commit/f6e3853f955dc439b4ee67eac33a640a6e7de635)
 
-[관련 Github2][https://github.com/zenobreaker/P2406_JS/commit/f3a5d806b1587e73856cf01d5b7c6534180de3de]
+[관련 Github2](https://github.com/zenobreaker/P2406_JS/commit/f3a5d806b1587e73856cf01d5b7c6534180de3de)
 
 ---
 
@@ -386,7 +385,8 @@ Github:
 
 Github:
 
-https://github.com/zenobreaker/P2406_JS/commit/b5c53dd1a84bc6a12766dbd672fbbb8e38c55c4e
+
+[관련 Github](https://github.com/zenobreaker/P2406_JS/commit/b5c53dd1a84bc6a12766dbd672fbbb8e38c55c4e)
 
 ---
 
