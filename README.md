@@ -107,7 +107,9 @@ Github:
 
 관련 페이지 링크 : [스킬 기능 수정(코드 첨부)](https://www.notion.so/1931775bd70a80598e72f81d0e06b644?pvs=21)  
 
-<img src="https://github.com/user-attachments/assets/269c865e-f4f3-45ee-be06-67583b667d8b" width=600)
+<img src="https://github.com/user-attachments/assets/269c865e-f4f3-45ee-be06-67583b667d8b" width=600>
+
+
 프로퍼티 미노출 상태와 노출 상태 
 
 ### 👁️‍🗨️ 결과 및 효과
