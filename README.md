@@ -15,8 +15,8 @@
 | 엔진 | Unreal 5.3|
 
 <br></br>
-[관련 노션 페이지](https://www.notion.so/Unreal-Portfolio-af4349a7aea4402baaf65b902373ed46)
-
+[관련 노션 링크](https://www.notion.so/Unreal-Portfolio-af4349a7aea4402baaf65b902373ed46)
+해당 링크에서도 아래 내용을 확인할 수 있습니다.
 
 # 🧩 주요 시스템 및 기능
 
