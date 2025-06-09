@@ -274,9 +274,7 @@ AI의 다양한 기믹을 추가하기 위해 Phase 개념을 도입하려 했�
 
 Github:
 
-[관련 Github1](https://github.com/zenobreaker/P2406_JS/commit/af6336e4e8b7663912338e109ec9760b12b2ebe4)
-
-[관련 Github2](https://github.com/zenobreaker/P2406_JS/commit/15cc2d296bae2c759c829b755c5506f63f7f3ca6)
+[관련 Github](https://github.com/zenobreaker/P2406_JS/commit/369769ff60af23607a24553aa98000213e251be8)
 
 Notion: 
 
