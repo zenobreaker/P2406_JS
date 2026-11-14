@@ -129,6 +129,14 @@ private:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void PawnClientRestart() override;
+
+protected:
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+private:
+	// 로컬 플레이어 전용 초기화 (카메라, HUD  생성 및 UI 이벤트 연결)
+	void InitLocalPlayer(); 
 
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -257,13 +265,22 @@ private:
 	class APawn* OriginalPawn;
 
 private:
-	class UCUserWidget_Player* UserInterface;
-	class UCUserWidget_SkillHUD* SkillHUD;
+	UPROPERTY(Transient)
+	class UCUserWidget_Player* UserInterface = nullptr;
+	UPROPERTY(Transient)
+	class UCUserWidget_SkillHUD* SkillHUD = nullptr;
 
 	FTimerHandle ChangeConditionHandle;
 
 private:
 	EInputState inputState;
+
+private:
+	bool bBossEventsBound = false;
+	bool bCooldownSetupDone = false;
+
+	FTimerHandle LocalInitTimerHandle;
+	int32 LocalInitRetryCount = 0;
 
 private:
 	bool bEquipped;

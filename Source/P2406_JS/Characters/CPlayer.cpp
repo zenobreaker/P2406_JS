@@ -33,6 +33,8 @@
 #include "Widgets/CUserWidget_BuffSelectHUD.h"
 #include "GameInstances/CGameInstance.h"
 #include "GameInstances/CGameManager.h"
+#include "GameInstances/CSkillManager.h"
+#include "TimerManager.h"
 
 ACPlayer::ACPlayer()
 {
@@ -149,26 +151,28 @@ void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerCameraManager* camearManager = GetController<APlayerController>()->PlayerCameraManager;
-
-	camearManager->ViewPitchMin = PitchAngle.X;
-	camearManager->ViewPitchMax = PitchAngle.Y;
-
+	// =========================================================================
+	// 1. 공통 초기화 (컨트롤러 유무와 상관없이 모든 캐릭터에서 반드시 실행)
+	// =========================================================================
 	bCountering = new bool();
 	*bCountering = false;
 
-	Movement->OnRun();
-	Movement->DisableControlRotation();
+	if (!!Movement)
+	{
+		Movement->OnRun();
+		Movement->DisableControlRotation();
+	}
 
 	if (JumpValue > 0)
 	{
 		GetCharacterMovement()->JumpZVelocity = JumpValue;
 	}
 
-
 	ensure(Weapon != nullptr);  // Weapon이 nullptr이라면 경고 출력
 	ensure(State != nullptr);  // State가 nullptr이라면 경고 출력
 	ensure(ATrace != nullptr);
+
+
 
 	REGISTER_EVENT_WITH_REPLACE(State, OnStateTypeChanged, this, ACPlayer::OnStateTypeChanged);
 	REGISTER_EVENT_WITH_REPLACE(Weapon, OnWeaponTypeChanged, this, ACPlayer::OnWeaponTypeChanged);
@@ -191,18 +195,71 @@ void ACPlayer::BeginPlay()
 	REGISTER_EVENT_WITH_REPLACE(Grapple, OnGraplingPressed, ZoomC, UCZoomComponent::OnZoomPressed);
 	REGISTER_EVENT_WITH_REPLACE(Grapple, OnGraplingReleased, ZoomC, UCZoomComponent::OnZoomReleased);
 
+	// =========================================================================
+	// 2. 로컬 플레이어 화면 초기화 시도
+	// =========================================================================
+	LocalInitRetryCount = 0; 
+	InitLocalPlayer();
+}
 
-	// 일반 캐릭터 UI
-	if (!!UiClass)
+void ACPlayer::PawnClientRestart()
+{
+	Super::PawnClientRestart(); 
+
+	// 멀티플레이에서 BeginPlay 이후에 컨트롤러가 연결된 경우를 대비해 호출
+	InitLocalPlayer();
+}
+
+void ACPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearTimer(LocalInitTimerHandle);
+
+	if (IsValid(UserInterface))
+		UserInterface->RemoveFromParent();
+
+	if (IsValid(SkillHUD))
+		SkillHUD->RemoveFromParent();
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void ACPlayer::InitLocalPlayer()
+{
+	// 로컬 플레이어가 조작 중인 캐릭터가 아니면 실행하지 않음 (비정상 종료 없이 일반 return)
+	if (IsLocallyControlled() == false)
 	{
-		UserInterface = Cast<UCUserWidget_Player>(CreateWidget(GetController<APlayerController>(), UiClass));
-		if (!!UserInterface)
+		GetWorldTimerManager().ClearTimer(LocalInitTimerHandle);
+		return;
+	}
+
+	APlayerController* pc = GetController<APlayerController>();
+	if (IsValid(pc) == false)
+		return;
+
+
+	bool bCameraReady = false;
+
+	// 1. 카메라 매니저 보호 후 pitch 각도 설정 
+	//APlayerCameraManager* camearManager = GetController<APlayerController>()->PlayerCameraManager;
+	if (IsValid(pc->PlayerCameraManager))
+	{
+		pc->PlayerCameraManager->ViewPitchMin = PitchAngle.X;
+		pc->PlayerCameraManager->ViewPitchMax = PitchAngle.Y;
+
+		bCameraReady = true;
+	}
+
+	// 2. 일반 캐릭터 UI 생성 및 바인딩
+	if (UiClass && !IsValid(UserInterface))
+	{
+		UserInterface = Cast<UCUserWidget_Player>(CreateWidget(pc, UiClass));
+		if (IsValid(UserInterface))
 		{
 			UserInterface->AddToViewport();
 			//UserInterface->UpdateWeaponType(EWeaponType::Max);
 			UserInterface->UpdateCrossHairVisibility(false);
 			UserInterface->UpdateGuardGaugeVisibility(false);
-			if(HealthPoint != nullptr)
+			if (HealthPoint != nullptr)
 				UserInterface->UpdateHealth(HealthPoint->GetHealth(), HealthPoint->GetMaxHealth());
 
 			REGISTER_EVENT_WITH_REPLACE(Guard, OnUpdatedGuardVisiable, UserInterface, UCUserWidget_Player::UpdateGuardGaugeVisibility);
@@ -217,32 +274,120 @@ void ACPlayer::BeginPlay()
 		}
 	}
 
-	// Skill HUD
-	if (!!SkillHUDClass)
+	// 3. Skill HUD 생성 및 바인딩
+	if (SkillHUDClass && !IsValid(SkillHUD))
 	{
-		SkillHUD = Cast<UCUserWidget_SkillHUD>(CreateWidget(GetController<APlayerController>(), SkillHUDClass));
-
-		REGISTER_EVENT_WITH_REPLACE(Skill, OnSetSkills, SkillHUD, UCUserWidget_SkillHUD::OnSetSkill);
-		REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillSlotsCleared, SkillHUD, UCUserWidget_SkillHUD::OnSetSkillSlotsCleared);
-
-		if (!!SkillHUD)
+		SkillHUD = Cast<UCUserWidget_SkillHUD>(CreateWidget(pc, SkillHUDClass));
+		if (IsValid(SkillHUD))
 		{
 			SkillHUD->AddToViewport();
 			SkillHUD->OnSetSkillSlotsCleared();	// 하위 Widget은 화면에 배치되어야 호출됨
-		}
 
-		// 게임모드에 이벤트 구독시키기 
-		ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>();
-		if (!!gameMode)
-			gameMode->SubscribeToSkillEvents(SkillHUD);
+			REGISTER_EVENT_WITH_REPLACE(Skill, OnSetSkills, SkillHUD, UCUserWidget_SkillHUD::OnSetSkill);
+			REGISTER_EVENT_WITH_REPLACE(Skill, OnSkillSlotsCleared, SkillHUD, UCUserWidget_SkillHUD::OnSetSkillSlotsCleared);
+		}
 	}
 
-
+	// 4. 보스 UI 이벤트 연결
 	UCGameInstance* instance = Cast<UCGameInstance>(GetGameInstance());
-	CheckNull(instance); 
-	CheckNull(instance->GameManager);
+	{
+		// 플레이어가 UI가 있을 때 보스 UI 이벤트를 연결
+		if (bBossEventsBound == false &&
+			IsValid(UserInterface) &&
+			IsValid(instance) &&
+			IsValid(instance->GameManager))
+		{
+			REGISTER_EVENT_WITH_REPLACE(
+				instance->GameManager,
+				OnBossSpawned_GM,
+				this,
+				ACPlayer::SetUpBossUI
+			);
 
-	REGISTER_EVENT_WITH_REPLACE(instance->GameManager, OnBossSpawned_GM, this, ACPlayer::SetUpBossUI);
+			bBossEventsBound = true;
+		}
+
+		// 기존 쿨타임 구독은 싱글/방장에서만 처리합니다.
+		if (!bCooldownSetupDone && IsValid(SkillHUD))
+		{
+			if (GetNetMode() == NM_Client)
+			{
+				// 클라이언트에는 GameMode가 없습니다.
+				// 클라이언트 쿨타임 동기화는 별도 네트워크 작업입니다.
+				bCooldownSetupDone = true;
+			}
+			else
+			{
+				ACGameMode* gameMode =
+					GetWorld()->GetAuthGameMode<ACGameMode>();
+
+				if (IsValid(gameMode) &&
+					IsValid(instance) &&
+					IsValid(instance->SkillManager))
+				{
+					if (!instance->SkillManager->OnUpdateCooldown.IsAlreadyBound(
+						SkillHUD, &UCUserWidget_SkillHUD::OnUpdateCooldown))
+					{
+						gameMode->SubscribeToSkillEvents(SkillHUD);
+					}
+
+					bCooldownSetupDone = instance->SkillManager->OnUpdateCooldown.IsAlreadyBound(
+						SkillHUD, &UCUserWidget_SkillHUD::OnUpdateCooldown);
+				}
+			}
+		}
+
+		// 클래스가 지정되지 않은 UI는 생성하지 않는 설정으로 취급합니다.
+		const bool bPlayerUIReady =
+			!UiClass || IsValid(UserInterface);
+
+		const bool bSkillHUDReady =
+			!SkillHUDClass ||
+			(IsValid(SkillHUD) && bCooldownSetupDone);
+
+		const bool bBossReady =
+			!UiClass || bBossEventsBound;
+
+		const bool bComplete =
+			bCameraReady &&
+			bPlayerUIReady &&
+			bSkillHUDReady &&
+			bBossReady;
+
+		if (bComplete)
+		{
+			GetWorldTimerManager().ClearTimer(LocalInitTimerHandle);
+			LocalInitRetryCount = 0;
+			return;
+		}
+
+		// 약 10초 동안 미완료 작업을 재시도합니다.
+		if (++LocalInitRetryCount >= 100)
+		{
+			GetWorldTimerManager().ClearTimer(LocalInitTimerHandle);
+
+			UE_LOG(LogTemp, Warning,
+				TEXT("%s: Local initialization incomplete. "
+					"Camera=%d PlayerUI=%d SkillHUD=%d Boss=%d"),
+				*GetName(),
+				bCameraReady,
+				bPlayerUIReady,
+				bSkillHUDReady,
+				bBossReady);
+
+			return;
+		}
+
+		if (!GetWorldTimerManager().IsTimerActive(LocalInitTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(
+				LocalInitTimerHandle,
+				this,
+				&ACPlayer::InitLocalPlayer,
+				0.1f,
+				true);
+		}
+	}
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -324,12 +469,16 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	//////////////////////////////////////////////////////////////////////////////
 
-	ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>();
-	PlayerInputComponent->BindAction("State_Down", IE_Pressed, gameMode,
-		&ACGameMode::OrderToAllActorDown);
 
-	PlayerInputComponent->BindAction("Toggle_EnemyUI", IE_Pressed, gameMode,
-		&ACGameMode::ToggleEnemyUI);
+	// 멀티 플레이 환경에서 서버에만 GameMode가 존재하므로 클라이언트에 대해서 처리하기 위해 로직 수정 
+	if (ACGameMode* gameMode = GetWorld()->GetAuthGameMode<ACGameMode>())
+	{
+		PlayerInputComponent->BindAction("State_Down", IE_Pressed, gameMode,
+			&ACGameMode::OrderToAllActorDown);
+
+		PlayerInputComponent->BindAction("Toggle_EnemyUI", IE_Pressed, gameMode,
+			&ACGameMode::ToggleEnemyUI);
+	}
 
 	PlayerInputComponent->BindAction("Open_BuffHUD", IE_Pressed, this,
 		&ACPlayer::OnSwitchInfoHUD);
@@ -343,7 +492,7 @@ float ACPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 	Damage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	DamageData.Power = Damage;
-	DamageData.Attacker = Cast<ACharacter>(EventInstigator->GetPawn());
+	DamageData.Attacker =(EventInstigator != nullptr) ? Cast<ACharacter>(EventInstigator->GetPawn()) : nullptr;
 	DamageData.Causer = DamageCauser;
 	DamageData.Event = (FActionDamageEvent*)&DamageEvent;
 
@@ -451,7 +600,10 @@ void ACPlayer::Launch(const FHitData& InHitData, const bool bIsGuarding)
 	Super::Launch(InHitData, bIsGuarding);
 
 	FVector start = GetActorLocation();
-	FVector target = DamageData.Attacker->GetActorLocation();
+	// Attacker가 없을 때는 캐릭터가 바라보는 정면의 반대 방향으로 밀려나도록 방어 처리 
+	FVector target = (DamageData.Attacker != nullptr) 
+		? DamageData.Attacker->GetActorLocation()
+		: start + GetActorForwardVector();
 	FVector direction = target - start;
 	direction.Normalize();
 

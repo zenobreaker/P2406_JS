@@ -24,7 +24,12 @@ public class P2406_JS : ModuleRules
             "AIModule",
             "MovieScene",
             "MovieSceneTracks",
-            "LevelSequence"
+            "LevelSequence",
+            "UMG",
+            "Slate",
+            "SlateCore",
+            "OnlineSubsystem",
+            "OnlineSubsystemUtils"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
